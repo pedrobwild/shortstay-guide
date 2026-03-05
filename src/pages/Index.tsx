@@ -51,6 +51,19 @@ import {
   Lightbulb,
   ArrowUpRight,
   Check,
+  AlertTriangle,
+  Clock,
+  Star,
+  Eye,
+  Camera,
+  MousePointerClick,
+  CalendarCheck,
+  MessageSquare,
+  Trophy,
+  DollarSign,
+  Wrench,
+  Package,
+  ArrowRight,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -454,6 +467,19 @@ function SimuladorSection() {
   const [exportOpen, setExportOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Listen for case study "populate" events
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail.bairro) setSimBairro(detail.bairro);
+      if (detail.diaria) setSimDiariaAtual(detail.diaria);
+      if (detail.ocupacao) setSimOcupacao([detail.ocupacao]);
+      if (detail.boost !== undefined) setRateBoost(detail.boost);
+    };
+    window.addEventListener("populate-simulator", handler);
+    return () => window.removeEventListener("populate-simulator", handler);
+  }, []);
+
   const selected = BAIRRO_DATA.find((b) => b.name === simBairro) ?? BAIRRO_DATA[0];
 
   const sim = useMemo(() => {
@@ -614,29 +640,187 @@ function SimuladorSection() {
 
 /* ─── 5) Reforma inteligente ─── */
 function ReformaSection() {
+  const pisoData = {
+    vinilico: [
+      { item: "Material", valor: 66, area: 25 },
+      { item: "Instalação", valor: 25, area: 25 },
+      { item: "Preparação", valor: 12, area: 25 },
+    ],
+    porcelanato: [
+      { item: "Material", valor: 110, area: 25 },
+      { item: "Instalação", valor: 85, area: 25 },
+      { item: "Preparação", valor: 40, area: 25 },
+    ],
+  };
+  const totalVinilico = pisoData.vinilico.reduce((s, r) => s + r.valor * r.area, 0);
+  const totalPorcelanato = pisoData.porcelanato.reduce((s, r) => s + r.valor * r.area, 0);
+  const diffPiso = totalPorcelanato - totalVinilico;
+
   return (
     <SectionBlock
       id="reforma"
       title="Reforma Inteligente"
       takeaway="Quanto investir, onde priorizar e o que gera mais retorno por m²."
     >
-      {/* TODO: Fill tabs with real content */}
-      <Tabs defaultValue="essencial" className="font-body">
+      <Tabs defaultValue="piso" className="font-body">
         <TabsList className="mb-4">
-          <TabsTrigger value="essencial">Essencial</TabsTrigger>
-          <TabsTrigger value="intermediario">Intermediário</TabsTrigger>
-          <TabsTrigger value="premium">Premium</TabsTrigger>
+          <TabsTrigger value="piso">Piso (25m²)</TabsTrigger>
+          <TabsTrigger value="marcenaria">Marcenaria</TabsTrigger>
+          <TabsTrigger value="iluminacao">Iluminação vs Bancada</TabsTrigger>
         </TabsList>
-        {["essencial", "intermediario", "premium"].map((t) => (
-          <TabsContent key={t} value={t}>
-            <Card className="border-dashed border-2 border-border bg-muted/50">
-              <CardContent className="p-8 text-center text-muted-foreground">
-                <Paintbrush className="mx-auto mb-3 text-primary" size={32} />
-                Detalhes do pacote {t} serão adicionados.
-              </CardContent>
-            </Card>
-          </TabsContent>
-        ))}
+
+        {/* Tab: Piso */}
+        <TabsContent value="piso">
+          <Card className="border-border">
+            <CardContent className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Vinílico */}
+                <div>
+                  <h3 className="font-display font-bold text-foreground mb-3">Vinílico</h3>
+                  <table className="w-full text-sm">
+                    <thead><tr className="border-b border-border">
+                      <th className="text-left py-2 text-muted-foreground font-medium">Item</th>
+                      <th className="text-right py-2 text-muted-foreground font-medium">R$/m²</th>
+                      <th className="text-right py-2 text-muted-foreground font-medium">Subtotal</th>
+                    </tr></thead>
+                    <tbody>
+                      {pisoData.vinilico.map((r) => (
+                        <tr key={r.item} className="border-b border-border/50">
+                          <td className="py-2 text-foreground">{r.item}</td>
+                          <td className="py-2 text-right text-muted-foreground">R$ {r.valor}</td>
+                          <td className="py-2 text-right text-foreground font-medium">R$ {fmt(r.valor * r.area)}</td>
+                        </tr>
+                      ))}
+                      <tr><td className="pt-3 font-bold text-foreground">Total</td><td></td>
+                        <td className="pt-3 text-right font-bold text-primary text-lg">R$ {fmt(totalVinilico)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                {/* Porcelanato */}
+                <div>
+                  <h3 className="font-display font-bold text-foreground mb-3">Porcelanato</h3>
+                  <table className="w-full text-sm">
+                    <thead><tr className="border-b border-border">
+                      <th className="text-left py-2 text-muted-foreground font-medium">Item</th>
+                      <th className="text-right py-2 text-muted-foreground font-medium">R$/m²</th>
+                      <th className="text-right py-2 text-muted-foreground font-medium">Subtotal</th>
+                    </tr></thead>
+                    <tbody>
+                      {pisoData.porcelanato.map((r) => (
+                        <tr key={r.item} className="border-b border-border/50">
+                          <td className="py-2 text-foreground">{r.item}</td>
+                          <td className="py-2 text-right text-muted-foreground">R$ {r.valor}</td>
+                          <td className="py-2 text-right text-foreground font-medium">R$ {fmt(r.valor * r.area)}</td>
+                        </tr>
+                      ))}
+                      <tr><td className="pt-3 font-bold text-foreground">Total</td><td></td>
+                        <td className="pt-3 text-right font-bold text-primary text-lg">R$ {fmt(totalPorcelanato)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Bar comparison */}
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-foreground">Comparativo de custo total</p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm w-28 text-muted-foreground">Vinílico</span>
+                    <div className="flex-1 bg-muted rounded-full h-6 overflow-hidden">
+                      <motion.div className="h-full bg-primary rounded-full flex items-center justify-end pr-2"
+                        initial={{ width: 0 }} whileInView={{ width: `${(totalVinilico / totalPorcelanato) * 100}%` }}
+                        viewport={{ once: true }} transition={{ duration: 0.6 }}>
+                        <span className="text-xs text-primary-foreground font-bold">R$ {fmt(totalVinilico)}</span>
+                      </motion.div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm w-28 text-muted-foreground">Porcelanato</span>
+                    <div className="flex-1 bg-muted rounded-full h-6 overflow-hidden">
+                      <motion.div className="h-full bg-accent rounded-full flex items-center justify-end pr-2"
+                        initial={{ width: 0 }} whileInView={{ width: "100%" }}
+                        viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.1 }}>
+                        <span className="text-xs text-accent-foreground font-bold">R$ {fmt(totalPorcelanato)}</span>
+                      </motion.div>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gold-subtle rounded-lg p-3 flex items-center gap-2">
+                  <Lightbulb className="text-accent flex-shrink-0" size={16} />
+                  <p className="text-sm text-foreground">Diferença: <span className="font-bold">+R$ {fmt(diffPiso)}</span> pelo porcelanato. Para short stay, vinílico oferece melhor custo-benefício e resistência a riscos.</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tab: Marcenaria */}
+        <TabsContent value="marcenaria">
+          <Card className="border-border">
+            <CardContent className="p-6 space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card className="border-border">
+                  <CardContent className="p-5 text-center">
+                    <p className="text-3xl font-display font-bold text-primary">R$ 24.000</p>
+                    <p className="text-sm text-muted-foreground mt-1">Armários fechados</p>
+                    <Badge className="mt-2 bg-gold-light text-foreground border-0 font-body">Mais proteção</Badge>
+                  </CardContent>
+                </Card>
+                <Card className="border-border">
+                  <CardContent className="p-5 text-center">
+                    <p className="text-3xl font-display font-bold text-primary">R$ 19.000</p>
+                    <p className="text-sm text-muted-foreground mt-1">Armários abertos / nichos</p>
+                    <Badge className="mt-2 bg-gold-light text-foreground border-0 font-body">Mais estético</Badge>
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="bg-gold-subtle rounded-lg p-4 flex items-start gap-3">
+                <Lightbulb className="text-accent mt-0.5 flex-shrink-0" size={20} />
+                <div>
+                  <p className="font-semibold text-foreground text-sm mb-1">Marcenaria é o que aparece no anúncio</p>
+                  <p className="text-sm text-muted-foreground">Equilibre estética e funcionalidade. Armários fechados protegem itens dos hóspedes, mas abertos com iluminação fotografam melhor e geram mais cliques.</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tab: Iluminação vs Bancada */}
+        <TabsContent value="iluminacao">
+          <Card className="border-border">
+            <CardContent className="p-6 space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card className="border-primary/30 border-2">
+                  <CardContent className="p-5 text-center">
+                    <Lightbulb className="mx-auto mb-2 text-primary" size={28} />
+                    <p className="text-3xl font-display font-bold text-primary">R$ 2.800</p>
+                    <p className="text-sm text-muted-foreground mt-1">Iluminação LED completa</p>
+                    <p className="text-xs text-muted-foreground mt-1">Marcenaria + teto + fitas</p>
+                    <Badge className="mt-2 bg-primary text-primary-foreground border-0 font-body">Melhor ROI</Badge>
+                  </CardContent>
+                </Card>
+                <Card className="border-border">
+                  <CardContent className="p-5 text-center">
+                    <Wrench className="mx-auto mb-2 text-muted-foreground" size={28} />
+                    <p className="text-3xl font-display font-bold text-foreground">R$ 5.200</p>
+                    <p className="text-sm text-muted-foreground mt-1">Trocar bancadas (quartzo)</p>
+                    <p className="text-xs text-muted-foreground mt-1">Demolição + material 2,8–3,2m</p>
+                    <Badge variant="secondary" className="mt-2 font-body">Custo elevado</Badge>
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="bg-gold-subtle rounded-lg p-4 flex items-start gap-3">
+                <Star className="text-accent mt-0.5 flex-shrink-0" size={20} />
+                <div>
+                  <p className="font-semibold text-foreground text-sm mb-1">Decisão do investidor</p>
+                  <p className="text-sm text-muted-foreground">Iluminação gera impacto visual desproporcional ao custo: transforma fotos, eleva percepção de qualidade e custa quase metade da troca de bancada. Priorize iluminação sempre.</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
       <PlaceholderAccordion label="Reforma inteligente" />
     </SectionBlock>
@@ -645,18 +829,61 @@ function ReformaSection() {
 
 /* ─── 6) Anti-checklist ─── */
 function AntiChecklistSection() {
+  const warnings = [
+    {
+      title: "Aproveite bancadas da construtora",
+      desc: "Trocar bancadas novas custa R$ 5.000+ e raramente muda a percepção do hóspede. Troque apenas se estiverem danificadas ou com padrão muito datado.",
+      icon: Wrench,
+    },
+    {
+      title: "Cuidado com integração de sacada",
+      desc: "Custo a partir de R$ 8.000 + riscos com regras do condomínio. Avalie se o ganho de espaço justifica o investimento e verifique a convenção antes.",
+      icon: AlertTriangle,
+    },
+    {
+      title: "Não mexa no revestimento do banheiro",
+      desc: "Remover revestimento original pode comprometer a impermeabilização (garantia geralmente de 5 anos). Risco de infiltração e custos imprevisíveis.",
+      icon: ShieldCheck,
+    },
+    {
+      title: "Evite demolições e alterações de instalações",
+      desc: "Prefira resolver com marcenaria e layout inteligente. Mover pontos hidráulicos ou elétricos encarece e atrasa. Trabalhe com a planta existente.",
+      icon: AlertTriangle,
+    },
+  ];
+
   return (
     <SectionBlock
       id="antichecklist"
       title="Anti-checklist: O que NÃO fazer"
       takeaway="Erros que destroem rentabilidade — aprenda antes de cometer."
     >
-      <Card className="border-dashed border-2 border-border bg-muted/50">
-        <CardContent className="p-8 text-center text-muted-foreground font-body">
-          <ShieldCheck className="mx-auto mb-3 text-destructive" size={32} />
-          Lista de erros comuns será adicionada.
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        {warnings.map((w) => (
+          <Card key={w.title} className="border-destructive/20 bg-destructive/5">
+            <CardContent className="p-5">
+              <div className="flex items-start gap-3">
+                <div className="h-9 w-9 rounded-lg bg-destructive/10 flex items-center justify-center flex-shrink-0">
+                  <w.icon className="text-destructive" size={18} />
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground text-sm mb-1">{w.title}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{w.desc}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Callout */}
+      <div className="bg-primary/5 border border-primary/20 rounded-lg p-5 flex items-start gap-3">
+        <DollarSign className="text-primary mt-0.5 flex-shrink-0" size={22} />
+        <div>
+          <p className="font-display font-bold text-foreground text-lg mb-1">Economia pode chegar a 30% no custo total</p>
+          <p className="text-sm text-muted-foreground">Ao evitar demolições desnecessárias e priorizar marcenaria + layout, investidores experientes economizam até 30% do orçamento de reforma — dinheiro que vai direto para decoração e fotos, onde o retorno é comprovado.</p>
+        </div>
+      </div>
       <PlaceholderAccordion label="Anti-checklist" />
     </SectionBlock>
   );
@@ -664,18 +891,99 @@ function AntiChecklistSection() {
 
 /* ─── 7) Decoração estratégica ─── */
 function DecoracaoSection() {
+  const pilares = [
+    { title: "Design autoral", desc: "Estética diferenciada que se destaca nas buscas", icon: Palette },
+    { title: "Fotos profissionais", desc: "Imagens que vendem — a primeira impressão do anúncio", icon: Camera },
+    { title: "Funcionalidade", desc: "Cada metro útil otimizado para o hóspede", icon: Package },
+    { title: "Durabilidade", desc: "Materiais que resistem ao uso intenso de short stay", icon: ShieldCheck },
+    { title: "Identidade de marca", desc: "Consistência visual que gera reviews e retorno", icon: Star },
+  ];
+
+  const flywheel = [
+    { label: "Design", icon: Palette },
+    { label: "Fotos", icon: Camera },
+    { label: "Cliques", icon: MousePointerClick },
+    { label: "Reservas", icon: CalendarCheck },
+    { label: "Reviews", icon: MessageSquare },
+    { label: "Ranking", icon: Trophy },
+    { label: "Diária maior", icon: DollarSign },
+  ];
+
+  const benefits = [
+    { value: "+25–30%", label: "diárias (potencial)" },
+    { value: "75–85%", label: "ocupação (potencial)" },
+    { value: "até +40%", label: "valorização (potencial)" },
+    { value: "6–12 meses", label: "payback (referência)" },
+  ];
+
   return (
     <SectionBlock
       id="decoracao"
       title="Decoração Estratégica"
-      takeaway="Design que converte: ambientes que geram mais cliques e reservas."
+      takeaway="Design que converte: estética + funcionalidade + rentabilidade."
     >
-      <Card className="border-dashed border-2 border-border bg-muted/50">
-        <CardContent className="p-8 text-center text-muted-foreground font-body">
-          <Palette className="mx-auto mb-3 text-accent" size={32} />
-          Galeria e dicas de decoração serão adicionadas.
+      {/* 5 Pilares */}
+      <h3 className="font-display text-xl font-bold text-foreground mb-4">Os 5 Pilares</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-8">
+        {pilares.map((p) => (
+          <Card key={p.title} className="border-border">
+            <CardContent className="p-4 flex items-start gap-3">
+              <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <p.icon className="text-primary" size={18} />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground text-sm">{p.title}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{p.desc}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Flywheel */}
+      <h3 className="font-display text-xl font-bold text-foreground mb-4">O Flywheel da Rentabilidade</h3>
+      <Card className="border-border mb-8">
+        <CardContent className="p-6">
+          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-1">
+            {flywheel.map((step, i) => (
+              <div key={step.label} className="flex items-center gap-1 md:gap-2">
+                <motion.div
+                  className="flex flex-col items-center gap-1 px-3 py-2 rounded-lg bg-secondary min-w-[80px]"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                >
+                  <step.icon size={18} className="text-primary" />
+                  <span className="text-xs font-medium text-foreground">{step.label}</span>
+                </motion.div>
+                {i < flywheel.length - 1 && (
+                  <ArrowRight size={14} className="text-muted-foreground flex-shrink-0" />
+                )}
+              </div>
+            ))}
+          </div>
+          <p className="text-center text-xs text-muted-foreground mt-3">Ciclo virtuoso: cada etapa alimenta a próxima</p>
         </CardContent>
       </Card>
+
+      {/* Benefits */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        {benefits.map((b) => (
+          <Card key={b.label} className="border-border">
+            <CardContent className="p-4 text-center">
+              <p className="text-xl font-display font-bold text-primary">{b.value}</p>
+              <p className="text-xs text-muted-foreground mt-1">{b.label}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-2 text-sm text-muted-foreground font-body mb-2">
+        <Badge variant="secondary" className="font-body">Menos manutenção</Badge>
+        <Badge variant="secondary" className="font-body">Operação simplificada</Badge>
+        <Badge variant="secondary" className="font-body">Reputação orgânica</Badge>
+      </div>
+
       <PlaceholderAccordion label="Decoração estratégica" />
     </SectionBlock>
   );
@@ -683,18 +991,73 @@ function DecoracaoSection() {
 
 /* ─── 8) Projeto arquitetônico ─── */
 function ProjetoSection() {
+  const inputs = [
+    "Planta do imóvel e medidas reais",
+    "Perfil do público-alvo (executivo, turista, nômade digital)",
+    "Orçamento disponível para reforma",
+    "Fotos do estado atual",
+    "Preferências de estilo e referências visuais",
+  ];
+
+  const pipeline = [
+    { step: "Projeto", desc: "Layout otimizado, 3D e detalhamento técnico", duration: "2–3 semanas", icon: Ruler },
+    { step: "Execução", desc: "Fornecedores homologados, obra acompanhada", duration: "3–5 semanas", icon: Wrench },
+    { step: "Marcenaria", desc: "Sob medida, instalação coordenada", duration: "2–3 semanas", icon: Package },
+    { step: "Decoração", desc: "Montagem final, fotos profissionais", duration: "1 semana", icon: Camera },
+  ];
+
   return (
     <SectionBlock
       id="projeto"
       title="Projeto Arquitetônico Personalizado"
       takeaway="Como um bom projeto multiplica o valor percebido do seu studio."
     >
-      <Card className="border-dashed border-2 border-border bg-muted/50">
-        <CardContent className="p-8 text-center text-muted-foreground font-body">
-          <Ruler className="mx-auto mb-3 text-primary" size={32} />
-          Detalhes do serviço de projeto serão adicionados.
+      {/* Inputs do projeto */}
+      <h3 className="font-display text-xl font-bold text-foreground mb-4">O que você precisa fornecer</h3>
+      <Card className="border-border mb-8">
+        <CardContent className="p-5 font-body">
+          <ul className="space-y-2">
+            {inputs.map((item, i) => (
+              <li key={i} className="flex items-center gap-3">
+                <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <span className="text-xs font-bold text-primary">{i + 1}</span>
+                </div>
+                <span className="text-sm text-foreground">{item}</span>
+              </li>
+            ))}
+          </ul>
         </CardContent>
       </Card>
+
+      {/* Pipeline */}
+      <h3 className="font-display text-xl font-bold text-foreground mb-4">Método Bwild — Pipeline</h3>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        {pipeline.map((p, i) => (
+          <motion.div key={p.step} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+            <Card className="border-border h-full">
+              <CardContent className="p-5 text-center">
+                <div className="h-10 w-10 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                  <p.icon className="text-primary" size={20} />
+                </div>
+                <p className="font-display font-bold text-foreground text-sm">{p.step}</p>
+                <p className="text-xs text-muted-foreground mt-1">{p.desc}</p>
+                <Badge variant="secondary" className="mt-2 font-body text-xs">
+                  <Clock size={10} className="mr-1" />{p.duration}
+                </Badge>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="bg-primary/5 border border-primary/20 rounded-lg p-5 flex items-start gap-3">
+        <ShieldCheck className="text-primary mt-0.5 flex-shrink-0" size={22} />
+        <div>
+          <p className="font-display font-bold text-foreground text-sm mb-1">Previsibilidade de prazo e orçamento fechado</p>
+          <p className="text-sm text-muted-foreground">O método Bwild trabalha com orçamento fechado e cronograma definido desde o início. Sem surpresas — você sabe exatamente quanto vai investir e quando o studio estará pronto para operar.</p>
+        </div>
+      </div>
       <PlaceholderAccordion label="Projeto arquitetônico" />
     </SectionBlock>
   );
@@ -742,31 +1105,79 @@ function TendenciasSection() {
 
 /* ─── 10) Case study ─── */
 function CaseStudySection() {
+  const handleUsePremissas = () => {
+    // Dispatch custom event to populate the simulator
+    window.dispatchEvent(new CustomEvent("populate-simulator", {
+      detail: { bairro: "Vila Mariana", diaria: "230", ocupacao: 75, boost: 30 },
+    }));
+    // Scroll to simulator
+    document.getElementById("simulador")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const antes = { diaria: 230, ocupacao: 75, noitesMes: 22.5, receitaMes: 5175, receitaAno: 62100 };
+  const depois = { diaria: 299, ocupacao: 75, noitesMes: 22.5, receitaMes: 6727, receitaAno: 80724 };
+  const deltaMes = depois.receitaMes - antes.receitaMes;
+  const deltaAno = depois.receitaAno - antes.receitaAno;
+
   return (
     <SectionBlock
       id="casestudy"
-      title="Case Study"
-      takeaway="Studio na Vila Mariana: de R$ 0 a R$ 6.500/mês em 3 meses."
+      title="Case Study — Vila Mariana"
+      takeaway="De R$ 5.175 para R$ 6.727/mês com decoração estratégica (+30% na diária)."
     >
       <Card className="border-border">
         <CardContent className="p-6 font-body">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-            {[
-              { label: "Investimento total", value: "R$ —" },
-              { label: "Receita mensal", value: "R$ —" },
-              { label: "Payback", value: "— meses" },
-            ].map((m) => (
-              <div key={m.label}>
-                <p className="text-2xl font-display font-bold text-primary">{m.value}</p>
-                <p className="text-sm text-muted-foreground">{m.label}</p>
-              </div>
-            ))}
+          {/* Premissas */}
+          <div className="bg-muted rounded-lg p-4 mb-6">
+            <p className="text-sm font-semibold text-foreground mb-2">Premissas</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+              <div><span className="text-muted-foreground">Diária:</span> <span className="font-medium text-foreground">R$ 230 → R$ 299</span></div>
+              <div><span className="text-muted-foreground">Aumento:</span> <span className="font-bold text-primary">+30%</span></div>
+              <div><span className="text-muted-foreground">Ocupação:</span> <span className="font-medium text-foreground">75%</span></div>
+              <div><span className="text-muted-foreground">Noites/mês:</span> <span className="font-medium text-foreground">22,5</span></div>
+            </div>
           </div>
-          <Separator className="my-6" />
-          <p className="text-muted-foreground text-center">
-            {/* TODO: Full case study narrative */}
-            Narrativa completa do case será adicionada.
-          </p>
+
+          {/* Before / After comparison */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <Card className="border-border bg-muted/30">
+              <CardContent className="p-5 text-center">
+                <Badge variant="secondary" className="mb-3 font-body">Antes</Badge>
+                <p className="text-3xl font-display font-bold text-foreground">R$ {fmt(antes.receitaMes)}</p>
+                <p className="text-sm text-muted-foreground">/mês</p>
+                <Separator className="my-3" />
+                <p className="text-lg font-display font-bold text-foreground">R$ {fmt(antes.receitaAno)}</p>
+                <p className="text-xs text-muted-foreground">/ano</p>
+              </CardContent>
+            </Card>
+            <Card className="border-primary/30 border-2 bg-primary/5">
+              <CardContent className="p-5 text-center">
+                <Badge className="mb-3 bg-primary text-primary-foreground border-0 font-body">Depois</Badge>
+                <p className="text-3xl font-display font-bold text-primary">R$ {fmt(depois.receitaMes)}</p>
+                <p className="text-sm text-muted-foreground">/mês</p>
+                <Separator className="my-3" />
+                <p className="text-lg font-display font-bold text-primary">R$ {fmt(depois.receitaAno)}</p>
+                <p className="text-xs text-muted-foreground">/ano</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Delta highlights */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="bg-gold-subtle rounded-lg p-4 text-center">
+              <p className="text-2xl font-display font-bold text-primary">+R$ {fmt(deltaMes)}</p>
+              <p className="text-xs text-muted-foreground">a mais por mês</p>
+            </div>
+            <div className="bg-gold-subtle rounded-lg p-4 text-center">
+              <p className="text-2xl font-display font-bold text-primary">+R$ {fmt(deltaAno)}</p>
+              <p className="text-xs text-muted-foreground">a mais por ano</p>
+            </div>
+          </div>
+
+          <Button onClick={handleUsePremissas} className="w-full bg-primary text-primary-foreground font-body">
+            <Calculator size={16} className="mr-2" />
+            Usar premissas no simulador
+          </Button>
         </CardContent>
       </Card>
       <PlaceholderAccordion label="Case study" />
