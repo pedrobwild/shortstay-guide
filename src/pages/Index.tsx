@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -47,7 +47,34 @@ import {
   Zap,
   MapPin,
   FileText,
+  Copy,
+  Lightbulb,
+  ArrowUpRight,
+  Check,
 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+
+/* ─── Shared dataset ─── */
+const BAIRRO_DATA = [
+  { name: "Vila Mariana", dailyMin: 280, dailyMax: 420, avgOccupancy: 80, perSqm: 9.5 },
+  { name: "Pinheiros", dailyMin: 320, dailyMax: 480, avgOccupancy: 82, perSqm: 11 },
+  { name: "Consolação", dailyMin: 260, dailyMax: 390, avgOccupancy: 76, perSqm: 8.8 },
+  { name: "Bela Vista", dailyMin: 240, dailyMax: 370, avgOccupancy: 74, perSqm: 8.2 },
+  { name: "Itaim Bibi", dailyMin: 350, dailyMax: 520, avgOccupancy: 78, perSqm: 12 },
+  { name: "Moema", dailyMin: 300, dailyMax: 450, avgOccupancy: 77, perSqm: 10.5 },
+  { name: "Brooklin", dailyMin: 290, dailyMax: 430, avgOccupancy: 75, perSqm: 9.8 },
+  { name: "República", dailyMin: 200, dailyMax: 310, avgOccupancy: 72, perSqm: 7.2 },
+  { name: "Liberdade", dailyMin: 220, dailyMax: 340, avgOccupancy: 73, perSqm: 7.8 },
+  { name: "Vila Olímpia", dailyMin: 330, dailyMax: 500, avgOccupancy: 79, perSqm: 11.5 },
+] as const;
+
+const DECORATION_LEVELS = [
+  { value: "basico", label: "Básico", multiplier: 1.0 },
+  { value: "premium", label: "Premium", multiplier: 1.2 },
+  { value: "alto", label: "Alto padrão", multiplier: 1.45 },
+] as const;
+
+const fmt = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
 
 /* ─── Section definitions ─── */
 const SECTIONS = [
@@ -286,41 +313,127 @@ function ReservasSection() {
   );
 }
 
-/* ─── 3) Mercado e precificação ─── */
+/* ─── 3) Mercado e precificação + Meta de diária ─── */
 function MercadoSection() {
+  const [bairro, setBairro] = useState<string>(BAIRRO_DATA[0].name);
+  const [metragem, setMetragem] = useState(30);
+  const [decoracao, setDecoracao] = useState<string>("basico");
+  const [ocupacao, setOcupacao] = useState([75]);
+
+  const selected = BAIRRO_DATA.find((b) => b.name === bairro) ?? BAIRRO_DATA[0];
+  const decLevel = DECORATION_LEVELS.find((d) => d.value === decoracao) ?? DECORATION_LEVELS[0];
+
+  const result = useMemo(() => {
+    const mult = decLevel.multiplier;
+    const sizeAdj = metragem > 35 ? 1.08 : metragem < 25 ? 0.92 : 1;
+    const min = Math.round(selected.dailyMin * mult * sizeAdj);
+    const max = Math.round(selected.dailyMax * mult * sizeAdj);
+    const avgDaily = (min + max) / 2;
+    const nights = 30 * (ocupacao[0] / 100);
+    const receitaMensal = Math.round(avgDaily * nights);
+    const receitaAnual = receitaMensal * 12;
+    return { min, max, receitaMensal, receitaAnual };
+  }, [selected, decLevel, metragem, ocupacao]);
+
   return (
     <SectionBlock
       id="mercado"
       title="Mercado e Precificação — São Paulo"
       takeaway="Diárias médias, ocupação e receita por bairro atualizado."
     >
-      {/* TODO: Real table with neighbourhood data */}
-      <Card className="border-border overflow-hidden">
+      {/* Data table */}
+      <Card className="border-border overflow-hidden mb-8">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm font-body">
               <thead className="bg-secondary">
                 <tr>
-                  {["Bairro", "Diária média", "Ocupação", "RevPAR"].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left font-semibold text-foreground">
-                      {h}
-                    </th>
+                  {["Bairro", "Diária mín.", "Diária máx.", "Ocupação média", "RevPAR est."].map((h) => (
+                    <th key={h} className="px-4 py-3 text-left font-semibold text-foreground">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {["Vila Mariana", "Pinheiros", "Consolação", "Bela Vista"].map(
-                  (bairro) => (
-                    <tr key={bairro} className="border-t border-border">
-                      <td className="px-4 py-3 font-medium text-foreground">{bairro}</td>
-                      <td className="px-4 py-3 text-muted-foreground">R$ —</td>
-                      <td className="px-4 py-3 text-muted-foreground">—%</td>
-                      <td className="px-4 py-3 text-muted-foreground">R$ —</td>
-                    </tr>
-                  )
-                )}
+                {BAIRRO_DATA.map((b) => (
+                  <tr key={b.name} className={`border-t border-border cursor-pointer transition-colors ${b.name === bairro ? "bg-primary/5" : "hover:bg-muted/50"}`} onClick={() => setBairro(b.name)}>
+                    <td className="px-4 py-3 font-medium text-foreground">{b.name}</td>
+                    <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.dailyMin)}</td>
+                    <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.dailyMax)}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{b.avgOccupancy}%</td>
+                    <td className="px-4 py-3 text-muted-foreground">R$ {fmt(((b.dailyMin + b.dailyMax) / 2) * (b.avgOccupancy / 100))}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Meta de diária tool */}
+      <h3 className="font-display text-xl font-bold text-foreground mb-4">🎯 Meta de Diária</h3>
+      <Card className="border-border">
+        <CardContent className="p-6 space-y-5 font-body">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1 block">Bairro</label>
+              <Select value={bairro} onValueChange={setBairro}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {BAIRRO_DATA.map((b) => (
+                    <SelectItem key={b.name} value={b.name}>{b.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1 block">Metragem (m²)</label>
+              <Input type="number" min={15} max={80} value={metragem} onChange={(e) => setMetragem(Number(e.target.value) || 30)} />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-foreground mb-1 block">Nível de decoração</label>
+            <Select value={decoracao} onValueChange={setDecoracao}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {DECORATION_LEVELS.map((d) => (
+                  <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-foreground mb-2 block">
+              Ocupação estimada: <span className="font-bold text-primary">{ocupacao[0]}%</span>
+            </label>
+            <Slider value={ocupacao} onValueChange={setOcupacao} min={50} max={90} step={1} />
+          </div>
+          <Separator />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div>
+              <p className="text-2xl font-display font-bold text-primary">R$ {fmt(result.min)}</p>
+              <p className="text-xs text-muted-foreground">Diária mín.</p>
+            </div>
+            <div>
+              <p className="text-2xl font-display font-bold text-primary">R$ {fmt(result.max)}</p>
+              <p className="text-xs text-muted-foreground">Diária máx.</p>
+            </div>
+            <div>
+              <p className="text-2xl font-display font-bold text-primary">R$ {fmt(result.receitaMensal)}</p>
+              <p className="text-xs text-muted-foreground">Receita / mês</p>
+            </div>
+            <div>
+              <p className="text-2xl font-display font-bold text-primary">R$ {fmt(result.receitaAnual)}</p>
+              <p className="text-xs text-muted-foreground">Receita / ano</p>
+            </div>
+          </div>
+
+          {/* Recommendation panel */}
+          <div className="bg-gold-subtle rounded-lg p-4 flex items-start gap-3">
+            <Lightbulb className="text-accent mt-0.5 flex-shrink-0" size={20} />
+            <div>
+              <p className="font-semibold text-foreground text-sm mb-1">Para alcançar o topo da faixa, priorize:</p>
+              <p className="text-sm text-muted-foreground">Marcenaria planejada + iluminação cênica + fotos profissionais. Esses 3 fatores combinados podem elevar sua diária em até 40%.</p>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -331,58 +444,167 @@ function MercadoSection() {
 
 /* ─── 4) Simulador de receita ─── */
 function SimuladorSection() {
+  const [simBairro, setSimBairro] = useState<string>(BAIRRO_DATA[0].name);
+  const [simMetragem, setSimMetragem] = useState(30);
+  const [simOcupacao, setSimOcupacao] = useState([75]);
+  const [simDiariaAtual, setSimDiariaAtual] = useState("");
+  const [simObjetivo, setSimObjetivo] = useState("maximizar");
+  const [simReformaBudget, setSimReformaBudget] = useState("");
+  const [rateBoost, setRateBoost] = useState(0);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const selected = BAIRRO_DATA.find((b) => b.name === simBairro) ?? BAIRRO_DATA[0];
+
+  const sim = useMemo(() => {
+    const baseDaily = simDiariaAtual ? Number(simDiariaAtual) : (selected.dailyMin + selected.dailyMax) / 2;
+    const boostedDaily = baseDaily * (1 + rateBoost / 100);
+    const nights = 30 * (simOcupacao[0] / 100);
+    const receitaMensal = Math.round(boostedDaily * nights);
+    const receitaAnual = receitaMensal * 12;
+    const baseMensal = Math.round(baseDaily * nights);
+    const delta = receitaMensal - baseMensal;
+    const budget = Number(simReformaBudget) || 0;
+    const paybackMonths = delta > 0 && budget > 0 ? Math.ceil(budget / delta) : null;
+    return { baseDaily: Math.round(baseDaily), boostedDaily: Math.round(boostedDaily), receitaMensal, receitaAnual, baseMensal, delta, paybackMonths };
+  }, [selected, simDiariaAtual, simOcupacao, rateBoost, simReformaBudget]);
+
+  const summaryText = useMemo(() => {
+    return `📊 Simulação de Receita — Short Stay\n\n` +
+      `Bairro: ${simBairro}\nMetragem: ${simMetragem}m²\nOcupação: ${simOcupacao[0]}%\n` +
+      `Diária base: R$ ${fmt(sim.baseDaily)}\n` +
+      (rateBoost > 0 ? `Diária c/ boost +${rateBoost}%: R$ ${fmt(sim.boostedDaily)}\n` : "") +
+      `\nReceita mensal: R$ ${fmt(sim.receitaMensal)}\nReceita anual: R$ ${fmt(sim.receitaAnual)}\n` +
+      (sim.paybackMonths ? `\nPayback da reforma: ~${sim.paybackMonths} meses\n` : "") +
+      `\nGerado em guiadoinvestidor.com.br`;
+  }, [simBairro, simMetragem, simOcupacao, sim, rateBoost]);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(summaryText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <SectionBlock
       id="simulador"
       title="Simulador de Receita"
       takeaway="Calcule sua rentabilidade estimada em menos de 1 minuto."
     >
-      {/* TODO: Implement calculator logic */}
       <Card className="border-border">
-        <CardContent className="p-6 space-y-6 font-body">
+        <CardContent className="p-6 space-y-5 font-body">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-foreground mb-1 block">
-                Valor do imóvel (R$)
-              </label>
-              <Input placeholder="Ex: 350.000" disabled />
+              <label className="text-sm font-medium text-foreground mb-1 block">Bairro</label>
+              <Select value={simBairro} onValueChange={setSimBairro}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {BAIRRO_DATA.map((b) => (
+                    <SelectItem key={b.name} value={b.name}>{b.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground mb-1 block">
-                Bairro
-              </label>
-              <Select disabled>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o bairro" />
-                </SelectTrigger>
+              <label className="text-sm font-medium text-foreground mb-1 block">Metragem (m²)</label>
+              <Input type="number" min={15} max={80} value={simMetragem} onChange={(e) => setSimMetragem(Number(e.target.value) || 30)} />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-foreground mb-2 block">
+              Ocupação estimada: <span className="font-bold text-primary">{simOcupacao[0]}%</span>
+            </label>
+            <Slider value={simOcupacao} onValueChange={setSimOcupacao} min={50} max={90} step={1} />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1 block">Diária atual (opcional, R$)</label>
+              <Input type="number" placeholder={`Média do bairro: R$ ${fmt((selected.dailyMin + selected.dailyMax) / 2)}`} value={simDiariaAtual} onChange={(e) => setSimDiariaAtual(e.target.value)} />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1 block">Objetivo</label>
+              <Select value={simObjetivo} onValueChange={setSimObjetivo}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pinheiros">Pinheiros</SelectItem>
+                  <SelectItem value="maximizar">Maximizar receita</SelectItem>
+                  <SelectItem value="estabilidade">Estabilidade de ocupação</SelectItem>
+                  <SelectItem value="premium">Posicionamento premium</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
+
+          {/* Rate boost toggles */}
           <div>
-            <label className="text-sm font-medium text-foreground mb-3 block">
-              Ocupação estimada: 75%
-            </label>
-            <Slider defaultValue={[75]} max={100} step={1} disabled />
+            <label className="text-sm font-medium text-foreground mb-2 block">Impacto de aumento na diária</label>
+            <div className="flex gap-2 flex-wrap">
+              {[0, 10, 20, 30].map((v) => (
+                <Button key={v} size="sm" variant={rateBoost === v ? "default" : "outline"} onClick={() => setRateBoost(v)} className={rateBoost === v ? "bg-primary text-primary-foreground" : ""}>
+                  {v === 0 ? "Base" : `+${v}%`}
+                </Button>
+              ))}
+            </div>
           </div>
+
+          {/* Optional reforma budget */}
+          <div>
+            <label className="text-sm font-medium text-foreground mb-1 block">Orçamento de reforma (opcional, R$)</label>
+            <Input type="number" placeholder="Ex: 45.000" value={simReformaBudget} onChange={(e) => setSimReformaBudget(e.target.value)} />
+          </div>
+
           <Separator />
-          <div className="grid grid-cols-3 gap-4 text-center">
-            {[
-              { label: "Receita mensal", value: "R$ —" },
-              { label: "Custo mensal", value: "R$ —" },
-              { label: "Rentab. anual", value: "—%" },
-            ].map((m) => (
-              <div key={m.label}>
-                <p className="text-2xl font-display font-bold text-primary">{m.value}</p>
-                <p className="text-xs text-muted-foreground">{m.label}</p>
-              </div>
-            ))}
+
+          {/* Results */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div>
+              <p className="text-2xl font-display font-bold text-primary">R$ {fmt(sim.boostedDaily)}</p>
+              <p className="text-xs text-muted-foreground">Diária {rateBoost > 0 ? `(+${rateBoost}%)` : "base"}</p>
+            </div>
+            <div>
+              <p className="text-2xl font-display font-bold text-primary">R$ {fmt(sim.receitaMensal)}</p>
+              <p className="text-xs text-muted-foreground">Receita / mês</p>
+            </div>
+            <div>
+              <p className="text-2xl font-display font-bold text-primary">R$ {fmt(sim.receitaAnual)}</p>
+              <p className="text-xs text-muted-foreground">Receita / ano</p>
+            </div>
+            <div>
+              <p className="text-2xl font-display font-bold text-primary">
+                {sim.paybackMonths ? `${sim.paybackMonths} meses` : "—"}
+              </p>
+              <p className="text-xs text-muted-foreground">Payback reforma</p>
+            </div>
           </div>
-          <Button disabled className="w-full bg-primary text-primary-foreground">
-            Calcular (em breve)
-          </Button>
+
+          {rateBoost > 0 && sim.delta > 0 && (
+            <div className="bg-gold-subtle rounded-lg p-4 flex items-start gap-3">
+              <ArrowUpRight className="text-accent mt-0.5 flex-shrink-0" size={20} />
+              <p className="text-sm text-muted-foreground">
+                Com +{rateBoost}% na diária, você ganha <span className="font-bold text-foreground">R$ {fmt(sim.delta)}/mês</span> a mais em relação ao cenário base.
+              </p>
+            </div>
+          )}
+
+          {/* Export */}
+          <Dialog open={exportOpen} onOpenChange={setExportOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="w-full">
+                <FileText size={16} className="mr-2" />
+                Exportar simulação
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="font-body">
+              <DialogHeader>
+                <DialogTitle className="font-display">Resumo da Simulação</DialogTitle>
+              </DialogHeader>
+              <pre className="bg-muted rounded-lg p-4 text-sm text-foreground whitespace-pre-wrap max-h-80 overflow-y-auto">
+                {summaryText}
+              </pre>
+              <Button onClick={handleCopy} className="w-full bg-primary text-primary-foreground">
+                {copied ? <><Check size={16} className="mr-2" /> Copiado!</> : <><Copy size={16} className="mr-2" /> Copiar texto</>}
+              </Button>
+            </DialogContent>
+          </Dialog>
         </CardContent>
       </Card>
       <PlaceholderAccordion label="Simulador de receita" />
@@ -553,32 +775,72 @@ function CaseStudySection() {
 }
 
 /* ─── 11) Checklist do investidor ─── */
+const CHECKLIST_ITEMS = [
+  "Localização com demanda comprovada",
+  "Condomínio permite short stay",
+  "Análise de concorrência feita",
+  "Orçamento de reforma definido",
+  "Projeção financeira validada",
+  "Fotos profissionais planejadas",
+  "Mobília funcional selecionada",
+  "Plano de precificação dinâmica",
+  "Gestão operacional definida",
+  "Documentação fiscal em ordem",
+];
+
+const SCORE_TIERS = [
+  { min: 0, max: 3, label: "Iniciante", color: "bg-destructive", desc: "Você precisa amadurecer o projeto antes de investir." },
+  { min: 4, max: 6, label: "Em progresso", color: "bg-accent", desc: "Bom começo, mas faltam itens críticos. Considere um diagnóstico." },
+  { min: 7, max: 8, label: "Quase pronto", color: "bg-primary/70", desc: "Falta pouco! Revise os itens pendentes e avance com confiança." },
+  { min: 9, max: 10, label: "Pronto para investir", color: "bg-primary", desc: "Excelente! Seu planejamento está sólido. Hora de agir." },
+];
+
 function ChecklistSection() {
+  const [checked, setChecked] = useState<boolean[]>(new Array(CHECKLIST_ITEMS.length).fill(false));
+  const score = useMemo(() => checked.filter(Boolean).length, [checked]);
+  const tier = useMemo(() => SCORE_TIERS.find((t) => score >= t.min && score <= t.max) ?? SCORE_TIERS[0], [score]);
+  const pct = (score / CHECKLIST_ITEMS.length) * 100;
+
+  const toggle = (i: number) => {
+    setChecked((prev) => prev.map((v, idx) => (idx === i ? !v : v)));
+  };
+
   return (
     <SectionBlock
       id="checklist"
       title="Checklist do Investidor"
       takeaway="10 itens obrigatórios antes de fechar qualquer negócio."
     >
-      {/* TODO: Interactive checklist + score */}
       <Card className="border-border">
-        <CardContent className="p-6 font-body space-y-3">
-          {[
-            "Localização com demanda comprovada",
-            "Condomínio permite short stay",
-            "Análise de concorrência feita",
-            "Orçamento de reforma definido",
-            "Projeção financeira validada",
-          ].map((item, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <div className="h-5 w-5 rounded border-2 border-primary flex-shrink-0" />
-              <span className="text-foreground">{item}</span>
-            </div>
+        <CardContent className="p-6 font-body space-y-4">
+          {CHECKLIST_ITEMS.map((item, i) => (
+            <label key={i} className="flex items-center gap-3 cursor-pointer group">
+              <Checkbox checked={checked[i]} onCheckedChange={() => toggle(i)} />
+              <span className={`transition-colors ${checked[i] ? "text-muted-foreground line-through" : "text-foreground"} group-hover:text-primary`}>
+                {item}
+              </span>
+            </label>
           ))}
           <Separator className="my-4" />
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-1">Seu score</p>
-            <p className="text-4xl font-display font-bold text-primary">—/10</p>
+
+          {/* Score bar */}
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <p className="text-sm font-medium text-foreground">Seu score</p>
+              <Badge className={`${tier.color} text-primary-foreground border-0 font-body`}>{tier.label}</Badge>
+            </div>
+            <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
+              <motion.div
+                className={`h-full rounded-full ${tier.color}`}
+                initial={{ width: 0 }}
+                animate={{ width: `${pct}%` }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+              />
+            </div>
+            <div className="text-center">
+              <p className="text-4xl font-display font-bold text-primary">{score}/{CHECKLIST_ITEMS.length}</p>
+              <p className="text-sm text-muted-foreground mt-1">{tier.desc}</p>
+            </div>
           </div>
         </CardContent>
       </Card>
