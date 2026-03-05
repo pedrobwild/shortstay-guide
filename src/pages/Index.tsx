@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import bwildLogo from "@/assets/bwild-logo.png";
+import bwildLogoWhite from "@/assets/bwild-logo-white.png";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -171,7 +173,10 @@ function PlaceholderAccordion({ label }: { label: string }) {
 /* ─── TOC (desktop sticky) ─── */
 function TableOfContents({ activeId }: { activeId: string }) {
   return (
-    <nav className="hidden lg:block fixed left-0 top-24 w-56 xl:w-64 h-[calc(100vh-6rem)] overflow-y-auto px-4 py-6 border-r border-border bg-card/80 backdrop-blur-sm z-30">
+    <nav className="hidden lg:block fixed left-0 top-0 w-56 xl:w-64 h-screen overflow-y-auto px-4 py-6 border-r border-border bg-card/80 backdrop-blur-sm z-30">
+      <div className="mb-6 px-3">
+        <img src={bwildLogo} alt="Bwild" className="h-8 w-auto" />
+      </div>
       <p className="text-xs font-body font-semibold uppercase tracking-widest text-muted-foreground mb-4">
         Índice
       </p>
@@ -273,8 +278,11 @@ function HeroSection() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7 }}
       >
+        <div className="flex items-center gap-3 mb-6 lg:hidden">
+          <img src={bwildLogo} alt="Bwild" className="h-8 w-auto" />
+        </div>
         <Badge className="mb-4 bg-gold-light text-foreground font-body border-0">
-          Guia 2025 · Atualizado
+          Guia Bwild 2025 · Atualizado
         </Badge>
         <h1 className="font-display text-4xl md:text-6xl font-extrabold leading-tight text-foreground mb-4">
           Guia do Investidor em Studios para{" "}
@@ -1575,12 +1583,13 @@ function FinalCTASection() {
       >
         <Card className="bg-hero-gradient border-0 text-primary-foreground overflow-hidden">
           <CardContent className="p-8 md:p-12">
+            <img src={bwildLogoWhite} alt="Bwild" className="h-8 w-auto mb-4 opacity-80" />
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-3">
               Pronto para investir com segurança?
             </h2>
             <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl font-body">
               Solicite um diagnóstico gratuito do seu imóvel e receba uma
-              projeção de rentabilidade personalizada.
+              projeção de rentabilidade personalizada pela Bwild.
             </p>
 
             {submitted ? (
@@ -1729,7 +1738,8 @@ export default function Index() {
         <FinalCTASection />
 
         <footer className="text-center py-8 text-sm text-muted-foreground font-body border-t border-border">
-          © 2025 · Guia do Investidor em Studios para Short Stay
+          <img src={bwildLogo} alt="Bwild" className="h-6 w-auto mx-auto mb-3 opacity-60" />
+          © 2025 Bwild · Guia do Investidor em Studios para Short Stay
         </footer>
       </main>
     </>
