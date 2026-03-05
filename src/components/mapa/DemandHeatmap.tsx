@@ -29,13 +29,14 @@ export default function DemandHeatmap({ heatPoints, visible }: DemandHeatmapProp
       {visible && heatPoints.map((hp, i) => {
         const rgb = heatColor(hp.demandScore);
         const size = heatSize(hp.demandScore);
+        const isHigh = hp.demandScore >= 85;
         return (
           <motion.div
             key={hp.id}
-            initial={{ opacity: 0, scale: 0.3 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.3 }}
-            transition={{ duration: 0.4, delay: i * 0.03 }}
+            initial={{ opacity: 0, scale: 0.2, filter: "blur(12px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, scale: 0.2, filter: "blur(12px)" }}
+            transition={{ duration: 0.6, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] }}
             className="absolute z-[5]"
             style={{
               left: `${hp.coordinates.x}%`,
@@ -45,39 +46,77 @@ export default function DemandHeatmap({ heatPoints, visible }: DemandHeatmapProp
             onMouseEnter={() => setHovered(hp)}
             onMouseLeave={() => setHovered(null)}
           >
-            {/* Glow */}
-            <div
+            {/* Outer pulse ring for high-demand areas */}
+            {isHigh && (
+              <motion.div
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
+                style={{
+                  width: `${size * 1.4}px`,
+                  height: `${size * 1.4}px`,
+                  border: `1px solid rgba(${rgb}, 0.2)`,
+                }}
+                animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0, 0.3] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              />
+            )}
+
+            {/* Main glow */}
+            <motion.div
               className="rounded-full pointer-events-none"
               style={{
                 width: `${size}px`,
                 height: `${size}px`,
-                background: `radial-gradient(circle, rgba(${rgb}, ${heatOpacity(hp.demandScore)}) 0%, rgba(${rgb}, 0.02) 70%, transparent 100%)`,
-                filter: hp.demandScore >= 85 ? "blur(4px)" : "blur(6px)",
+                background: `radial-gradient(circle, rgba(${rgb}, ${heatOpacity(hp.demandScore)}) 0%, rgba(${rgb}, 0.04) 60%, transparent 100%)`,
+                filter: isHigh ? "blur(3px)" : "blur(6px)",
               }}
+              animate={isHigh ? {
+                scale: [1, 1.08, 1],
+                opacity: [1, 0.85, 1],
+              } : {}}
+              transition={isHigh ? { duration: 2.5, repeat: Infinity, ease: "easeInOut" } : {}}
             />
+
             {/* Center dot */}
-            <div
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full cursor-pointer"
-              style={{ backgroundColor: `rgba(${rgb}, 0.8)` }}
+            <motion.div
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full cursor-pointer"
+              style={{ backgroundColor: `rgba(${rgb}, 0.85)` }}
+              initial={{ width: 0, height: 0 }}
+              animate={{ width: 8, height: 8 }}
+              transition={{ delay: 0.3 + i * 0.04, type: "spring", stiffness: 300, damping: 15 }}
+              whileHover={{ scale: 1.8, boxShadow: `0 0 12px rgba(${rgb}, 0.5)` }}
             />
 
             {/* Tooltip */}
-            {hovered?.id === hp.id && (
-              <motion.div
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-card border border-border shadow-lg rounded-lg px-3 py-2 whitespace-nowrap z-50 pointer-events-none"
-              >
-                <p className="text-[10px] font-bold text-foreground">{hp.areaName}</p>
-                <div className="flex gap-3 mt-1 text-[9px] text-muted-foreground">
-                  <span>Demanda: <strong className="text-foreground">{hp.demandScore}</strong></span>
-                  <span>Ocup: <strong className="text-foreground">{hp.occupancyEstimate}%</strong></span>
-                </div>
-                <p className="text-[9px] text-muted-foreground mt-0.5">
-                  ADR: <strong className="text-foreground">R${hp.adrEstimate}</strong>
-                </p>
-              </motion.div>
-            )}
+            <AnimatePresence>
+              {hovered?.id === hp.id && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.85 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 4, scale: 0.9 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 bg-card/95 backdrop-blur-sm border border-border shadow-xl rounded-xl px-3.5 py-2.5 whitespace-nowrap z-50 pointer-events-none"
+                >
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: `rgb(${rgb})` }} />
+                    <p className="text-[11px] font-bold text-foreground">{hp.areaName}</p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 text-[9px]">
+                    <div>
+                      <p className="text-muted-foreground">Demanda</p>
+                      <p className="font-bold text-foreground">{hp.demandScore}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Ocupação</p>
+                      <p className="font-bold text-foreground">{hp.occupancyEstimate}%</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">ADR</p>
+                      <p className="font-bold text-foreground">R${hp.adrEstimate}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         );
       })}
