@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import bwildLogo from "@/assets/bwild-logo.png";
 import bwildLogoWhite from "@/assets/bwild-logo-white.png";
@@ -201,6 +202,19 @@ function TableOfContents({ activeId }: { activeId: string }) {
           );
         })}
       </ul>
+
+      {/* Link to Tendências Premium 2026 */}
+      <div className="mt-6 px-3">
+        <Separator className="mb-4" />
+        <Link
+          to="/tendencias-premium-2026"
+          className="flex items-center gap-2 px-3 py-2.5 rounded-md text-sm font-body font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+        >
+          <Sparkles size={14} />
+          Tendências Premium 2026
+          <ArrowRight size={12} className="ml-auto" />
+        </Link>
+      </div>
     </nav>
   );
 }
