@@ -119,20 +119,27 @@ export default function ROIRanking({ neighborhoods, onSelectNeighborhood, select
                             {profile.emoji} {profile.label}
                           </Badge>
                         </div>
-                        <div className="grid grid-cols-3 gap-2 mt-2">
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
                           <div>
-                            <p className="text-[10px] text-muted-foreground">ROI</p>
+                            <p className="text-[10px] text-muted-foreground">ROI est.</p>
                             <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{n.metrics.estimatedROI}%</p>
                           </div>
                           <div>
-                            <p className="text-[10px] text-muted-foreground">Diária</p>
+                            <p className="text-[10px] text-muted-foreground">Diária média</p>
                             <p className="text-xs font-bold text-foreground">R${fmt(n.metrics.nightlyRate)}</p>
                           </div>
                           <div>
                             <p className="text-[10px] text-muted-foreground">Ocupação</p>
                             <p className="text-xs font-bold text-foreground">{n.metrics.occupancy}%</p>
                           </div>
+                          <div>
+                            <p className="text-[10px] text-muted-foreground">Receita/mês</p>
+                            <p className="text-xs font-bold text-foreground">R${fmt(n.metrics.avgRevenueMo)}</p>
+                          </div>
                         </div>
+                        <p className="text-[9px] text-muted-foreground mt-1.5 font-body">
+                          Faixa: R${fmt(n.metrics.nightlyRateRange[0])}–R${fmt(n.metrics.nightlyRateRange[1])} · {n.metrics.activeListings} anúncios · Fonte: {n.metrics.dataSource}
+                        </p>
                       </div>
                     </div>
                   </CardContent>
