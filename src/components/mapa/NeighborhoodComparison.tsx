@@ -16,9 +16,12 @@ interface ComparisonProps {
 
 const METRICS: { key: string; label: string; getValue: (n: Neighborhood) => number | string; format: (v: number | string) => string; higherIsBetter: boolean }[] = [
   { key: "nightly", label: "Diária média", getValue: (n) => n.metrics.nightlyRate, format: (v) => `R$${fmt(v as number)}`, higherIsBetter: true },
+  { key: "nightlyRange", label: "Faixa de diária", getValue: (n) => `R$${fmt(n.metrics.nightlyRateRange[0])}–R$${fmt(n.metrics.nightlyRateRange[1])}`, format: (v) => `${v}`, higherIsBetter: false },
   { key: "occupancy", label: "Ocupação", getValue: (n) => n.metrics.occupancy, format: (v) => `${v}%`, higherIsBetter: true },
   { key: "roi", label: "ROI estimado", getValue: (n) => n.metrics.estimatedROI, format: (v) => `${v}%`, higherIsBetter: true },
-  { key: "score", label: "Score geral", getValue: (n) => n.score, format: (v) => `${v}`, higherIsBetter: true },
+  { key: "revenue", label: "Receita mensal", getValue: (n) => n.metrics.avgRevenueMo, format: (v) => `R$${fmt(v as number)}`, higherIsBetter: true },
+  { key: "listings", label: "Anúncios ativos", getValue: (n) => n.metrics.activeListings, format: (v) => `${fmt(v as number)}`, higherIsBetter: false },
+  { key: "seasonality", label: "Sazonalidade", getValue: (n) => n.metrics.seasonalityIndex, format: (v) => Number(v) > 1.2 ? "Alta" : Number(v) > 0.9 ? "Moderada" : "Estável", higherIsBetter: false },
   { key: "profile", label: "Perfil de demanda", getValue: (n) => DEMAND_PROFILE_LABELS[n.demandProfile]?.label || n.demandProfile, format: (v) => `${v}`, higherIsBetter: false },
   { key: "competition", label: "Competição", getValue: (n) => n.metrics.competitionLevel, format: (v) => `${v}`, higherIsBetter: false },
 ];

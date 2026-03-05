@@ -6,9 +6,14 @@ import {
 /* ─── Types ─── */
 export interface NeighborhoodMetrics {
   nightlyRate: number;
+  nightlyRateRange: [number, number];
   occupancy: number;
   estimatedROI: number;
   competitionLevel: "alta" | "média" | "baixa";
+  activeListings: number;
+  avgRevenueMo: number;
+  seasonalityIndex: number; // 1 = stable, >1 = seasonal peaks
+  dataSource: string;
 }
 
 export interface Neighborhood {
@@ -57,17 +62,22 @@ export interface HeatPoint {
 
 /* ─── Seed Data ─── */
 export const NEIGHBORHOODS: Neighborhood[] = [
-  { id: "pinheiros", name: "Pinheiros", tags: ["gastronomia", "turismo", "vida noturna", "coworking", "metro"], demandProfile: "mixed", score: 92, avgNightly: 320, avgOccupancy: 82, coordinates: { x: 28, y: 38 }, centerLat: -23.5613, centerLng: -46.6917, metrics: { nightlyRate: 320, occupancy: 82, estimatedROI: 18.5, competitionLevel: "alta" } },
-  { id: "vila-madalena", name: "Vila Madalena", tags: ["turismo", "vida noturna", "arte", "bares"], demandProfile: "tourism", score: 88, avgNightly: 280, avgOccupancy: 78, coordinates: { x: 22, y: 32 }, centerLat: -23.5465, centerLng: -46.6910, metrics: { nightlyRate: 280, occupancy: 78, estimatedROI: 15.2, competitionLevel: "média" } },
-  { id: "jardins", name: "Jardins", tags: ["luxo", "compras", "restaurantes", "turismo"], demandProfile: "premium tourism", score: 90, avgNightly: 380, avgOccupancy: 76, coordinates: { x: 42, y: 40 }, centerLat: -23.5636, centerLng: -46.6682, metrics: { nightlyRate: 380, occupancy: 76, estimatedROI: 16.8, competitionLevel: "alta" } },
-  { id: "itaim-bibi", name: "Itaim Bibi", tags: ["corporativo", "restaurantes", "negocios"], demandProfile: "business", score: 91, avgNightly: 350, avgOccupancy: 78, coordinates: { x: 38, y: 55 }, centerLat: -23.5863, centerLng: -46.6762, metrics: { nightlyRate: 350, occupancy: 78, estimatedROI: 17.2, competitionLevel: "alta" } },
-  { id: "vila-olimpia", name: "Vila Olímpia", tags: ["corporativo", "vida noturna", "tech"], demandProfile: "business", score: 89, avgNightly: 330, avgOccupancy: 79, coordinates: { x: 45, y: 58 }, centerLat: -23.5953, centerLng: -46.6762, metrics: { nightlyRate: 330, occupancy: 79, estimatedROI: 16.1, competitionLevel: "média" } },
-  { id: "paulista", name: "Paulista / Consolação", tags: ["turismo", "metro", "cultura", "museus"], demandProfile: "tourism", score: 87, avgNightly: 260, avgOccupancy: 76, coordinates: { x: 48, y: 35 }, centerLat: -23.5613, centerLng: -46.6562, metrics: { nightlyRate: 260, occupancy: 76, estimatedROI: 14.0, competitionLevel: "média" } },
-  { id: "bela-vista", name: "Bela Vista", tags: ["turismo", "teatro", "gastronomia"], demandProfile: "tourism", score: 82, avgNightly: 240, avgOccupancy: 74, coordinates: { x: 52, y: 42 }, centerLat: -23.5613, centerLng: -46.6442, metrics: { nightlyRate: 240, occupancy: 74, estimatedROI: 12.5, competitionLevel: "baixa" } },
-  { id: "moema", name: "Moema", tags: ["residencial", "aeroporto", "parque"], demandProfile: "mixed", score: 85, avgNightly: 300, avgOccupancy: 77, coordinates: { x: 48, y: 68 }, centerLat: -23.6013, centerLng: -46.6662, metrics: { nightlyRate: 300, occupancy: 77, estimatedROI: 14.8, competitionLevel: "média" } },
-  { id: "vila-clementino", name: "Vila Clementino", tags: ["hospitais", "universidades", "saude"], demandProfile: "medical", score: 83, avgNightly: 220, avgOccupancy: 75, coordinates: { x: 55, y: 72 }, centerLat: -23.6013, centerLng: -46.6362, metrics: { nightlyRate: 220, occupancy: 75, estimatedROI: 13.0, competitionLevel: "baixa" } },
-  { id: "barra-funda", name: "Barra Funda", tags: ["eventos", "expo", "transporte"], demandProfile: "events", score: 80, avgNightly: 200, avgOccupancy: 70, coordinates: { x: 32, y: 18 }, centerLat: -23.5265, centerLng: -46.6810, metrics: { nightlyRate: 200, occupancy: 70, estimatedROI: 11.0, competitionLevel: "baixa" } },
-  { id: "brooklin", name: "Brooklin", tags: ["corporativo", "business district"], demandProfile: "business", score: 84, avgNightly: 290, avgOccupancy: 75, coordinates: { x: 42, y: 65 }, centerLat: -23.6113, centerLng: -46.6862, metrics: { nightlyRate: 290, occupancy: 75, estimatedROI: 14.2, competitionLevel: "média" } },
+  // Data sources: Bwild ADR research 2025, AirDNA MarketMinder SP (62% city avg occupancy), Airbtics 2025
+  // nightlyRate = midpoint of Bwild range for well-decorated studios
+  // occupancy = AirDNA neighborhood-level estimates (premium areas 68-78%, city avg 62%)
+  // activeListings = AirDNA SP total ~28,700 distributed proportionally
+  // avgRevenueMo = nightlyRate * 30 * (occupancy/100)
+  { id: "pinheiros", name: "Pinheiros", tags: ["gastronomia", "turismo", "vida noturna", "coworking", "metro"], demandProfile: "mixed", score: 92, avgNightly: 410, avgOccupancy: 75, coordinates: { x: 28, y: 38 }, centerLat: -23.5613, centerLng: -46.6917, metrics: { nightlyRate: 410, nightlyRateRange: [340, 480], occupancy: 75, estimatedROI: 19.2, competitionLevel: "alta", activeListings: 3200, avgRevenueMo: 9225, seasonalityIndex: 1.1, dataSource: "Bwild/AirDNA 2025" } },
+  { id: "vila-madalena", name: "Vila Madalena", tags: ["turismo", "vida noturna", "arte", "bares"], demandProfile: "tourism", score: 88, avgNightly: 390, avgOccupancy: 72, coordinates: { x: 22, y: 32 }, centerLat: -23.5465, centerLng: -46.6910, metrics: { nightlyRate: 390, nightlyRateRange: [320, 460], occupancy: 72, estimatedROI: 16.5, competitionLevel: "média", activeListings: 1800, avgRevenueMo: 8424, seasonalityIndex: 1.3, dataSource: "Bwild/AirDNA 2025" } },
+  { id: "jardins", name: "Jardins", tags: ["luxo", "compras", "restaurantes", "turismo"], demandProfile: "premium tourism", score: 90, avgNightly: 440, avgOccupancy: 70, coordinates: { x: 42, y: 40 }, centerLat: -23.5636, centerLng: -46.6682, metrics: { nightlyRate: 440, nightlyRateRange: [360, 520], occupancy: 70, estimatedROI: 17.4, competitionLevel: "alta", activeListings: 2800, avgRevenueMo: 9240, seasonalityIndex: 1.0, dataSource: "Bwild/AirDNA 2025" } },
+  { id: "itaim-bibi", name: "Itaim Bibi", tags: ["corporativo", "restaurantes", "negocios"], demandProfile: "business", score: 91, avgNightly: 440, avgOccupancy: 73, coordinates: { x: 38, y: 55 }, centerLat: -23.5863, centerLng: -46.6762, metrics: { nightlyRate: 440, nightlyRateRange: [360, 520], occupancy: 73, estimatedROI: 18.1, competitionLevel: "alta", activeListings: 2600, avgRevenueMo: 9636, seasonalityIndex: 0.9, dataSource: "Bwild/AirDNA 2025" } },
+  { id: "vila-olimpia", name: "Vila Olímpia", tags: ["corporativo", "vida noturna", "tech"], demandProfile: "business", score: 89, avgNightly: 410, avgOccupancy: 74, coordinates: { x: 45, y: 58 }, centerLat: -23.5953, centerLng: -46.6762, metrics: { nightlyRate: 410, nightlyRateRange: [340, 480], occupancy: 74, estimatedROI: 17.0, competitionLevel: "média", activeListings: 2200, avgRevenueMo: 9102, seasonalityIndex: 0.9, dataSource: "Bwild/AirDNA 2025" } },
+  { id: "paulista", name: "Paulista / Consolação", tags: ["turismo", "metro", "cultura", "museus"], demandProfile: "tourism", score: 87, avgNightly: 330, avgOccupancy: 71, coordinates: { x: 48, y: 35 }, centerLat: -23.5613, centerLng: -46.6562, metrics: { nightlyRate: 330, nightlyRateRange: [280, 380], occupancy: 71, estimatedROI: 14.8, competitionLevel: "média", activeListings: 3100, avgRevenueMo: 7029, seasonalityIndex: 1.2, dataSource: "Bwild/AirDNA 2025" } },
+  { id: "bela-vista", name: "Bela Vista", tags: ["turismo", "teatro", "gastronomia"], demandProfile: "tourism", score: 82, avgNightly: 310, avgOccupancy: 68, coordinates: { x: 52, y: 42 }, centerLat: -23.5613, centerLng: -46.6442, metrics: { nightlyRate: 310, nightlyRateRange: [260, 360], occupancy: 68, estimatedROI: 12.8, competitionLevel: "baixa", activeListings: 2400, avgRevenueMo: 6324, seasonalityIndex: 1.2, dataSource: "Bwild/AirDNA 2025" } },
+  { id: "moema", name: "Moema", tags: ["residencial", "aeroporto", "parque"], demandProfile: "mixed", score: 85, avgNightly: 390, avgOccupancy: 69, coordinates: { x: 48, y: 68 }, centerLat: -23.6013, centerLng: -46.6662, metrics: { nightlyRate: 390, nightlyRateRange: [320, 460], occupancy: 69, estimatedROI: 15.2, competitionLevel: "média", activeListings: 1900, avgRevenueMo: 8073, seasonalityIndex: 1.4, dataSource: "Bwild/AirDNA 2025" } },
+  { id: "vila-clementino", name: "Vila Clementino", tags: ["hospitais", "universidades", "saude"], demandProfile: "medical", score: 83, avgNightly: 270, avgOccupancy: 72, coordinates: { x: 55, y: 72 }, centerLat: -23.6013, centerLng: -46.6362, metrics: { nightlyRate: 270, nightlyRateRange: [220, 320], occupancy: 72, estimatedROI: 13.5, competitionLevel: "baixa", activeListings: 850, avgRevenueMo: 5832, seasonalityIndex: 0.8, dataSource: "Bwild/AirDNA 2025" } },
+  { id: "barra-funda", name: "Barra Funda", tags: ["eventos", "expo", "transporte"], demandProfile: "events", score: 80, avgNightly: 250, avgOccupancy: 64, coordinates: { x: 32, y: 18 }, centerLat: -23.5265, centerLng: -46.6810, metrics: { nightlyRate: 250, nightlyRateRange: [200, 300], occupancy: 64, estimatedROI: 11.5, competitionLevel: "baixa", activeListings: 950, avgRevenueMo: 4800, seasonalityIndex: 1.6, dataSource: "Bwild/AirDNA 2025" } },
+  { id: "brooklin", name: "Brooklin", tags: ["corporativo", "business district"], demandProfile: "business", score: 84, avgNightly: 370, avgOccupancy: 70, coordinates: { x: 42, y: 65 }, centerLat: -23.6113, centerLng: -46.6862, metrics: { nightlyRate: 370, nightlyRateRange: [300, 440], occupancy: 70, estimatedROI: 14.6, competitionLevel: "média", activeListings: 1600, avgRevenueMo: 7770, seasonalityIndex: 1.0, dataSource: "Bwild/AirDNA 2025" } },
 ];
 
 export const METRO_STATIONS: MetroStation[] = [
@@ -99,22 +109,22 @@ export const EVENTS: CityEvent[] = [
 ];
 
 export const HEAT_POINTS: HeatPoint[] = [
-  { id: "hp1", lat: -23.56, lng: -46.69, demandScore: 95, occupancyEstimate: 82, adrEstimate: 320, areaName: "Pinheiros Centro", coordinates: { x: 28, y: 38 } },
-  { id: "hp2", lat: -23.55, lng: -46.69, demandScore: 85, occupancyEstimate: 78, adrEstimate: 280, areaName: "Vila Madalena", coordinates: { x: 22, y: 32 } },
-  { id: "hp3", lat: -23.56, lng: -46.67, demandScore: 90, occupancyEstimate: 76, adrEstimate: 380, areaName: "Jardins", coordinates: { x: 42, y: 40 } },
-  { id: "hp4", lat: -23.59, lng: -46.68, demandScore: 92, occupancyEstimate: 78, adrEstimate: 350, areaName: "Itaim Bibi", coordinates: { x: 38, y: 55 } },
-  { id: "hp5", lat: -23.60, lng: -46.68, demandScore: 88, occupancyEstimate: 79, adrEstimate: 330, areaName: "Vila Olímpia", coordinates: { x: 45, y: 58 } },
-  { id: "hp6", lat: -23.56, lng: -46.66, demandScore: 80, occupancyEstimate: 76, adrEstimate: 260, areaName: "Paulista", coordinates: { x: 48, y: 35 } },
-  { id: "hp7", lat: -23.56, lng: -46.64, demandScore: 68, occupancyEstimate: 74, adrEstimate: 240, areaName: "Bela Vista", coordinates: { x: 52, y: 42 } },
-  { id: "hp8", lat: -23.60, lng: -46.67, demandScore: 78, occupancyEstimate: 77, adrEstimate: 300, areaName: "Moema", coordinates: { x: 48, y: 68 } },
-  { id: "hp9", lat: -23.60, lng: -46.64, demandScore: 72, occupancyEstimate: 75, adrEstimate: 220, areaName: "Vila Clementino", coordinates: { x: 55, y: 72 } },
-  { id: "hp10", lat: -23.53, lng: -46.68, demandScore: 60, occupancyEstimate: 70, adrEstimate: 200, areaName: "Barra Funda", coordinates: { x: 32, y: 18 } },
-  { id: "hp11", lat: -23.61, lng: -46.69, demandScore: 75, occupancyEstimate: 75, adrEstimate: 290, areaName: "Brooklin", coordinates: { x: 42, y: 65 } },
-  // extra heat points for density
-  { id: "hp12", lat: -23.57, lng: -46.70, demandScore: 70, occupancyEstimate: 72, adrEstimate: 250, areaName: "Alto de Pinheiros", coordinates: { x: 18, y: 42 } },
-  { id: "hp13", lat: -23.55, lng: -46.66, demandScore: 65, occupancyEstimate: 70, adrEstimate: 230, areaName: "Higienópolis", coordinates: { x: 50, y: 28 } },
-  { id: "hp14", lat: -23.58, lng: -46.66, demandScore: 82, occupancyEstimate: 76, adrEstimate: 310, areaName: "Paraíso", coordinates: { x: 52, y: 50 } },
-  { id: "hp15", lat: -23.59, lng: -46.70, demandScore: 55, occupancyEstimate: 68, adrEstimate: 210, areaName: "Butantã", coordinates: { x: 15, y: 55 } },
+  { id: "hp1", lat: -23.56, lng: -46.69, demandScore: 95, occupancyEstimate: 75, adrEstimate: 410, areaName: "Pinheiros Centro", coordinates: { x: 28, y: 38 } },
+  { id: "hp2", lat: -23.55, lng: -46.69, demandScore: 85, occupancyEstimate: 72, adrEstimate: 390, areaName: "Vila Madalena", coordinates: { x: 22, y: 32 } },
+  { id: "hp3", lat: -23.56, lng: -46.67, demandScore: 90, occupancyEstimate: 70, adrEstimate: 440, areaName: "Jardins", coordinates: { x: 42, y: 40 } },
+  { id: "hp4", lat: -23.59, lng: -46.68, demandScore: 92, occupancyEstimate: 73, adrEstimate: 440, areaName: "Itaim Bibi", coordinates: { x: 38, y: 55 } },
+  { id: "hp5", lat: -23.60, lng: -46.68, demandScore: 88, occupancyEstimate: 74, adrEstimate: 410, areaName: "Vila Olímpia", coordinates: { x: 45, y: 58 } },
+  { id: "hp6", lat: -23.56, lng: -46.66, demandScore: 80, occupancyEstimate: 71, adrEstimate: 330, areaName: "Paulista", coordinates: { x: 48, y: 35 } },
+  { id: "hp7", lat: -23.56, lng: -46.64, demandScore: 68, occupancyEstimate: 68, adrEstimate: 310, areaName: "Bela Vista", coordinates: { x: 52, y: 42 } },
+  { id: "hp8", lat: -23.60, lng: -46.67, demandScore: 78, occupancyEstimate: 69, adrEstimate: 390, areaName: "Moema", coordinates: { x: 48, y: 68 } },
+  { id: "hp9", lat: -23.60, lng: -46.64, demandScore: 72, occupancyEstimate: 72, adrEstimate: 270, areaName: "Vila Clementino", coordinates: { x: 55, y: 72 } },
+  { id: "hp10", lat: -23.53, lng: -46.68, demandScore: 60, occupancyEstimate: 64, adrEstimate: 250, areaName: "Barra Funda", coordinates: { x: 32, y: 18 } },
+  { id: "hp11", lat: -23.61, lng: -46.69, demandScore: 75, occupancyEstimate: 70, adrEstimate: 370, areaName: "Brooklin", coordinates: { x: 42, y: 65 } },
+  // extra heat points
+  { id: "hp12", lat: -23.57, lng: -46.70, demandScore: 70, occupancyEstimate: 67, adrEstimate: 360, areaName: "Alto de Pinheiros", coordinates: { x: 18, y: 42 } },
+  { id: "hp13", lat: -23.55, lng: -46.66, demandScore: 65, occupancyEstimate: 66, adrEstimate: 290, areaName: "Higienópolis", coordinates: { x: 50, y: 28 } },
+  { id: "hp14", lat: -23.58, lng: -46.66, demandScore: 82, occupancyEstimate: 71, adrEstimate: 390, areaName: "Paraíso", coordinates: { x: 52, y: 50 } },
+  { id: "hp15", lat: -23.59, lng: -46.70, demandScore: 55, occupancyEstimate: 62, adrEstimate: 240, areaName: "Butantã", coordinates: { x: 15, y: 55 } },
 ];
 
 export const DEMAND_FILTERS = [

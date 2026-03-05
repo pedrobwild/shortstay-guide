@@ -118,11 +118,14 @@ function NeighborhoodCard({ n, isSelected, isHighlighted, onClick }: { n: Neighb
               <span className="text-xs font-bold font-mono text-foreground">{n.score}</span>
             </div>
           </div>
-          <div className="flex items-center gap-3 text-xs text-muted-foreground font-body mb-3">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground font-body mb-1.5">
             <span>R$ {n.avgNightly}/noite</span>
             <span>{n.avgOccupancy}% ocup.</span>
             <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{n.metrics.estimatedROI}% ROI</span>
           </div>
+          <p className="text-[9px] text-muted-foreground font-body mb-2.5">
+            Faixa: R${fmt(n.metrics.nightlyRateRange[0])}–R${fmt(n.metrics.nightlyRateRange[1])} · {fmt(n.metrics.activeListings)} anúncios · R${fmt(n.metrics.avgRevenueMo)}/mês
+          </p>
           <div className="flex flex-wrap gap-1">
             {n.tags.slice(0, 4).map((tag) => {
               const Icon = TAG_ICONS[tag] || MapPin;
