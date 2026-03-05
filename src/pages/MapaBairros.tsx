@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,8 @@ import {
 import DemandHeatmap from "@/components/mapa/DemandHeatmap";
 import ROIRanking from "@/components/mapa/ROIRanking";
 import NeighborhoodComparison from "@/components/mapa/NeighborhoodComparison";
+import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 
 /* ─── ROI Simulator ─── */
 function ROISimulator({ neighborhood, onClose }: { neighborhood: Neighborhood; onClose: () => void }) {
@@ -167,6 +169,24 @@ function NeighborhoodCard({ n, isSelected, isHighlighted, onClick, index = 0 }: 
   );
 }
 
+/* ─── Metro station lat/lng lookup ─── */
+const METRO_LATLNG: Record<number, { lat: number; lng: number }> = {
+  1: { lat: -23.5668, lng: -46.6936 }, // Faria Lima
+  2: { lat: -23.5670, lng: -46.7020 }, // Pinheiros
+  3: { lat: -23.5575, lng: -46.6603 }, // Consolação
+  4: { lat: -23.5614, lng: -46.6558 }, // Trianon-Masp
+  5: { lat: -23.5680, lng: -46.6513 }, // Brigadeiro
+  6: { lat: -23.5466, lng: -46.6907 }, // Vila Madalena
+  7: { lat: -23.5533, lng: -46.6920 }, // Fradique Coutinho
+  8: { lat: -23.5584, lng: -46.6725 }, // Oscar Freire
+  9: { lat: -23.6007, lng: -46.6650 }, // Moema
+  10: { lat: -23.6046, lng: -46.6565 }, // Eucaliptos
+  11: { lat: -23.5254, lng: -46.6670 }, // Palmeiras-Barra Funda
+  12: { lat: -23.6130, lng: -46.6966 }, // Brooklin
+};
+
+const MAP_STYLE_URL = "https://api.maptiler.com/maps/019cc06d-fb8e-741d-b158-a17a30e87c08/style.json?key=AI17dHeoeJx6rUC1KlSL";
+
 /* ─── Interactive Map ─── */
 function InteractiveMap({
   neighborhoods, stations, showMetro, showHeatmap, selected, highlightedNames, onSelect,
@@ -174,148 +194,123 @@ function InteractiveMap({
   neighborhoods: Neighborhood[]; stations: MetroStation[]; showMetro: boolean; showHeatmap: boolean;
   selected: Neighborhood | null; highlightedNames: string[]; onSelect: (n: Neighborhood) => void;
 }) {
-  const [hoveredStation, setHoveredStation] = useState<MetroStation | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
+  const markersRef = useRef<maplibregl.Marker[]>([]);
+  const [mapReady, setMapReady] = useState(false);
+
+  // Initialize map
+  useEffect(() => {
+    if (!mapContainerRef.current || mapRef.current) return;
+    const map = new maplibregl.Map({
+      container: mapContainerRef.current,
+      style: MAP_STYLE_URL,
+      center: [-46.67, -23.575],
+      zoom: 12.5,
+      minZoom: 11,
+      maxZoom: 16,
+      attributionControl: false,
+    });
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+    map.on("load", () => setMapReady(true));
+    mapRef.current = map;
+    return () => { map.remove(); mapRef.current = null; };
+  }, []);
+
+  // Neighborhood markers
+  useEffect(() => {
+    if (!mapRef.current || !mapReady) return;
+    // Clear old markers
+    markersRef.current.forEach((m) => m.remove());
+    markersRef.current = [];
+
+    neighborhoods.forEach((n) => {
+      const isSel = selected?.name === n.name;
+      const isHigh = highlightedNames.includes(n.name);
+      const color = n.score >= 88 ? "#22c55e" : n.score >= 84 ? "#f59e0b" : "#9ca3af";
+      const borderColor = isSel ? "hsl(var(--primary))" : isHigh ? "#fbbf24" : "#fff";
+      const bgColor = isSel ? "hsl(var(--primary))" : isHigh ? "#fbbf24" : color;
+      const size = isSel ? 28 : 22;
+
+      const el = document.createElement("div");
+      el.className = "maplibre-neighborhood-marker";
+      el.style.cssText = `
+        width:${size}px;height:${size}px;border-radius:50%;border:2px solid ${borderColor};
+        background:${bgColor};display:flex;align-items:center;justify-content:center;
+        cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);transition:transform 0.2s;
+        font-size:8px;font-weight:700;color:#fff;font-family:monospace;
+      `;
+      el.textContent = String(n.score);
+      el.addEventListener("mouseenter", () => { el.style.transform = "scale(1.4)"; el.style.zIndex = "30"; });
+      el.addEventListener("mouseleave", () => { el.style.transform = "scale(1)"; el.style.zIndex = ""; });
+      el.addEventListener("click", () => onSelect(n));
+
+      // Tooltip
+      const popup = new maplibregl.Popup({
+        offset: 16, closeButton: false, closeOnClick: false,
+        className: "neighborhood-popup",
+      }).setHTML(`
+        <div style="font-size:11px;font-weight:700;">${n.name}</div>
+        <div style="font-size:10px;color:#888;">R$${n.avgNightly}/noite · ${n.avgOccupancy}% · ROI ${n.metrics.estimatedROI}%</div>
+      `);
+      
+      const marker = new maplibregl.Marker({ element: el })
+        .setLngLat([n.centerLng, n.centerLat])
+        .setPopup(popup)
+        .addTo(mapRef.current!);
+
+      el.addEventListener("mouseenter", () => popup.addTo(mapRef.current!));
+      el.addEventListener("mouseleave", () => popup.remove());
+
+      markersRef.current.push(marker);
+    });
+  }, [mapReady, neighborhoods, selected, highlightedNames, onSelect]);
+
+  // Metro markers
+  const metroMarkersRef = useRef<maplibregl.Marker[]>([]);
+  useEffect(() => {
+    metroMarkersRef.current.forEach((m) => m.remove());
+    metroMarkersRef.current = [];
+    if (!mapRef.current || !mapReady || !showMetro) return;
+
+    stations.forEach((s) => {
+      const coords = METRO_LATLNG[s.id];
+      if (!coords) return;
+      const el = document.createElement("div");
+      el.style.cssText = `
+        width:14px;height:14px;border-radius:50%;border:2px solid #fff;
+        background:${s.color};box-shadow:0 1px 6px rgba(0,0,0,0.3);cursor:pointer;
+      `;
+      const popup = new maplibregl.Popup({ offset: 12, closeButton: false, closeOnClick: false })
+        .setHTML(`<div style="font-size:11px;font-weight:700;">${s.name}</div><div style="font-size:10px;color:#888;">${s.line}</div>`);
+      const marker = new maplibregl.Marker({ element: el })
+        .setLngLat([coords.lng, coords.lat])
+        .setPopup(popup)
+        .addTo(mapRef.current!);
+      el.addEventListener("mouseenter", () => popup.addTo(mapRef.current!));
+      el.addEventListener("mouseleave", () => popup.remove());
+      metroMarkersRef.current.push(marker);
+    });
+  }, [mapReady, showMetro, stations]);
+
+  // Fly to selected
+  useEffect(() => {
+    if (!mapRef.current || !selected) return;
+    mapRef.current.flyTo({ center: [selected.centerLng, selected.centerLat], zoom: 14, duration: 800 });
+  }, [selected]);
 
   return (
     <motion.div
-      className="relative w-full aspect-[4/3] bg-muted/30 rounded-xl border border-border overflow-hidden"
+      className="relative w-full aspect-[4/3] rounded-xl border border-border overflow-hidden"
       initial={{ opacity: 0, scale: 0.97 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
     >
-      {/* São Paulo stylized map background — rivers Tietê & Pinheiros, Av. Paulista, neighborhood blocks */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none select-none" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
-        {/* Grid */}
-        <defs>
-          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeWidth="0.3" opacity="0.05" />
-          </pattern>
-        </defs>
-        <rect width="800" height="600" fill="url(#grid)" />
-
-        {/* Rio Tietê — flows east-west across the top */}
-        <path d="M 0 120 C 100 110, 200 130, 320 125 C 440 118, 560 135, 700 128 L 800 130" fill="none" stroke="hsl(210 40% 78%)" strokeWidth="18" strokeLinecap="round" opacity="0.35" />
-        <path d="M 0 120 C 100 110, 200 130, 320 125 C 440 118, 560 135, 700 128 L 800 130" fill="none" stroke="hsl(210 50% 85%)" strokeWidth="8" strokeLinecap="round" opacity="0.5" />
-
-        {/* Rio Pinheiros — flows north-south on the west side */}
-        <path d="M 200 130 C 195 180, 210 230, 220 280 C 230 340, 215 400, 230 470 C 240 520, 250 560, 260 600" fill="none" stroke="hsl(210 40% 78%)" strokeWidth="12" strokeLinecap="round" opacity="0.35" />
-        <path d="M 200 130 C 195 180, 210 230, 220 280 C 230 340, 215 400, 230 470 C 240 520, 250 560, 260 600" fill="none" stroke="hsl(210 50% 85%)" strokeWidth="5" strokeLinecap="round" opacity="0.5" />
-
-        {/* Av. Paulista — iconic east-west avenue */}
-        <path d="M 280 310 L 520 290" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="2.5" strokeLinecap="round" opacity="0.12" />
-
-        {/* Major avenues radiating from center */}
-        <path d="M 400 260 L 250 140" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" opacity="0.08" />
-        <path d="M 400 260 L 550 140" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" opacity="0.08" />
-        <path d="M 400 280 L 300 480" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" opacity="0.08" />
-        <path d="M 400 280 L 550 480" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" opacity="0.08" />
-        <path d="M 400 270 L 700 250" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" opacity="0.08" />
-        <path d="M 400 270 L 150 300" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" opacity="0.08" />
-
-        {/* Secondary streets grid — central area */}
-        {[180, 220, 260, 300, 340, 380, 420].map((y) => (
-          <line key={`h${y}`} x1="250" y1={y} x2="580" y2={y - 10} stroke="hsl(var(--muted-foreground))" strokeWidth="0.5" opacity="0.05" />
-        ))}
-        {[280, 320, 360, 400, 440, 480, 520].map((x) => (
-          <line key={`v${x}`} x1={x} y1="160" x2={x + 5} y2="450" stroke="hsl(var(--muted-foreground))" strokeWidth="0.5" opacity="0.05" />
-        ))}
-
-        {/* Neighborhood area fills — subtle regions */}
-        <ellipse cx="300" cy="240" rx="50" ry="35" fill="hsl(var(--muted-foreground))" opacity="0.03" /> {/* Pinheiros */}
-        <ellipse cx="250" cy="280" rx="40" ry="30" fill="hsl(var(--muted-foreground))" opacity="0.03" /> {/* Vila Madalena */}
-        <ellipse cx="400" cy="260" rx="55" ry="30" fill="hsl(var(--muted-foreground))" opacity="0.04" /> {/* Jardins */}
-        <ellipse cx="480" cy="300" rx="45" ry="30" fill="hsl(var(--muted-foreground))" opacity="0.03" /> {/* Itaim Bibi */}
-        <ellipse cx="520" cy="340" rx="45" ry="30" fill="hsl(var(--muted-foreground))" opacity="0.03" /> {/* Vila Olímpia */}
-        <ellipse cx="450" cy="400" rx="40" ry="35" fill="hsl(var(--muted-foreground))" opacity="0.03" /> {/* Moema */}
-
-        {/* Marginal label indicators — small dashes along rivers */}
-        {[250, 350, 450, 550, 650].map((x) => (
-          <line key={`mt${x}`} x1={x} y1="118" x2={x + 15} y2="118" stroke="hsl(210 40% 70%)" strokeWidth="1" opacity="0.2" />
-        ))}
-      </svg>
-
-      {/* Heatmap layer */}
-      <DemandHeatmap heatPoints={HEAT_POINTS} visible={showHeatmap} />
-
-      {/* Metro layer */}
-      <AnimatePresence>
-        {showMetro && stations.map((s, i) => (
-          <motion.div key={s.id}
-            initial={{ opacity: 0, scale: 0, rotate: -90 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            exit={{ opacity: 0, scale: 0, rotate: 90 }}
-            transition={{ duration: 0.4, delay: i * 0.04, type: "spring", stiffness: 200, damping: 15 }}
-            className="absolute z-10"
-            style={{ left: `${s.coordinates.x}%`, top: `${s.coordinates.y}%`, transform: "translate(-50%, -50%)" }}
-            onMouseEnter={() => setHoveredStation(s)} onMouseLeave={() => setHoveredStation(null)}
-          >
-            <motion.div
-              className="absolute w-12 h-12 rounded-full -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 opacity-15"
-              style={{ backgroundColor: s.color }}
-              animate={{ scale: [1, 1.15, 1], opacity: [0.15, 0.25, 0.15] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <div className="w-3 h-3 rounded-full border-2 border-white shadow-md cursor-pointer" style={{ backgroundColor: s.color }} />
-            {hoveredStation?.id === s.id && (
-              <motion.div
-                initial={{ opacity: 0, y: 6, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-card/95 backdrop-blur-sm border border-border shadow-xl rounded-lg px-3 py-2 whitespace-nowrap z-50"
-              >
-                <p className="text-xs font-bold text-foreground">{s.name}</p>
-                <p className="text-[10px] text-muted-foreground">{s.line}</p>
-              </motion.div>
-            )}
-          </motion.div>
-        ))}
-      </AnimatePresence>
-
-      {/* Neighborhood dots */}
-      {neighborhoods.map((n, i) => {
-        const isSel = selected?.name === n.name;
-        const isHigh = highlightedNames.includes(n.name);
-        return (
-          <motion.div key={n.name} className="absolute z-20 cursor-pointer group"
-            style={{ left: `${n.coordinates.x}%`, top: `${n.coordinates.y}%`, transform: "translate(-50%, -50%)" }}
-            onClick={() => onSelect(n)}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 + i * 0.04, type: "spring", stiffness: 260, damping: 18 }}
-            whileHover={{ scale: 1.4, zIndex: 30 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <motion.div
-              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                isSel ? "border-primary bg-primary shadow-lg" : isHigh ? "border-amber-400 bg-amber-400 shadow-md" : `${scoreColor(n.score)} border-white shadow-sm`
-              }`}
-              animate={isSel ? { scale: [1, 1.15, 1], boxShadow: ["0 0 0 0 hsl(var(--primary) / 0.4)", "0 0 0 8px hsl(var(--primary) / 0)", "0 0 0 0 hsl(var(--primary) / 0)"] } : {}}
-              transition={isSel ? { duration: 1.5, repeat: Infinity } : {}}
-            >
-              <span className="text-[7px] font-bold text-white">{n.score}</span>
-            </motion.div>
-            <motion.div
-              className="absolute top-full left-1/2 -translate-x-1/2 mt-1.5 bg-card/95 backdrop-blur-sm border border-border shadow-xl rounded-lg px-3 py-2 whitespace-nowrap z-50 pointer-events-none"
-              initial={{ opacity: 0, y: -4, scale: 0.9 }}
-              animate={{ opacity: 0 }}
-              whileInView={{ opacity: 0 }}
-              style={{ opacity: 0 }}
-            >
-              <p className="text-[10px] font-bold text-foreground">{n.name}</p>
-              <p className="text-[9px] text-muted-foreground">R${n.avgNightly}/noite · {n.avgOccupancy}% · ROI {n.metrics.estimatedROI}%</p>
-            </motion.div>
-            {/* CSS-based tooltip for better perf */}
-            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1.5 opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all duration-200 bg-card/95 backdrop-blur-sm border border-border shadow-xl rounded-lg px-3 py-2 whitespace-nowrap z-50 pointer-events-none">
-              <p className="text-[10px] font-bold text-foreground">{n.name}</p>
-              <p className="text-[9px] text-muted-foreground">R${n.avgNightly}/noite · {n.avgOccupancy}% · ROI {n.metrics.estimatedROI}%</p>
-            </div>
-          </motion.div>
-        );
-      })}
+      <div ref={mapContainerRef} className="absolute inset-0" />
 
       {/* Legend */}
       <motion.div
-        className="absolute bottom-3 left-3 bg-card/90 backdrop-blur border border-border rounded-lg px-3 py-2 flex items-center gap-3 text-[10px] text-muted-foreground font-body"
+        className="absolute bottom-3 left-3 bg-card/90 backdrop-blur border border-border rounded-lg px-3 py-2 flex items-center gap-3 text-[10px] text-muted-foreground font-body z-10"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
