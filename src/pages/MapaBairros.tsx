@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import bwildLogo from "@/assets/bwild-logo.png";
+import spMapBg from "@/assets/sp-map-bg.png";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, MapPin, Train, Calendar, DollarSign, TrendingUp, Briefcase,
@@ -182,6 +183,8 @@ function InteractiveMap({
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
     >
+      {/* São Paulo map background */}
+      <img src={spMapBg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none select-none" />
       <svg className="absolute inset-0 w-full h-full opacity-[0.04]">
         <defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeWidth="0.5" /></pattern></defs>
         <rect width="100%" height="100%" fill="url(#grid)" />
