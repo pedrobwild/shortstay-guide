@@ -352,41 +352,49 @@ function KPICard({ icon: Icon, label }: { icon: typeof MousePointerClick; label:
 }
 
 /* ─── Trend Card ─── */
-function TrendCard({ trend, onOpen }: { trend: Trend; onOpen: () => void }) {
+function TrendCard({ trend, onOpen, index }: { trend: Trend; onOpen: () => void; index: number }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
+      initial={{ opacity: 0, y: 30, scale: 0.92 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9, y: -12 }}
       layout
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.45, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -6, transition: { duration: 0.25 } }}
     >
-      <Card className="border-border bg-card h-full hover:shadow-lg hover:border-primary/30 transition-all group cursor-pointer" onClick={onOpen}>
-        <CardContent className="p-5 flex flex-col h-full">
-          <div className="flex items-center justify-between mb-3">
-            <Badge variant="secondary" className="font-mono text-xs font-bold">{trend.numberLabel}</Badge>
-            <div className="flex gap-1.5">
-              <Badge className={`text-[10px] px-1.5 py-0 ${diffColor[trend.difficulty]}`}>{diffLabel[trend.difficulty]}</Badge>
-              <Badge className={`text-[10px] px-1.5 py-0 ${impactColor[trend.impact]}`}>{impactLabel[trend.impact]}</Badge>
+      <Card className="border-border bg-card h-full hover:shadow-xl hover:border-primary/40 transition-all duration-300 group cursor-pointer overflow-hidden" onClick={onOpen}>
+        <CardContent className="p-5 flex flex-col h-full relative">
+          {/* Subtle gradient glow on hover */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/0 group-hover:from-primary/[0.03] group-hover:to-accent/[0.06] transition-all duration-500 pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col h-full">
+            <div className="flex items-center justify-between mb-3">
+              <motion.div whileHover={{ scale: 1.1 }} transition={{ type: "spring", stiffness: 400 }}>
+                <Badge variant="secondary" className="font-mono text-xs font-bold">{trend.numberLabel}</Badge>
+              </motion.div>
+              <div className="flex gap-1.5">
+                <Badge className={`text-[10px] px-1.5 py-0 ${diffColor[trend.difficulty]}`}>{diffLabel[trend.difficulty]}</Badge>
+                <Badge className={`text-[10px] px-1.5 py-0 ${impactColor[trend.impact]}`}>{impactLabel[trend.impact]}</Badge>
+              </div>
             </div>
+            <h3 className="font-display text-base font-bold text-foreground mb-2 leading-snug group-hover:text-primary transition-colors duration-300">{trend.title}</h3>
+            <p className="text-sm text-muted-foreground font-body mb-4 flex-1">{trend.short}</p>
+            <div className="flex flex-wrap gap-1.5 mb-4">
+              {trend.tags.map((tag) => {
+                const TagIcon = TAG_ICONS[tag] || Gem;
+                return (
+                  <span key={tag} className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${TAG_COLORS[tag] || "bg-muted text-muted-foreground"}`}>
+                    <TagIcon size={10} />
+                    {tag}
+                  </span>
+                );
+              })}
+            </div>
+            <Button size="sm" variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+              Ver detalhes
+              <ChevronRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform duration-300" />
+            </Button>
           </div>
-          <h3 className="font-display text-base font-bold text-foreground mb-2 leading-snug">{trend.title}</h3>
-          <p className="text-sm text-muted-foreground font-body mb-4 flex-1">{trend.short}</p>
-          <div className="flex flex-wrap gap-1.5 mb-4">
-            {trend.tags.map((tag) => {
-              const TagIcon = TAG_ICONS[tag] || Gem;
-              return (
-                <span key={tag} className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${TAG_COLORS[tag] || "bg-muted text-muted-foreground"}`}>
-                  <TagIcon size={10} />
-                  {tag}
-                </span>
-              );
-            })}
-          </div>
-          <Button size="sm" variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-            Ver detalhes
-            <ChevronRight size={14} className="ml-1" />
-          </Button>
         </CardContent>
       </Card>
     </motion.div>
@@ -400,62 +408,62 @@ function TrendDetailModal({ trend, open, onClose }: { trend: Trend | null; open:
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center gap-2 mb-1">
-            <Badge variant="secondary" className="font-mono text-xs font-bold">{trend.numberLabel}</Badge>
-            <Badge className={`text-[10px] px-1.5 py-0 ${impactColor[trend.impact]}`}>{impactLabel[trend.impact]}</Badge>
-          </div>
-          <DialogTitle className="font-display text-xl">{trend.title}</DialogTitle>
+          <motion.div initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3, delay: 0.1 }}>
+            <div className="flex items-center gap-2 mb-1">
+              <Badge variant="secondary" className="font-mono text-xs font-bold">{trend.numberLabel}</Badge>
+              <Badge className={`text-[10px] px-1.5 py-0 ${impactColor[trend.impact]}`}>{impactLabel[trend.impact]}</Badge>
+            </div>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.15 }}>
+            <DialogTitle className="font-display text-xl">{trend.title}</DialogTitle>
+          </motion.div>
         </DialogHeader>
 
         <div className="space-y-5 mt-2">
-          {/* What */}
-          <div>
-            <h4 className="text-sm font-semibold text-foreground font-body flex items-center gap-2 mb-1">
-              <Eye size={14} className="text-primary" /> O que é
-            </h4>
-            <p className="text-sm text-muted-foreground">{trend.details.what}</p>
-          </div>
-
-          {/* How */}
-          <div>
-            <h4 className="text-sm font-semibold text-foreground font-body flex items-center gap-2 mb-2">
-              <SlidersHorizontal size={14} className="text-primary" /> Como aplicar
-            </h4>
-            <ul className="space-y-1.5">
-              {trend.details.how.map((step, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                  <span className="text-primary font-bold text-xs mt-0.5">{i + 1}.</span>
-                  {step}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Checklist */}
-          <div>
-            <h4 className="text-sm font-semibold text-foreground font-body flex items-center gap-2 mb-2">
-              <CheckCircle2 size={14} className="text-primary" /> Checklist rápido
-            </h4>
-            <ul className="space-y-1">
-              {trend.details.checklist.map((item, i) => (
-                <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <CheckCircle2 size={12} className="text-emerald-500 flex-shrink-0" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
+          {[
+            { icon: Eye, title: "O que é", content: <p className="text-sm text-muted-foreground">{trend.details.what}</p> },
+            { icon: SlidersHorizontal, title: "Como aplicar", content: (
+              <ul className="space-y-1.5">
+                {trend.details.how.map((step, i) => (
+                  <motion.li key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.08 }}
+                    className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <span className="text-primary font-bold text-xs mt-0.5">{i + 1}.</span>
+                    {step}
+                  </motion.li>
+                ))}
+              </ul>
+            )},
+            { icon: CheckCircle2, title: "Checklist rápido", content: (
+              <ul className="space-y-1">
+                {trend.details.checklist.map((item, i) => (
+                  <motion.li key={i} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + i * 0.07 }}
+                    className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <CheckCircle2 size={12} className="text-emerald-500 flex-shrink-0" />
+                    {item}
+                  </motion.li>
+                ))}
+              </ul>
+            )},
+          ].map((section, i) => (
+            <motion.div key={section.title} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.15 + i * 0.1 }}>
+              <h4 className="text-sm font-semibold text-foreground font-body flex items-center gap-2 mb-2">
+                <section.icon size={14} className="text-primary" /> {section.title}
+              </h4>
+              {section.content}
+            </motion.div>
+          ))}
 
           {/* Impact */}
-          <div className="bg-primary/5 rounded-lg p-4">
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.5 }}
+            className="bg-primary/5 rounded-lg p-4">
             <h4 className="text-sm font-semibold text-foreground font-body flex items-center gap-2 mb-1">
               <BarChart3 size={14} className="text-primary" /> Impacto esperado
             </h4>
             <p className="text-sm text-muted-foreground">{trend.details.expectedImpact}</p>
-          </div>
+          </motion.div>
 
           {/* Tags */}
-          <div className="flex flex-wrap gap-1.5">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }} className="flex flex-wrap gap-1.5">
             {trend.tags.map((tag) => {
               const TagIcon = TAG_ICONS[tag] || Gem;
               return (
@@ -465,7 +473,7 @@ function TrendDetailModal({ trend, open, onClose }: { trend: Trend | null; open:
                 </span>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </DialogContent>
     </Dialog>
@@ -603,8 +611,8 @@ export default function TendenciasPremium() {
           <p className="text-sm text-muted-foreground mb-4 font-body">{filtered.length} tendência{filtered.length !== 1 ? "s" : ""} encontrada{filtered.length !== 1 ? "s" : ""}</p>
           <AnimatePresence mode="popLayout">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {filtered.map((t) => (
-                <TrendCard key={t.id} trend={t} onOpen={() => setSelectedTrend(t)} />
+              {filtered.map((t, i) => (
+                <TrendCard key={t.id} trend={t} index={i} onOpen={() => setSelectedTrend(t)} />
               ))}
             </div>
           </AnimatePresence>
