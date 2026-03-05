@@ -64,6 +64,19 @@ import {
   Wrench,
   Package,
   ArrowRight,
+  SprayCan,
+  DoorOpen,
+  Target,
+  Lock,
+  Wifi,
+  Briefcase,
+  Heart,
+  GraduationCap,
+  Users,
+  ThumbsUp,
+  ThumbsDown,
+  Phone,
+  BadgeCheck,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -306,21 +319,98 @@ function HeroSection() {
   );
 }
 
-/* ─── 2) O que move reservas ─── */
+/* ─── 2) O que move reservas — Decision Drivers Dashboard ─── */
+const DECISION_DRIVERS = [
+  { id: "limpeza", title: "Limpeza", desc: "Fator #1 global: 90% dos hóspedes consideram limpeza o critério mais importante na escolha. Limpeza impecável = reviews 5 estrelas.", icon: SprayCan, priority: { executivo: 1, turista: 2, estudante: 3, casal: 2 } },
+  { id: "checkin", title: "Check-in sem atrito", desc: "Fechadura digital ou key box eliminam esperas e reclamações. Hóspedes corporativos chegam tarde — check-in autônomo é decisivo.", icon: DoorOpen, priority: { executivo: 2, turista: 3, estudante: 2, casal: 4 } },
+  { id: "precisao", title: "Precisão do anúncio", desc: "Fotos reais, descrição honesta e expectativa alinhada. Anúncios que entregam o que prometem têm 2x menos cancelamentos.", icon: Target, priority: { executivo: 3, turista: 1, estudante: 4, casal: 3 } },
+  { id: "avaliacoes", title: "Avaliações e nota", desc: "Acima de 4.8 você entra no topo das buscas. Cada 0.1 ponto acima de 4.5 pode aumentar sua taxa de conversão em até 12%.", icon: Star, priority: { executivo: 5, turista: 4, estudante: 1, casal: 1 } },
+  { id: "seguranca", title: "Segurança e acessibilidade", desc: "Portaria 24h, câmeras em áreas comuns, boa iluminação. Casais e turistas solo priorizam segurança acima do preço.", icon: Lock, priority: { executivo: 4, turista: 5, estudante: 5, casal: 5 } },
+  { id: "ambiente", title: "Ambiente + trabalho + entretenimento", desc: "Wi-Fi rápido, mesa de trabalho, smart TV e boa acústica. Para estadias de 3+ dias, o setup do ambiente define a experiência.", icon: Wifi, priority: { executivo: 6, turista: 6, estudante: 6, casal: 6 } },
+];
+
+type PersonaKey = "executivo" | "turista" | "estudante" | "casal";
+
+const PERSONAS: { key: PersonaKey; label: string; icon: typeof Briefcase }[] = [
+  { key: "executivo", label: "Executivo", icon: Briefcase },
+  { key: "turista", label: "Turista", icon: MapPin },
+  { key: "estudante", label: "Estudante", icon: GraduationCap },
+  { key: "casal", label: "Casal", icon: Heart },
+];
+
 function ReservasSection() {
+  const [persona, setPersona] = useState<PersonaKey>("executivo");
+
+  const sortedDrivers = useMemo(() => {
+    return [...DECISION_DRIVERS].sort((a, b) => a.priority[persona] - b.priority[persona]);
+  }, [persona]);
+
   return (
     <SectionBlock
       id="reservas"
       title="O que realmente move reservas"
-      takeaway="Os 5 fatores que transformam um studio vazio em máquina de reservas."
+      takeaway="Os 6 fatores que transformam um studio vazio em máquina de reservas."
     >
-      {/* TODO: Add content — ranking cards, data charts */}
-      <Card className="border-dashed border-2 border-border bg-muted/50">
-        <CardContent className="p-8 text-center text-muted-foreground font-body">
-          <TrendingUp className="mx-auto mb-3 text-primary" size={32} />
-          Conteúdo será adicionado na próxima etapa.
-        </CardContent>
-      </Card>
+      {/* Persona toggles */}
+      <div className="mb-6">
+        <p className="text-sm font-medium text-foreground mb-3 font-body">Filtrar por perfil do hóspede:</p>
+        <div className="flex flex-wrap gap-2">
+          {PERSONAS.map((p) => (
+            <Button
+              key={p.key}
+              size="sm"
+              variant={persona === p.key ? "default" : "outline"}
+              onClick={() => setPersona(p.key)}
+              className={persona === p.key ? "bg-primary text-primary-foreground" : ""}
+            >
+              <p.icon size={14} className="mr-1.5" />
+              {p.label}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* Driver cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        {sortedDrivers.map((driver, i) => (
+          <motion.div
+            key={driver.id}
+            layout
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: i * 0.05 }}
+          >
+            <Card className={`border-border h-full ${i === 0 ? "border-primary/40 border-2 bg-primary/5" : ""}`}>
+              <CardContent className="p-5">
+                <div className="flex items-start gap-3">
+                  <div className={`h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0 ${i === 0 ? "bg-primary/15" : "bg-secondary"}`}>
+                    <driver.icon className={i === 0 ? "text-primary" : "text-muted-foreground"} size={20} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge variant="secondary" className="font-body text-xs">#{i + 1}</Badge>
+                      <p className="font-semibold text-foreground text-sm">{driver.title}</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{driver.desc}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Citations */}
+      <div className="bg-muted rounded-lg p-4 font-body">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Fontes</p>
+        <ul className="text-xs text-muted-foreground space-y-1">
+          <li>• Airbnb Global Quality Report — fatores de qualidade e drivers de decisão</li>
+          <li>• AHLA (American Hotel & Lodging Association) — estatística de prioridade de limpeza</li>
+          <li>• Expedia Group 2025 Traveler Value Index — influência de social proof na decisão</li>
+          <li>• Annals of Tourism Research: Empirical Insights — categorias de amenidades e experiência do hóspede</li>
+        </ul>
+      </div>
+
       <PlaceholderAccordion label="O que move reservas" />
     </SectionBlock>
   );
@@ -1263,38 +1353,218 @@ function ChecklistSection() {
 /* ─── 12) FAQ ─── */
 function FAQSection() {
   const faqs = [
-    "Qual o investimento mínimo para começar?",
-    "Short stay é legal em São Paulo?",
-    "Quanto tempo até ter retorno?",
-    "Preciso de CNPJ para operar no Airbnb?",
-    "Vale a pena contratar uma administradora?",
+    { q: "Qual o investimento mínimo para começar?", a: "Em São Paulo, studios de 25–30m² em bairros como Bela Vista ou República podem ser encontrados a partir de R$ 250.000. Somando reforma essencial (R$ 25–40k) e decoração, o investimento total mínimo fica entre R$ 280.000 e R$ 320.000." },
+    { q: "Short stay é legal em São Paulo?", a: "Sim. Não há legislação municipal que proíba locação por temporada em São Paulo. Porém, a convenção do condomínio pode restringir. Verifique sempre o regulamento interno antes de comprar." },
+    { q: "Quanto tempo até ter retorno?", a: "O payback típico de uma reforma bem executada (decoração estratégica + fotos profissionais) é de 6 a 12 meses. O retorno do imóvel em si depende do valor de compra e da receita líquida, mas rentabilidades de 10–16% a.a. são alcançáveis." },
+    { q: "Preciso de CNPJ para operar no Airbnb?", a: "Não é obrigatório, mas é recomendado. Operar como pessoa física é permitido, porém um CNPJ (MEI ou Simples) facilita a emissão de notas fiscais, gestão financeira e pode reduzir a carga tributária." },
+    { q: "Vale a pena contratar uma administradora?", a: "Depende do seu tempo e perfil. Administradoras cobram 15–25% da receita bruta, mas liberam você totalmente. Para quem tem mais de 2 unidades ou mora longe, costuma valer a pena." },
+    { q: "Qual a taxa de ocupação realista para um studio novo?", a: "Nos primeiros 2–3 meses, espere 50–60% enquanto acumula avaliações. Após as primeiras 10–15 reviews positivas, a ocupação tende a estabilizar entre 70–85% dependendo do bairro e da qualidade do anúncio." },
+    { q: "Posso fazer short stay em qualquer tipo de imóvel?", a: "Tecnicamente sim, mas studios e 1-dormitório compactos (25–40m²) performam melhor. Imóveis maiores diluem o valor da diária por m² e têm custos operacionais mais altos." },
+    { q: "Quais os custos operacionais mensais típicos?", a: "Condomínio (R$ 400–800), IPTU proporcional, limpeza por check-out (R$ 80–150), lavanderia, reposição de amenities e taxa da plataforma (3% Airbnb). Em média, custos operacionais representam 30–40% da receita bruta." },
   ];
 
   return (
     <SectionBlock
       id="faq"
       title="Perguntas Frequentes"
-      takeaway="Respostas rápidas para as dúvidas mais comuns."
+      takeaway="Respostas rápidas para as dúvidas mais comuns de investidores."
     >
       <Accordion type="single" collapsible className="font-body">
-        {faqs.map((q, i) => (
+        {faqs.map((item, i) => (
           <AccordionItem key={i} value={`faq-${i}`}>
-            <AccordionTrigger className="text-foreground font-medium">
-              {q}
+            <AccordionTrigger className="text-foreground font-medium text-left">
+              {item.q}
             </AccordionTrigger>
-            <AccordionContent className="text-muted-foreground">
-              {/* TODO: Real answers */}
-              Resposta será adicionada na próxima etapa.
+            <AccordionContent className="text-muted-foreground leading-relaxed">
+              {item.a}
             </AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>
+
+      {/* Mitos e Verdades */}
+      <h3 className="font-display text-xl font-bold text-foreground mt-10 mb-4">Mitos e Verdades</h3>
+      <MitosVerdadesBlock />
+
+      {/* HowTo structured */}
+      <h3 className="font-display text-xl font-bold text-foreground mt-10 mb-4">Como definir meta de diária em 3 passos</h3>
+      <HowToBlock />
     </SectionBlock>
+  );
+}
+
+/* ─── Mitos e Verdades ─── */
+function MitosVerdadesBlock() {
+  const items = [
+    { mito: "Preciso gastar R$ 100k+ em reforma para ter retorno.", verdade: "Reformas inteligentes de R$ 25–40k focadas em marcenaria, iluminação e decoração geram ROI superior a reformas caras com demolições.", isMito: true },
+    { mito: "Porcelanato sempre é melhor que vinílico.", verdade: "Para short stay, vinílico oferece melhor custo-benefício: mais rápido de instalar, silencioso, resistente e custa 44% menos (R$ 2.575 vs R$ 5.875 em 25m²).", isMito: true },
+    { mito: "Quanto mais bonito o studio, maior a diária.", verdade: "Parcialmente verdade. Estética importa, mas funcionalidade (Wi-Fi, mesa de trabalho, boa cama) e limpeza impecável pesam mais nas avaliações e no ranking.", isMito: false },
+    { mito: "O Airbnb está saturado em São Paulo.", verdade: "A demanda por short stay em SP cresce 15–20% ao ano. O que satura são anúncios ruins — studios bem posicionados e com boa nota mantêm ocupação acima de 75%.", isMito: true },
+    { mito: "Fotos profissionais não fazem diferença real.", verdade: "Anúncios com fotos profissionais recebem até 40% mais cliques e convertem 24% mais reservas. É o investimento com maior ROI absoluto (R$ 800–1.500).", isMito: true },
+  ];
+
+  const [expanded, setExpanded] = useState<number | null>(null);
+
+  return (
+    <div className="space-y-3 font-body">
+      {items.map((item, i) => (
+        <Card
+          key={i}
+          className={`border-border cursor-pointer transition-all ${expanded === i ? "ring-1 ring-primary/30" : ""}`}
+          onClick={() => setExpanded(expanded === i ? null : i)}
+        >
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <div className={`h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 ${item.isMito ? "bg-destructive/10" : "bg-primary/10"}`}>
+                {item.isMito ? <ThumbsDown className="text-destructive" size={14} /> : <ThumbsUp className="text-primary" size={14} />}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <Badge className={`${item.isMito ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"} border-0 font-body text-xs`}>
+                    {item.isMito ? "Mito" : "Parcialmente verdade"}
+                  </Badge>
+                </div>
+                <p className="font-medium text-foreground text-sm mt-1">{item.mito}</p>
+                <AnimatePresence>
+                  {expanded === i && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                      <p className="text-sm text-muted-foreground mt-2 pt-2 border-t border-border">{item.verdade}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+/* ─── HowTo structured (SEO) ─── */
+function HowToBlock() {
+  const steps = [
+    { step: "Pesquise o mercado do seu bairro", desc: "Use a tabela de mercado acima para identificar a faixa de diária do bairro. Compare mínimo e máximo considerando studios similares ao seu em metragem e acabamento." },
+    { step: "Ajuste pela decoração e diferenciais", desc: "Aplique o multiplicador de decoração: Básico (1x), Premium (1.2x) ou Alto padrão (1.45x). Diferenciais como smart lock, enxoval profissional e fotos de qualidade elevam sua posição na faixa." },
+    { step: "Valide com o simulador e defina sua meta", desc: "Insira os dados na ferramenta Meta de Diária ou no Simulador de Receita. Compare cenários com diferentes níveis de ocupação e use o resultado para definir seu preço inicial. Ajuste após as primeiras 10 avaliações." },
+  ];
+
+  return (
+    <div className="space-y-4 font-body">
+      {steps.map((s, i) => (
+        <div key={i} className="flex gap-4">
+          <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+            <span className="text-primary-foreground font-bold text-sm">{i + 1}</span>
+          </div>
+          <div className="flex-1 pt-1">
+            <p className="font-semibold text-foreground text-sm">{s.step}</p>
+            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{s.desc}</p>
+          </div>
+        </div>
+      ))}
+
+      {/* JSON-LD for HowTo */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "HowTo",
+            name: "Como definir meta de diária para seu studio no Airbnb",
+            step: steps.map((s, i) => ({
+              "@type": "HowToStep",
+              position: i + 1,
+              name: s.step,
+              text: s.desc,
+            })),
+          }),
+        }}
+      />
+    </div>
+  );
+}
+
+/* ─── Mid-page CTA ─── */
+function MidPageCTA({ variant = "default" }: { variant?: "default" | "slim" }) {
+  if (variant === "slim") {
+    return (
+      <div className="py-8">
+        <Card className="bg-hero-gradient border-0">
+          <CardContent className="p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <p className="font-display text-lg font-bold text-primary-foreground">Quer saber quanto seu studio pode render?</p>
+              <p className="text-sm text-primary-foreground/70 font-body">Use nosso simulador gratuito ou solicite um diagnóstico personalizado.</p>
+            </div>
+            <div className="flex gap-2 flex-shrink-0">
+              <Button asChild size="sm" className="bg-accent text-accent-foreground font-body">
+                <a href="#simulador">Simular agora</a>
+              </Button>
+              <Button asChild size="sm" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-body">
+                <a href="#cta-final">Diagnóstico grátis</a>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+  return null;
+}
+
+/* ─── Trust signals ─── */
+function TrustSignals() {
+  const signals = [
+    { icon: BadgeCheck, text: "Dados reais de mercado atualizados" },
+    { icon: Users, text: "+200 studios projetados em São Paulo" },
+    { icon: Star, text: "Nota média 4.9 nos projetos entregues" },
+    { icon: Clock, text: "Prazo e orçamento fechados" },
+    { icon: ShieldCheck, text: "Fornecedores homologados e garantia" },
+    { icon: Phone, text: "Suporte direto via WhatsApp" },
+  ];
+
+  return (
+    <div className="py-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {signals.map((s) => (
+          <div key={s.text} className="flex items-center gap-2 font-body">
+            <s.icon size={16} className="text-primary flex-shrink-0" />
+            <span className="text-sm text-muted-foreground">{s.text}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
 /* ─── 13) Final CTA + lead form ─── */
 function FinalCTASection() {
+  const [formData, setFormData] = useState({ nome: "", whatsapp: "", bairro: "", metragem: "", objetivo: "" });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [submitted, setSubmitted] = useState(false);
+
+  const validateAndSubmit = () => {
+    const errors: Record<string, string> = {};
+    const nome = formData.nome.trim();
+    const whatsapp = formData.whatsapp.trim();
+
+    if (!nome || nome.length < 2) errors.nome = "Informe seu nome";
+    if (nome.length > 100) errors.nome = "Nome muito longo";
+    if (!whatsapp || whatsapp.length < 10) errors.whatsapp = "WhatsApp inválido";
+    if (whatsapp.length > 20) errors.whatsapp = "Número muito longo";
+    if (!formData.bairro) errors.bairro = "Selecione um bairro";
+
+    setFormErrors(errors);
+    if (Object.keys(errors).length === 0) {
+      setSubmitted(true);
+      // TODO: Connect to real form submission / backend
+    }
+  };
+
+  const updateField = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (formErrors[field]) setFormErrors((prev) => { const n = { ...prev }; delete n[field]; return n; });
+  };
+
   return (
     <section id="cta-final" className="scroll-mt-24 py-16 md:py-24">
       <motion.div
@@ -1312,31 +1582,76 @@ function FinalCTASection() {
               Solicite um diagnóstico gratuito do seu imóvel e receba uma
               projeção de rentabilidade personalizada.
             </p>
-            {/* TODO: Connect to real form submission */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
-              <Input
-                placeholder="Seu nome"
-                className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50"
-                disabled
-              />
-              <Input
-                placeholder="WhatsApp"
-                className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50"
-                disabled
-              />
-              <Input
-                placeholder="E-mail"
-                className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 sm:col-span-2"
-                disabled
-              />
-              <Button
-                disabled
-                className="sm:col-span-2 bg-accent text-accent-foreground font-body font-semibold"
-              >
-                Solicitar diagnóstico gratuito
-                <ChevronRight size={16} className="ml-1" />
-              </Button>
-            </div>
+
+            {submitted ? (
+              <div className="bg-primary-foreground/10 rounded-lg p-6 text-center max-w-lg">
+                <Check size={40} className="mx-auto mb-3 text-accent" />
+                <p className="font-display font-bold text-xl mb-1">Solicitação enviada!</p>
+                <p className="text-primary-foreground/70 text-sm font-body">Entraremos em contato em até 24h pelo WhatsApp informado.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg font-body">
+                <div>
+                  <Input
+                    placeholder="Seu nome *"
+                    value={formData.nome}
+                    onChange={(e) => updateField("nome", e.target.value)}
+                    maxLength={100}
+                    className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50"
+                  />
+                  {formErrors.nome && <p className="text-accent text-xs mt-1">{formErrors.nome}</p>}
+                </div>
+                <div>
+                  <Input
+                    placeholder="WhatsApp *"
+                    value={formData.whatsapp}
+                    onChange={(e) => updateField("whatsapp", e.target.value.replace(/[^0-9+() -]/g, ""))}
+                    maxLength={20}
+                    className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50"
+                  />
+                  {formErrors.whatsapp && <p className="text-accent text-xs mt-1">{formErrors.whatsapp}</p>}
+                </div>
+                <div>
+                  <Select value={formData.bairro} onValueChange={(v) => updateField("bairro", v)}>
+                    <SelectTrigger className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground">
+                      <SelectValue placeholder="Bairro do imóvel *" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BAIRRO_DATA.map((b) => (
+                        <SelectItem key={b.name} value={b.name}>{b.name}</SelectItem>
+                      ))}
+                      <SelectItem value="outro">Outro bairro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formErrors.bairro && <p className="text-accent text-xs mt-1">{formErrors.bairro}</p>}
+                </div>
+                <Input
+                  placeholder="Metragem (m²)"
+                  type="number"
+                  value={formData.metragem}
+                  onChange={(e) => updateField("metragem", e.target.value)}
+                  className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50"
+                />
+                <Select value={formData.objetivo} onValueChange={(v) => updateField("objetivo", v)}>
+                  <SelectTrigger className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground sm:col-span-2">
+                    <SelectValue placeholder="Objetivo (opcional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="comprar">Quero comprar um studio</SelectItem>
+                    <SelectItem value="reformar">Já tenho, quero reformar</SelectItem>
+                    <SelectItem value="operar">Já reformei, quero operar</SelectItem>
+                    <SelectItem value="diagnostico">Apenas diagnóstico</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
+                  onClick={validateAndSubmit}
+                  className="sm:col-span-2 bg-accent text-accent-foreground font-body font-semibold"
+                >
+                  Solicitar diagnóstico gratuito
+                  <ChevronRight size={16} className="ml-1" />
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>
@@ -1391,13 +1706,25 @@ export default function Index() {
         <ReservasSection />
         <MercadoSection />
         <SimuladorSection />
+
+        {/* Mid-page CTA after simulator */}
+        <MidPageCTA variant="slim" />
+
         <ReformaSection />
         <AntiChecklistSection />
         <DecoracaoSection />
+
+        {/* Mid-page CTA after decoração */}
+        <MidPageCTA variant="slim" />
+
         <ProjetoSection />
         <TendenciasSection />
         <CaseStudySection />
         <ChecklistSection />
+
+        {/* Trust signals before FAQ */}
+        <TrustSignals />
+
         <FAQSection />
         <FinalCTASection />
 
