@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import bwildLogo from "@/assets/bwild-logo.png";
-import spMapBg from "@/assets/sp-map-bg.png";
+
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, MapPin, Train, Calendar, DollarSign, TrendingUp, Briefcase,
@@ -183,11 +183,55 @@ function InteractiveMap({
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
     >
-      {/* São Paulo map background */}
-      <img src={spMapBg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none select-none" />
-      <svg className="absolute inset-0 w-full h-full opacity-[0.04]">
-        <defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeWidth="0.5" /></pattern></defs>
-        <rect width="100%" height="100%" fill="url(#grid)" />
+      {/* São Paulo stylized map background — rivers Tietê & Pinheiros, Av. Paulista, neighborhood blocks */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none select-none" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+        {/* Grid */}
+        <defs>
+          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeWidth="0.3" opacity="0.05" />
+          </pattern>
+        </defs>
+        <rect width="800" height="600" fill="url(#grid)" />
+
+        {/* Rio Tietê — flows east-west across the top */}
+        <path d="M 0 120 C 100 110, 200 130, 320 125 C 440 118, 560 135, 700 128 L 800 130" fill="none" stroke="hsl(210 40% 78%)" strokeWidth="18" strokeLinecap="round" opacity="0.35" />
+        <path d="M 0 120 C 100 110, 200 130, 320 125 C 440 118, 560 135, 700 128 L 800 130" fill="none" stroke="hsl(210 50% 85%)" strokeWidth="8" strokeLinecap="round" opacity="0.5" />
+
+        {/* Rio Pinheiros — flows north-south on the west side */}
+        <path d="M 200 130 C 195 180, 210 230, 220 280 C 230 340, 215 400, 230 470 C 240 520, 250 560, 260 600" fill="none" stroke="hsl(210 40% 78%)" strokeWidth="12" strokeLinecap="round" opacity="0.35" />
+        <path d="M 200 130 C 195 180, 210 230, 220 280 C 230 340, 215 400, 230 470 C 240 520, 250 560, 260 600" fill="none" stroke="hsl(210 50% 85%)" strokeWidth="5" strokeLinecap="round" opacity="0.5" />
+
+        {/* Av. Paulista — iconic east-west avenue */}
+        <path d="M 280 310 L 520 290" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="2.5" strokeLinecap="round" opacity="0.12" />
+
+        {/* Major avenues radiating from center */}
+        <path d="M 400 260 L 250 140" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" opacity="0.08" />
+        <path d="M 400 260 L 550 140" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" opacity="0.08" />
+        <path d="M 400 280 L 300 480" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" opacity="0.08" />
+        <path d="M 400 280 L 550 480" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" opacity="0.08" />
+        <path d="M 400 270 L 700 250" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" opacity="0.08" />
+        <path d="M 400 270 L 150 300" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" opacity="0.08" />
+
+        {/* Secondary streets grid — central area */}
+        {[180, 220, 260, 300, 340, 380, 420].map((y) => (
+          <line key={`h${y}`} x1="250" y1={y} x2="580" y2={y - 10} stroke="hsl(var(--muted-foreground))" strokeWidth="0.5" opacity="0.05" />
+        ))}
+        {[280, 320, 360, 400, 440, 480, 520].map((x) => (
+          <line key={`v${x}`} x1={x} y1="160" x2={x + 5} y2="450" stroke="hsl(var(--muted-foreground))" strokeWidth="0.5" opacity="0.05" />
+        ))}
+
+        {/* Neighborhood area fills — subtle regions */}
+        <ellipse cx="300" cy="240" rx="50" ry="35" fill="hsl(var(--muted-foreground))" opacity="0.03" /> {/* Pinheiros */}
+        <ellipse cx="250" cy="280" rx="40" ry="30" fill="hsl(var(--muted-foreground))" opacity="0.03" /> {/* Vila Madalena */}
+        <ellipse cx="400" cy="260" rx="55" ry="30" fill="hsl(var(--muted-foreground))" opacity="0.04" /> {/* Jardins */}
+        <ellipse cx="480" cy="300" rx="45" ry="30" fill="hsl(var(--muted-foreground))" opacity="0.03" /> {/* Itaim Bibi */}
+        <ellipse cx="520" cy="340" rx="45" ry="30" fill="hsl(var(--muted-foreground))" opacity="0.03" /> {/* Vila Olímpia */}
+        <ellipse cx="450" cy="400" rx="40" ry="35" fill="hsl(var(--muted-foreground))" opacity="0.03" /> {/* Moema */}
+
+        {/* Marginal label indicators — small dashes along rivers */}
+        {[250, 350, 450, 550, 650].map((x) => (
+          <line key={`mt${x}`} x1={x} y1="118" x2={x + 15} y2="118" stroke="hsl(210 40% 70%)" strokeWidth="1" opacity="0.2" />
+        ))}
       </svg>
 
       {/* Heatmap layer */}
