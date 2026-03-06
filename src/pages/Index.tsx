@@ -372,9 +372,9 @@ function MobileStickyBar() {
 /* ─── 1) Hero ─── */
 function HeroSection() {
   const benefits = [
-    "Escolher bairros mais rentáveis",
-    "Projetar studios que geram mais reservas",
-    "Operar com alta ocupação",
+    "Testar cenários de rentabilidade (receita, ocupação e custos) e entender sensibilidades",
+    "Identificar os fatores que mais influenciam performance (localização, produto e operação)",
+    "Tomar decisões com menos achismo usando ferramentas que destacam os melhores insights do mercado",
   ];
 
   return (
@@ -395,23 +395,34 @@ function HeroSection() {
           Guia do Investidor em Studios para{" "}
           <span className="text-gradient-hero">Short Stay</span>
         </h1>
-        <p className="text-lg md:text-xl text-muted-foreground max-w-[68ch] mb-4 font-body">
-          Um guia prático criado pela Bwild a partir da análise do mercado real de short stay em São Paulo.
-        </p>
-        <p className="text-base text-muted-foreground max-w-[68ch] mb-8 font-body">
-          Aqui você encontra dados de mercado, ranking de bairros, simuladores de rentabilidade e estratégias usadas por hosts profissionais.
-        </p>
 
-        <ul className="space-y-2 mb-10 max-w-md text-left">
-          {benefits.map((b) => (
-            <li key={b} className="flex items-center gap-2.5 text-foreground font-body text-sm md:text-base">
-              <Check size={16} className="text-primary flex-shrink-0" />
-              {b}
-            </li>
-          ))}
-        </ul>
+        <div className="max-w-[68ch] text-left space-y-4 mb-8">
+          <p className="text-lg md:text-xl text-muted-foreground font-body">
+            Este guia é um <strong className="text-foreground">"manual de decisão"</strong> para investir em studios de short stay em São Paulo.
+          </p>
+          <p className="text-base text-muted-foreground font-body">
+            Ele foi construído a partir de anos de experiência prática da Bwild no mercado — unindo o que funciona na operação do dia a dia com coleta, limpeza e cruzamento de bases de dados do setor para transformar informação dispersa em insight acionável.
+          </p>
+          <p className="text-base text-muted-foreground font-body">
+            Aqui, você encontra ferramentas e frameworks (simuladores, comparadores e leituras de mercado) que ajudam a responder com mais clareza: <strong className="text-foreground">onde faz sentido investir</strong>, como estruturar a conta e o que priorizar no studio e na operação para aumentar a chance de boa ocupação e diária.
+          </p>
+        </div>
 
-        <div className="flex flex-wrap justify-center gap-3">
+        <div className="max-w-[68ch] w-full text-left mb-10">
+          <p className="text-sm font-body font-semibold uppercase tracking-widest text-muted-foreground mb-4">
+            O que você consegue fazer com este guia
+          </p>
+          <ul className="space-y-3">
+            {benefits.map((b) => (
+              <li key={b} className="flex items-start gap-2.5 text-foreground font-body text-sm md:text-base">
+                <Check size={16} className="text-primary flex-shrink-0 mt-0.5" />
+                {b}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-3 mb-4">
           <Button size="lg" className="bg-primary text-primary-foreground font-body w-full sm:w-auto" asChild>
             <a href="#simulador">
               <Calculator size={18} className="mr-2" />
@@ -425,6 +436,14 @@ function HeroSection() {
             </Link>
           </Button>
         </div>
+
+        <p className="text-xs text-muted-foreground font-body max-w-lg mb-6">
+          Use as ferramentas para simular cenários. Resultados variam por unidade, prédio e execução.
+        </p>
+
+        <p className="text-xs text-muted-foreground/60 font-body">
+          Produzido pela Bwild (edição 2025) — experiência prática + análise de dados aplicada ao short stay.
+        </p>
       </motion.div>
     </section>
   );
