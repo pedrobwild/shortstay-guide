@@ -96,16 +96,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 /* ─── Shared dataset ─── */
 const BAIRRO_DATA = [
-  { name: "Vila Mariana", dailyMin: 280, dailyMax: 420, avgOccupancy: 80, perSqm: 9.5 },
-  { name: "Pinheiros", dailyMin: 320, dailyMax: 480, avgOccupancy: 82, perSqm: 11 },
-  { name: "Consolação", dailyMin: 260, dailyMax: 390, avgOccupancy: 76, perSqm: 8.8 },
-  { name: "Bela Vista", dailyMin: 240, dailyMax: 370, avgOccupancy: 74, perSqm: 8.2 },
-  { name: "Itaim Bibi", dailyMin: 350, dailyMax: 520, avgOccupancy: 78, perSqm: 12 },
-  { name: "Moema", dailyMin: 300, dailyMax: 450, avgOccupancy: 77, perSqm: 10.5 },
-  { name: "Brooklin", dailyMin: 290, dailyMax: 430, avgOccupancy: 75, perSqm: 9.8 },
-  { name: "República", dailyMin: 200, dailyMax: 310, avgOccupancy: 72, perSqm: 7.2 },
-  { name: "Liberdade", dailyMin: 220, dailyMax: 340, avgOccupancy: 73, perSqm: 7.8 },
-  { name: "Vila Olímpia", dailyMin: 330, dailyMax: 500, avgOccupancy: 79, perSqm: 11.5 },
+  { name: "Vila Mariana", dailyMin: 280, dailyMax: 420, avgOccupancy: 80, perSqm: 9.5, avgBySize: { "20–25 m²": 260, "26–35 m²": 330, "36–50 m²": 410 } },
+  { name: "Pinheiros", dailyMin: 320, dailyMax: 480, avgOccupancy: 82, perSqm: 11, avgBySize: { "20–25 m²": 300, "26–35 m²": 380, "36–50 m²": 470 } },
+  { name: "Consolação", dailyMin: 260, dailyMax: 390, avgOccupancy: 76, perSqm: 8.8, avgBySize: { "20–25 m²": 240, "26–35 m²": 310, "36–50 m²": 380 } },
+  { name: "Bela Vista", dailyMin: 240, dailyMax: 370, avgOccupancy: 74, perSqm: 8.2, avgBySize: { "20–25 m²": 220, "26–35 m²": 290, "36–50 m²": 360 } },
+  { name: "Itaim Bibi", dailyMin: 350, dailyMax: 520, avgOccupancy: 78, perSqm: 12, avgBySize: { "20–25 m²": 330, "26–35 m²": 420, "36–50 m²": 510 } },
+  { name: "Moema", dailyMin: 300, dailyMax: 450, avgOccupancy: 77, perSqm: 10.5, avgBySize: { "20–25 m²": 280, "26–35 m²": 360, "36–50 m²": 440 } },
+  { name: "Brooklin", dailyMin: 290, dailyMax: 430, avgOccupancy: 75, perSqm: 9.8, avgBySize: { "20–25 m²": 270, "26–35 m²": 350, "36–50 m²": 420 } },
+  { name: "República", dailyMin: 200, dailyMax: 310, avgOccupancy: 72, perSqm: 7.2, avgBySize: { "20–25 m²": 185, "26–35 m²": 245, "36–50 m²": 300 } },
+  { name: "Liberdade", dailyMin: 220, dailyMax: 340, avgOccupancy: 73, perSqm: 7.8, avgBySize: { "20–25 m²": 200, "26–35 m²": 270, "36–50 m²": 330 } },
+  { name: "Vila Olímpia", dailyMin: 330, dailyMax: 500, avgOccupancy: 79, perSqm: 11.5, avgBySize: { "20–25 m²": 310, "26–35 m²": 400, "36–50 m²": 490 } },
 ] as const;
 
 const DECORATION_LEVELS = [
@@ -583,7 +583,7 @@ function MercadoSection() {
             <table className="w-full text-sm font-body">
               <thead className="bg-secondary">
                 <tr>
-                  {["Bairro", "Diária mín.", "Diária máx.", "Ocupação média", "RevPAR est."].map((h) => (
+                  {["Bairro", "Diária mín.", "Ocupação média", "20–25 m²", "26–35 m²", "36–50 m²"].map((h) => (
                     <th key={h} className="px-4 py-3 text-left font-semibold text-foreground">{h}</th>
                   ))}
                 </tr>
@@ -593,9 +593,10 @@ function MercadoSection() {
                   <tr key={b.name} className={`border-t border-border cursor-pointer transition-colors ${b.name === bairro ? "bg-primary/5" : "hover:bg-muted/50"}`} onClick={() => setBairro(b.name)}>
                     <td className="px-4 py-3 font-medium text-foreground">{b.name}</td>
                     <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.dailyMin)}</td>
-                    <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.dailyMax)}</td>
                     <td className="px-4 py-3 text-muted-foreground">{b.avgOccupancy}%</td>
-                    <td className="px-4 py-3 text-muted-foreground">R$ {fmt(((b.dailyMin + b.dailyMax) / 2) * (b.avgOccupancy / 100))}</td>
+                    <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.avgBySize["20–25 m²"])}</td>
+                    <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.avgBySize["26–35 m²"])}</td>
+                    <td className="px-4 py-3 font-semibold text-foreground">R$ {fmt(b.avgBySize["36–50 m²"])}</td>
                   </tr>
                 ))}
               </tbody>
