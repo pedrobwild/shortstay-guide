@@ -576,35 +576,6 @@ function MercadoSection() {
       title="Mercado e Precificação — São Paulo"
       takeaway="Diárias médias, ocupação e receita por bairro atualizado."
     >
-      {/* Data table */}
-      <Card className="border-border overflow-hidden mb-8">
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm font-body">
-              <thead className="bg-secondary">
-                <tr>
-                  {["Bairro", "Diária mín.", "Ocupação média", "20–25 m²", "26–35 m²", "36–50 m²"].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left font-semibold text-foreground">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {BAIRRO_DATA.map((b) => (
-                  <tr key={b.name} className={`border-t border-border cursor-pointer transition-colors ${b.name === bairro ? "bg-primary/5" : "hover:bg-muted/50"}`} onClick={() => setBairro(b.name)}>
-                    <td className="px-4 py-3 font-medium text-foreground">{b.name}</td>
-                    <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.dailyMin)}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{b.avgOccupancy}%</td>
-                    <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.avgBySize["20–25 m²"])}</td>
-                    <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.avgBySize["26–35 m²"])}</td>
-                    <td className="px-4 py-3 font-semibold text-foreground">R$ {fmt(b.avgBySize["36–50 m²"])}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Meta de diária tool */}
       <h3 className="font-display text-xl font-bold text-foreground mb-4">🎯 Meta de Diária</h3>
       <Card className="border-border">
@@ -1863,6 +1834,35 @@ export default function Index() {
             <p className="text-muted-foreground text-lg mb-6">Analise demanda, compare bairros, simule ROI e identifique os melhores investimentos em studios.</p>
             <Separator className="mb-8" />
             <MapaBairrosEmbed />
+
+            {/* Tabela de diárias por metragem */}
+            <Card className="border-border overflow-hidden mt-8">
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm font-body">
+                    <thead className="bg-secondary">
+                      <tr>
+                        {["Bairro", "Diária mín.", "Ocupação média", "20–25 m²", "26–35 m²", "36–50 m²"].map((h) => (
+                          <th key={h} className="px-4 py-3 text-left font-semibold text-foreground">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {BAIRRO_DATA.map((b) => (
+                        <tr key={b.name} className="border-t border-border hover:bg-muted/50 transition-colors">
+                          <td className="px-4 py-3 font-medium text-foreground">{b.name}</td>
+                          <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.dailyMin)}</td>
+                          <td className="px-4 py-3 text-muted-foreground">{b.avgOccupancy}%</td>
+                          <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.avgBySize["20–25 m²"])}</td>
+                          <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.avgBySize["26–35 m²"])}</td>
+                          <td className="px-4 py-3 font-semibold text-foreground">R$ {fmt(b.avgBySize["36–50 m²"])}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
           </motion.div>
         </section>
 
