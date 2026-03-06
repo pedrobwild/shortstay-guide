@@ -215,8 +215,8 @@ function InteractiveMap({
 
   const onPolygonClick = useCallback((e: MapLayerMouseEvent) => {
     if (e.features && e.features.length > 0) {
-      const id = e.features[0].properties?.id;
-      const n = NEIGHBORHOODS.find((nb) => nb.id === id);
+      const name = e.features[0].properties?.name;
+      const n = NEIGHBORHOODS.find((nb) => nb.name === name);
       if (n) onSelect(n);
     }
   }, [onSelect]);

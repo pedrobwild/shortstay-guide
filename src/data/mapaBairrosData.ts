@@ -2,6 +2,7 @@ import {
   MapPin, Train, Calendar, Briefcase, Stethoscope, Zap, Music, Trophy, Theater, Ticket,
   Utensils, Wifi, Palette, ShoppingBag, Star, Building2, Plane, Trees, GraduationCap, Heart,
 } from "lucide-react";
+import { DISTRICTS_MOCK, type DistrictRow } from "@/data/districtMetrics";
 
 /* ─── Types ─── */
 export interface NeighborhoodMetrics {
@@ -12,7 +13,7 @@ export interface NeighborhoodMetrics {
   competitionLevel: "alta" | "média" | "baixa";
   activeListings: number;
   avgRevenueMo: number;
-  seasonalityIndex: number; // 1 = stable, >1 = seasonal peaks
+  seasonalityIndex: number;
   dataSource: string;
 }
 
@@ -60,25 +61,78 @@ export interface HeatPoint {
   coordinates: { x: number; y: number };
 }
 
-/* ─── Seed Data ─── */
-export const NEIGHBORHOODS: Neighborhood[] = [
-  // Data sources: Bwild ADR research 2025, AirDNA MarketMinder SP (62% city avg occupancy), Airbtics 2025
-  // nightlyRate = midpoint of Bwild range for well-decorated studios
-  // occupancy = AirDNA neighborhood-level estimates (premium areas 68-78%, city avg 62%)
-  // activeListings = AirDNA SP total ~28,700 distributed proportionally
-  // avgRevenueMo = nightlyRate * 30 * (occupancy/100)
-  { id: "pinheiros", name: "Pinheiros", tags: ["gastronomia", "turismo", "vida noturna", "coworking", "metro"], demandProfile: "mixed", score: 92, avgNightly: 410, avgOccupancy: 75, coordinates: { x: 28, y: 38 }, centerLat: -23.5613, centerLng: -46.6917, metrics: { nightlyRate: 410, nightlyRateRange: [340, 480], occupancy: 75, estimatedROI: 19.2, competitionLevel: "alta", activeListings: 3200, avgRevenueMo: 9225, seasonalityIndex: 1.1, dataSource: "Bwild/AirDNA 2025" } },
-  { id: "vila-madalena", name: "Vila Madalena", tags: ["turismo", "vida noturna", "arte", "bares"], demandProfile: "tourism", score: 88, avgNightly: 390, avgOccupancy: 72, coordinates: { x: 22, y: 32 }, centerLat: -23.5465, centerLng: -46.6910, metrics: { nightlyRate: 390, nightlyRateRange: [320, 460], occupancy: 72, estimatedROI: 16.5, competitionLevel: "média", activeListings: 1800, avgRevenueMo: 8424, seasonalityIndex: 1.3, dataSource: "Bwild/AirDNA 2025" } },
-  { id: "jardins", name: "Jardins", tags: ["luxo", "compras", "restaurantes", "turismo"], demandProfile: "premium tourism", score: 90, avgNightly: 440, avgOccupancy: 70, coordinates: { x: 42, y: 40 }, centerLat: -23.5636, centerLng: -46.6682, metrics: { nightlyRate: 440, nightlyRateRange: [360, 520], occupancy: 70, estimatedROI: 17.4, competitionLevel: "alta", activeListings: 2800, avgRevenueMo: 9240, seasonalityIndex: 1.0, dataSource: "Bwild/AirDNA 2025" } },
-  { id: "itaim-bibi", name: "Itaim Bibi", tags: ["corporativo", "restaurantes", "negocios"], demandProfile: "business", score: 91, avgNightly: 440, avgOccupancy: 73, coordinates: { x: 38, y: 55 }, centerLat: -23.5863, centerLng: -46.6762, metrics: { nightlyRate: 440, nightlyRateRange: [360, 520], occupancy: 73, estimatedROI: 18.1, competitionLevel: "alta", activeListings: 2600, avgRevenueMo: 9636, seasonalityIndex: 0.9, dataSource: "Bwild/AirDNA 2025" } },
-  { id: "vila-olimpia", name: "Vila Olímpia", tags: ["corporativo", "vida noturna", "tech"], demandProfile: "business", score: 89, avgNightly: 410, avgOccupancy: 74, coordinates: { x: 45, y: 58 }, centerLat: -23.5953, centerLng: -46.6762, metrics: { nightlyRate: 410, nightlyRateRange: [340, 480], occupancy: 74, estimatedROI: 17.0, competitionLevel: "média", activeListings: 2200, avgRevenueMo: 9102, seasonalityIndex: 0.9, dataSource: "Bwild/AirDNA 2025" } },
-  { id: "paulista", name: "Paulista / Consolação", tags: ["turismo", "metro", "cultura", "museus"], demandProfile: "tourism", score: 87, avgNightly: 330, avgOccupancy: 71, coordinates: { x: 48, y: 35 }, centerLat: -23.5613, centerLng: -46.6562, metrics: { nightlyRate: 330, nightlyRateRange: [280, 380], occupancy: 71, estimatedROI: 14.8, competitionLevel: "média", activeListings: 3100, avgRevenueMo: 7029, seasonalityIndex: 1.2, dataSource: "Bwild/AirDNA 2025" } },
-  { id: "bela-vista", name: "Bela Vista", tags: ["turismo", "teatro", "gastronomia"], demandProfile: "tourism", score: 82, avgNightly: 310, avgOccupancy: 68, coordinates: { x: 52, y: 42 }, centerLat: -23.5613, centerLng: -46.6442, metrics: { nightlyRate: 310, nightlyRateRange: [260, 360], occupancy: 68, estimatedROI: 12.8, competitionLevel: "baixa", activeListings: 2400, avgRevenueMo: 6324, seasonalityIndex: 1.2, dataSource: "Bwild/AirDNA 2025" } },
-  { id: "moema", name: "Moema", tags: ["residencial", "aeroporto", "parque"], demandProfile: "mixed", score: 85, avgNightly: 390, avgOccupancy: 69, coordinates: { x: 48, y: 68 }, centerLat: -23.6013, centerLng: -46.6662, metrics: { nightlyRate: 390, nightlyRateRange: [320, 460], occupancy: 69, estimatedROI: 15.2, competitionLevel: "média", activeListings: 1900, avgRevenueMo: 8073, seasonalityIndex: 1.4, dataSource: "Bwild/AirDNA 2025" } },
-  { id: "vila-clementino", name: "Vila Clementino", tags: ["hospitais", "universidades", "saude"], demandProfile: "medical", score: 83, avgNightly: 270, avgOccupancy: 72, coordinates: { x: 55, y: 72 }, centerLat: -23.6013, centerLng: -46.6362, metrics: { nightlyRate: 270, nightlyRateRange: [220, 320], occupancy: 72, estimatedROI: 13.5, competitionLevel: "baixa", activeListings: 850, avgRevenueMo: 5832, seasonalityIndex: 0.8, dataSource: "Bwild/AirDNA 2025" } },
-  { id: "barra-funda", name: "Barra Funda", tags: ["eventos", "expo", "transporte"], demandProfile: "events", score: 80, avgNightly: 250, avgOccupancy: 64, coordinates: { x: 32, y: 18 }, centerLat: -23.5265, centerLng: -46.6810, metrics: { nightlyRate: 250, nightlyRateRange: [200, 300], occupancy: 64, estimatedROI: 11.5, competitionLevel: "baixa", activeListings: 950, avgRevenueMo: 4800, seasonalityIndex: 1.6, dataSource: "Bwild/AirDNA 2025" } },
-  { id: "brooklin", name: "Brooklin", tags: ["corporativo", "business district"], demandProfile: "business", score: 84, avgNightly: 370, avgOccupancy: 70, coordinates: { x: 42, y: 65 }, centerLat: -23.6113, centerLng: -46.6862, metrics: { nightlyRate: 370, nightlyRateRange: [300, 440], occupancy: 70, estimatedROI: 14.6, competitionLevel: "média", activeListings: 1600, avgRevenueMo: 7770, seasonalityIndex: 1.0, dataSource: "Bwild/AirDNA 2025" } },
-];
+/* ─── District → Neighborhood adapter ─── */
+
+const DISTRICT_CENTERS: Record<string, { lat: number; lng: number; x: number; y: number }> = {
+  "Pinheiros":       { lat: -23.5613, lng: -46.6917, x: 28, y: 38 },
+  "Itaim Bibi":      { lat: -23.5863, lng: -46.6762, x: 38, y: 55 },
+  "Jardim Paulista":  { lat: -23.5636, lng: -46.6682, x: 42, y: 40 },
+  "Consolação":      { lat: -23.5530, lng: -46.6562, x: 48, y: 35 },
+  "Bela Vista":      { lat: -23.5580, lng: -46.6442, x: 52, y: 42 },
+  "Moema":           { lat: -23.6013, lng: -46.6662, x: 48, y: 68 },
+  "Vila Mariana":    { lat: -23.5890, lng: -46.6350, x: 55, y: 60 },
+  "Barra Funda":     { lat: -23.5265, lng: -46.6810, x: 32, y: 18 },
+  "Campo Belo":      { lat: -23.6200, lng: -46.6650, x: 46, y: 72 },
+  "República":       { lat: -23.5430, lng: -46.6430, x: 54, y: 30 },
+  "Santana":         { lat: -23.5050, lng: -46.6280, x: 56, y: 10 },
+  "Itaquera":        { lat: -23.5400, lng: -46.4550, x: 85, y: 25 },
+};
+
+const COMPETITION_MAP: Record<string, "alta" | "média" | "baixa"> = {
+  "Alta": "alta",
+  "Média": "média",
+  "Baixa": "baixa",
+};
+
+const CHIP_TO_DEMAND: Record<string, string> = {
+  "Misto": "mixed",
+  "Corporativo": "business",
+  "Turismo": "tourism",
+  "Turismo Premium": "premium tourism",
+  "Eventos": "events",
+  "Hospitais": "medical",
+  "Universidades": "medical",
+  "Próximo ao metrô": "metro",
+};
+
+function parseAdrRange(label: string): [number, number] {
+  const nums = label.match(/[\d.]+/g);
+  if (nums && nums.length >= 2) return [Number(nums[0]), Number(nums[1])];
+  return [0, 0];
+}
+
+function districtToNeighborhood(d: DistrictRow): Neighborhood {
+  const center = DISTRICT_CENTERS[d.districtName] || { lat: -23.55, lng: -46.64, x: 50, y: 50 };
+  const demandChip = d.chips.find((c) => c !== "Próximo ao metrô") || "Misto";
+  const demandProfile = CHIP_TO_DEMAND[demandChip] || "mixed";
+
+  return {
+    id: d.districtName.toLowerCase().replace(/\s+/g, "-"),
+    name: d.districtName,
+    tags: d.chips.map((c) => c.toLowerCase()),
+    demandProfile,
+    score: d.score,
+    avgNightly: d.nightlyRateBRL,
+    avgOccupancy: d.occupancyPercent,
+    coordinates: { x: center.x, y: center.y },
+    centerLat: center.lat,
+    centerLng: center.lng,
+    metrics: {
+      nightlyRate: d.nightlyRateBRL,
+      nightlyRateRange: parseAdrRange(d.adrRangeLabel),
+      occupancy: d.occupancyPercent,
+      estimatedROI: d.roiPercent,
+      competitionLevel: COMPETITION_MAP[d.competition] || "média",
+      activeListings: d.listingsCount,
+      avgRevenueMo: d.revenueMonthBRL,
+      seasonalityIndex: 1.0,
+      dataSource: d.sourceLabel,
+    },
+  };
+}
+
+/* ─── Derived Seed Data ─── */
+export const NEIGHBORHOODS: Neighborhood[] = DISTRICTS_MOCK.map(districtToNeighborhood);
 
 export const METRO_STATIONS: MetroStation[] = [
   { id: 1, name: "Faria Lima", line: "Linha 4 - Amarela", color: "#FFD700", coordinates: { x: 32, y: 48 } },
@@ -96,35 +150,34 @@ export const METRO_STATIONS: MetroStation[] = [
 ];
 
 export const EVENTS: CityEvent[] = [
-  { id: 1, name: "São Paulo Fashion Week", category: "Culture", location: "Bienal do Ibirapuera", startDate: "2026-04-14", endDate: "2026-04-19", impactLevel: "high", nearbyNeighborhoods: ["Moema", "Vila Clementino", "Jardins"] },
-  { id: 2, name: "Web Summit Rio → SP Side Events", category: "Business", location: "Vários locais", startDate: "2026-05-05", endDate: "2026-05-08", impactLevel: "high", nearbyNeighborhoods: ["Pinheiros", "Vila Olímpia", "Itaim Bibi"] },
-  { id: 3, name: "Lollapalooza Brasil", category: "Music", location: "Autódromo de Interlagos", startDate: "2026-03-27", endDate: "2026-03-29", impactLevel: "high", nearbyNeighborhoods: ["Moema", "Brooklin", "Vila Olímpia"] },
-  { id: 4, name: "APAS Show", category: "Expo", location: "Expo Center Norte", startDate: "2026-05-11", endDate: "2026-05-14", impactLevel: "medium", nearbyNeighborhoods: ["Barra Funda", "Pinheiros"] },
-  { id: 5, name: "Festival de Teatro de São Paulo", category: "Culture", location: "Vários teatros", startDate: "2026-08-10", endDate: "2026-08-24", impactLevel: "medium", nearbyNeighborhoods: ["Bela Vista", "Paulista / Consolação"] },
-  { id: 6, name: "HOSPITALAR", category: "Expo", location: "São Paulo Expo", startDate: "2026-05-19", endDate: "2026-05-22", impactLevel: "medium", nearbyNeighborhoods: ["Vila Clementino", "Moema"] },
-  { id: 7, name: "GP Brasil de F1", category: "Sports", location: "Autódromo de Interlagos", startDate: "2026-11-06", endDate: "2026-11-08", impactLevel: "high", nearbyNeighborhoods: ["Moema", "Brooklin", "Itaim Bibi"] },
-  { id: 8, name: "Virada Cultural", category: "Culture", location: "Centro Histórico", startDate: "2026-06-20", endDate: "2026-06-21", impactLevel: "medium", nearbyNeighborhoods: ["Bela Vista", "Paulista / Consolação", "Pinheiros"] },
-  { id: 9, name: "Fecomercio SP", category: "Business", location: "FIESP", startDate: "2026-09-15", endDate: "2026-09-18", impactLevel: "low", nearbyNeighborhoods: ["Paulista / Consolação", "Jardins", "Itaim Bibi"] },
-  { id: 10, name: "Comic Con Experience (CCXP)", category: "Culture", location: "São Paulo Expo", startDate: "2026-12-03", endDate: "2026-12-06", impactLevel: "high", nearbyNeighborhoods: ["Vila Clementino", "Moema", "Brooklin"] },
+  { id: 1, name: "São Paulo Fashion Week", category: "Culture", location: "Bienal do Ibirapuera", startDate: "2026-04-14", endDate: "2026-04-19", impactLevel: "high", nearbyNeighborhoods: ["Moema", "Vila Mariana", "Jardim Paulista"] },
+  { id: 2, name: "Web Summit Rio → SP Side Events", category: "Business", location: "Vários locais", startDate: "2026-05-05", endDate: "2026-05-08", impactLevel: "high", nearbyNeighborhoods: ["Pinheiros", "Itaim Bibi", "Campo Belo"] },
+  { id: 3, name: "Lollapalooza Brasil", category: "Music", location: "Autódromo de Interlagos", startDate: "2026-03-27", endDate: "2026-03-29", impactLevel: "high", nearbyNeighborhoods: ["Moema", "Campo Belo", "Itaim Bibi"] },
+  { id: 4, name: "APAS Show", category: "Expo", location: "Expo Center Norte", startDate: "2026-05-11", endDate: "2026-05-14", impactLevel: "medium", nearbyNeighborhoods: ["Barra Funda", "Santana"] },
+  { id: 5, name: "Festival de Teatro de São Paulo", category: "Culture", location: "Vários teatros", startDate: "2026-08-10", endDate: "2026-08-24", impactLevel: "medium", nearbyNeighborhoods: ["Bela Vista", "Consolação", "República"] },
+  { id: 6, name: "HOSPITALAR", category: "Expo", location: "São Paulo Expo", startDate: "2026-05-19", endDate: "2026-05-22", impactLevel: "medium", nearbyNeighborhoods: ["Vila Mariana", "Moema"] },
+  { id: 7, name: "GP Brasil de F1", category: "Sports", location: "Autódromo de Interlagos", startDate: "2026-11-06", endDate: "2026-11-08", impactLevel: "high", nearbyNeighborhoods: ["Moema", "Campo Belo", "Itaim Bibi"] },
+  { id: 8, name: "Virada Cultural", category: "Culture", location: "Centro Histórico", startDate: "2026-06-20", endDate: "2026-06-21", impactLevel: "medium", nearbyNeighborhoods: ["Bela Vista", "Consolação", "República"] },
+  { id: 9, name: "Fecomercio SP", category: "Business", location: "FIESP", startDate: "2026-09-15", endDate: "2026-09-18", impactLevel: "low", nearbyNeighborhoods: ["Consolação", "Jardim Paulista", "Itaim Bibi"] },
+  { id: 10, name: "Comic Con Experience (CCXP)", category: "Culture", location: "São Paulo Expo", startDate: "2026-12-03", endDate: "2026-12-06", impactLevel: "high", nearbyNeighborhoods: ["Vila Mariana", "Moema", "Campo Belo"] },
 ];
 
 export const HEAT_POINTS: HeatPoint[] = [
   { id: "hp1", lat: -23.56, lng: -46.69, demandScore: 95, occupancyEstimate: 75, adrEstimate: 410, areaName: "Pinheiros Centro", coordinates: { x: 28, y: 38 } },
-  { id: "hp2", lat: -23.55, lng: -46.69, demandScore: 85, occupancyEstimate: 72, adrEstimate: 390, areaName: "Vila Madalena", coordinates: { x: 22, y: 32 } },
-  { id: "hp3", lat: -23.56, lng: -46.67, demandScore: 90, occupancyEstimate: 70, adrEstimate: 440, areaName: "Jardins", coordinates: { x: 42, y: 40 } },
+  { id: "hp2", lat: -23.55, lng: -46.66, demandScore: 86, occupancyEstimate: 74, adrEstimate: 390, areaName: "Consolação", coordinates: { x: 48, y: 35 } },
+  { id: "hp3", lat: -23.56, lng: -46.67, demandScore: 90, occupancyEstimate: 70, adrEstimate: 440, areaName: "Jardim Paulista", coordinates: { x: 42, y: 40 } },
   { id: "hp4", lat: -23.59, lng: -46.68, demandScore: 92, occupancyEstimate: 73, adrEstimate: 440, areaName: "Itaim Bibi", coordinates: { x: 38, y: 55 } },
-  { id: "hp5", lat: -23.60, lng: -46.68, demandScore: 88, occupancyEstimate: 74, adrEstimate: 410, areaName: "Vila Olímpia", coordinates: { x: 45, y: 58 } },
-  { id: "hp6", lat: -23.56, lng: -46.66, demandScore: 80, occupancyEstimate: 71, adrEstimate: 330, areaName: "Paulista", coordinates: { x: 48, y: 35 } },
-  { id: "hp7", lat: -23.56, lng: -46.64, demandScore: 68, occupancyEstimate: 68, adrEstimate: 310, areaName: "Bela Vista", coordinates: { x: 52, y: 42 } },
-  { id: "hp8", lat: -23.60, lng: -46.67, demandScore: 78, occupancyEstimate: 69, adrEstimate: 390, areaName: "Moema", coordinates: { x: 48, y: 68 } },
-  { id: "hp9", lat: -23.60, lng: -46.64, demandScore: 72, occupancyEstimate: 72, adrEstimate: 270, areaName: "Vila Clementino", coordinates: { x: 55, y: 72 } },
-  { id: "hp10", lat: -23.53, lng: -46.68, demandScore: 60, occupancyEstimate: 64, adrEstimate: 250, areaName: "Barra Funda", coordinates: { x: 32, y: 18 } },
-  { id: "hp11", lat: -23.61, lng: -46.69, demandScore: 75, occupancyEstimate: 70, adrEstimate: 370, areaName: "Brooklin", coordinates: { x: 42, y: 65 } },
-  // extra heat points
-  { id: "hp12", lat: -23.57, lng: -46.70, demandScore: 70, occupancyEstimate: 67, adrEstimate: 360, areaName: "Alto de Pinheiros", coordinates: { x: 18, y: 42 } },
-  { id: "hp13", lat: -23.55, lng: -46.66, demandScore: 65, occupancyEstimate: 66, adrEstimate: 290, areaName: "Higienópolis", coordinates: { x: 50, y: 28 } },
-  { id: "hp14", lat: -23.58, lng: -46.66, demandScore: 82, occupancyEstimate: 71, adrEstimate: 390, areaName: "Paraíso", coordinates: { x: 52, y: 50 } },
-  { id: "hp15", lat: -23.59, lng: -46.70, demandScore: 55, occupancyEstimate: 62, adrEstimate: 240, areaName: "Butantã", coordinates: { x: 15, y: 55 } },
+  { id: "hp5", lat: -23.56, lng: -46.64, demandScore: 82, occupancyEstimate: 72, adrEstimate: 360, areaName: "Bela Vista", coordinates: { x: 52, y: 42 } },
+  { id: "hp6", lat: -23.60, lng: -46.67, demandScore: 85, occupancyEstimate: 70, adrEstimate: 380, areaName: "Moema", coordinates: { x: 48, y: 68 } },
+  { id: "hp7", lat: -23.59, lng: -46.64, demandScore: 83, occupancyEstimate: 71, adrEstimate: 350, areaName: "Vila Mariana", coordinates: { x: 55, y: 60 } },
+  { id: "hp8", lat: -23.53, lng: -46.68, demandScore: 80, occupancyEstimate: 68, adrEstimate: 340, areaName: "Barra Funda", coordinates: { x: 32, y: 18 } },
+  { id: "hp9", lat: -23.62, lng: -46.67, demandScore: 84, occupancyEstimate: 69, adrEstimate: 370, areaName: "Campo Belo", coordinates: { x: 46, y: 72 } },
+  { id: "hp10", lat: -23.54, lng: -46.64, demandScore: 79, occupancyEstimate: 67, adrEstimate: 300, areaName: "República", coordinates: { x: 54, y: 30 } },
+  { id: "hp11", lat: -23.51, lng: -46.63, demandScore: 81, occupancyEstimate: 66, adrEstimate: 310, areaName: "Santana", coordinates: { x: 56, y: 10 } },
+  { id: "hp12", lat: -23.54, lng: -46.46, demandScore: 78, occupancyEstimate: 62, adrEstimate: 260, areaName: "Itaquera", coordinates: { x: 85, y: 25 } },
+  { id: "hp13", lat: -23.57, lng: -46.70, demandScore: 70, occupancyEstimate: 67, adrEstimate: 360, areaName: "Alto de Pinheiros", coordinates: { x: 18, y: 42 } },
+  { id: "hp14", lat: -23.55, lng: -46.66, demandScore: 65, occupancyEstimate: 66, adrEstimate: 290, areaName: "Higienópolis", coordinates: { x: 50, y: 28 } },
+  { id: "hp15", lat: -23.58, lng: -46.66, demandScore: 82, occupancyEstimate: 71, adrEstimate: 390, areaName: "Paraíso", coordinates: { x: 52, y: 50 } },
 ];
 
 export const DEMAND_FILTERS = [
@@ -147,11 +200,13 @@ export const IMPACT_STYLES: Record<string, { bg: string; text: string; label: st
 };
 
 export const TAG_ICONS: Record<string, typeof MapPin> = {
-  gastronomia: Utensils, turismo: MapPin, "vida noturna": Music, coworking: Wifi, metro: Train,
-  arte: Palette, bares: Music, luxo: Star, compras: ShoppingBag, restaurantes: Utensils,
-  corporativo: Briefcase, negocios: Briefcase, tech: Zap, cultura: Theater, museus: Theater,
-  teatro: Theater, residencial: Building2, aeroporto: Plane, parque: Trees, hospitais: Stethoscope,
-  universidades: GraduationCap, saude: Heart, eventos: Calendar, expo: Ticket, transporte: Train,
+  misto: Zap, corporativo: Briefcase, turismo: MapPin, "turismo premium": Star,
+  eventos: Calendar, hospitais: Stethoscope, universidades: GraduationCap,
+  "próximo ao metrô": Train, gastronomia: Utensils, "vida noturna": Music,
+  coworking: Wifi, arte: Palette, bares: Music, luxo: Star, compras: ShoppingBag,
+  restaurantes: Utensils, negocios: Briefcase, tech: Zap, cultura: Theater,
+  museus: Theater, teatro: Theater, residencial: Building2, aeroporto: Plane,
+  parque: Trees, saude: Heart, expo: Ticket, transporte: Train,
   "business district": Building2,
 };
 
