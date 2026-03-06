@@ -367,6 +367,25 @@ function InteractiveMap({
               />
             </Source>
             <Source id="metro-stations-source" type="geojson" data="/geo/metro-stations.geojson">
+              {/* 600m walk radius */}
+              <Layer
+                id="metro-walk-radius"
+                type="circle"
+                paint={{
+                  "circle-radius": [
+                    "interpolate", ["exponential", 2], ["zoom"],
+                    10, 3,
+                    12, 12,
+                    14, 48,
+                    16, 192
+                  ],
+                  "circle-color": ["get", "color"],
+                  "circle-opacity": 0.08,
+                  "circle-stroke-color": ["get", "color"],
+                  "circle-stroke-width": 1,
+                  "circle-stroke-opacity": 0.2,
+                }}
+              />
               <Layer
                 id="metro-stations-circle"
                 type="circle"
