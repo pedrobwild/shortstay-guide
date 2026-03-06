@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import bwildLogo from "@/assets/bwild-logo.png";
 import bwildLogoWhite from "@/assets/bwild-logo-white.png";
+import sectionHeroStudio from "@/assets/section-hero-studio.jpg";
+import sectionReforma from "@/assets/section-reforma.jpg";
+import sectionDecoracao from "@/assets/section-decoracao.jpg";
+import sectionProjeto from "@/assets/section-projeto.jpg";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -378,7 +382,18 @@ function HeroSection() {
   ];
 
   return (
-    <section id="hero" className="scroll-mt-24 pt-8 pb-16 md:pt-16 md:pb-24 text-center">
+    <section id="hero" className="scroll-mt-24 pt-8 pb-16 md:pt-16 md:pb-24">
+      {/* Hero image */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8 }}
+        className="rounded-2xl overflow-hidden mb-10 shadow-lg"
+      >
+        <img src={sectionHeroStudio} alt="Studio moderno para short stay em São Paulo" className="w-full h-48 md:h-72 lg:h-80 object-cover" loading="eager" />
+      </motion.div>
+
+      <div className="text-center">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -446,6 +461,7 @@ function HeroSection() {
           Produzido pela Bwild (edição 2025) — experiência prática + análise de dados aplicada ao short stay.
         </p>
       </motion.div>
+      </div>
     </section>
   );
 }
@@ -883,6 +899,9 @@ function ReformaSection() {
       title="Reforma Inteligente"
       takeaway="Quanto investir, onde priorizar e o que gera mais retorno por m²."
     >
+      <div className="rounded-2xl overflow-hidden mb-8 shadow-sm">
+        <img src={sectionReforma} alt="Antes e depois de reforma de studio" className="w-full h-48 md:h-64 object-cover" loading="lazy" />
+      </div>
       <Tabs defaultValue="piso" className="font-body">
         <TabsList className="mb-4">
           <TabsTrigger value="piso">Piso (25m²)</TabsTrigger>
@@ -1143,6 +1162,9 @@ function DecoracaoSection() {
       title="Decoração Estratégica"
       takeaway="Design que converte: estética + funcionalidade + rentabilidade."
     >
+      <div className="rounded-2xl overflow-hidden mb-8 shadow-sm">
+        <img src={sectionDecoracao} alt="Studio decorado com design estratégico" className="w-full h-48 md:h-64 object-cover" loading="lazy" />
+      </div>
       {/* 5 Pilares */}
       <h3 className="font-display text-xl font-bold text-foreground mb-4">Os 5 Pilares</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-8">
@@ -1233,6 +1255,9 @@ function ProjetoSection() {
       title="Projeto Arquitetônico Personalizado"
       takeaway="Como um bom projeto multiplica o valor percebido do seu studio."
     >
+      <div className="rounded-2xl overflow-hidden mb-8 shadow-sm">
+        <img src={sectionProjeto} alt="Planta e renderização 3D de studio" className="w-full h-48 md:h-64 object-cover" loading="lazy" />
+      </div>
       {/* Inputs do projeto */}
       <h3 className="font-display text-xl font-bold text-foreground mb-4">O que você precisa fornecer</h3>
       <Card className="border-border mb-8">
