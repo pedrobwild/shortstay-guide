@@ -290,10 +290,10 @@ function MobileStickyBar() {
 
 /* ─── 1) Hero ─── */
 function HeroSection() {
-  const metrics = [
-    { value: "R$ 350", label: "Diária média SP", suffix: "/noite" },
-    { value: "78%", label: "Ocupação média", suffix: "" },
-    { value: "14%", label: "Rentabilidade a.a.", suffix: "" },
+  const benefits = [
+    "Escolher bairros mais rentáveis",
+    "Projetar studios que geram mais reservas",
+    "Operar com alta ocupação",
   ];
 
   return (
@@ -307,45 +307,42 @@ function HeroSection() {
           <img src={bwildLogo} alt="Bwild" className="h-8 w-auto" />
         </div>
         <Badge className="mb-4 bg-gold-light text-foreground font-body border-0">
-          Guia Bwild 2025 · Atualizado
+          Guia Bwild 2025 • Atualizado
         </Badge>
         <h1 className="font-display text-4xl md:text-6xl font-extrabold leading-tight text-foreground mb-4">
           Guia do Investidor em Studios para{" "}
           <span className="text-gradient-hero">Short Stay</span>
         </h1>
-        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-8 font-body">
-          Tudo que você precisa saber para comprar, reformar e operar studios
-          compactos no Airbnb com máxima rentabilidade em São Paulo.
+        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-4 font-body">
+          Um guia prático criado pela Bwild a partir da análise do mercado real de short stay em São Paulo.
         </p>
-        <div className="flex flex-wrap gap-3 mb-12">
-          <Button size="lg" className="bg-primary text-primary-foreground font-body">
-            <a href="#simulador" className="flex items-center gap-2">
-              <Calculator size={18} />
+        <p className="text-base text-muted-foreground max-w-2xl mb-8 font-body">
+          Aqui você encontra dados de mercado, ranking de bairros, simuladores de rentabilidade e estratégias usadas por hosts profissionais.
+        </p>
+
+        {/* Benefits list */}
+        <ul className="space-y-2 mb-10 max-w-md">
+          {benefits.map((b) => (
+            <li key={b} className="flex items-center gap-2.5 text-foreground font-body text-sm md:text-base">
+              <Check size={16} className="text-primary flex-shrink-0" />
+              {b}
+            </li>
+          ))}
+        </ul>
+
+        <div className="flex flex-wrap gap-3">
+          <Button size="lg" className="bg-primary text-primary-foreground font-body" asChild>
+            <a href="#simulador">
+              <Calculator size={18} className="mr-2" />
               Simular rentabilidade
             </a>
           </Button>
           <Button size="lg" variant="outline" asChild className="font-body">
-            <a href="#cta-final">Solicitar diagnóstico gratuito</a>
+            <Link to="/mapa-bairros">
+              <MapPin size={18} className="mr-2" />
+              Ver mapa de bairros
+            </Link>
           </Button>
-        </div>
-
-        {/* TODO: Replace with real data */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {metrics.map((m) => (
-            <Card key={m.label} className="border-border bg-card">
-              <CardContent className="p-6 text-center">
-                <p className="text-3xl font-display font-bold text-primary">
-                  {m.value}
-                  <span className="text-base font-body text-muted-foreground">
-                    {m.suffix}
-                  </span>
-                </p>
-                <p className="text-sm text-muted-foreground font-body mt-1">
-                  {m.label}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
         </div>
       </motion.div>
     </section>
