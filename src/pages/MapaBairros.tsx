@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,10 +18,9 @@ import {
   Neighborhood, MetroStation, CityEvent, NEIGHBORHOODS, METRO_STATIONS, EVENTS, HEAT_POINTS,
   DEMAND_FILTERS, EVENT_ICONS, IMPACT_STYLES, TAG_ICONS, scoreColor, fmt,
 } from "@/data/mapaBairrosData";
-import DemandHeatmap from "@/components/mapa/DemandHeatmap";
 import ROIRanking from "@/components/mapa/ROIRanking";
 import NeighborhoodComparison from "@/components/mapa/NeighborhoodComparison";
-import maplibregl from "maplibre-gl";
+import ReactMap, { Marker, Popup, NavigationControl } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 /* ─── ROI Simulator ─── */
@@ -185,7 +184,7 @@ const METRO_LATLNG: Record<number, { lat: number; lng: number }> = {
   12: { lat: -23.6130, lng: -46.6966 }, // Brooklin
 };
 
-const MAP_STYLE_URL = "https://api.maptiler.com/maps/019cc06d-fb8e-741d-b158-a17a30e87c08/style.json?key=AI17dHeoeJx6rUC1KlSL";
+const MAP_STYLE = "https://api.maptiler.com/maps/019cc06d-fb8e-741d-b158-a17a30e87c08/style.json?key=AI17dHeoeJx6rUC1KlSL";
 
 /* ─── Interactive Map ─── */
 function InteractiveMap({
@@ -194,109 +193,14 @@ function InteractiveMap({
   neighborhoods: Neighborhood[]; stations: MetroStation[]; showMetro: boolean; showHeatmap: boolean;
   selected: Neighborhood | null; highlightedNames: string[]; onSelect: (n: Neighborhood) => void;
 }) {
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<maplibregl.Map | null>(null);
-  const markersRef = useRef<maplibregl.Marker[]>([]);
-  const [mapReady, setMapReady] = useState(false);
+  const [hoveredN, setHoveredN] = useState<Neighborhood | null>(null);
+  const [hoveredS, setHoveredS] = useState<MetroStation | null>(null);
+  const mapRef = useRef<any>(null);
 
-  // Initialize map
-  useEffect(() => {
-    if (!mapContainerRef.current || mapRef.current) return;
-    const map = new maplibregl.Map({
-      container: mapContainerRef.current,
-      style: MAP_STYLE_URL,
-      center: [-46.67, -23.575],
-      zoom: 12.5,
-      minZoom: 11,
-      maxZoom: 16,
-      attributionControl: false,
-    });
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
-    map.on("load", () => setMapReady(true));
-    mapRef.current = map;
-    return () => { map.remove(); mapRef.current = null; };
-  }, []);
-
-  // Neighborhood markers
-  useEffect(() => {
-    if (!mapRef.current || !mapReady) return;
-    // Clear old markers
-    markersRef.current.forEach((m) => m.remove());
-    markersRef.current = [];
-
-    neighborhoods.forEach((n) => {
-      const isSel = selected?.name === n.name;
-      const isHigh = highlightedNames.includes(n.name);
-      const color = n.score >= 88 ? "#22c55e" : n.score >= 84 ? "#f59e0b" : "#9ca3af";
-      const borderColor = isSel ? "hsl(var(--primary))" : isHigh ? "#fbbf24" : "#fff";
-      const bgColor = isSel ? "hsl(var(--primary))" : isHigh ? "#fbbf24" : color;
-      const size = isSel ? 28 : 22;
-
-      const el = document.createElement("div");
-      el.className = "maplibre-neighborhood-marker";
-      el.style.cssText = `
-        width:${size}px;height:${size}px;border-radius:50%;border:2px solid ${borderColor};
-        background:${bgColor};display:flex;align-items:center;justify-content:center;
-        cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);transition:transform 0.2s;
-        font-size:8px;font-weight:700;color:#fff;font-family:monospace;
-      `;
-      el.textContent = String(n.score);
-      el.addEventListener("mouseenter", () => { el.style.transform = "scale(1.4)"; el.style.zIndex = "30"; });
-      el.addEventListener("mouseleave", () => { el.style.transform = "scale(1)"; el.style.zIndex = ""; });
-      el.addEventListener("click", () => onSelect(n));
-
-      // Tooltip
-      const popup = new maplibregl.Popup({
-        offset: 16, closeButton: false, closeOnClick: false,
-        className: "neighborhood-popup",
-      }).setHTML(`
-        <div style="font-size:11px;font-weight:700;">${n.name}</div>
-        <div style="font-size:10px;color:#888;">R$${n.avgNightly}/noite · ${n.avgOccupancy}% · ROI ${n.metrics.estimatedROI}%</div>
-      `);
-      
-      const marker = new maplibregl.Marker({ element: el })
-        .setLngLat([n.centerLng, n.centerLat])
-        .setPopup(popup)
-        .addTo(mapRef.current!);
-
-      el.addEventListener("mouseenter", () => popup.addTo(mapRef.current!));
-      el.addEventListener("mouseleave", () => popup.remove());
-
-      markersRef.current.push(marker);
-    });
-  }, [mapReady, neighborhoods, selected, highlightedNames, onSelect]);
-
-  // Metro markers
-  const metroMarkersRef = useRef<maplibregl.Marker[]>([]);
-  useEffect(() => {
-    metroMarkersRef.current.forEach((m) => m.remove());
-    metroMarkersRef.current = [];
-    if (!mapRef.current || !mapReady || !showMetro) return;
-
-    stations.forEach((s) => {
-      const coords = METRO_LATLNG[s.id];
-      if (!coords) return;
-      const el = document.createElement("div");
-      el.style.cssText = `
-        width:14px;height:14px;border-radius:50%;border:2px solid #fff;
-        background:${s.color};box-shadow:0 1px 6px rgba(0,0,0,0.3);cursor:pointer;
-      `;
-      const popup = new maplibregl.Popup({ offset: 12, closeButton: false, closeOnClick: false })
-        .setHTML(`<div style="font-size:11px;font-weight:700;">${s.name}</div><div style="font-size:10px;color:#888;">${s.line}</div>`);
-      const marker = new maplibregl.Marker({ element: el })
-        .setLngLat([coords.lng, coords.lat])
-        .setPopup(popup)
-        .addTo(mapRef.current!);
-      el.addEventListener("mouseenter", () => popup.addTo(mapRef.current!));
-      el.addEventListener("mouseleave", () => popup.remove());
-      metroMarkersRef.current.push(marker);
-    });
-  }, [mapReady, showMetro, stations]);
-
-  // Fly to selected
-  useEffect(() => {
-    if (!mapRef.current || !selected) return;
-    mapRef.current.flyTo({ center: [selected.centerLng, selected.centerLat], zoom: 14, duration: 800 });
+  // Fly to selected neighborhood
+  const viewState = useMemo(() => {
+    if (selected) return { longitude: selected.centerLng, latitude: selected.centerLat, zoom: 14 };
+    return undefined;
   }, [selected]);
 
   return (
@@ -306,7 +210,79 @@ function InteractiveMap({
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div ref={mapContainerRef} className="absolute inset-0" />
+      <ReactMap
+        ref={mapRef}
+        initialViewState={{ longitude: -46.67, latitude: -23.575, zoom: 12.5 }}
+        {...(viewState ? viewState : {})}
+        style={{ width: "100%", height: "100%" }}
+        mapStyle={MAP_STYLE}
+        minZoom={11}
+        maxZoom={16}
+      >
+        <NavigationControl position="top-right" showCompass={false} />
+
+        {/* Neighborhood markers */}
+        {neighborhoods.map((n) => {
+          const isSel = selected?.name === n.name;
+          const isHigh = highlightedNames.includes(n.name);
+          const color = n.score >= 88 ? "#22c55e" : n.score >= 84 ? "#f59e0b" : "#9ca3af";
+          const bgColor = isSel ? "hsl(210 70% 25%)" : isHigh ? "#fbbf24" : color;
+          const borderColor = isSel ? "hsl(210 70% 25%)" : isHigh ? "#fbbf24" : "#fff";
+          const size = isSel ? 28 : 22;
+          return (
+            <Marker key={n.id} longitude={n.centerLng} latitude={n.centerLat} anchor="center">
+              <div
+                onClick={() => onSelect(n)}
+                onMouseEnter={() => setHoveredN(n)}
+                onMouseLeave={() => setHoveredN(null)}
+                className="cursor-pointer transition-transform duration-200 hover:scale-[1.4]"
+                style={{
+                  width: size, height: size, borderRadius: "50%", border: `2px solid ${borderColor}`,
+                  background: bgColor, display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: isSel ? "0 0 0 4px rgba(30,64,120,0.3)" : "0 2px 8px rgba(0,0,0,0.3)",
+                  fontSize: 8, fontWeight: 700, color: "#fff", fontFamily: "monospace",
+                }}
+              >
+                {n.score}
+              </div>
+            </Marker>
+          );
+        })}
+
+        {/* Neighborhood hover popup */}
+        {hoveredN && (
+          <Popup longitude={hoveredN.centerLng} latitude={hoveredN.centerLat} offset={16} closeButton={false} closeOnClick={false} anchor="bottom">
+            <div style={{ fontSize: 11, fontWeight: 700 }}>{hoveredN.name}</div>
+            <div style={{ fontSize: 10, color: "#888" }}>R${hoveredN.avgNightly}/noite · {hoveredN.avgOccupancy}% · ROI {hoveredN.metrics.estimatedROI}%</div>
+          </Popup>
+        )}
+
+        {/* Metro markers */}
+        {showMetro && stations.map((s) => {
+          const coords = METRO_LATLNG[s.id];
+          if (!coords) return null;
+          return (
+            <Marker key={`metro-${s.id}`} longitude={coords.lng} latitude={coords.lat} anchor="center">
+              <div
+                onMouseEnter={() => setHoveredS(s)}
+                onMouseLeave={() => setHoveredS(null)}
+                style={{
+                  width: 14, height: 14, borderRadius: "50%", border: "2px solid #fff",
+                  background: s.color, boxShadow: "0 1px 6px rgba(0,0,0,0.3)", cursor: "pointer",
+                }}
+              />
+            </Marker>
+          );
+        })}
+
+        {/* Metro hover popup */}
+        {hoveredS && METRO_LATLNG[hoveredS.id] && (
+          <Popup longitude={METRO_LATLNG[hoveredS.id].lng} latitude={METRO_LATLNG[hoveredS.id].lat} offset={12} closeButton={false} closeOnClick={false} anchor="bottom">
+            <div style={{ fontSize: 11, fontWeight: 700 }}>{hoveredS.name}</div>
+            <div style={{ fontSize: 10, color: "#888" }}>{hoveredS.line}</div>
+          </Popup>
+        )}
+      </ReactMap>
 
       {/* Legend */}
       <motion.div
