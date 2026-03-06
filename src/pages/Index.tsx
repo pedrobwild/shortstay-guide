@@ -10,6 +10,7 @@ import sectionProjeto from "@/assets/section-projeto.jpg";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import MapaBairrosEmbed from "@/components/mapa/MapaBairrosEmbed";
 import { Input } from "@/components/ui/input";
 import {
   Accordion,
@@ -118,6 +119,7 @@ const fmt = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 0 
 /* ─── Section definitions ─── */
 const SECTIONS = [
   { id: "hero", label: "Início", icon: Home },
+  { id: "mapa-bairros", label: "Mapa de Bairros", icon: MapPin },
   { id: "reservas", label: "O que move reservas", icon: TrendingUp },
   { id: "mercado", label: "Mercado SP", icon: BarChart3 },
   { id: "simulador", label: "Simulador", icon: Calculator },
@@ -225,14 +227,6 @@ function TableOfContents({ activeId }: { activeId: string }) {
         >
           <Sparkles size={14} />
           Tendências Premium 2026
-          <ArrowRight size={12} className="ml-auto" />
-        </Link>
-        <Link
-          to="/mapa-bairros"
-          className="flex items-center gap-2 px-3 py-2.5 rounded-md text-sm font-body font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-        >
-          <MapPin size={14} />
-          Mapa de Bairros
           <ArrowRight size={12} className="ml-auto" />
         </Link>
       </div>
@@ -343,15 +337,6 @@ function MobileMenu({ activeId }: { activeId: string }) {
               Tendências Premium 2026
               <ArrowRight size={12} className="ml-auto" />
             </Link>
-            <Link
-              to="/mapa-bairros"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 px-3 py-2.5 rounded-md text-sm font-body font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-            >
-              <MapPin size={14} />
-              Mapa de Bairros
-              <ArrowRight size={12} className="ml-auto" />
-            </Link>
           </nav>
         </SheetContent>
       </Sheet>
@@ -446,10 +431,10 @@ function HeroSection() {
             </a>
           </Button>
           <Button size="lg" variant="outline" asChild className="font-body w-full sm:w-auto">
-            <Link to="/mapa-bairros">
+            <a href="#mapa-bairros">
               <MapPin size={18} className="mr-2" />
               Ver mapa de bairros
-            </Link>
+            </a>
           </Button>
         </div>
 
@@ -1862,6 +1847,24 @@ export default function Index() {
       <main className="lg:ml-56 xl:ml-64 w-full flex justify-center pb-24 lg:pb-8 pt-16 lg:pt-0">
        <div className="w-full max-w-[1280px] px-5 lg:px-10 py-0 lg:py-10">
         <HeroSection />
+
+        {/* Mapa de Bairros — embedded as first content section */}
+        <section id="mapa-bairros" className="scroll-mt-24 py-16 md:py-20">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">
+              Mapa de Bairros Rentáveis
+            </h2>
+            <p className="text-muted-foreground text-lg mb-6">Analise demanda, compare bairros, simule ROI e identifique os melhores investimentos em studios.</p>
+            <Separator className="mb-8" />
+            <MapaBairrosEmbed />
+          </motion.div>
+        </section>
+
         <ReservasSection />
         <MercadoSection />
         <SimuladorSection />
