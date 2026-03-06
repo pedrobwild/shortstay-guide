@@ -6,6 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import TendenciasPremium from "./pages/TendenciasPremium";
 import MapaBairros from "./pages/MapaBairros";
+import IntelligenceDashboard from "./pages/IntelligenceDashboard";
+import IntelligenceRanking from "./pages/IntelligenceRanking";
+import IntelligenceBairroDetail from "./pages/IntelligenceBairroDetail";
+import IntelligenceListings from "./pages/IntelligenceListings";
 import NotFound from "./pages/NotFound";
 import ChatBot from "./components/ChatBot";
 
@@ -20,8 +24,11 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/tendencias-premium-2026" element={<TendenciasPremium />} />
+          <Route path="/intelligence" element={<IntelligenceDashboard />} />
+          <Route path="/intelligence/ranking" element={<IntelligenceRanking />} />
+          <Route path="/intelligence/bairro/:bairro" element={<IntelligenceBairroDetail />} />
+          <Route path="/intelligence/listings" element={<IntelligenceListings />} />
           <Route path="/mapa-bairros" element={<MapaBairros />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
         <ChatBot />
