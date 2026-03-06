@@ -151,7 +151,7 @@ function NeighborhoodCard({ n, isSelected, isHighlighted, onClick, index = 0 }: 
             <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{n.metrics.estimatedROI}% ROI</span>
           </div>
           <p className="text-[9px] text-muted-foreground font-body mb-2.5">
-            Faixa: R${fmt(n.metrics.nightlyRateRange[0])}–R${fmt(n.metrics.nightlyRateRange[1])} · {fmt(n.metrics.activeListings)} anúncios · R${fmt(n.metrics.avgRevenueMo)}/mês
+            ~{fmt(n.metrics.activeListings)} studios no Airbnb · R${fmt(n.metrics.nightlyRateRange[0])}–R${fmt(n.metrics.nightlyRateRange[1])}/noite · R${fmt(n.metrics.avgRevenueMo)}/mês
           </p>
           <div className="flex flex-wrap gap-1">
             {n.tags.slice(0, 4).map((tag) => {
@@ -303,7 +303,8 @@ function InteractiveMap({
         {hoveredN && (
           <Popup longitude={hoveredN.centerLng} latitude={hoveredN.centerLat} offset={16} closeButton={false} closeOnClick={false} anchor="bottom">
             <div className="text-[11px] font-bold">{hoveredN.name}</div>
-            <div className="text-[10px] text-muted-foreground">R${hoveredN.avgNightly}/noite · {hoveredN.avgOccupancy}% · ROI {hoveredN.metrics.estimatedROI}%</div>
+            <div className="text-[10px] text-muted-foreground">R${hoveredN.avgNightly}/noite · {hoveredN.avgOccupancy}% ocup.</div>
+            <div className="text-[10px] text-muted-foreground">~{fmt(hoveredN.metrics.activeListings)} studios no Airbnb</div>
           </Popup>
         )}
 
@@ -438,7 +439,6 @@ export default function MapaBairrosEmbed() {
   const [activeEvent, setActiveEvent] = useState<CityEvent | null>(null);
   const [search, setSearch] = useState("");
   const [showComparison, setShowComparison] = useState(false);
-  const [rightPanel, setRightPanel] = useState<"ranking" | "simulator">("ranking");
 
   const toggleFilter = useCallback((key: string) => {
     if (key === "metro") { setShowMetro((v) => !v); return; }
@@ -472,7 +472,6 @@ export default function MapaBairrosEmbed() {
 
   const handleRankingSelect = useCallback((n: Neighborhood) => {
     setSelectedNeighborhood(n);
-    setRightPanel("simulator");
   }, []);
 
   return (
@@ -541,44 +540,16 @@ export default function MapaBairrosEmbed() {
             showClusters={showClusters}
             selected={selectedNeighborhood}
             highlightedNames={highlightedNames}
-            onSelect={(n) => { setSelectedNeighborhood(n); setRightPanel("simulator"); }}
+            onSelect={(n) => { setSelectedNeighborhood(n); }}
           />
         </div>
 
         <div className="lg:col-span-1 order-2">
-          <div className="flex gap-1 mb-4 bg-muted rounded-lg p-1 relative">
-            {["ranking", "simulator"].map((tab) => (
-              <button key={tab} onClick={() => setRightPanel(tab as "ranking" | "simulator")}
-                className={`relative flex-1 text-xs font-medium py-1.5 px-3 rounded-md transition-all z-10 ${
-                  rightPanel === tab ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-                }`}>
-                {rightPanel === tab && (
-                  <motion.div layoutId="activeTab" className="absolute inset-0 bg-card shadow-sm rounded-md" transition={{ type: "spring", stiffness: 400, damping: 30 }} />
-                )}
-                <span className="relative z-10">
-                  {tab === "ranking" ? <><TrendingUp size={12} className="inline mr-1" />Ranking</> : <><Calculator size={12} className="inline mr-1" />Simulador</>}
-                </span>
-              </button>
-            ))}
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp size={16} className="text-primary" />
+            <h3 className="font-display text-sm font-bold text-foreground">Ranking de Bairros</h3>
           </div>
-
-          <AnimatePresence mode="wait">
-            {rightPanel === "ranking" ? (
-              <motion.div key="ranking" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
-                <ROIRanking neighborhoods={filtered} onSelectNeighborhood={handleRankingSelect} selectedName={selectedNeighborhood?.name} />
-              </motion.div>
-            ) : selectedNeighborhood ? (
-              <ROISimulator key={selectedNeighborhood.name} neighborhood={selectedNeighborhood} onClose={() => { setSelectedNeighborhood(null); setRightPanel("ranking"); }} />
-            ) : (
-              <motion.div key="placeholder" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.3 }}
-                className="flex flex-col items-center justify-center h-full min-h-[300px] text-center text-muted-foreground">
-                <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}>
-                  <Calculator size={32} className="mb-3 opacity-30" />
-                </motion.div>
-                <p className="font-body text-sm">Selecione um bairro no mapa ou ranking para simular ROI</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <ROIRanking neighborhoods={filtered} onSelectNeighborhood={handleRankingSelect} selectedName={selectedNeighborhood?.name} />
         </div>
       </div>
 
@@ -591,7 +562,7 @@ export default function MapaBairrosEmbed() {
             {filtered.map((n, i) => (
               <NeighborhoodCard key={n.name} n={n} index={i} isSelected={selectedNeighborhood?.name === n.name}
                 isHighlighted={highlightedNames.includes(n.name)}
-                onClick={() => { setSelectedNeighborhood(n); setRightPanel("simulator"); }} />
+                onClick={() => { setSelectedNeighborhood(n); }} />
             ))}
           </AnimatePresence>
         </div>
