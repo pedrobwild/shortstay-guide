@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +11,7 @@ import bwildLogo from "@/assets/bwild-logo.png";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, MapPin, Train, Calendar, DollarSign, TrendingUp, Briefcase,
-  X, Clock, Wallet, Calculator, Zap, Flame, ArrowUpDown,
+  X, Clock, Wallet, Calculator, Zap, Flame, ArrowUpDown, Layers, CircleDot,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
@@ -20,7 +20,8 @@ import {
 } from "@/data/mapaBairrosData";
 import ROIRanking from "@/components/mapa/ROIRanking";
 import NeighborhoodComparison from "@/components/mapa/NeighborhoodComparison";
-import ReactMap, { Marker, Popup, NavigationControl } from "react-map-gl/maplibre";
+import ReactMap, { Marker, Popup, NavigationControl, Source, Layer, MapRef } from "react-map-gl/maplibre";
+import type { MapLayerMouseEvent, GeoJSONSource } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 /* ─── ROI Simulator ─── */
@@ -168,40 +169,83 @@ function NeighborhoodCard({ n, isSelected, isHighlighted, onClick, index = 0 }: 
   );
 }
 
-/* ─── Metro station lat/lng lookup ─── */
-const METRO_LATLNG: Record<number, { lat: number; lng: number }> = {
-  1: { lat: -23.5668, lng: -46.6936 }, // Faria Lima
-  2: { lat: -23.5670, lng: -46.7020 }, // Pinheiros
-  3: { lat: -23.5575, lng: -46.6603 }, // Consolação
-  4: { lat: -23.5614, lng: -46.6558 }, // Trianon-Masp
-  5: { lat: -23.5680, lng: -46.6513 }, // Brigadeiro
-  6: { lat: -23.5466, lng: -46.6907 }, // Vila Madalena
-  7: { lat: -23.5533, lng: -46.6920 }, // Fradique Coutinho
-  8: { lat: -23.5584, lng: -46.6725 }, // Oscar Freire
-  9: { lat: -23.6007, lng: -46.6650 }, // Moema
-  10: { lat: -23.6046, lng: -46.6565 }, // Eucaliptos
-  11: { lat: -23.5254, lng: -46.6670 }, // Palmeiras-Barra Funda
-  12: { lat: -23.6130, lng: -46.6966 }, // Brooklin
-};
-
 const MAP_STYLE = "https://api.maptiler.com/maps/019cc06d-fb8e-741d-b158-a17a30e87c08/style.json?key=AI17dHeoeJx6rUC1KlSL";
+
+const SP_BOUNDS: [[number, number], [number, number]] = [[-46.82, -23.68], [-46.55, -23.45]];
 
 /* ─── Interactive Map ─── */
 function InteractiveMap({
-  neighborhoods, stations, showMetro, showHeatmap, selected, highlightedNames, onSelect,
+  neighborhoods, stations, showMetro, showHeatmap, showClusters, selected, highlightedNames, onSelect,
 }: {
-  neighborhoods: Neighborhood[]; stations: MetroStation[]; showMetro: boolean; showHeatmap: boolean;
+  neighborhoods: Neighborhood[]; stations: MetroStation[]; showMetro: boolean; showHeatmap: boolean; showClusters: boolean;
   selected: Neighborhood | null; highlightedNames: string[]; onSelect: (n: Neighborhood) => void;
 }) {
+  const mapRef = useRef<MapRef>(null);
   const [hoveredN, setHoveredN] = useState<Neighborhood | null>(null);
-  const [hoveredS, setHoveredS] = useState<MetroStation | null>(null);
-  const mapRef = useRef<any>(null);
+  const [hoveredPoly, setHoveredPoly] = useState<{ name: string; roi: number; rate: number; occ: number; rev: number; lng: number; lat: number } | null>(null);
+  const [hoveredStation, setHoveredStation] = useState<{ name: string; line: string; lng: number; lat: number } | null>(null);
 
-  // Fly to selected neighborhood
-  const viewState = useMemo(() => {
-    if (selected) return { longitude: selected.centerLng, latitude: selected.centerLat, zoom: 14 };
-    return undefined;
+  // Fly to selected
+  useEffect(() => {
+    if (!mapRef.current || !selected) return;
+    mapRef.current.flyTo({ center: [selected.centerLng, selected.centerLat], zoom: 14, duration: 800 });
   }, [selected]);
+
+  const onPolygonHover = useCallback((e: MapLayerMouseEvent) => {
+    if (e.features && e.features.length > 0) {
+      const f = e.features[0];
+      const p = f.properties;
+      setHoveredPoly({
+        name: p?.name || "",
+        roi: p?.estimatedROI || 0,
+        rate: p?.nightlyRate || 0,
+        occ: p?.occupancy || 0,
+        rev: p?.revenueMonth || 0,
+        lng: e.lngLat.lng,
+        lat: e.lngLat.lat,
+      });
+      if (mapRef.current) mapRef.current.getCanvas().style.cursor = "pointer";
+    }
+  }, []);
+
+  const onPolygonLeave = useCallback(() => {
+    setHoveredPoly(null);
+    if (mapRef.current) mapRef.current.getCanvas().style.cursor = "";
+  }, []);
+
+  const onPolygonClick = useCallback((e: MapLayerMouseEvent) => {
+    if (e.features && e.features.length > 0) {
+      const id = e.features[0].properties?.id;
+      const n = NEIGHBORHOODS.find((nb) => nb.id === id);
+      if (n) onSelect(n);
+    }
+  }, [onSelect]);
+
+  const onMetroHover = useCallback((e: MapLayerMouseEvent) => {
+    if (e.features && e.features.length > 0) {
+      const p = e.features[0].properties;
+      setHoveredStation({ name: p?.name || "", line: p?.line || "", lng: e.lngLat.lng, lat: e.lngLat.lat });
+      if (mapRef.current) mapRef.current.getCanvas().style.cursor = "pointer";
+    }
+  }, []);
+
+  const onMetroLeave = useCallback(() => {
+    setHoveredStation(null);
+    if (mapRef.current) mapRef.current.getCanvas().style.cursor = "";
+  }, []);
+
+  const onClusterClick = useCallback((e: MapLayerMouseEvent) => {
+    if (!mapRef.current || !e.features?.length) return;
+    const feature = e.features[0];
+    const clusterId = feature.properties?.cluster_id;
+    const source = mapRef.current.getSource("clusters-source") as GeoJSONSource;
+    if (source && clusterId != null) {
+      source.getClusterExpansionZoom(clusterId).then((zoom) => {
+        const geom = feature.geometry as GeoJSON.Point;
+        mapRef.current!.easeTo({ center: geom.coordinates as [number, number], zoom, duration: 500 });
+      });
+    }
+  }, []);
 
   return (
     <motion.div
@@ -213,15 +257,62 @@ function InteractiveMap({
       <ReactMap
         ref={mapRef}
         initialViewState={{ longitude: -46.6333, latitude: -23.5505, zoom: 11 }}
-        {...(viewState ? viewState : {})}
         style={{ width: "100%", height: "100%" }}
         mapStyle={MAP_STYLE}
-        minZoom={11}
-        maxZoom={16}
+        minZoom={10}
+        maxZoom={17}
+        maxBounds={SP_BOUNDS}
+        interactiveLayerIds={["neighborhood-fill", "metro-stations-circle", "cluster-circles"]}
+        onMouseMove={(e) => {
+          // Delegate to the right handler based on features
+          const polyFeatures = e.features?.filter((f) => f.layer?.id === "neighborhood-fill");
+          const metroFeatures = e.features?.filter((f) => f.layer?.id === "metro-stations-circle");
+          if (polyFeatures?.length) onPolygonHover({ ...e, features: polyFeatures } as MapLayerMouseEvent);
+          else setHoveredPoly(null);
+          if (metroFeatures?.length) onMetroHover({ ...e, features: metroFeatures } as MapLayerMouseEvent);
+          else setHoveredStation(null);
+        }}
+        onMouseLeave={() => { onPolygonLeave(); onMetroLeave(); }}
+        onClick={(e) => {
+          const polyFeatures = e.features?.filter((f) => f.layer?.id === "neighborhood-fill");
+          const clusterFeatures = e.features?.filter((f) => f.layer?.id === "cluster-circles");
+          if (polyFeatures?.length) onPolygonClick({ ...e, features: polyFeatures } as MapLayerMouseEvent);
+          if (clusterFeatures?.length) onClusterClick({ ...e, features: clusterFeatures } as MapLayerMouseEvent);
+        }}
       >
         <NavigationControl position="top-right" showCompass={false} />
 
-        {/* Neighborhood markers */}
+        {/* LAYER 2: Neighborhood polygons */}
+        <Source id="neighborhoods-source" type="geojson" data="/geo/neighborhoods.geojson">
+          <Layer
+            id="neighborhood-fill"
+            type="fill"
+            paint={{
+              "fill-color": [
+                "case",
+                [">=", ["get", "score"], 88], "rgba(34,197,94,0.25)",
+                [">=", ["get", "score"], 84], "rgba(245,158,11,0.2)",
+                "rgba(156,163,175,0.15)"
+              ],
+              "fill-opacity": showHeatmap ? 0.12 : 0.3,
+            }}
+          />
+          <Layer
+            id="neighborhood-outline"
+            type="line"
+            paint={{
+              "line-color": [
+                "case",
+                [">=", ["get", "score"], 88], "rgba(34,197,94,0.6)",
+                [">=", ["get", "score"], 84], "rgba(245,158,11,0.5)",
+                "rgba(156,163,175,0.3)"
+              ],
+              "line-width": 2,
+            }}
+          />
+        </Source>
+
+        {/* LAYER 1: Neighborhood pins */}
         {neighborhoods.map((n) => {
           const isSel = selected?.name === n.name;
           const isHigh = highlightedNames.includes(n.name);
@@ -240,38 +331,146 @@ function InteractiveMap({
           );
         })}
 
-        {/* Neighborhood hover popup */}
+        {/* Neighborhood pin popup */}
         {hoveredN && (
           <Popup longitude={hoveredN.centerLng} latitude={hoveredN.centerLat} offset={16} closeButton={false} closeOnClick={false} anchor="bottom">
-            <div style={{ fontSize: 11, fontWeight: 700 }}>{hoveredN.name}</div>
-            <div style={{ fontSize: 10, color: "#888" }}>R${hoveredN.avgNightly}/noite · {hoveredN.avgOccupancy}% · ROI {hoveredN.metrics.estimatedROI}%</div>
+            <div className="text-[11px] font-bold">{hoveredN.name}</div>
+            <div className="text-[10px] text-muted-foreground">R${hoveredN.avgNightly}/noite · {hoveredN.avgOccupancy}% · ROI {hoveredN.metrics.estimatedROI}%</div>
           </Popup>
         )}
 
-        {/* Metro markers */}
-        {showMetro && stations.map((s) => {
-          const coords = METRO_LATLNG[s.id];
-          if (!coords) return null;
-          return (
-            <Marker key={`metro-${s.id}`} longitude={coords.lng} latitude={coords.lat} anchor="center">
-              <div
-                onMouseEnter={() => setHoveredS(s)}
-                onMouseLeave={() => setHoveredS(null)}
-                style={{
-                  width: 14, height: 14, borderRadius: "50%", border: "2px solid #fff",
-                  background: s.color, boxShadow: "0 1px 6px rgba(0,0,0,0.3)", cursor: "pointer",
+        {/* Polygon hover popup */}
+        {hoveredPoly && !hoveredN && (
+          <Popup longitude={hoveredPoly.lng} latitude={hoveredPoly.lat} offset={8} closeButton={false} closeOnClick={false} anchor="bottom">
+            <div className="text-[11px] font-bold">{hoveredPoly.name}</div>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[10px] text-muted-foreground mt-1">
+              <span>ROI est.</span><span className="font-semibold text-foreground">{hoveredPoly.roi}%</span>
+              <span>Diária</span><span className="font-semibold text-foreground">R${hoveredPoly.rate}</span>
+              <span>Ocupação</span><span className="font-semibold text-foreground">{hoveredPoly.occ}%</span>
+              <span>Receita/mês</span><span className="font-semibold text-foreground">R${fmt(hoveredPoly.rev)}</span>
+            </div>
+          </Popup>
+        )}
+
+        {/* LAYER 3: Metro lines + stations */}
+        {showMetro && (
+          <>
+            <Source id="metro-lines-source" type="geojson" data="/geo/metro-lines.geojson">
+              <Layer
+                id="metro-lines"
+                type="line"
+                paint={{
+                  "line-color": ["get", "color"],
+                  "line-width": 3,
+                  "line-opacity": 0.6,
                 }}
               />
-            </Marker>
-          );
-        })}
+            </Source>
+            <Source id="metro-stations-source" type="geojson" data="/geo/metro-stations.geojson">
+              <Layer
+                id="metro-stations-circle"
+                type="circle"
+                paint={{
+                  "circle-radius": 6,
+                  "circle-color": ["get", "color"],
+                  "circle-stroke-color": "#ffffff",
+                  "circle-stroke-width": 2,
+                }}
+              />
+              <Layer
+                id="metro-stations-label"
+                type="symbol"
+                layout={{
+                  "text-field": ["get", "name"],
+                  "text-size": 10,
+                  "text-offset": [0, 1.5],
+                  "text-anchor": "top",
+                  "text-optional": true,
+                }}
+                paint={{
+                  "text-color": "#555",
+                  "text-halo-color": "#fff",
+                  "text-halo-width": 1.5,
+                }}
+              />
+            </Source>
+          </>
+        )}
 
         {/* Metro hover popup */}
-        {hoveredS && METRO_LATLNG[hoveredS.id] && (
-          <Popup longitude={METRO_LATLNG[hoveredS.id].lng} latitude={METRO_LATLNG[hoveredS.id].lat} offset={12} closeButton={false} closeOnClick={false} anchor="bottom">
-            <div style={{ fontSize: 11, fontWeight: 700 }}>{hoveredS.name}</div>
-            <div style={{ fontSize: 10, color: "#888" }}>{hoveredS.line}</div>
+        {hoveredStation && (
+          <Popup longitude={hoveredStation.lng} latitude={hoveredStation.lat} offset={12} closeButton={false} closeOnClick={false} anchor="bottom">
+            <div className="text-[11px] font-bold">{hoveredStation.name}</div>
+            <div className="text-[10px] text-muted-foreground">{hoveredStation.line}</div>
           </Popup>
+        )}
+
+        {/* LAYER 4: Heatmap */}
+        {showHeatmap && (
+          <Source id="heatmap-source" type="geojson" data="/geo/heatmap-points.geojson">
+            <Layer
+              id="heatmap-layer"
+              type="heatmap"
+              paint={{
+                "heatmap-weight": ["interpolate", ["linear"], ["get", "weight"], 50, 0, 100, 1],
+                "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 10, 0.5, 15, 2],
+                "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 10, 20, 15, 40],
+                "heatmap-color": [
+                  "interpolate", ["linear"], ["heatmap-density"],
+                  0, "rgba(0,0,0,0)",
+                  0.2, "rgba(103,169,207,0.4)",
+                  0.4, "rgba(209,229,143,0.5)",
+                  0.6, "rgba(253,219,49,0.6)",
+                  0.8, "rgba(244,109,67,0.7)",
+                  1, "rgba(215,48,39,0.8)"
+                ],
+                "heatmap-opacity": 0.7,
+              }}
+            />
+          </Source>
+        )}
+
+        {/* LAYER 5: Clusters */}
+        {showClusters && (
+          <Source id="clusters-source" type="geojson" data="/geo/clusters.geojson" cluster clusterMaxZoom={14} clusterRadius={50}>
+            <Layer
+              id="cluster-circles"
+              type="circle"
+              filter={["has", "point_count"]}
+              paint={{
+                "circle-color": [
+                  "step", ["get", "point_count"],
+                  "rgba(34,197,94,0.7)", 5,
+                  "rgba(245,158,11,0.7)", 15,
+                  "rgba(239,68,68,0.7)"
+                ],
+                "circle-radius": ["step", ["get", "point_count"], 18, 5, 24, 15, 32],
+                "circle-stroke-width": 2,
+                "circle-stroke-color": "#fff",
+              }}
+            />
+            <Layer
+              id="cluster-count"
+              type="symbol"
+              filter={["has", "point_count"]}
+              layout={{
+                "text-field": "{point_count_abbreviated}",
+                "text-size": 12,
+              }}
+              paint={{ "text-color": "#fff" }}
+            />
+            <Layer
+              id="unclustered-point"
+              type="circle"
+              filter={["!", ["has", "point_count"]]}
+              paint={{
+                "circle-color": "rgba(34,197,94,0.6)",
+                "circle-radius": 5,
+                "circle-stroke-width": 1,
+                "circle-stroke-color": "#fff",
+              }}
+            />
+          </Source>
         )}
       </ReactMap>
 
@@ -352,6 +551,7 @@ export default function MapaBairros() {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [showMetro, setShowMetro] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
+  const [showClusters, setShowClusters] = useState(false);
   const [activeEvent, setActiveEvent] = useState<CityEvent | null>(null);
   const [search, setSearch] = useState("");
   const [showComparison, setShowComparison] = useState(false);
@@ -459,6 +659,12 @@ export default function MapaBairros() {
               <span className="text-xs text-muted-foreground">Heatmap</span>
               <Switch checked={showHeatmap} onCheckedChange={setShowHeatmap} className="scale-75" />
             </div>
+            {/* Clusters toggle */}
+            <div className="flex items-center gap-2 ml-1 pl-2 border-l border-border">
+              <CircleDot size={12} className={showClusters ? "text-primary" : "text-muted-foreground"} />
+              <span className="text-xs text-muted-foreground">Clusters</span>
+              <Switch checked={showClusters} onCheckedChange={setShowClusters} className="scale-75" />
+            </div>
             {(activeFilters.length > 0 || showMetro) && (
               <button onClick={() => { setActiveFilters([]); setShowMetro(false); }} className="text-xs text-muted-foreground hover:text-foreground underline ml-1">
                 Limpar filtros
@@ -484,6 +690,7 @@ export default function MapaBairros() {
               stations={METRO_STATIONS}
               showMetro={showMetro}
               showHeatmap={showHeatmap}
+              showClusters={showClusters}
               selected={selectedNeighborhood}
               highlightedNames={highlightedNames}
               onSelect={(n) => { setSelectedNeighborhood(n); setRightPanel("simulator"); }}
