@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Bot, User, Loader2 } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
@@ -23,11 +23,16 @@ export default function ChatBot() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const showSuggestions = messages.length <= 1 && !loading;
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    if (open) setTimeout(() => inputRef.current?.focus(), 350);
+  }, [open]);
 
   const sendText = async (text: string) => {
     if (!text.trim() || loading) return;
@@ -103,22 +108,27 @@ export default function ChatBot() {
 
   return (
     <>
-      {/* FAB */}
+      {/* FAB with pulse ring */}
       <AnimatePresence>
         {!open && (
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0 }}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
             className="fixed bottom-6 right-6 z-50"
           >
-            <Button
-              onClick={() => setOpen(true)}
-              className="h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90"
-              size="icon"
-            >
-              <MessageCircle className="h-6 w-6" />
-            </Button>
+            <div className="relative">
+              {/* Pulse ring */}
+              <span className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
+              <Button
+                onClick={() => setOpen(true)}
+                className="relative h-14 w-14 rounded-full shadow-[0_8px_30px_-4px_hsl(var(--primary)/0.4)] bg-primary hover:bg-primary/90 transition-all duration-300 hover:shadow-[0_12px_40px_-4px_hsl(var(--primary)/0.5)] hover:scale-105"
+                size="icon"
+              >
+                <MessageCircle className="h-6 w-6" />
+              </Button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -127,41 +137,65 @@ export default function ChatBot() {
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, y: 30, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[520px] max-h-[calc(100vh-4rem)] flex flex-col rounded-2xl border border-border bg-card shadow-2xl overflow-hidden"
+            exit={{ opacity: 0, y: 30, scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 350, damping: 30 }}
+            className="fixed bottom-6 right-6 z-50 w-[400px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[calc(100vh-4rem)] flex flex-col rounded-2xl border border-border/60 bg-card shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] overflow-hidden backdrop-blur-sm"
           >
-            {/* Header */}
-            <div className="flex items-center gap-3 px-4 py-3 bg-primary text-primary-foreground">
-              <Bot className="h-5 w-5" />
-              <div className="flex-1">
-                <p className="text-sm font-semibold font-body">Consultor Short-Stay</p>
-                <p className="text-[11px] opacity-80">Especialista em investimento imobiliário</p>
+            {/* Header with gradient */}
+            <div className="relative flex items-center gap-3 px-5 py-4 overflow-hidden">
+              {/* Gradient bg */}
+              <div className="absolute inset-0 bg-hero-gradient" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-hsl(var(--primary)/0.3)" />
+
+              <motion.div
+                initial={{ rotate: -20, scale: 0 }}
+                animate={{ rotate: 0, scale: 1 }}
+                transition={{ type: "spring", delay: 0.1 }}
+                className="relative z-10 h-10 w-10 rounded-xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center border border-primary-foreground/20"
+              >
+                <Sparkles className="h-5 w-5 text-primary-foreground" />
+              </motion.div>
+              <div className="relative z-10 flex-1">
+                <p className="text-sm font-bold font-display text-primary-foreground tracking-wide">Consultor Short-Stay</p>
+                <p className="text-[11px] text-primary-foreground/70 font-body">Especialista em investimento imobiliário</p>
               </div>
-              <button onClick={() => setOpen(false)} className="hover:opacity-70 transition-opacity">
-                <X className="h-5 w-5" />
-              </button>
+              <motion.button
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                transition={{ type: "spring", stiffness: 400 }}
+                onClick={() => setOpen(false)}
+                className="relative z-10 h-8 w-8 rounded-lg bg-primary-foreground/10 hover:bg-primary-foreground/20 backdrop-blur-sm flex items-center justify-center transition-colors border border-primary-foreground/10"
+              >
+                <X className="h-4 w-4 text-primary-foreground" />
+              </motion.button>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-none">
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scrollbar-none bg-gradient-to-b from-card to-background/50">
               {messages.map((m, i) => (
-                <div key={i} className={`flex gap-2 ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 8, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 35, delay: i === messages.length - 1 ? 0.05 : 0 }}
+                  className={`flex gap-2.5 ${m.role === "user" ? "justify-end" : "justify-start"}`}
+                >
                   {m.role === "assistant" && (
-                    <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 mt-0.5 border border-primary/15">
                       <Bot className="h-4 w-4 text-primary" />
                     </div>
                   )}
                   <div
-                    className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                    className={`max-w-[78%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                       m.role === "user"
-                        ? "bg-primary text-primary-foreground rounded-br-md"
-                        : "bg-secondary text-secondary-foreground rounded-bl-md"
+                        ? "bg-primary text-primary-foreground rounded-br-sm shadow-md shadow-primary/10"
+                        : "bg-secondary/80 text-secondary-foreground rounded-bl-sm border border-border/50"
                     }`}
                   >
                     {m.role === "assistant" ? (
-                      <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-semibold [&_h1]:mt-2 [&_h2]:mt-2 [&_h3]:mt-1.5 [&_strong]:text-foreground">
+                      <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1.5 [&_ol]:my-1.5 [&_li]:my-0.5 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-semibold [&_h1]:mt-3 [&_h2]:mt-2 [&_h3]:mt-1.5 [&_strong]:text-foreground [&_code]:text-xs [&_code]:bg-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded">
                         <ReactMarkdown>{m.content}</ReactMarkdown>
                       </div>
                     ) : (
@@ -169,43 +203,73 @@ export default function ChatBot() {
                     )}
                   </div>
                   {m.role === "user" && (
-                    <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="h-8 w-8 rounded-xl bg-muted flex items-center justify-center shrink-0 mt-0.5 border border-border/50">
                       <User className="h-4 w-4 text-muted-foreground" />
                     </div>
                   )}
-                </div>
+                </motion.div>
               ))}
 
               {/* Quick suggestions */}
               {showSuggestions && (
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {QUICK_SUGGESTIONS.map((s) => (
-                    <button
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.4 }}
+                  className="flex flex-wrap gap-2 pt-2"
+                >
+                  {QUICK_SUGGESTIONS.map((s, i) => (
+                    <motion.button
                       key={s}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.4 + i * 0.08, type: "spring", stiffness: 400 }}
+                      whileHover={{ scale: 1.03, y: -1 }}
+                      whileTap={{ scale: 0.97 }}
                       onClick={() => sendText(s)}
-                      className="text-xs border border-border rounded-full px-3 py-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                      className="text-xs border border-border/80 rounded-xl px-3.5 py-2 text-muted-foreground hover:bg-primary/5 hover:text-foreground hover:border-primary/30 transition-colors duration-200 font-body"
                     >
                       {s}
-                    </button>
+                    </motion.button>
                   ))}
-                </div>
+                </motion.div>
               )}
 
               {loading && messages[messages.length - 1]?.role === "user" && (
-                <div className="flex gap-2">
-                  <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex gap-2.5"
+                >
+                  <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 border border-primary/15">
                     <Bot className="h-4 w-4 text-primary" />
                   </div>
-                  <div className="bg-secondary rounded-2xl rounded-bl-md px-3.5 py-2.5">
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  <div className="bg-secondary/80 rounded-2xl rounded-bl-sm px-4 py-3 border border-border/50">
+                    <div className="flex gap-1.5 items-center">
+                      <motion.span
+                        className="h-2 w-2 rounded-full bg-primary/40"
+                        animate={{ scale: [1, 1.3, 1], opacity: [0.4, 1, 0.4] }}
+                        transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
+                      />
+                      <motion.span
+                        className="h-2 w-2 rounded-full bg-primary/40"
+                        animate={{ scale: [1, 1.3, 1], opacity: [0.4, 1, 0.4] }}
+                        transition={{ duration: 1.2, repeat: Infinity, delay: 0.2 }}
+                      />
+                      <motion.span
+                        className="h-2 w-2 rounded-full bg-primary/40"
+                        animate={{ scale: [1, 1.3, 1], opacity: [0.4, 1, 0.4] }}
+                        transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
+                      />
+                    </div>
                   </div>
-                </div>
+                </motion.div>
               )}
               <div ref={bottomRef} />
             </div>
 
-            {/* Input */}
-            <div className="p-3 border-t border-border">
+            {/* Input area */}
+            <div className="p-3 border-t border-border/60 bg-card">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -214,15 +278,23 @@ export default function ChatBot() {
                 className="flex gap-2"
               >
                 <input
+                  ref={inputRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Pergunte sobre investimento..."
-                  className="flex-1 rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="flex-1 rounded-xl border border-input bg-background px-4 py-2.5 text-sm font-body placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-200"
                   disabled={loading}
                 />
-                <Button type="submit" size="icon" disabled={loading || !input.trim()} className="rounded-xl h-9 w-9">
-                  <Send className="h-4 w-4" />
-                </Button>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button
+                    type="submit"
+                    size="icon"
+                    disabled={loading || !input.trim()}
+                    className="rounded-xl h-10 w-10 shadow-sm shadow-primary/10 disabled:shadow-none transition-shadow"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </motion.div>
               </form>
             </div>
           </motion.div>
