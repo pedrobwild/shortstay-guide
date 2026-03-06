@@ -502,7 +502,7 @@ function ReservasSection() {
       </div>
 
       {/* Driver cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {sortedDrivers.map((driver, i) => (
           <motion.div
             key={driver.id}
@@ -1079,7 +1079,7 @@ function AntiChecklistSection() {
       title="Anti-checklist: O que NÃO fazer"
       takeaway="Erros que destroem rentabilidade — aprenda antes de cometer."
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {warnings.map((w) => (
           <Card key={w.title} className="border-destructive/20 bg-destructive/5">
             <CardContent className="p-5">
@@ -1145,7 +1145,7 @@ function DecoracaoSection() {
     >
       {/* 5 Pilares */}
       <h3 className="font-display text-xl font-bold text-foreground mb-4">Os 5 Pilares</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-8">
         {pilares.map((p) => (
           <Card key={p.title} className="border-border">
             <CardContent className="p-4 flex items-start gap-3">
@@ -1301,11 +1301,11 @@ function TendenciasSection() {
       takeaway="O que os hosts mais rentáveis estão fazendo agora."
     >
       {/* TODO: Replace with real carousel */}
-      <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 pb-4">
         {trends.map((t, i) => (
           <Card
             key={t}
-            className="min-w-[220px] snap-start border-border flex-shrink-0"
+            className="border-border"
           >
             <CardContent className="p-6">
               <Badge variant="secondary" className="mb-3 font-body">
