@@ -115,6 +115,14 @@
   }
 }
 
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* MapLibre popup styling */
 .maplibregl-popup-content {
   background: hsl(var(--card) / 0.95) !important;

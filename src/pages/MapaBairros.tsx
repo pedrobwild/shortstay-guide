@@ -249,7 +249,7 @@ function InteractiveMap({
 
   return (
     <motion.div
-      className="relative w-full aspect-[4/3] rounded-xl border border-border overflow-hidden"
+      className="relative w-full aspect-square md:aspect-[4/3] rounded-xl border border-border overflow-hidden min-h-[320px]"
       initial={{ opacity: 0, scale: 0.97 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -627,7 +627,7 @@ export default function MapaBairros() {
 
       <main className="max-w-7xl mx-auto px-4 md:px-8 pb-24">
         {/* Hero */}
-        <section className="py-10 md:py-14">
+        <section className="py-6 md:py-14">
           <motion.div initial={{ opacity: 0, y: 30, filter: "blur(8px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}>
             <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
               <Badge className="mb-4 bg-primary/10 text-primary border-0 font-body">São Paulo · Dashboard do investidor</Badge>
@@ -649,23 +649,23 @@ export default function MapaBairros() {
         {/* Filters + Controls */}
         <section className="mb-6 space-y-3">
           <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-            <div className="relative flex-1 max-w-md">
+            <div className="relative flex-1 w-full sm:max-w-md">
               <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input placeholder="Buscar bairro…" value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
             </div>
-            <div className="flex gap-2">
-              <Button variant={showComparison ? "default" : "outline"} size="sm" className="text-xs gap-1.5"
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button variant={showComparison ? "default" : "outline"} size="sm" className="text-xs gap-1.5 flex-1 sm:flex-initial"
                 onClick={() => setShowComparison(!showComparison)}>
-                <ArrowUpDown size={14} />Comparar bairros
+                <ArrowUpDown size={14} />Comparar
               </Button>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-nowrap items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap md:overflow-visible md:pb-0 scrollbar-none">
             {DEMAND_FILTERS.map((f) => {
               const active = f.key === "metro" ? showMetro : activeFilters.includes(f.key);
               return (
                 <button key={f.key} onClick={() => toggleFilter(f.key)}
-                  className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all ${
+                  className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all whitespace-nowrap flex-shrink-0 ${
                     active ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border hover:border-primary/40"
                   }`}>
                   <f.icon size={12} />{f.label}
@@ -673,20 +673,20 @@ export default function MapaBairros() {
               );
             })}
             {/* Heatmap toggle */}
-            <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border">
+            <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border flex-shrink-0">
               <Flame size={12} className={showHeatmap ? "text-destructive" : "text-muted-foreground"} />
               <span className="text-xs text-muted-foreground">Heatmap</span>
               <Switch checked={showHeatmap} onCheckedChange={setShowHeatmap} className="scale-75" />
             </div>
             {/* Clusters toggle */}
-            <div className="flex items-center gap-2 ml-1 pl-2 border-l border-border">
+            <div className="flex items-center gap-2 ml-1 pl-2 border-l border-border flex-shrink-0">
               <CircleDot size={12} className={showClusters ? "text-primary" : "text-muted-foreground"} />
               <span className="text-xs text-muted-foreground">Clusters</span>
               <Switch checked={showClusters} onCheckedChange={setShowClusters} className="scale-75" />
             </div>
             {(activeFilters.length > 0 || showMetro) && (
-              <button onClick={() => { setActiveFilters([]); setShowMetro(false); }} className="text-xs text-muted-foreground hover:text-foreground underline ml-1">
-                Limpar filtros
+              <button onClick={() => { setActiveFilters([]); setShowMetro(false); }} className="text-xs text-muted-foreground hover:text-foreground underline ml-1 flex-shrink-0">
+                Limpar
               </button>
             )}
           </div>
@@ -702,8 +702,8 @@ export default function MapaBairros() {
         </AnimatePresence>
 
         {/* Map + Right Panel */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
-          <div className="lg:col-span-2">
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-12">
+          <div className="lg:col-span-2 order-1">
             <InteractiveMap
               neighborhoods={filtered}
               stations={METRO_STATIONS}
@@ -717,7 +717,7 @@ export default function MapaBairros() {
           </div>
 
           {/* Right panel: Ranking or Simulator */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 order-2">
             {/* Panel tabs */}
             <div className="flex gap-1 mb-4 bg-muted rounded-lg p-1 relative">
               {["ranking", "simulator"].map((tab) => (
