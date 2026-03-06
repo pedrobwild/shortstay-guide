@@ -2,10 +2,18 @@ import { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, Send, Bot, User, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactMarkdown from "react-markdown";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
+
+const QUICK_SUGGESTIONS = [
+  "Qual bairro tem melhor ROI?",
+  "Compare Pinheiros vs Itaim",
+  "Quanto custa um studio em Moema?",
+  "Dicas para precificação dinâmica",
+];
 
 export default function ChatBot() {
   const [open, setOpen] = useState(false);
@@ -15,16 +23,16 @@ export default function ChatBot() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const showSuggestions = messages.length <= 1 && !loading;
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const send = async () => {
-    const text = input.trim();
-    if (!text || loading) return;
+  const sendText = async (text: string) => {
+    if (!text.trim() || loading) return;
     setInput("");
-    const userMsg: Msg = { role: "user", content: text };
+    const userMsg: Msg = { role: "user", content: text.trim() };
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
 
@@ -34,9 +42,6 @@ export default function ChatBot() {
       assistantSoFar += chunk;
       setMessages((prev) => {
         const last = prev[prev.length - 1];
-        if (last?.role === "assistant" && prev.length > 1 && last.content === assistantSoFar.slice(0, -chunk.length)) {
-          return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
-        }
         if (last?.role === "assistant" && prev.length > 1) {
           return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
         }
@@ -155,7 +160,13 @@ export default function ChatBot() {
                         : "bg-secondary text-secondary-foreground rounded-bl-md"
                     }`}
                   >
-                    {m.content}
+                    {m.role === "assistant" ? (
+                      <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-semibold [&_h1]:mt-2 [&_h2]:mt-2 [&_h3]:mt-1.5 [&_strong]:text-foreground">
+                        <ReactMarkdown>{m.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      m.content
+                    )}
                   </div>
                   {m.role === "user" && (
                     <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5">
@@ -164,6 +175,22 @@ export default function ChatBot() {
                   )}
                 </div>
               ))}
+
+              {/* Quick suggestions */}
+              {showSuggestions && (
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {QUICK_SUGGESTIONS.map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => sendText(s)}
+                      className="text-xs border border-border rounded-full px-3 py-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {loading && messages[messages.length - 1]?.role === "user" && (
                 <div className="flex gap-2">
                   <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
@@ -182,7 +209,7 @@ export default function ChatBot() {
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
-                  send();
+                  sendText(input);
                 }}
                 className="flex gap-2"
               >
