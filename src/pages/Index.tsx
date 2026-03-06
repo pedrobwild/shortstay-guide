@@ -379,53 +379,84 @@ function HeroSection() {
 
   return (
     <section id="hero" className="scroll-mt-24 pt-8 pb-16 md:pt-16 md:pb-24">
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-      >
-        <div className="hidden lg:flex items-center gap-3 mb-6">
-          <img src={bwildLogo} alt="Bwild" className="h-8 w-auto" />
-        </div>
-        <Badge className="mb-4 bg-gold-light text-foreground font-body border-0">
-          Guia Bwild 2025 • Atualizado
-        </Badge>
-        <h1 className="font-display text-4xl md:text-6xl font-extrabold leading-tight text-foreground mb-4">
-          Guia do Investidor em Studios para{" "}
-          <span className="text-gradient-hero">Short Stay</span>
-        </h1>
-        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-4 font-body">
-          Um guia prático criado pela Bwild a partir da análise do mercado real de short stay em São Paulo.
-        </p>
-        <p className="text-base text-muted-foreground max-w-2xl mb-8 font-body">
-          Aqui você encontra dados de mercado, ranking de bairros, simuladores de rentabilidade e estratégias usadas por hosts profissionais.
-        </p>
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] gap-8 lg:gap-12 items-start">
+        {/* Left column — text content */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+        >
+          <div className="hidden lg:flex items-center gap-3 mb-6">
+            <img src={bwildLogo} alt="Bwild" className="h-8 w-auto" />
+          </div>
+          <Badge className="mb-4 bg-gold-light text-foreground font-body border-0">
+            Guia Bwild 2025 • Atualizado
+          </Badge>
+          <h1 className="font-display text-4xl md:text-6xl font-extrabold leading-tight text-foreground mb-4 max-w-[68ch]">
+            Guia do Investidor em Studios para{" "}
+            <span className="text-gradient-hero">Short Stay</span>
+          </h1>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-[68ch] mb-4 font-body">
+            Um guia prático criado pela Bwild a partir da análise do mercado real de short stay em São Paulo.
+          </p>
+          <p className="text-base text-muted-foreground max-w-[68ch] mb-8 font-body">
+            Aqui você encontra dados de mercado, ranking de bairros, simuladores de rentabilidade e estratégias usadas por hosts profissionais.
+          </p>
 
-        {/* Benefits list */}
-        <ul className="space-y-2 mb-10 max-w-md">
-          {benefits.map((b) => (
-            <li key={b} className="flex items-center gap-2.5 text-foreground font-body text-sm md:text-base">
-              <Check size={16} className="text-primary flex-shrink-0" />
-              {b}
-            </li>
-          ))}
-        </ul>
+          {/* Benefits list */}
+          <ul className="space-y-2 mb-10 max-w-md">
+            {benefits.map((b) => (
+              <li key={b} className="flex items-center gap-2.5 text-foreground font-body text-sm md:text-base">
+                <Check size={16} className="text-primary flex-shrink-0" />
+                {b}
+              </li>
+            ))}
+          </ul>
 
-        <div className="flex flex-wrap gap-3">
-          <Button size="lg" className="bg-primary text-primary-foreground font-body" asChild>
-            <a href="#simulador">
-              <Calculator size={18} className="mr-2" />
-              Simular rentabilidade
-            </a>
-          </Button>
-          <Button size="lg" variant="outline" asChild className="font-body">
-            <Link to="/mapa-bairros">
-              <MapPin size={18} className="mr-2" />
-              Ver mapa de bairros
-            </Link>
-          </Button>
-        </div>
-      </motion.div>
+          <div className="flex flex-wrap gap-3 lg:hidden">
+            <Button size="lg" className="bg-primary text-primary-foreground font-body w-full sm:w-auto" asChild>
+              <a href="#simulador">
+                <Calculator size={18} className="mr-2" />
+                Simular rentabilidade
+              </a>
+            </Button>
+            <Button size="lg" variant="outline" asChild className="font-body w-full sm:w-auto">
+              <Link to="/mapa-bairros">
+                <MapPin size={18} className="mr-2" />
+                Ver mapa de bairros
+              </Link>
+            </Button>
+          </div>
+        </motion.div>
+
+        {/* Right column — CTA card (desktop only) */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+          className="hidden lg:block sticky top-8"
+        >
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-4 shadow-sm">
+            <p className="font-display text-lg font-semibold text-foreground">Comece por aqui</p>
+            <Button size="lg" className="bg-primary text-primary-foreground font-body w-full" asChild>
+              <a href="#simulador">
+                <Calculator size={18} className="mr-2" />
+                Simular rentabilidade
+              </a>
+            </Button>
+            <Button size="lg" variant="outline" asChild className="font-body w-full">
+              <Link to="/mapa-bairros">
+                <MapPin size={18} className="mr-2" />
+                Ver mapa de bairros
+              </Link>
+            </Button>
+            <Separator />
+            <p className="text-xs text-muted-foreground font-body text-center">
+              Dados atualizados com base no mercado real de São Paulo · 2025
+            </p>
+          </div>
+        </motion.div>
+      </div>
     </section>
   );
 }
@@ -1814,7 +1845,8 @@ export default function Index() {
       <QuickActions />
       <MobileStickyBar />
 
-      <main className="lg:ml-56 xl:ml-64 px-4 md:px-8 max-w-4xl pb-24 lg:pb-8 pt-16 lg:pt-0">
+      <main className="lg:ml-56 xl:ml-64 w-full flex justify-center pb-24 lg:pb-8 pt-16 lg:pt-0">
+       <div className="w-full max-w-[1280px] px-5 lg:px-10 py-0 lg:py-10">
         <HeroSection />
         <ReservasSection />
         <MercadoSection />
@@ -1845,6 +1877,7 @@ export default function Index() {
           <img src={bwildLogo} alt="Bwild" className="h-6 w-auto mx-auto mb-3 opacity-60" />
           © 2025 Bwild · Guia do Investidor em Studios para Short Stay
         </footer>
+       </div>
       </main>
     </>
   );
