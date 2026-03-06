@@ -234,50 +234,7 @@ function TableOfContents({ activeId }: { activeId: string }) {
   );
 }
 
-/* ─── Floating quick actions ─── */
-function QuickActions() {
-  const [open, setOpen] = useState(false);
-  const actions = [
-    { label: "Simular rentabilidade", icon: Calculator, href: "#simulador" },
-    { label: "Ver diária do meu bairro", icon: MapPin, href: "#mercado" },
-    { label: "Solicitar diagnóstico", icon: FileText, href: "#cta-final" },
-  ];
-
-  return (
-    <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-50">
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: 12, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.95 }}
-            className="mb-3 flex flex-col gap-2"
-          >
-            {actions.map((a) => (
-              <a
-                key={a.label}
-                href={a.href}
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2 bg-card border border-border shadow-lg rounded-lg px-4 py-3 text-sm font-body font-medium text-foreground hover:bg-secondary transition-colors"
-              >
-                <a.icon size={16} className="text-primary" />
-                {a.label}
-              </a>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <Button
-        size="icon"
-        className="h-14 w-14 rounded-full shadow-xl bg-primary text-primary-foreground hover:bg-primary/90"
-        onClick={() => setOpen(!open)}
-      >
-        {open ? <X size={22} /> : <Zap size={22} />}
-      </Button>
-    </div>
-  );
-}
-
+/* QuickActions removed — replaced by global ChatBot component in App.tsx */
 /* ─── Mobile menu (Sheet) ─── */
 function MobileMenu({ activeId }: { activeId: string }) {
   const [open, setOpen] = useState(false);
@@ -1813,7 +1770,7 @@ export default function Index() {
     <>
       <TableOfContents activeId={activeId} />
       <MobileMenu activeId={activeId} />
-      <QuickActions />
+      {/* ChatBot is rendered globally in App.tsx */}
       <MobileStickyBar />
 
       <main className="lg:ml-56 xl:ml-64 w-full flex justify-center pb-24 lg:pb-8 pt-16 lg:pt-0">
