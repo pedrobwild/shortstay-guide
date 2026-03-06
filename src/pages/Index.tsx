@@ -392,7 +392,8 @@ function HeroSection() {
           Guia Bwild 2025 • Atualizado
         </Badge>
         <h1 className="font-display text-4xl md:text-6xl font-extrabold leading-tight text-foreground mb-4 max-w-[68ch]">
-          Guia do Investidor em Studios para{" "}
+          Guia do Investidor em Studios para
+          <br />
           <span className="text-gradient-hero">Short Stay</span>
         </h1>
 
