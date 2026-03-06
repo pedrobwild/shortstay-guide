@@ -212,7 +212,7 @@ function InteractiveMap({
     >
       <ReactMap
         ref={mapRef}
-        initialViewState={{ longitude: -46.67, latitude: -23.575, zoom: 12.5 }}
+        initialViewState={{ longitude: -46.6333, latitude: -23.5505, zoom: 11 }}
         {...(viewState ? viewState : {})}
         style={{ width: "100%", height: "100%" }}
         mapStyle={MAP_STYLE}
