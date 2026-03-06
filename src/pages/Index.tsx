@@ -31,6 +31,12 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { motion, AnimatePresence } from "framer-motion";
 import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
   TrendingUp,
   BarChart3,
   Home,
@@ -274,6 +280,81 @@ function QuickActions() {
   );
 }
 
+/* ─── Mobile menu (Sheet) ─── */
+function MobileMenu({ activeId }: { activeId: string }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-card/95 backdrop-blur border-b border-border px-4 py-3 flex items-center justify-between">
+      <img src={bwildLogo} alt="Bwild" className="h-7 w-auto" />
+      <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
+        <Menu size={22} />
+      </Button>
+
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent side="left" className="w-72 p-0">
+          <SheetHeader className="px-4 pt-5 pb-3 border-b border-border">
+            <SheetTitle className="flex items-center gap-2">
+              <img src={bwildLogo} alt="Bwild" className="h-7 w-auto" />
+            </SheetTitle>
+          </SheetHeader>
+
+          <nav className="px-3 py-4 overflow-y-auto max-h-[calc(100vh-120px)]">
+            <p className="text-xs font-body font-semibold uppercase tracking-widest text-muted-foreground mb-3 px-2">
+              Índice
+            </p>
+            <ul className="space-y-0.5">
+              {SECTIONS.map((s) => {
+                const Icon = s.icon;
+                const isActive = activeId === s.id;
+                return (
+                  <li key={s.id}>
+                    <a
+                      href={`#${s.id}`}
+                      onClick={() => setOpen(false)}
+                      className={`flex items-center gap-2 px-3 py-2.5 rounded-md text-sm font-body transition-colors ${
+                        isActive
+                          ? "bg-primary text-primary-foreground font-semibold"
+                          : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                      }`}
+                    >
+                      <Icon size={14} />
+                      {s.label}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <Separator className="my-4" />
+            <p className="text-[10px] font-body font-semibold uppercase tracking-widest text-muted-foreground mb-3 px-2">
+              Ferramentas
+            </p>
+            <Link
+              to="/tendencias-premium-2026"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 px-3 py-2.5 rounded-md text-sm font-body font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors mb-2"
+            >
+              <Sparkles size={14} />
+              Tendências Premium 2026
+              <ArrowRight size={12} className="ml-auto" />
+            </Link>
+            <Link
+              to="/mapa-bairros"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 px-3 py-2.5 rounded-md text-sm font-body font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+            >
+              <MapPin size={14} />
+              Mapa de Bairros
+              <ArrowRight size={12} className="ml-auto" />
+            </Link>
+          </nav>
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+}
+
 /* ─── Mobile sticky CTA ─── */
 function MobileStickyBar() {
   return (
@@ -303,7 +384,7 @@ function HeroSection() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7 }}
       >
-        <div className="flex items-center gap-3 mb-6 lg:hidden">
+        <div className="hidden lg:flex items-center gap-3 mb-6">
           <img src={bwildLogo} alt="Bwild" className="h-8 w-auto" />
         </div>
         <Badge className="mb-4 bg-gold-light text-foreground font-body border-0">
@@ -1729,10 +1810,11 @@ export default function Index() {
   return (
     <>
       <TableOfContents activeId={activeId} />
+      <MobileMenu activeId={activeId} />
       <QuickActions />
       <MobileStickyBar />
 
-      <main className="lg:ml-56 xl:ml-64 px-4 md:px-8 max-w-4xl pb-24 lg:pb-8">
+      <main className="lg:ml-56 xl:ml-64 px-4 md:px-8 max-w-4xl pb-24 lg:pb-8 pt-16 lg:pt-0">
         <HeroSection />
         <ReservasSection />
         <MercadoSection />
