@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, TrendingUp, BarChart3, Target, Building2, Shield, AlertTriangle, Star, Users } from "lucide-react";
 import { motion } from "framer-motion";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Bar, BarChart, XAxis, YAxis, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from "recharts";
 
 const ScoreCard = ({ label, value, icon: Icon, color }: { label: string; value: number; icon: any; color: string }) => (
   <Card>
@@ -54,6 +56,100 @@ const IntelligenceBairroDetail = () => {
           <ScoreCard label="Rentabilidade" value={b.score_rentabilidade} icon={TrendingUp} color="text-emerald-600" />
           <ScoreCard label="Liquidez" value={b.score_liquidez} icon={BarChart3} color="text-blue-600" />
           <ScoreCard label="Crescimento Potencial" value={b.score_crescimento_potencial} icon={Target} color="text-amber-600" />
+        </motion.div>
+
+        {/* Charts Section */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Radar Chart - Scores */}
+          <Card>
+            <CardHeader><CardTitle className="text-base">Radar de Scores</CardTitle></CardHeader>
+            <CardContent>
+              <ChartContainer config={{
+                score: { label: "Score", color: "hsl(var(--primary))" }
+              }} className="aspect-square max-h-[300px] mx-auto">
+                <RadarChart data={[
+                  { metric: "Rentabilidade", value: b.score_rentabilidade, fullMark: 100 },
+                  { metric: "Liquidez", value: b.score_liquidez, fullMark: 100 },
+                  { metric: "Crescimento", value: b.score_crescimento_potencial, fullMark: 100 },
+                  { metric: "Ocupação", value: (b.ocupacao_media_studio ?? 0) * 100, fullMark: 100 },
+                  { metric: "Reputação", value: (Number(b.rating_medio) / 5) * 100, fullMark: 100 },
+                  { metric: "Segurança", value: Math.max(0, 100 - (Number(b.indice_criminalidade) * 100)), fullMark: 100 },
+                ]}>
+                  <PolarGrid stroke="hsl(var(--border))" />
+                  <PolarAngleAxis dataKey="metric" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+                  <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                  <Radar name="Score" dataKey="value" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.25} strokeWidth={2} />
+                </RadarChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+
+          {/* Bar Chart - Yields */}
+          <Card>
+            <CardHeader><CardTitle className="text-base">Comparativo de Yields</CardTitle></CardHeader>
+            <CardContent>
+              <ChartContainer config={{
+                airbnb: { label: "Yield Airbnb", color: "hsl(142 76% 36%)" },
+                longTerm: { label: "Yield Long Term", color: "hsl(221 83% 53%)" },
+                delta: { label: "Delta", color: "hsl(45 93% 47%)" },
+              }} className="max-h-[300px]">
+                <BarChart data={[
+                  { name: "Airbnb", value: (b.yield_bruto_airbnb ?? 0) * 100, fill: "hsl(142 76% 36%)" },
+                  { name: "Long Term", value: (b.yield_bruto_long_term ?? 0) * 100, fill: "hsl(221 83% 53%)" },
+                  { name: "Delta", value: (b.delta_yield ?? 0) * 100, fill: "hsl(45 93% 47%)" },
+                ]}>
+                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v.toFixed(1)}%`} />
+                  <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(2)}%`} />} />
+                  <Bar dataKey="value" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+
+          {/* Bar Chart - Performance Metrics */}
+          <Card>
+            <CardHeader><CardTitle className="text-base">Métricas de Performance</CardTitle></CardHeader>
+            <CardContent>
+              <ChartContainer config={{
+                metric: { label: "Valor", color: "hsl(var(--primary))" }
+              }} className="max-h-[300px]">
+                <BarChart data={[
+                  { name: "ADR (R$)", value: Number(b.adr_medio_studio), fill: "hsl(var(--primary))" },
+                  { name: "Receita/mês (R$k)", value: Number(b.receita_anual_media_studio) / 12000, fill: "hsl(262 83% 58%)" },
+                  { name: "Reviews/listing", value: Number(b.media_reviews_por_listing), fill: "hsl(var(--accent-foreground))" },
+                  { name: "Estadia (noites)", value: Number(b.estadia_media_noites), fill: "hsl(45 93% 47%)" },
+                ]} layout="vertical">
+                  <XAxis type="number" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={110} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="value" radius={[0, 6, 6, 0]} />
+                </BarChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+
+          {/* Bar Chart - Risk */}
+          <Card>
+            <CardHeader><CardTitle className="text-base">Indicadores de Risco</CardTitle></CardHeader>
+            <CardContent>
+              <ChartContainer config={{
+                risk: { label: "Risco", color: "hsl(0 84% 60%)" }
+              }} className="max-h-[300px]">
+                <BarChart data={[
+                  { name: "Saturação", value: (b.grau_saturacao_index ?? 0) * 100, fill: "hsl(0 84% 60%)" },
+                  { name: "Reg.", value: (b.risco_regulatorio ?? 0) * 100, fill: "hsl(25 95% 53%)" },
+                  { name: "Condomínio", value: (b.risco_condominio ?? 0) * 100, fill: "hsl(45 93% 47%)" },
+                  { name: "Crime", value: Number(b.indice_criminalidade) * 100, fill: "hsl(0 72% 51%)" },
+                ]}>
+                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
+                  <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(1)}%`} />} />
+                  <Bar dataKey="value" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
