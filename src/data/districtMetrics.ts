@@ -1,35 +1,33 @@
-// src/data/districtMetrics.ts
+// src/data/districtMetrics.mock.ts
 
-// Seed inicial (distritos oficiais) para o "Mapa de Bairros Rentáveis — São Paulo".
-// ✅ NÚMEROS IGUAIS AO MOCK (screenshot): Pinheiros, Itaim Bibi, Jardim Paulista.
-// ⚠️ Os demais distritos abaixo estão com valores plausíveis como placeholders (marcados com TODO)
-// para você substituir quando plugar a base real (AirDNA/InsideAirbnb/etc).
+// Seed 1:1 com o UI do mock (ranking + detalhes do painel + chips)
+// ✅ Valores EXATOS do mock para: Pinheiros, Itaim Bibi, Jardim Paulista
+// ⚠️ Os demais distritos estão com placeholders coerentes (troque quando plugar dados reais)
 
-export type DemandProfile =
-  | "tourism"
-  | "business"
-  | "events"
-  | "medical"
-  | "mixed"
-  | "premium tourism";
+export type DemandChip =
+  | "Misto"
+  | "Corporativo"
+  | "Turismo"
+  | "Turismo Premium"
+  | "Eventos"
+  | "Hospitais"
+  | "Universidades"
+  | "Próximo ao metrô";
 
-export type CompetitionLevel = "low" | "medium" | "high";
+export type CompetitionChip = "Baixa" | "Média" | "Alta";
 
-export type DistrictMetric = {
-  districtName: string; // MUST match GeoJSON properties.name exactly
-  tags: string[];
-  demandProfile: DemandProfile;
-  profitabilityScore: number;
-  metrics: {
-    estimatedROI: number;
-    nightlyRate: number;
-    occupancy: number;
-    revenueMonth: number;
-    adrRange: string;
-    listingsCount: number;
-    competitionLevel: CompetitionLevel;
-    sourceLabel: string;
-  };
+export type DistrictRow = {
+  districtName: string;
+  score: number;
+  chips: DemandChip[];
+  roiPercent: number;
+  nightlyRateBRL: number;
+  occupancyPercent: number;
+  revenueMonthBRL: number;
+  adrRangeLabel: string;
+  listingsCount: number;
+  competition: CompetitionChip;
+  sourceLabel: string;
   recommendation: {
     bestStudioType: string;
     whyItWorks: string;
@@ -38,325 +36,302 @@ export type DistrictMetric = {
   };
 };
 
-export const districtMetrics: DistrictMetric[] = [
-  // #1 — MOCK MATCH ✅
+export const DISTRICTS_MOCK: DistrictRow[] = [
   {
     districtName: "Pinheiros",
-    tags: ["misto", "turismo", "gastronomia", "vida noturna", "coworking", "metro"],
-    demandProfile: "mixed",
-    profitabilityScore: 92,
-    metrics: {
-      estimatedROI: 19.2,
-      nightlyRate: 410,
-      occupancy: 75,
-      revenueMonth: 9225,
-      adrRange: "R$340–R$480",
-      listingsCount: 3200,
-      competitionLevel: "high",
-      sourceLabel: "Bwild/AirDNA 2025",
-    },
+    score: 92,
+    chips: ["Misto", "Turismo", "Próximo ao metrô"],
+    roiPercent: 19.2,
+    nightlyRateBRL: 410,
+    occupancyPercent: 75,
+    revenueMonthBRL: 9225,
+    adrRangeLabel: "R$340–R$480",
+    listingsCount: 3200,
+    competition: "Alta",
+    sourceLabel: "Bwild/AirDNA 2025",
     recommendation: {
       bestStudioType: "Compacto premium + home office",
       whyItWorks:
-        "Alta demanda mista (turismo + corporativo), forte oferta gastronômica e boa mobilidade.",
+        "Alta demanda mista (turismo + corporativo), vida noturna forte e ótima mobilidade.",
       tips: [
-        "Capriche na foto de capa e em um detalhe de design memorável.",
-        "Garanta Wi-Fi excelente e mesa confortável (nômades digitais).",
-        "Automatize check-in e mensagens para escalar sem fricção.",
+        "Foto de capa perfeita + 1 elemento de design memorável.",
+        "Wi-Fi excelente e mesa confortável (nômades digitais).",
+        "Check-in autônomo + mensagens automatizadas para escalar.",
       ],
       risks: [
-        "Alta competição: fotos, reviews e operação precisam ser impecáveis.",
-        "Atenção a ruído (noite) e regras de condomínio.",
+        "Competição alta: reviews e operação precisam ser impecáveis.",
+        "Atenção a ruído e regras do condomínio (horários).",
       ],
     },
   },
-  // #2 — MOCK MATCH ✅
   {
     districtName: "Itaim Bibi",
-    tags: ["corporativo", "negocios", "restaurantes", "tech", "misto"],
-    demandProfile: "business",
-    profitabilityScore: 91,
-    metrics: {
-      estimatedROI: 18.1,
-      nightlyRate: 440,
-      occupancy: 73,
-      revenueMonth: 9636,
-      adrRange: "R$360–R$520",
-      listingsCount: 2600,
-      competitionLevel: "high",
-      sourceLabel: "Bwild/AirDNA 2025",
-    },
+    score: 91,
+    chips: ["Corporativo", "Próximo ao metrô"],
+    roiPercent: 18.1,
+    nightlyRateBRL: 440,
+    occupancyPercent: 73,
+    revenueMonthBRL: 9636,
+    adrRangeLabel: "R$360–R$520",
+    listingsCount: 2600,
+    competition: "Alta",
+    sourceLabel: "Bwild/AirDNA 2025",
     recommendation: {
       bestStudioType: "Business studio (hotel feel)",
       whyItWorks:
-        "Público corporativo valoriza previsibilidade, conforto e operação profissional.",
+        "Público corporativo valoriza previsibilidade, conforto e experiência padrão hotel.",
       tips: [
-        "Invista em enxoval premium, blackout e padrão de hotel.",
-        "Check-in ultra intuitivo + guia digital objetivo.",
-        "Precificação dinâmica para capturar picos de demanda corporativa.",
+        "Enxoval premium + blackout + colchão padrão hotel.",
+        "Guia digital objetivo (check-in, Wi-Fi, regras).",
+        "Preço dinâmico para capturar picos em dias úteis.",
       ],
       risks: [
-        "Pode ter sazonalidade corporativa (dias úteis mais fortes).",
+        "Sazonalidade corporativa (picos em semana).",
         "Condomínios podem ter restrições operacionais.",
       ],
     },
   },
-  // #3 — MOCK MATCH ✅
   {
     districtName: "Jardim Paulista",
-    tags: ["turismo premium", "compras", "restaurantes", "luxo", "cultura"],
-    demandProfile: "premium tourism",
-    profitabilityScore: 87,
-    metrics: {
-      estimatedROI: 17.4,
-      nightlyRate: 440,
-      occupancy: 70,
-      revenueMonth: 9240,
-      adrRange: "R$360–R$520",
-      listingsCount: 2800,
-      competitionLevel: "high",
-      sourceLabel: "Bwild/AirDNA 2025",
-    },
+    score: 87,
+    chips: ["Turismo Premium", "Turismo", "Próximo ao metrô"],
+    roiPercent: 17.4,
+    nightlyRateBRL: 440,
+    occupancyPercent: 70,
+    revenueMonthBRL: 9240,
+    adrRangeLabel: "R$360–R$520",
+    listingsCount: 2800,
+    competition: "Alta",
+    sourceLabel: "Bwild/AirDNA 2025",
     recommendation: {
       bestStudioType: "Premium aesthetic (instagramável)",
       whyItWorks:
-        "Região premium com forte apelo turístico e alta disposição a pagar por conforto/estética.",
+        "Região premium com alta disposição a pagar por estética, conforto e serviços.",
       tips: [
-        "Crie identidade visual clara (paleta + 1 peça 'wow').",
-        "Iluminação em camadas (indireta + decorativa) para fotos perfeitas.",
-        "Amenities e experiência de hotel elevam ADR e reviews.",
+        "Identidade visual clara (paleta + 'peça wow').",
+        "Iluminação em camadas para fotos impecáveis.",
+        "Amenities e padrão hotel para elevar ADR.",
       ],
       risks: [
-        "Competição alta: diferenciação estética e fotos profissionais são obrigatórias.",
+        "Competição alta: fotografia profissional é obrigatória.",
         "Custo de montagem tende a ser maior para manter padrão premium.",
       ],
     },
   },
-  // ----------------------------
-  // PLACEHOLDERS (TODO ajustar)
-  // ----------------------------
   {
     districtName: "Consolação",
-    tags: ["turismo", "metro", "cultura", "paulista", "misto"],
-    demandProfile: "tourism",
-    profitabilityScore: 86,
-    metrics: {
-      estimatedROI: 16.6,
-      nightlyRate: 390,
-      occupancy: 74,
-      revenueMonth: 8660,
-      adrRange: "R$320–R$470",
-      listingsCount: 2400,
-      competitionLevel: "high",
-      sourceLabel: "Seed (substituir por dados reais)",
-    },
+    score: 86,
+    chips: ["Turismo", "Próximo ao metrô"],
+    roiPercent: 16.6,
+    nightlyRateBRL: 390,
+    occupancyPercent: 74,
+    revenueMonthBRL: 8660,
+    adrRangeLabel: "R$320–R$470",
+    listingsCount: 2400,
+    competition: "Alta",
+    sourceLabel: "Seed (substituir por dados reais)",
     recommendation: {
-      bestStudioType: "Turismo funcional + fácil mobilidade",
-      whyItWorks: "Muita busca por localização e acesso rápido a pontos turísticos e metrô.",
-      tips: [
-        "Check-in autônomo e instruções visuais (alto giro de hóspedes).",
-        "Otimize o layout para mala + cozinha compacta completa.",
-      ],
-      risks: ["Micro-localização importa muito (ruas podem variar bastante)."],
+      bestStudioType: "Turismo funcional + mobilidade",
+      whyItWorks: "Demanda alta por localização e acesso rápido à Paulista e metrô.",
+      tips: ["Check-in autônomo com manual visual.", "Layout otimizado para mala + cozinha completa."],
+      risks: ["Micro-localização varia muito entre ruas."],
     },
   },
   {
     districtName: "Bela Vista",
-    tags: ["turismo", "teatro", "gastronomia", "cultura", "metro"],
-    demandProfile: "tourism",
-    profitabilityScore: 82,
-    metrics: {
-      estimatedROI: 15.4,
-      nightlyRate: 360,
-      occupancy: 72,
-      revenueMonth: 7776,
-      adrRange: "R$290–R$430",
-      listingsCount: 2100,
-      competitionLevel: "high",
-      sourceLabel: "Seed (substituir por dados reais)",
-    },
+    score: 82,
+    chips: ["Turismo", "Próximo ao metrô"],
+    roiPercent: 15.4,
+    nightlyRateBRL: 360,
+    occupancyPercent: 72,
+    revenueMonthBRL: 7776,
+    adrRangeLabel: "R$290–R$430",
+    listingsCount: 2100,
+    competition: "Alta",
+    sourceLabel: "Seed (substituir por dados reais)",
     recommendation: {
-      bestStudioType: "Turismo acessível (alto volume)",
-      whyItWorks: "Boa demanda turística e cultural; tende a performar bem com preço competitivo.",
-      tips: [
-        "Foco em limpeza impecável e operação rápida (troca frequente).",
-        "Blackout + acústica básica para evitar reviews por ruído.",
-      ],
-      risks: ["Ruído e variação de segurança percebida por micro-região."],
+      bestStudioType: "Turismo acessível (alto giro)",
+      whyItWorks: "Boa procura cultural e gastronômica; performa bem com preço competitivo.",
+      tips: ["Limpeza padrão hotel (checklist).", "Blackout + vedação básica para ruído."],
+      risks: ["Trechos com ruído e variação de percepção de segurança."],
     },
   },
   {
     districtName: "Moema",
-    tags: ["misto", "parque", "aeroporto", "restaurantes", "familia"],
-    demandProfile: "mixed",
-    profitabilityScore: 85,
-    metrics: {
-      estimatedROI: 15.8,
-      nightlyRate: 380,
-      occupancy: 70,
-      revenueMonth: 7980,
-      adrRange: "R$310–R$460",
-      listingsCount: 1800,
-      competitionLevel: "medium",
-      sourceLabel: "Seed (substituir por dados reais)",
-    },
+    score: 85,
+    chips: ["Misto", "Próximo ao metrô"],
+    roiPercent: 15.8,
+    nightlyRateBRL: 380,
+    occupancyPercent: 70,
+    revenueMonthBRL: 7980,
+    adrRangeLabel: "R$310–R$460",
+    listingsCount: 1800,
+    competition: "Média",
+    sourceLabel: "Seed (substituir por dados reais)",
     recommendation: {
       bestStudioType: "Conforto + estadias médias",
-      whyItWorks: "Atrai perfis variados (lazer, família, deslocamentos) e tende a ter boa recorrência.",
-      tips: [
-        "Inclua kit de boas-vindas e 'hotel feel' (enxoval bom).",
-        "Mesa para trabalho remoto aumenta estadias mais longas.",
-      ],
-      risks: ["Dependência de mobilidade (considere proximidade de metrô/rotas)."],
+      whyItWorks: "Demanda variada (lazer, deslocamentos) e bom perfil para estadias mais longas.",
+      tips: ["Wi-Fi forte + mesa de trabalho.", "Kit boas-vindas simples (café/água)."],
+      risks: ["Dependência de micro-localização para mobilidade."],
     },
   },
   {
     districtName: "Vila Mariana",
-    tags: ["hospitais", "universidades", "misto", "metro"],
-    demandProfile: "medical",
-    profitabilityScore: 83,
-    metrics: {
-      estimatedROI: 15.2,
-      nightlyRate: 350,
-      occupancy: 71,
-      revenueMonth: 7455,
-      adrRange: "R$280–R$420",
-      listingsCount: 1600,
-      competitionLevel: "medium",
-      sourceLabel: "Seed (substituir por dados reais)",
-    },
+    score: 83,
+    chips: ["Hospitais", "Universidades", "Próximo ao metrô"],
+    roiPercent: 15.2,
+    nightlyRateBRL: 350,
+    occupancyPercent: 71,
+    revenueMonthBRL: 7455,
+    adrRangeLabel: "R$280–R$420",
+    listingsCount: 1600,
+    competition: "Média",
+    sourceLabel: "Seed (substituir por dados reais)",
     recommendation: {
       bestStudioType: "Funcional (estadia média) + cozinha completa",
-      whyItWorks:
-        "Demanda recorrente por saúde/universidades: hóspedes valorizam praticidade e conforto.",
-      tips: [
-        "Cozinha bem equipada + lavanderia (se possível).",
-        "Ambiente silencioso e cama confortável (público sensível ao descanso).",
-      ],
-      risks: ["Menos picos de ADR; performance vem de ocupação consistente."],
+      whyItWorks: "Demanda recorrente de saúde/universidades: hóspedes valorizam praticidade.",
+      tips: ["Cozinha bem equipada.", "Ambiente silencioso + cama premium."],
+      risks: ["Menos picos de ADR: performance vem de ocupação consistente."],
     },
   },
   {
     districtName: "Barra Funda",
-    tags: ["eventos", "expo", "transporte", "shows"],
-    demandProfile: "events",
-    profitabilityScore: 80,
-    metrics: {
-      estimatedROI: 14.8,
-      nightlyRate: 340,
-      occupancy: 68,
-      revenueMonth: 6936,
-      adrRange: "R$260–R$420",
-      listingsCount: 1200,
-      competitionLevel: "medium",
-      sourceLabel: "Seed (substituir por dados reais)",
-    },
+    score: 80,
+    chips: ["Eventos", "Próximo ao metrô"],
+    roiPercent: 14.8,
+    nightlyRateBRL: 340,
+    occupancyPercent: 68,
+    revenueMonthBRL: 6936,
+    adrRangeLabel: "R$260–R$420",
+    listingsCount: 1200,
+    competition: "Média",
+    sourceLabel: "Seed (substituir por dados reais)",
     recommendation: {
-      bestStudioType: "Eventos (flexível) + operação eficiente",
-      whyItWorks: "Região performa muito em picos de calendário; boa para estratégia de preço dinâmico.",
-      tips: [
-        "Ative smart pricing e regras de estadia mínima em datas fortes.",
-        "Check-in autônomo para alto volume de entrada/saída em eventos.",
-      ],
-      risks: ["Sazonalidade por eventos; precisa de calendário bem gerido."],
+      bestStudioType: "Eventos + operação eficiente",
+      whyItWorks: "Excelente em picos de calendário: shows, feiras, eventos.",
+      tips: ["Smart pricing sempre ativo.", "Regras de estadia mínima em datas fortes."],
+      risks: ["Sazonalidade: precisa gestão de calendário."],
     },
   },
   {
     districtName: "Campo Belo",
-    tags: ["corporativo", "misto", "negocios", "conforto"],
-    demandProfile: "business",
-    profitabilityScore: 84,
-    metrics: {
-      estimatedROI: 15.0,
-      nightlyRate: 370,
-      occupancy: 69,
-      revenueMonth: 7659,
-      adrRange: "R$300–R$460",
-      listingsCount: 1100,
-      competitionLevel: "medium",
-      sourceLabel: "Seed (substituir por dados reais)",
-    },
+    score: 84,
+    chips: ["Corporativo"],
+    roiPercent: 15.0,
+    nightlyRateBRL: 370,
+    occupancyPercent: 69,
+    revenueMonthBRL: 7659,
+    adrRangeLabel: "R$300–R$460",
+    listingsCount: 1100,
+    competition: "Média",
+    sourceLabel: "Seed (substituir por dados reais)",
     recommendation: {
       bestStudioType: "Business + estadia média",
-      whyItWorks: "Atrai viagens de trabalho e estadias mais longas com conforto e previsibilidade.",
-      tips: [
-        "Roupa de cama premium + blackout + Wi-Fi excelente.",
-        "Espaço de trabalho e tomadas/USB bem posicionadas.",
-      ],
-      risks: ["Sem metrô perto em alguns trechos: micro-localização importa."],
-    },
-  },
-  {
-    districtName: "Itaquera",
-    tags: ["eventos", "transporte"],
-    demandProfile: "events",
-    profitabilityScore: 78,
-    metrics: {
-      estimatedROI: 13.2,
-      nightlyRate: 260,
-      occupancy: 62,
-      revenueMonth: 4836,
-      adrRange: "R$190–R$320",
-      listingsCount: 450,
-      competitionLevel: "low",
-      sourceLabel: "Seed (substituir por dados reais)",
-    },
-    recommendation: {
-      bestStudioType: "Eventos pontuais + baixo custo",
-      whyItWorks: "Pode performar em datas específicas; bom para estratégia oportunística.",
-      tips: ["Use calendário de eventos e preço dinâmico.", "Operação enxuta e eficiente."],
-      risks: ["Demanda menos constante fora de eventos."],
-    },
-  },
-  {
-    districtName: "Santana",
-    tags: ["misto", "familia", "eventos", "transporte"],
-    demandProfile: "mixed",
-    profitabilityScore: 81,
-    metrics: {
-      estimatedROI: 14.0,
-      nightlyRate: 310,
-      occupancy: 66,
-      revenueMonth: 6138,
-      adrRange: "R$240–R$390",
-      listingsCount: 900,
-      competitionLevel: "medium",
-      sourceLabel: "Seed (substituir por dados reais)",
-    },
-    recommendation: {
-      bestStudioType: "Funcional (misto) + boa operação",
-      whyItWorks: "Demanda diversificada e potencial com boa micro-localização e oferta local.",
-      tips: ["Foque em limpeza e check-in sem atrito.", "Garanta bom Wi-Fi."],
-      risks: ["Variação por micro-região e acessos."],
+      whyItWorks: "Atrai viagens de trabalho; bom para conforto e previsibilidade.",
+      tips: ["Blackout + enxoval premium.", "Tomadas/USB e setup de trabalho."],
+      risks: ["Alguns trechos com menor acesso a metrô."],
     },
   },
   {
     districtName: "República",
-    tags: ["turismo", "centro", "cultura", "metro"],
-    demandProfile: "tourism",
-    profitabilityScore: 79,
-    metrics: {
-      estimatedROI: 13.6,
-      nightlyRate: 300,
-      occupancy: 67,
-      revenueMonth: 6030,
-      adrRange: "R$230–R$380",
-      listingsCount: 1900,
-      competitionLevel: "high",
-      sourceLabel: "Seed (substituir por dados reais)",
-    },
+    score: 79,
+    chips: ["Turismo", "Próximo ao metrô"],
+    roiPercent: 13.6,
+    nightlyRateBRL: 300,
+    occupancyPercent: 67,
+    revenueMonthBRL: 6030,
+    adrRangeLabel: "R$230–R$380",
+    listingsCount: 1900,
+    competition: "Alta",
+    sourceLabel: "Seed (substituir por dados reais)",
     recommendation: {
       bestStudioType: "Turismo econômico + alta rotatividade",
-      whyItWorks: "Boa procura por localização central e acesso ao metrô.",
-      tips: ["Invista em segurança percebida (iluminação/entrada clara).", "Manual de check-in ultra visual."],
-      risks: ["Micro-localização é crítica; avaliar entorno com muito cuidado."],
+      whyItWorks: "Procura por centralidade e mobilidade; bom para operação padronizada.",
+      tips: ["Check-in ultra visual e simples.", "Iluminação/entrada clara para segurança percebida."],
+      risks: ["Micro-localização crítica."],
+    },
+  },
+  {
+    districtName: "Santana",
+    score: 81,
+    chips: ["Misto", "Próximo ao metrô"],
+    roiPercent: 14.0,
+    nightlyRateBRL: 310,
+    occupancyPercent: 66,
+    revenueMonthBRL: 6138,
+    adrRangeLabel: "R$240–R$390",
+    listingsCount: 900,
+    competition: "Média",
+    sourceLabel: "Seed (substituir por dados reais)",
+    recommendation: {
+      bestStudioType: "Funcional (misto) + boa operação",
+      whyItWorks: "Demanda diversificada; performa bem com boa apresentação e reviews.",
+      tips: ["Limpeza e enxoval acima da média.", "Wi-Fi forte."],
+      risks: ["Variação por micro-região."],
+    },
+  },
+  {
+    districtName: "Itaquera",
+    score: 78,
+    chips: ["Eventos", "Próximo ao metrô"],
+    roiPercent: 13.2,
+    nightlyRateBRL: 260,
+    occupancyPercent: 62,
+    revenueMonthBRL: 4836,
+    adrRangeLabel: "R$190–R$320",
+    listingsCount: 450,
+    competition: "Baixa",
+    sourceLabel: "Seed (substituir por dados reais)",
+    recommendation: {
+      bestStudioType: "Eventos pontuais + baixo custo",
+      whyItWorks: "Pode performar em datas específicas com estratégia de preço.",
+      tips: ["Calendário de eventos + preço dinâmico.", "Operação enxuta."],
+      risks: ["Demanda menos constante fora de eventos."],
     },
   },
 ];
 
-// helpers
-export const districtMetricByName = new Map(
-  districtMetrics.map((d) => [d.districtName, d]),
-);
+// -----------------------------------------
+// Helpers para UI (ranking / filtros / join)
+// -----------------------------------------
 
-export const districtNames = districtMetrics.map((d) => d.districtName);
+export const districtByName = new Map(DISTRICTS_MOCK.map((d) => [d.districtName, d]));
+
+export const allChips = Array.from(
+  new Set(DISTRICTS_MOCK.flatMap((d) => d.chips)),
+).sort();
+
+export const formatBRL = (value: number) =>
+  value.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+
+export const formatPct = (value: number) =>
+  `${value.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
+
+export const scoreBand = (score: number) => {
+  if (score >= 88) return "high";
+  if (score >= 80) return "medium";
+  return "low";
+};
+
+export const sortDistricts = (
+  list: DistrictRow[],
+  by:
+    | "roi"
+    | "score"
+    | "nightlyRate"
+    | "occupancy"
+    | "revenueMonth"
+    | "listingsCount" = "roi",
+) => {
+  const sorted = [...list];
+  const key: Record<typeof by, (d: DistrictRow) => number> = {
+    roi: (d) => d.roiPercent,
+    score: (d) => d.score,
+    nightlyRate: (d) => d.nightlyRateBRL,
+    occupancy: (d) => d.occupancyPercent,
+    revenueMonth: (d) => d.revenueMonthBRL,
+    listingsCount: (d) => d.listingsCount,
+  };
+  sorted.sort((a, b) => key[by](b) - key[by](a));
+  return sorted;
+};
