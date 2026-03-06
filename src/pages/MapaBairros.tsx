@@ -225,23 +225,14 @@ function InteractiveMap({
         {neighborhoods.map((n) => {
           const isSel = selected?.name === n.name;
           const isHigh = highlightedNames.includes(n.name);
-          const color = n.score >= 88 ? "#22c55e" : n.score >= 84 ? "#f59e0b" : "#9ca3af";
-          const bgColor = isSel ? "hsl(210 70% 25%)" : isHigh ? "#fbbf24" : color;
-          const borderColor = isSel ? "hsl(210 70% 25%)" : isHigh ? "#fbbf24" : "#fff";
-          const size = isSel ? 28 : 22;
+          const bgClass = isSel ? "bg-primary" : isHigh ? "bg-amber-400" : n.score >= 88 ? "bg-green-500" : n.score >= 84 ? "bg-amber-500" : "bg-gray-400";
           return (
             <Marker key={n.id} longitude={n.centerLng} latitude={n.centerLat} anchor="center">
               <div
                 onClick={() => onSelect(n)}
                 onMouseEnter={() => setHoveredN(n)}
                 onMouseLeave={() => setHoveredN(null)}
-                className="cursor-pointer transition-transform duration-200 hover:scale-[1.4]"
-                style={{
-                  width: size, height: size, borderRadius: "50%", border: `2px solid ${borderColor}`,
-                  background: bgColor, display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: isSel ? "0 0 0 4px rgba(30,64,120,0.3)" : "0 2px 8px rgba(0,0,0,0.3)",
-                  fontSize: 8, fontWeight: 700, color: "#fff", fontFamily: "monospace",
-                }}
+                className={`${bgClass} text-white rounded-full px-2 py-1 text-xs font-bold cursor-pointer transition-transform duration-200 hover:scale-[1.4] shadow-md ${isSel ? "ring-2 ring-primary/50 scale-110" : ""}`}
               >
                 {n.score}
               </div>
