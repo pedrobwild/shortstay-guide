@@ -44,7 +44,8 @@ export const InvestmentScoreHero = ({ result, bairro }: { result: InvestmentScor
                 <span className={`text-lg font-bold ${result.gradeColor}`}>{result.grade}</span>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-2 text-center max-w-[160px]">
+            <p className="text-[10px] font-semibold text-muted-foreground mt-1">{result.gradeLabel}</p>
+            <p className="text-xs text-muted-foreground mt-1 text-center max-w-[160px]">
               {getGradeExplanation(result.grade).split(".")[0]}.
             </p>
           </div>
