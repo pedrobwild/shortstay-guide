@@ -174,13 +174,7 @@ const IntelligenceRanking = () => {
                   {sorted.map((b, i) => {
                     const profile = getBairroProfile(b, allBairros);
                     const invScore = scoreMap.get(b.bairro);
-                    const gradeStyles: Record<string, string> = {
-                      "text-emerald-600": "bg-emerald-100 text-emerald-800",
-                      "text-blue-600": "bg-blue-100 text-blue-800",
-                      "text-amber-600": "bg-amber-100 text-amber-800",
-                      "text-orange-600": "bg-orange-100 text-orange-800",
-                      "text-red-600": "bg-red-100 text-red-800",
-                    };
+                    const badgeStyle = getGradeStyle(invScore?.gradeColor ?? "");
                     return (
                       <TableRow key={b.bairro} className="cursor-pointer hover:bg-muted/50 group">
                         <TableCell className="font-bold text-muted-foreground">{i + 1}</TableCell>
