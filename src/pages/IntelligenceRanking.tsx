@@ -13,6 +13,7 @@ import type { BairroAirbnb } from "@/types/intelligence";
 import IndicatorExplainerSection from "@/components/intelligence/IndicatorExplainerSection";
 import { ComparativeNarrativesSection, StrategicLessonsSection, EducationalBanner, ContextualNote, AnalysisSummarySection } from "@/components/intelligence/StorytellingComponents";
 import { calculateInvestmentScore } from "@/lib/investmentScore";
+import { getGradeStyle, FOOTER_DISCLAIMER } from "@/lib/uiHelpers";
 import {
   COLUMN_TOOLTIPS,
   MICROCOPY,
@@ -173,13 +174,7 @@ const IntelligenceRanking = () => {
                   {sorted.map((b, i) => {
                     const profile = getBairroProfile(b, allBairros);
                     const invScore = scoreMap.get(b.bairro);
-                    const gradeStyles: Record<string, string> = {
-                      "text-emerald-600": "bg-emerald-100 text-emerald-800",
-                      "text-blue-600": "bg-blue-100 text-blue-800",
-                      "text-amber-600": "bg-amber-100 text-amber-800",
-                      "text-orange-600": "bg-orange-100 text-orange-800",
-                      "text-red-600": "bg-red-100 text-red-800",
-                    };
+                    const badgeStyle = getGradeStyle(invScore?.gradeColor ?? "");
                     return (
                       <TableRow key={b.bairro} className="cursor-pointer hover:bg-muted/50 group">
                         <TableCell className="font-bold text-muted-foreground">{i + 1}</TableCell>
@@ -195,7 +190,7 @@ const IntelligenceRanking = () => {
                               <TooltipTrigger asChild>
                                 <div className="flex items-center justify-center gap-1.5 cursor-help">
                                   <span className="text-base font-bold">{invScore.score.toFixed(1)}</span>
-                                  <Badge className={`${gradeStyles[invScore.gradeColor] || "bg-muted"} text-[10px] px-1.5`}>{invScore.grade}</Badge>
+                                  <Badge className={`${badgeStyle} text-[10px] px-1.5`}>{invScore.grade}</Badge>
                                 </div>
                               </TooltipTrigger>
                               <TooltipContent side="bottom" className="max-w-[240px] text-xs space-y-1.5 p-3">
@@ -271,6 +266,11 @@ const IntelligenceRanking = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* ── Disclaimer ──────────────────────────────── */}
+          <footer className="border-t border-border/40 pt-6 pb-2 text-center">
+            <p className="text-[11px] text-muted-foreground/70 leading-relaxed max-w-2xl mx-auto">{FOOTER_DISCLAIMER}</p>
+          </footer>
         </main>
       </div>
     </TooltipProvider>

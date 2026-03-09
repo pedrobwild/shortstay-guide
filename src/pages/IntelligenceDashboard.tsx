@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { getHighlightWinners } from "@/lib/intelligenceInsights";
 import { calculateAllScores } from "@/lib/investmentScore";
 import IndicatorExplainerSection from "@/components/intelligence/IndicatorExplainerSection";
+import { getGradeStyle, FOOTER_DISCLAIMER } from "@/lib/uiHelpers";
 import { ComparativeNarrativesSection, StrategicLessonsSection, EducationalBanner, ContextualNote } from "@/components/intelligence/StorytellingComponents";
 
 const ICON_MAP: Record<string, any> = { Scale, Crown, Rocket, Activity, TrendingUp };
@@ -136,13 +137,7 @@ const IntelligenceDashboard = () => {
                 return ranked.slice(0, 5).map((item, i) => {
                   const b = item.bairro;
                   const s = item.investmentScore;
-                  const gradeStyles: Record<string, string> = {
-                    "text-emerald-600": "bg-emerald-100 text-emerald-800",
-                    "text-blue-600": "bg-blue-100 text-blue-800",
-                    "text-amber-600": "bg-amber-100 text-amber-800",
-                    "text-orange-600": "bg-orange-100 text-orange-800",
-                    "text-red-600": "bg-red-100 text-red-800",
-                  };
+                  const badgeStyle = getGradeStyle(s.gradeColor);
                   return (
                     <Link key={b.bairro} to={`/intelligence/bairro/${encodeURIComponent(b.bairro)}`} className="block">
                       <motion.div
@@ -160,7 +155,7 @@ const IntelligenceDashboard = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-bold">{s.score.toFixed(1)}</span>
-                          <Badge className={`${gradeStyles[s.gradeColor] || "bg-muted text-foreground"} text-xs`}>{s.grade}</Badge>
+                          <Badge className={`${badgeStyle} text-xs`}>{s.grade}</Badge>
                         </div>
                       </motion.div>
                     </Link>
@@ -213,6 +208,11 @@ const IntelligenceDashboard = () => {
             </Card>
           </Link>
         </div>
+
+        {/* ── Disclaimer ──────────────────────────────── */}
+        <footer className="border-t border-border/40 pt-6 pb-2 text-center">
+          <p className="text-[11px] text-muted-foreground/70 leading-relaxed max-w-2xl mx-auto">{FOOTER_DISCLAIMER}</p>
+        </footer>
       </main>
     </div>
   );

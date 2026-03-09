@@ -21,6 +21,7 @@ import { buildBairroStoryBlocks } from "@/lib/storytelling";
 import { calculateInvestmentScore, calculateTrueYield } from "@/lib/investmentScore";
 import { BairroStoryCard, EducationalBanner, ContextualNote } from "@/components/intelligence/StorytellingComponents";
 import { InvestmentScoreHero } from "@/components/intelligence/InvestmentScoreComponents";
+import { FOOTER_DISCLAIMER } from "@/lib/uiHelpers";
 
 const MONTH_LABELS = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 const ADR_SEASONALITY = [0.92, 0.88, 0.95, 0.97, 0.93, 0.90, 1.02, 1.00, 1.05, 1.08, 1.12, 1.18];
@@ -521,6 +522,11 @@ const IntelligenceBairroDetail = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* ── Disclaimer ──────────────────────────────── */}
+        <footer className="border-t border-border/40 pt-6 pb-2 text-center">
+          <p className="text-[11px] text-muted-foreground/70 leading-relaxed max-w-2xl mx-auto">{FOOTER_DISCLAIMER}</p>
+        </footer>
       </main>
     </div>
   );

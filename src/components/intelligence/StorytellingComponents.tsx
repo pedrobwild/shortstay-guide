@@ -14,6 +14,7 @@ import {
 import { PRODUCT } from "@/lib/productFoundation";
 import { getHighlightWinners, getBairroProfile, getAllProfileDefs, type BairroProfileInfo, SECTION_MICROCOPY } from "@/lib/intelligenceInsights";
 import { calculateAllScores } from "@/lib/investmentScore";
+import { getGradeStyle } from "@/lib/uiHelpers";
 import { Link } from "react-router-dom";
 
 const LESSON_ICONS: Record<string, React.ElementType> = {
@@ -238,12 +239,7 @@ export const AnalysisSummarySection = ({ bairros }: { bairros: BairroAirbnb[] })
           <div className="space-y-2">
             {top3.map((item, i) => {
               const profile = getBairroProfile(item.bairro, bairros);
-              const gradeStyles: Record<string, string> = {
-                "text-emerald-600": "bg-emerald-100 text-emerald-800",
-                "text-blue-600": "bg-blue-100 text-blue-800",
-                "text-amber-600": "bg-amber-100 text-amber-800",
-                "text-red-600": "bg-red-100 text-red-800",
-              };
+              const badgeStyle = getGradeStyle(item.investmentScore.gradeColor);
               return (
                 <motion.div key={item.bairro.bairro} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.06 }}>
                   <Link to={`/intelligence/bairro/${encodeURIComponent(item.bairro.bairro)}`}>
@@ -257,7 +253,7 @@ export const AnalysisSummarySection = ({ bairros }: { bairros: BairroAirbnb[] })
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-lg font-bold">{item.investmentScore.score.toFixed(1)}</span>
-                        <Badge className={`${gradeStyles[item.investmentScore.gradeColor] || "bg-muted"} text-[10px]`}>
+                        <Badge className={`${badgeStyle} text-[10px]`}>
                           {item.investmentScore.grade}
                         </Badge>
                       </div>
