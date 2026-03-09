@@ -96,6 +96,11 @@ const IntelligenceBairroDetail = () => {
 
       <main className="container mx-auto px-4 py-6 space-y-6">
 
+        {/* ── Investment Score Hero ───────────────────────── */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+          <InvestmentScoreHero result={investmentScore} bairro={b.bairro} />
+        </motion.div>
+
         {/* ── Resumo para leigos ─────────────────────────── */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="border-primary/20 bg-primary/[0.02]">
