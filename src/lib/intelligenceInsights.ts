@@ -413,8 +413,8 @@ export function buildInvestorProfile(profile: BairroProfileInfo): string[] {
     premium: ["Investidor que busca posicionamento nobre", "Quem prioriza ticket médio alto", "Perfil mais conservador com imóvel valorizado"],
     "alta-ocupacao": ["Investidor que busca fluxo constante de receita", "Quem prioriza menos dias vazios", "Perfil que valoriza previsibilidade"],
     "alto-retorno": ["Investidor que busca maximizar rentabilidade", "Perfil mais agressivo, aceita mais variação", "Quem prioriza retorno sobre ticket"],
-    arriscado: ["Investidor com apetite por risco maior", "Perfil especulativo, busca retorno acima do mercado", "Requer acompanhamento mais próximo da operação"],
-    crescimento: ["Investidor com visão de médio/longo prazo", "Quem aposta em valorização futura", "Perfil que aceita retorno menor hoje por ganho futuro"],
+    "oportunidade-arriscada": ["Investidor com apetite por risco maior", "Perfil especulativo, busca retorno acima do mercado", "Requer acompanhamento mais próximo da operação"],
+    "crescimento-consistente": ["Investidor com visão de médio/longo prazo", "Quem aposta em valorização futura", "Perfil que aceita retorno menor hoje por ganho futuro"],
   };
   return map[profile.profile];
 }
