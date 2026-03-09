@@ -230,6 +230,52 @@ const IntelligenceBairroDetail = () => {
           </Card>
         </motion.div>
 
+        {/* ── 5½. True Yield (advanced) ───────────────────── */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <Card className="border-dashed border-primary/20">
+            <CardContent className="p-5">
+              <div className="flex items-start gap-3 mb-4">
+                <Badge variant="outline" className="text-[9px] shrink-0 mt-1">Avançado</Badge>
+                <div>
+                  <h2 className="text-base font-semibold flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-primary" />
+                    True Yield
+                  </h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">Estimativa mais direta do retorno anual real, calculado a partir de ADR × Ocupação × 365 ÷ Preço do imóvel</p>
+                </div>
+              </div>
+              <div className="ml-10 space-y-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="text-center p-3 rounded-lg bg-primary/[0.04]">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">True Yield</p>
+                    <p className="text-xl font-bold text-primary">{(trueYield.trueYield * 100).toFixed(2)}%</p>
+                  </div>
+                  <div className="text-center p-3 rounded-lg bg-emerald-50">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Yield Airbnb</p>
+                    <p className="text-xl font-bold text-emerald-600">{fmtPct(b.yield_bruto_airbnb)}</p>
+                  </div>
+                  <div className="text-center p-3 rounded-lg bg-muted/50">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Receita anual</p>
+                    <p className="text-lg font-bold">{fmtBRL(trueYield.annualRevenue)}</p>
+                  </div>
+                  <div className="text-center p-3 rounded-lg bg-muted/50">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Preço studio</p>
+                    <p className="text-lg font-bold">{fmtBRL(trueYield.propertyPrice)}</p>
+                  </div>
+                </div>
+                <p className="text-sm text-foreground/80 leading-relaxed">{trueYield.comparison}</p>
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/30">
+                  <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    <strong>Como interpretar:</strong> O True Yield é uma estimativa simplificada que calcula o retorno bruto a partir da operação diária. 
+                    Não inclui custos operacionais, taxas de plataforma, impostos ou vacância sazonal. Use como referência complementar, não como projeção final.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
         {/* ── 6. Para quem faz sentido ───────────────────── */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}>
           <Card>
