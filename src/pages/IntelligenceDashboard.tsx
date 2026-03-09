@@ -51,7 +51,7 @@ const IntelligenceDashboard = () => {
             </div>
             <Link to="/">
               <Button variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
-                Voltar ao site
+                <ArrowLeft className="mr-1 h-4 w-4" /> Voltar ao site
               </Button>
             </Link>
           </div>
