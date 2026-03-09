@@ -203,23 +203,54 @@ const IntelligenceRanking = () => {
                       "text-red-600": "bg-red-100 text-red-800",
                     };
                     return (
-                      <TableRow key={b.bairro} className="cursor-pointer hover:bg-muted/50">
-                        <TableCell className="font-medium text-muted-foreground">{i + 1}</TableCell>
+                      <TableRow key={b.bairro} className="cursor-pointer hover:bg-muted/50 group">
+                        <TableCell className="font-bold text-muted-foreground">{i + 1}</TableCell>
                         <TableCell>
                           <Link to={`/intelligence/bairro/${encodeURIComponent(b.bairro)}`} className="font-medium text-primary hover:underline">
                             {b.bairro}
                           </Link>
                         </TableCell>
+                        {/* Investment Score with pillar tooltip */}
                         <TableCell className="text-center">
                           {invScore && (
-                            <div className="flex items-center justify-center gap-1">
-                              <span className="text-sm font-bold">{invScore.score.toFixed(1)}</span>
-                              <Badge className={`${gradeStyles[invScore.gradeColor] || "bg-muted"} text-[10px] px-1.5`}>{invScore.grade}</Badge>
-                            </div>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex items-center justify-center gap-1.5 cursor-help">
+                                  <span className="text-base font-bold">{invScore.score.toFixed(1)}</span>
+                                  <Badge className={`${gradeStyles[invScore.gradeColor] || "bg-muted"} text-[10px] px-1.5`}>{invScore.grade}</Badge>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom" className="max-w-[240px] text-xs space-y-1.5 p-3">
+                                <p className="font-semibold">Composição do score</p>
+                                {invScore.pillars.map(p => (
+                                  <div key={p.key} className="flex justify-between">
+                                    <span className="text-muted-foreground capitalize">{p.key === "operacao" ? "Operação" : p.key === "futuro" ? "Futuro" : p.key.charAt(0).toUpperCase() + p.key.slice(1)}</span>
+                                    <span className="font-medium">{p.normalized.toFixed(0)}/100</span>
+                                  </div>
+                                ))}
+                                {invScore.confidenceFactor < 1 && <p className="text-amber-600 pt-1">Ajuste confiança: −{((1 - invScore.confidenceFactor) * 100).toFixed(0)}%</p>}
+                                {invScore.liquidityRiskFactor < 1 && <p className="text-orange-600">Ajuste liquidez: −{((1 - invScore.liquidityRiskFactor) * 100).toFixed(0)}%</p>}
+                              </TooltipContent>
+                            </Tooltip>
                           )}
                         </TableCell>
+                        {/* Classificação textual */}
                         <TableCell className="text-center">
-                          <Badge className={`${profile.color} ${profile.textColor} hover:${profile.color} text-[10px]`}>{profile.label}</Badge>
+                          {invScore && (
+                            <span className={`text-xs font-semibold ${invScore.gradeColor}`}>{invScore.gradeLabel}</span>
+                          )}
+                        </TableCell>
+                        {/* Perfil */}
+                        <TableCell className="text-center">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Badge className={`${profile.color} ${profile.textColor} hover:${profile.color} text-[10px] cursor-help`}>{profile.label}</Badge>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" className="max-w-[220px] text-xs">
+                              <p className="font-semibold mb-0.5">{profile.label}</p>
+                              <p className="text-muted-foreground">{profile.description}</p>
+                            </TooltipContent>
+                          </Tooltip>
                         </TableCell>
                         <TableCell className={`text-right ${isHighlighted(b.bairro, "max-adr") ? "font-bold text-primary" : ""}`}>
                           {fmtBRL(b.adr_medio_studio)}
@@ -239,7 +270,7 @@ const IntelligenceRanking = () => {
                         <TableCell className="text-right">{fmtScore(b.score_crescimento_potencial)}</TableCell>
                         <TableCell className="text-center">{confBadge(b.nivel_confianca_dados)}</TableCell>
                         <TableCell className="text-left">
-                          <p className="text-xs text-muted-foreground leading-snug">{profile.quickRead}</p>
+                          <p className="text-xs text-muted-foreground leading-snug max-w-[220px]">{profile.quickRead}</p>
                         </TableCell>
                       </TableRow>
                     );
