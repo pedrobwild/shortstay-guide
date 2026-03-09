@@ -192,8 +192,11 @@ export function getGradeExplanation(grade: string): string {
 function buildScoreNarrative(
   bairro: string,
   score: number,
+  rawScore: number,
   normalized: Record<string, number>,
-  grade: string
+  grade: string,
+  confidenceFactor: number,
+  liquidityRiskFactor: number,
 ): string {
   const strongest = Object.entries(normalized).reduce((a, b) => a[1] > b[1] ? a : b);
   const weakest = Object.entries(normalized).reduce((a, b) => a[1] < b[1] ? a : b);
@@ -205,13 +208,17 @@ function buildScoreNarrative(
     futuro: "potencial futuro",
   };
 
-  if (grade === "A") {
-    return `${bairro} alcança nota ${grade} com score ${score.toFixed(1)}, destacando-se em ${pillarNames[strongest[0]]}. É um dos bairros mais completos para investimento em short stay na amostra.`;
+  let riskNote = "";
+  if (confidenceFactor < 1) riskNote += ` O score foi ajustado em ${((1 - confidenceFactor) * 100).toFixed(0)}% pela qualidade dos dados.`;
+  if (liquidityRiskFactor < 1) riskNote += ` Penalidade de ${((1 - liquidityRiskFactor) * 100).toFixed(0)}% por liquidez abaixo do ideal.`;
+
+  if (grade === "A+" || grade === "A") {
+    return `${bairro} alcança nota ${grade} (${score.toFixed(1)}), destacando-se em ${pillarNames[strongest[0]]}. É um dos bairros mais completos para investimento em short stay.${riskNote}`;
   }
   if (grade === "B") {
-    return `${bairro} tem nota ${grade} (${score.toFixed(1)}), com destaque em ${pillarNames[strongest[0]]}. Um bairro consistente, embora ${pillarNames[weakest[0]]} possa ser um ponto de atenção.`;
+    return `${bairro} tem nota ${grade} (${score.toFixed(1)}), com destaque em ${pillarNames[strongest[0]]}. Consistente, embora ${pillarNames[weakest[0]]} mereça atenção.${riskNote}`;
   }
-  return `${bairro} recebe nota ${grade} (${score.toFixed(1)}). Seu ponto mais forte é ${pillarNames[strongest[0]]}, mas ${pillarNames[weakest[0]]} puxa o score para baixo. Vale avaliar se o perfil se encaixa na sua estratégia.`;
+  return `${bairro} recebe nota ${grade} (${score.toFixed(1)}). Ponto forte: ${pillarNames[strongest[0]]}. Ponto fraco: ${pillarNames[weakest[0]]}.${riskNote}`;
 }
 
 // ── Batch calculation for rankings ───────────────────────────────
