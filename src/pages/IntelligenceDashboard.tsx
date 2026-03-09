@@ -137,13 +137,7 @@ const IntelligenceDashboard = () => {
                 return ranked.slice(0, 5).map((item, i) => {
                   const b = item.bairro;
                   const s = item.investmentScore;
-                  const gradeStyles: Record<string, string> = {
-                    "text-emerald-600": "bg-emerald-100 text-emerald-800",
-                    "text-blue-600": "bg-blue-100 text-blue-800",
-                    "text-amber-600": "bg-amber-100 text-amber-800",
-                    "text-orange-600": "bg-orange-100 text-orange-800",
-                    "text-red-600": "bg-red-100 text-red-800",
-                  };
+                  const badgeStyle = getGradeStyle(s.gradeColor);
                   return (
                     <Link key={b.bairro} to={`/intelligence/bairro/${encodeURIComponent(b.bairro)}`} className="block">
                       <motion.div
