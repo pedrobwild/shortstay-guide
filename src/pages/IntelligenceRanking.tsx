@@ -177,6 +177,7 @@ const IntelligenceRanking = () => {
                   <TableRow>
                     <TableHead className="w-8">#</TableHead>
                     <TableHead>Bairro</TableHead>
+                    <TableHead className="text-center">Score</TableHead>
                     <TableHead className="text-center">Perfil</TableHead>
                     <TableHead className="text-right">ADR <HeaderTooltip colKey="adr" /></TableHead>
                     <TableHead className="text-right">Ocupação <HeaderTooltip colKey="ocupacao" /></TableHead>
