@@ -70,6 +70,7 @@ const IntelligenceBairroDetail = () => {
   const pontosAtencao = buildPontosAtencao(b, all);
   const shortVsLong = buildShortVsLongNarrative(b);
   const investorProfiles = buildInvestorProfile(profile);
+  const storyBlocks = buildBairroStoryBlocks(b, all);
 
   const precoEstudio = Number(b.preco_m2_residencial_medio) * Number(b.area_media_estudio);
   const monthlyData = generateMonthlyData(Number(b.adr_medio_studio), Number(b.ocupacao_media_studio));
