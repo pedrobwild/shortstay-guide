@@ -2,8 +2,11 @@ import { useBairrosData, fmtBRL, fmtPct, fmtScore } from "@/hooks/useIntelligenc
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Building2, TrendingUp, BarChart3, Target, ArrowRight, Home, ArrowLeft } from "lucide-react";
+import { Building2, TrendingUp, BarChart3, Target, ArrowRight, Home, ArrowLeft, Lightbulb, Scale, Crown, Rocket, Activity } from "lucide-react";
 import { motion } from "framer-motion";
+import { getHighlightWinners, generateNarrativeInsights, EDUCATION_MESSAGES } from "@/lib/intelligenceInsights";
+
+const ICON_MAP: Record<string, any> = { Scale, Crown, Rocket, Activity, TrendingUp };
 
 const IntelligenceDashboard = () => {
   const { data: bairros, isLoading } = useBairrosData();
@@ -30,24 +33,27 @@ const IntelligenceDashboard = () => {
   const avgADR = bairros.reduce((s, b) => s + Number(b.adr_medio_studio), 0) / bairros.length;
   const avgOcc = bairros.reduce((s, b) => s + Number(b.ocupacao_media_studio), 0) / bairros.length;
 
+  const highlights = getHighlightWinners(bairros);
+  const insights = generateNarrativeInsights(bairros);
+
   const cards = [
     { label: "Bairros Analisados", value: bairros.length.toString(), icon: Building2, color: "text-primary" },
     { label: "Melhor Rentabilidade", value: bestRent.bairro, sub: fmtScore(bestRent.score_rentabilidade), icon: TrendingUp, color: "text-emerald-600" },
     { label: "Melhor Liquidez", value: bestLiq.bairro, sub: fmtScore(bestLiq.score_liquidez), icon: BarChart3, color: "text-blue-600" },
     { label: "Melhor Crescimento", value: bestCresc.bairro, sub: fmtScore(bestCresc.score_crescimento_potencial), icon: Target, color: "text-amber-600" },
-    { label: "ADR Médio", value: fmtBRL(avgADR), icon: Home, color: "text-primary" },
-    { label: "Ocupação Média", value: fmtPct(avgOcc), icon: BarChart3, color: "text-primary" },
+    { label: "ADR Médio", value: fmtBRL(avgADR), sub: "Preço médio da diária", icon: Home, color: "text-primary" },
+    { label: "Ocupação Média", value: fmtPct(avgOcc), sub: "% de dias alugados", icon: BarChart3, color: "text-primary" },
   ];
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="bg-hero-gradient text-primary-foreground">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold font-[var(--font-display)]">Short Stay Intelligence</h1>
               <p className="mt-2 text-primary-foreground/80">São Paulo — Análise de investimento em short stay</p>
+              <p className="mt-1 text-sm text-primary-foreground/60">Entenda o que realmente move o retorno no short stay.</p>
             </div>
             <Link to="/">
               <Button variant="secondary" size="sm">
@@ -69,7 +75,7 @@ const IntelligenceDashboard = () => {
                     <div>
                       <p className="text-xs text-muted-foreground uppercase tracking-wide">{c.label}</p>
                       <p className="text-2xl font-bold mt-1">{c.value}</p>
-                      {c.sub && <p className="text-sm text-muted-foreground">Score {c.sub}</p>}
+                      {c.sub && <p className="text-sm text-muted-foreground">{c.sub}</p>}
                     </div>
                     <c.icon className={`h-5 w-5 ${c.color}`} />
                   </div>
@@ -77,6 +83,47 @@ const IntelligenceDashboard = () => {
               </Card>
             </motion.div>
           ))}
+        </div>
+
+        {/* ── Insight Highlights ──────────────────────── */}
+        <Card className="border-primary/20 bg-primary/[0.02]">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Lightbulb className="h-5 w-5 text-primary" />
+              O que os dados estão mostrando
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {insights.map((ins, i) => (
+              <div key={i} className="flex gap-2 items-start">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                <p className="text-sm text-foreground/80 leading-relaxed">{ins}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* ── Highlight winners as cards ──────────────── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          {highlights.map((h, i) => {
+            const Icon = ICON_MAP[h.icon] || TrendingUp;
+            return (
+              <motion.div key={h.category} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.05 }}>
+                <Link to={`/intelligence/bairro/${encodeURIComponent(h.bairro)}`}>
+                  <Card className="hover:shadow-md transition-shadow cursor-pointer h-full border-l-4 border-l-primary/30">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <Icon className="h-3.5 w-3.5 text-primary" />
+                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{h.category}</span>
+                      </div>
+                      <p className="font-bold">{h.bairro}</p>
+                      <p className="text-xs text-muted-foreground">{h.value}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </motion.div>
+            );
+          })}
         </div>
 
         {/* Top 5 Ranking Preview */}
@@ -112,6 +159,26 @@ const IntelligenceDashboard = () => {
                     </div>
                   </motion.div>
                 </Link>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* ── Education block ────────────────────────── */}
+        <Card className="bg-muted/30 border-dashed">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Como pensar sobre investimento em short stay</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-foreground/80 leading-relaxed mb-4">
+              Alguns bairros cobram mais caro por diária. Outros alugam mais dias. Outros têm imóveis mais baratos e, por isso, rendem mais no final. <strong>O melhor investimento não é só o bairro mais famoso ou a diária mais alta</strong> — é aquele que melhor equilibra preço, ocupação, liquidez e potencial.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {EDUCATION_MESSAGES.map((msg, i) => (
+                <div key={i} className="bg-background rounded-lg p-3 border border-border/50">
+                  <p className="text-xs font-semibold text-foreground mb-1">{msg.title}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{msg.text}</p>
+                </div>
               ))}
             </div>
           </CardContent>
