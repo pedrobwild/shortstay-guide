@@ -19,7 +19,7 @@ import {
 } from "@/lib/intelligenceInsights";
 import { buildBairroStoryBlocks } from "@/lib/storytelling";
 import { calculateInvestmentScore, calculateTrueYield } from "@/lib/investmentScore";
-import { BairroStoryCard, EducationalBanner } from "@/components/intelligence/StorytellingComponents";
+import { BairroStoryCard, EducationalBanner, ContextualNote } from "@/components/intelligence/StorytellingComponents";
 import { InvestmentScoreHero } from "@/components/intelligence/InvestmentScoreComponents";
 
 const MONTH_LABELS = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
