@@ -7,7 +7,21 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, TrendingUp, BarChart3, Target, Building2, Shield, AlertTriangle, Star, Users } from "lucide-react";
 import { motion } from "framer-motion";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Bar, BarChart, XAxis, YAxis, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from "recharts";
+import { Bar, BarChart, Line, LineChart, XAxis, YAxis, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
+
+// Seasonal multipliers to simulate monthly variation (Jan–Dec)
+const MONTH_LABELS = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+const ADR_SEASONALITY = [0.92, 0.88, 0.95, 0.97, 0.93, 0.90, 1.02, 1.00, 1.05, 1.08, 1.12, 1.18];
+const OCC_SEASONALITY = [0.95, 0.90, 0.93, 0.96, 0.92, 0.88, 1.04, 1.02, 1.06, 1.10, 1.12, 1.14];
+
+function generateMonthlyData(adr: number, occ: number) {
+  return MONTH_LABELS.map((month, i) => ({
+    month,
+    adr: Math.round(adr * ADR_SEASONALITY[i]),
+    ocupacao: parseFloat((occ * OCC_SEASONALITY[i] * 100).toFixed(1)),
+    receita: Math.round((adr * ADR_SEASONALITY[i]) * 30 * (occ * OCC_SEASONALITY[i])),
+  }));
+}
 
 const ScoreCard = ({ label, value, icon: Icon, color }: { label: string; value: number; icon: any; color: string }) => (
   <Card>
