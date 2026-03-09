@@ -190,7 +190,7 @@ const IntelligenceRanking = () => {
                               <TooltipTrigger asChild>
                                 <div className="flex items-center justify-center gap-1.5 cursor-help">
                                   <span className="text-base font-bold">{invScore.score.toFixed(1)}</span>
-                                  <Badge className={`${gradeStyles[invScore.gradeColor] || "bg-muted"} text-[10px] px-1.5`}>{invScore.grade}</Badge>
+                                  <Badge className={`${badgeStyle} text-[10px] px-1.5`}>{invScore.grade}</Badge>
                                 </div>
                               </TooltipTrigger>
                               <TooltipContent side="bottom" className="max-w-[240px] text-xs space-y-1.5 p-3">
