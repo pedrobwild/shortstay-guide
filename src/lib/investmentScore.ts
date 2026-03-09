@@ -80,6 +80,9 @@ function normalize(value: number, min: number, max: number): number {
 
 export interface InvestmentScoreResult {
   score: number;
+  rawScore: number;
+  confidenceFactor: number;
+  liquidityRiskFactor: number;
   pillars: {
     key: string;
     raw: number;
@@ -87,15 +90,28 @@ export interface InvestmentScoreResult {
     weighted: number;
   }[];
   grade: string;
+  gradeLabel: string;
   gradeColor: string;
   narrative: string;
+}
+
+// ── Risk adjustment helpers ──────────────────────────────────────
+
+function getConfidenceFactor(nivel: string): number {
+  const map: Record<string, number> = { alto: 1.0, médio: 0.93, baixo: 0.85 };
+  return map[nivel.toLowerCase()] ?? 0.93;
+}
+
+function getLiquidityRiskFactor(liquidezNormalized: number): number {
+  if (liquidezNormalized < 50) return 0.90;
+  if (liquidezNormalized < 60) return 0.95;
+  return 1.0;
 }
 
 export function calculateInvestmentScore(
   bairro: BairroAirbnb,
   allBairros: BairroAirbnb[]
 ): InvestmentScoreResult {
-  // Extract raw values for normalization bounds
   const yields = allBairros.map(b => Number(b.yield_bruto_airbnb));
   const liquidities = allBairros.map(b => Number(b.score_liquidez));
   const occupancies = allBairros.map(b => Number(b.ocupacao_media_studio));
@@ -108,7 +124,6 @@ export function calculateInvestmentScore(
   const occBounds = minMax(occupancies);
   const growBounds = minMax(growths);
 
-  // Raw values for this bairro
   const rawValues = {
     retorno: Number(bairro.yield_bruto_airbnb),
     demanda: Number(bairro.score_liquidez),
@@ -116,7 +131,6 @@ export function calculateInvestmentScore(
     futuro: Number(bairro.score_crescimento_potencial),
   };
 
-  // Normalize
   const normalized = {
     retorno: normalize(rawValues.retorno, yieldBounds.min, yieldBounds.max),
     demanda: normalize(rawValues.demanda, liqBounds.min, liqBounds.max),
@@ -124,7 +138,6 @@ export function calculateInvestmentScore(
     futuro: normalize(rawValues.futuro, growBounds.min, growBounds.max),
   };
 
-  // Weighted
   const weighted = {
     retorno: normalized.retorno * 0.35,
     demanda: normalized.demanda * 0.25,
@@ -132,12 +145,15 @@ export function calculateInvestmentScore(
     futuro: normalized.futuro * 0.20,
   };
 
-  const score = weighted.retorno + weighted.demanda + weighted.operacao + weighted.futuro;
+  const rawScore = weighted.retorno + weighted.demanda + weighted.operacao + weighted.futuro;
 
-  // Grade
-  const { grade, gradeColor } = getGrade(score);
+  // Risk adjustments
+  const confidenceFactor = getConfidenceFactor(bairro.nivel_confianca_dados);
+  const liquidityRiskFactor = getLiquidityRiskFactor(normalized.demanda);
+  const score = Math.max(0, Math.min(100, rawScore * confidenceFactor * liquidityRiskFactor));
 
-  // Pillars breakdown
+  const { grade, gradeColor, gradeLabel } = getGrade(score);
+
   const pillars = PILLARS.map(p => ({
     key: p.key,
     raw: rawValues[p.key as keyof typeof rawValues],
@@ -145,29 +161,28 @@ export function calculateInvestmentScore(
     weighted: weighted[p.key as keyof typeof weighted],
   }));
 
-  // Narrative
-  const narrative = buildScoreNarrative(bairro.bairro, score, normalized, grade);
+  const narrative = buildScoreNarrative(bairro.bairro, score, rawScore, normalized, grade, confidenceFactor, liquidityRiskFactor);
 
-  return { score, pillars, grade, gradeColor, narrative };
+  return { score, rawScore, confidenceFactor, liquidityRiskFactor, pillars, grade, gradeLabel, gradeColor, narrative };
 }
 
 // ── Grade system ─────────────────────────────────────────────────
 
-function getGrade(score: number): { grade: string; gradeColor: string } {
-  if (score >= 80) return { grade: "A", gradeColor: "text-emerald-600" };
-  if (score >= 65) return { grade: "B", gradeColor: "text-blue-600" };
-  if (score >= 50) return { grade: "C", gradeColor: "text-amber-600" };
-  if (score >= 35) return { grade: "D", gradeColor: "text-orange-600" };
-  return { grade: "E", gradeColor: "text-red-600" };
+function getGrade(score: number): { grade: string; gradeColor: string; gradeLabel: string } {
+  if (score >= 90) return { grade: "A+", gradeColor: "text-emerald-600", gradeLabel: "Excelente investimento" };
+  if (score >= 80) return { grade: "A", gradeColor: "text-emerald-600", gradeLabel: "Muito bom" };
+  if (score >= 70) return { grade: "B", gradeColor: "text-blue-600", gradeLabel: "Bom" };
+  if (score >= 60) return { grade: "C", gradeColor: "text-amber-600", gradeLabel: "Moderado" };
+  return { grade: "D", gradeColor: "text-red-600", gradeLabel: "Arriscado" };
 }
 
 export function getGradeExplanation(grade: string): string {
   const map: Record<string, string> = {
-    A: "Excelente equilíbrio entre retorno, demanda, operação e potencial futuro. Um dos bairros mais completos da amostra.",
-    B: "Bom posicionamento geral, com pontos fortes que se destacam. Merece atenção como opção consistente.",
-    C: "Desempenho intermediário. Pode ser atrativo dependendo do perfil do investidor e da estratégia.",
-    D: "Abaixo da média em pelo menos dois pilares. Exige análise mais detalhada antes de investir.",
-    E: "Posicionamento fraco na maioria dos critérios. Recomenda-se cautela e análise complementar.",
+    "A+": "Excelente investimento. Equilíbrio excepcional entre retorno, demanda, operação e futuro, com dados confiáveis.",
+    A: "Muito bom. Forte em quase todos os pilares, com risco controlado e dados robustos.",
+    B: "Bom posicionamento geral, com pontos fortes que se destacam. Opção consistente.",
+    C: "Moderado. Pode ser atrativo dependendo do perfil do investidor, mas exige atenção a riscos.",
+    D: "Arriscado. Fragilidades em múltiplos pilares ou dados de baixa confiança. Cautela recomendada.",
   };
   return map[grade] || "";
 }
@@ -177,8 +192,11 @@ export function getGradeExplanation(grade: string): string {
 function buildScoreNarrative(
   bairro: string,
   score: number,
+  rawScore: number,
   normalized: Record<string, number>,
-  grade: string
+  grade: string,
+  confidenceFactor: number,
+  liquidityRiskFactor: number,
 ): string {
   const strongest = Object.entries(normalized).reduce((a, b) => a[1] > b[1] ? a : b);
   const weakest = Object.entries(normalized).reduce((a, b) => a[1] < b[1] ? a : b);
@@ -190,13 +208,17 @@ function buildScoreNarrative(
     futuro: "potencial futuro",
   };
 
-  if (grade === "A") {
-    return `${bairro} alcança nota ${grade} com score ${score.toFixed(1)}, destacando-se em ${pillarNames[strongest[0]]}. É um dos bairros mais completos para investimento em short stay na amostra.`;
+  let riskNote = "";
+  if (confidenceFactor < 1) riskNote += ` O score foi ajustado em ${((1 - confidenceFactor) * 100).toFixed(0)}% pela qualidade dos dados.`;
+  if (liquidityRiskFactor < 1) riskNote += ` Penalidade de ${((1 - liquidityRiskFactor) * 100).toFixed(0)}% por liquidez abaixo do ideal.`;
+
+  if (grade === "A+" || grade === "A") {
+    return `${bairro} alcança nota ${grade} (${score.toFixed(1)}), destacando-se em ${pillarNames[strongest[0]]}. É um dos bairros mais completos para investimento em short stay.${riskNote}`;
   }
   if (grade === "B") {
-    return `${bairro} tem nota ${grade} (${score.toFixed(1)}), com destaque em ${pillarNames[strongest[0]]}. Um bairro consistente, embora ${pillarNames[weakest[0]]} possa ser um ponto de atenção.`;
+    return `${bairro} tem nota ${grade} (${score.toFixed(1)}), com destaque em ${pillarNames[strongest[0]]}. Consistente, embora ${pillarNames[weakest[0]]} mereça atenção.${riskNote}`;
   }
-  return `${bairro} recebe nota ${grade} (${score.toFixed(1)}). Seu ponto mais forte é ${pillarNames[strongest[0]]}, mas ${pillarNames[weakest[0]]} puxa o score para baixo. Vale avaliar se o perfil se encaixa na sua estratégia.`;
+  return `${bairro} recebe nota ${grade} (${score.toFixed(1)}). Ponto forte: ${pillarNames[strongest[0]]}. Ponto fraco: ${pillarNames[weakest[0]]}.${riskNote}`;
 }
 
 // ── Batch calculation for rankings ───────────────────────────────
