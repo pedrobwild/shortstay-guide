@@ -140,6 +140,7 @@ const IntelligenceRanking = () => {
                 <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
                   <SelectTrigger className="w-52"><SelectValue /></SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="investment_score">Investment Score</SelectItem>
                     <SelectItem value="score_rentabilidade">Score Rentabilidade</SelectItem>
                     <SelectItem value="score_liquidez">Score Liquidez</SelectItem>
                     <SelectItem value="score_crescimento_potencial">Score Crescimento</SelectItem>
