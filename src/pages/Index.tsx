@@ -260,20 +260,33 @@ function MobileMenu({ activeId }: { activeId: string }) {
               {SECTIONS.map((s) => {
                 const Icon = s.icon;
                 const isActive = activeId === s.id;
+                const isExternal = "href" in s && s.href;
                 return (
                   <li key={s.id}>
-                    <a
-                      href={`#${s.id}`}
-                      onClick={() => setOpen(false)}
-                      className={`flex items-center gap-2 px-3 py-2.5 rounded-md text-sm font-body transition-colors ${
-                        isActive
-                          ? "bg-primary text-primary-foreground font-semibold"
-                          : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                      }`}
-                    >
-                      <Icon size={14} />
-                      {s.label}
-                    </a>
+                    {isExternal ? (
+                      <Link
+                        to={s.href!}
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-2 px-3 py-2.5 rounded-md text-sm font-body transition-colors text-muted-foreground hover:text-foreground hover:bg-secondary"
+                      >
+                        <Icon size={14} />
+                        {s.label}
+                        <ArrowUpRight size={12} className="ml-auto opacity-50" />
+                      </Link>
+                    ) : (
+                      <a
+                        href={`#${s.id}`}
+                        onClick={() => setOpen(false)}
+                        className={`flex items-center gap-2 px-3 py-2.5 rounded-md text-sm font-body transition-colors ${
+                          isActive
+                            ? "bg-primary text-primary-foreground font-semibold"
+                            : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                        }`}
+                      >
+                        <Icon size={14} />
+                        {s.label}
+                      </a>
+                    )}
                   </li>
                 );
               })}
