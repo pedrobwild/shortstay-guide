@@ -80,6 +80,9 @@ function normalize(value: number, min: number, max: number): number {
 
 export interface InvestmentScoreResult {
   score: number;
+  rawScore: number;
+  confidenceFactor: number;
+  liquidityRiskFactor: number;
   pillars: {
     key: string;
     raw: number;
@@ -87,15 +90,28 @@ export interface InvestmentScoreResult {
     weighted: number;
   }[];
   grade: string;
+  gradeLabel: string;
   gradeColor: string;
   narrative: string;
+}
+
+// ── Risk adjustment helpers ──────────────────────────────────────
+
+function getConfidenceFactor(nivel: string): number {
+  const map: Record<string, number> = { alto: 1.0, médio: 0.93, baixo: 0.85 };
+  return map[nivel.toLowerCase()] ?? 0.93;
+}
+
+function getLiquidityRiskFactor(liquidezNormalized: number): number {
+  if (liquidezNormalized < 50) return 0.90;
+  if (liquidezNormalized < 60) return 0.95;
+  return 1.0;
 }
 
 export function calculateInvestmentScore(
   bairro: BairroAirbnb,
   allBairros: BairroAirbnb[]
 ): InvestmentScoreResult {
-  // Extract raw values for normalization bounds
   const yields = allBairros.map(b => Number(b.yield_bruto_airbnb));
   const liquidities = allBairros.map(b => Number(b.score_liquidez));
   const occupancies = allBairros.map(b => Number(b.ocupacao_media_studio));
@@ -108,7 +124,6 @@ export function calculateInvestmentScore(
   const occBounds = minMax(occupancies);
   const growBounds = minMax(growths);
 
-  // Raw values for this bairro
   const rawValues = {
     retorno: Number(bairro.yield_bruto_airbnb),
     demanda: Number(bairro.score_liquidez),
@@ -116,7 +131,6 @@ export function calculateInvestmentScore(
     futuro: Number(bairro.score_crescimento_potencial),
   };
 
-  // Normalize
   const normalized = {
     retorno: normalize(rawValues.retorno, yieldBounds.min, yieldBounds.max),
     demanda: normalize(rawValues.demanda, liqBounds.min, liqBounds.max),
@@ -124,7 +138,6 @@ export function calculateInvestmentScore(
     futuro: normalize(rawValues.futuro, growBounds.min, growBounds.max),
   };
 
-  // Weighted
   const weighted = {
     retorno: normalized.retorno * 0.35,
     demanda: normalized.demanda * 0.25,
@@ -132,12 +145,15 @@ export function calculateInvestmentScore(
     futuro: normalized.futuro * 0.20,
   };
 
-  const score = weighted.retorno + weighted.demanda + weighted.operacao + weighted.futuro;
+  const rawScore = weighted.retorno + weighted.demanda + weighted.operacao + weighted.futuro;
 
-  // Grade
-  const { grade, gradeColor } = getGrade(score);
+  // Risk adjustments
+  const confidenceFactor = getConfidenceFactor(bairro.nivel_confianca_dados);
+  const liquidityRiskFactor = getLiquidityRiskFactor(normalized.demanda);
+  const score = Math.max(0, Math.min(100, rawScore * confidenceFactor * liquidityRiskFactor));
 
-  // Pillars breakdown
+  const { grade, gradeColor, gradeLabel } = getGrade(score);
+
   const pillars = PILLARS.map(p => ({
     key: p.key,
     raw: rawValues[p.key as keyof typeof rawValues],
@@ -145,10 +161,9 @@ export function calculateInvestmentScore(
     weighted: weighted[p.key as keyof typeof weighted],
   }));
 
-  // Narrative
-  const narrative = buildScoreNarrative(bairro.bairro, score, normalized, grade);
+  const narrative = buildScoreNarrative(bairro.bairro, score, rawScore, normalized, grade, confidenceFactor, liquidityRiskFactor);
 
-  return { score, pillars, grade, gradeColor, narrative };
+  return { score, rawScore, confidenceFactor, liquidityRiskFactor, pillars, grade, gradeLabel, gradeColor, narrative };
 }
 
 // ── Grade system ─────────────────────────────────────────────────
