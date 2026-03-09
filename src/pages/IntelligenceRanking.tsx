@@ -177,17 +177,18 @@ const IntelligenceRanking = () => {
                   <TableRow>
                     <TableHead className="w-8">#</TableHead>
                     <TableHead>Bairro</TableHead>
-                    <TableHead className="text-center">Score</TableHead>
+                    <TableHead className="text-center">Investment Score <HeaderTooltip colKey="investment_score" /></TableHead>
+                    <TableHead className="text-center">Classificação</TableHead>
                     <TableHead className="text-center">Perfil</TableHead>
                     <TableHead className="text-right">ADR <HeaderTooltip colKey="adr" /></TableHead>
                     <TableHead className="text-right">Ocupação <HeaderTooltip colKey="ocupacao" /></TableHead>
-                    <TableHead className="text-right">Yield Airbnb <HeaderTooltip colKey="yield_airbnb" /></TableHead>
-                    <TableHead className="text-right">Delta Yield <HeaderTooltip colKey="delta_yield" /></TableHead>
+                    <TableHead className="text-right">Yield <HeaderTooltip colKey="yield_airbnb" /></TableHead>
+                    <TableHead className="text-right">Delta <HeaderTooltip colKey="delta_yield" /></TableHead>
                     <TableHead className="text-right">Rentab. <HeaderTooltip colKey="rentabilidade" /></TableHead>
                     <TableHead className="text-right">Liquidez <HeaderTooltip colKey="liquidez" /></TableHead>
                     <TableHead className="text-right">Cresc. <HeaderTooltip colKey="crescimento" /></TableHead>
                     <TableHead className="text-center">Confiança <HeaderTooltip colKey="confianca" /></TableHead>
-                    <TableHead className="text-left min-w-[160px]">Leitura rápida</TableHead>
+                    <TableHead className="text-left min-w-[200px]">Leitura rápida</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
