@@ -2,7 +2,7 @@ import { useBairrosData, fmtBRL, fmtPct, fmtScore } from "@/hooks/useIntelligenc
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Building2, TrendingUp, BarChart3, Target, ArrowRight, Home } from "lucide-react";
+import { Building2, TrendingUp, BarChart3, Target, ArrowRight, Home, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
 const IntelligenceDashboard = () => {
@@ -51,7 +51,7 @@ const IntelligenceDashboard = () => {
             </div>
             <Link to="/">
               <Button variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
-                Voltar ao site
+                <ArrowLeft className="mr-1 h-4 w-4" /> Voltar ao site
               </Button>
             </Link>
           </div>
