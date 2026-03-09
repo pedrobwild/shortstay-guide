@@ -142,11 +142,32 @@ export const BairroStoryCard = ({ title, text, type }: { title: string; text: st
 };
 
 // ── Inline educational microcopy ─────────────────────────────────
-export const EducationalBanner = ({ message }: { message: string }) => (
-  <div className="text-center py-3">
-    <p className="text-xs text-muted-foreground italic">"{message}"</p>
-  </div>
-);
+export const EducationalBanner = ({ message, type = "neutral" }: { message: string; type?: "neutral" | "insight" | "caution" | "opportunity" }) => {
+  const styles = {
+    neutral: "text-muted-foreground",
+    insight: "text-primary/70",
+    caution: "text-amber-600/80",
+    opportunity: "text-emerald-600/80",
+  };
+  const icons = {
+    neutral: null,
+    insight: <Lightbulb className="h-3 w-3 inline mr-1" />,
+    caution: <Shield className="h-3 w-3 inline mr-1" />,
+    opportunity: <Zap className="h-3 w-3 inline mr-1" />,
+  };
+  return (
+    <div className="text-center py-3">
+      <p className={`text-xs italic ${styles[type]}`}>{icons[type]}"{message}"</p>
+    </div>
+  );
+};
+
+// ── Contextual note (for section transitions) ────────────────────
+export const ContextualNote = ({ sectionKey }: { sectionKey: string }) => {
+  const note = SECTION_MICROCOPY[sectionKey];
+  if (!note) return null;
+  return <EducationalBanner message={note.message} type={note.type} />;
+};
 
 // ── "O que esta análise mostra" section ─────────────────────────
 
