@@ -145,7 +145,7 @@ const IntelligenceRanking = () => {
             </CardContent>
           </Card>
 
-          <EducationalBanner message="Preço alto por noite nem sempre significa melhor negócio." />
+          <ContextualNote sectionKey="before_table" />
 
           {/* ── Table ─────────────────────────────────────── */}
           <Card>
