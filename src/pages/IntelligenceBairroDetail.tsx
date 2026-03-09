@@ -522,6 +522,11 @@ const IntelligenceBairroDetail = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* ── Disclaimer ──────────────────────────────── */}
+        <footer className="border-t border-border/40 pt-6 pb-2 text-center">
+          <p className="text-[11px] text-muted-foreground/70 leading-relaxed max-w-2xl mx-auto">{FOOTER_DISCLAIMER}</p>
+        </footer>
       </main>
     </div>
   );
