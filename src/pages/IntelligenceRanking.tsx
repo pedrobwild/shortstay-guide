@@ -29,7 +29,7 @@ const confBadge = (nivel: string) => {
   return <Badge variant="destructive">Baixo</Badge>;
 };
 
-const ICON_MAP: Record<string, any> = { TrendingUp };
+
 
 const HeaderTooltip = ({ colKey }: { colKey: string }) => {
   const info = COLUMN_TOOLTIPS[colKey];
