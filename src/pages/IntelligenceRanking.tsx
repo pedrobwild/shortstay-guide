@@ -55,9 +55,18 @@ const IntelligenceRanking = () => {
   if (isLoading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Carregando…</div></div>;
 
   const allBairros = bairros ?? [];
+  // Pre-calculate investment scores for all bairros
+  const scoreMap = new Map(allBairros.map(b => [b.bairro, calculateInvestmentScore(b, allBairros)]));
+
   let filtered = allBairros;
   if (filterConf !== "todos") filtered = filtered.filter(b => b.nivel_confianca_dados === filterConf);
-  const sorted = [...filtered].sort((a, b) => Number(b[sortKey]) - Number(a[sortKey]));
+
+  const sorted = [...filtered].sort((a, b) => {
+    if (sortKey === "investment_score") {
+      return (scoreMap.get(b.bairro)?.score ?? 0) - (scoreMap.get(a.bairro)?.score ?? 0);
+    }
+    return Number(b[sortKey]) - Number(a[sortKey]);
+  });
 
   const highlights = getHighlightWinners(allBairros);
   const tableHighlights = getTableHighlights(allBairros);
