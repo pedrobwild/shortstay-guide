@@ -98,6 +98,23 @@ export const InvestmentScoreHero = ({ result, bairro }: { result: InvestmentScor
             <p className="text-xs text-foreground/70 leading-relaxed pt-2 border-t border-border/50">
               {result.narrative}
             </p>
+            {(result.confidenceFactor < 1 || result.liquidityRiskFactor < 1) && (
+              <div className="flex flex-wrap gap-2 pt-1">
+                {result.confidenceFactor < 1 && (
+                  <Badge variant="outline" className="text-[9px] text-amber-700 border-amber-300 bg-amber-50">
+                    Confiança: {(result.confidenceFactor * 100).toFixed(0)}%
+                  </Badge>
+                )}
+                {result.liquidityRiskFactor < 1 && (
+                  <Badge variant="outline" className="text-[9px] text-orange-700 border-orange-300 bg-orange-50">
+                    Risco liquidez: −{((1 - result.liquidityRiskFactor) * 100).toFixed(0)}%
+                  </Badge>
+                )}
+                <Badge variant="outline" className="text-[9px] text-muted-foreground">
+                  Score bruto: {result.rawScore.toFixed(1)}
+                </Badge>
+              </div>
+            )}
           </div>
         </div>
       </CardContent>
