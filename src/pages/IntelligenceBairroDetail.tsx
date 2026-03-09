@@ -17,6 +17,8 @@ import {
   buildShortVsLongNarrative,
   buildInvestorProfile,
 } from "@/lib/intelligenceInsights";
+import { buildBairroStoryBlocks } from "@/lib/storytelling";
+import { BairroStoryCard, EducationalBanner } from "@/components/intelligence/StorytellingComponents";
 
 const MONTH_LABELS = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 const ADR_SEASONALITY = [0.92, 0.88, 0.95, 0.97, 0.93, 0.90, 1.02, 1.00, 1.05, 1.08, 1.12, 1.18];
@@ -68,6 +70,7 @@ const IntelligenceBairroDetail = () => {
   const pontosAtencao = buildPontosAtencao(b, all);
   const shortVsLong = buildShortVsLongNarrative(b);
   const investorProfiles = buildInvestorProfile(profile);
+  const storyBlocks = buildBairroStoryBlocks(b, all);
 
   const precoEstudio = Number(b.preco_m2_residencial_medio) * Number(b.area_media_estudio);
   const monthlyData = generateMonthlyData(Number(b.adr_medio_studio), Number(b.ocupacao_media_studio));
@@ -215,6 +218,28 @@ const IntelligenceBairroDetail = () => {
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* ── Storytelling: leitura consultiva ────────────── */}
+        {storyBlocks.length > 0 && (
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.26 }}>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Lightbulb className="h-4 w-4 text-primary" />
+                  Leitura consultiva
+                </CardTitle>
+                <p className="text-xs text-muted-foreground">O que os dados revelam sobre {b.bairro} quando comparado com os demais bairros</p>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {storyBlocks.map((block, i) => (
+                  <BairroStoryCard key={i} title={block.title} text={block.text} type={block.type} />
+                ))}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        <EducationalBanner message="Use os scores como leitura estratégica, não como verdade absoluta." />
 
         {/* ── Charts ─────────────────────────────────────── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
