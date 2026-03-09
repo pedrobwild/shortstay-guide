@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, TrendingUp, BarChart3, Target, Building2, Shield, AlertTriangle, Star, Users, CheckCircle, Info, Lightbulb, UserCheck } from "lucide-react";
+import { ArrowLeft, TrendingUp, BarChart3, Target, Building2, Shield, AlertTriangle, Star, Users, CheckCircle, Info, Lightbulb, UserCheck, Scale, Crown, Zap, Sprout, CalendarCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, Line, LineChart, XAxis, YAxis, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, CartesianGrid } from "recharts";
