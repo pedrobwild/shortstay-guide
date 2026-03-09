@@ -193,6 +193,14 @@ const IntelligenceRanking = () => {
                 <TableBody>
                   {sorted.map((b, i) => {
                     const profile = getBairroProfile(b, allBairros);
+                    const invScore = scoreMap.get(b.bairro);
+                    const gradeStyles: Record<string, string> = {
+                      "text-emerald-600": "bg-emerald-100 text-emerald-800",
+                      "text-blue-600": "bg-blue-100 text-blue-800",
+                      "text-amber-600": "bg-amber-100 text-amber-800",
+                      "text-orange-600": "bg-orange-100 text-orange-800",
+                      "text-red-600": "bg-red-100 text-red-800",
+                    };
                     return (
                       <TableRow key={b.bairro} className="cursor-pointer hover:bg-muted/50">
                         <TableCell className="font-medium text-muted-foreground">{i + 1}</TableCell>
@@ -200,6 +208,14 @@ const IntelligenceRanking = () => {
                           <Link to={`/intelligence/bairro/${encodeURIComponent(b.bairro)}`} className="font-medium text-primary hover:underline">
                             {b.bairro}
                           </Link>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {invScore && (
+                            <div className="flex items-center justify-center gap-1">
+                              <span className="text-sm font-bold">{invScore.score.toFixed(1)}</span>
+                              <Badge className={`${gradeStyles[invScore.gradeColor] || "bg-muted"} text-[10px] px-1.5`}>{invScore.grade}</Badge>
+                            </div>
+                          )}
                         </TableCell>
                         <TableCell className="text-center">
                           <Badge className={`${profile.color} ${profile.textColor} hover:${profile.color} text-[10px]`}>{profile.label}</Badge>
