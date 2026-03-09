@@ -21,7 +21,7 @@ import {
   getTableHighlights,
 } from "@/lib/intelligenceInsights";
 
-type SortKey = "score_rentabilidade" | "score_liquidez" | "score_crescimento_potencial" | "adr_medio_studio" | "ocupacao_media_studio" | "yield_bruto_airbnb" | "delta_yield";
+type SortKey = "investment_score" | "score_rentabilidade" | "score_liquidez" | "score_crescimento_potencial" | "adr_medio_studio" | "ocupacao_media_studio" | "yield_bruto_airbnb" | "delta_yield";
 
 const confBadge = (nivel: string) => {
   if (nivel === "alto") return <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100">Alto</Badge>;
