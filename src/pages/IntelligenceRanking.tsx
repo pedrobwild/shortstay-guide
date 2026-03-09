@@ -11,7 +11,7 @@ import { ArrowLeft, Download, TrendingUp, HelpCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import type { BairroAirbnb } from "@/types/intelligence";
 import IndicatorExplainerSection from "@/components/intelligence/IndicatorExplainerSection";
-import { ComparativeNarrativesSection, StrategicLessonsSection, EducationalBanner, ContextualNote } from "@/components/intelligence/StorytellingComponents";
+import { ComparativeNarrativesSection, StrategicLessonsSection, EducationalBanner, ContextualNote, AnalysisSummarySection } from "@/components/intelligence/StorytellingComponents";
 import { calculateInvestmentScore } from "@/lib/investmentScore";
 import {
   COLUMN_TOOLTIPS,
