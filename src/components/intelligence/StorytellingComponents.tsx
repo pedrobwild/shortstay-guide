@@ -253,7 +253,7 @@ export const AnalysisSummarySection = ({ bairros }: { bairros: BairroAirbnb[] })
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-lg font-bold">{item.investmentScore.score.toFixed(1)}</span>
-                        <Badge className={`${gradeStyles[item.investmentScore.gradeColor] || "bg-muted"} text-[10px]`}>
+                        <Badge className={`${badgeStyle} text-[10px]`}>
                           {item.investmentScore.grade}
                         </Badge>
                       </div>
