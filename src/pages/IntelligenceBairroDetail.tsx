@@ -219,6 +219,28 @@ const IntelligenceBairroDetail = () => {
           </Card>
         </motion.div>
 
+        {/* ── Storytelling: leitura consultiva ────────────── */}
+        {storyBlocks.length > 0 && (
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.26 }}>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Lightbulb className="h-4 w-4 text-primary" />
+                  Leitura consultiva
+                </CardTitle>
+                <p className="text-xs text-muted-foreground">O que os dados revelam sobre {b.bairro} quando comparado com os demais bairros</p>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {storyBlocks.map((block, i) => (
+                  <BairroStoryCard key={i} title={block.title} text={block.text} type={block.type} />
+                ))}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        <EducationalBanner message="Use os scores como leitura estratégica, não como verdade absoluta." />
+
         {/* ── Charts ─────────────────────────────────────── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Radar */}
