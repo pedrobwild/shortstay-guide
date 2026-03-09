@@ -47,7 +47,7 @@ export default function MapaBairros() {
               <Link to="/#simulador"><Calculator size={18} className="mr-2" />Simulador completo</Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="border-white/30 text-white hover:bg-white/10 font-body">
-              <Link to="/tendencias-premium-2026"><TrendingUp size={18} className="mr-2" />Ver tendências 2026</Link>
+              <Link to="/#tendencias"><TrendingUp size={18} className="mr-2" />Ver tendências 2026</Link>
             </Button>
           </div>
         </section>

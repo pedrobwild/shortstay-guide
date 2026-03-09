@@ -266,19 +266,6 @@ function MobileMenu({ activeId }: { activeId: string }) {
               })}
             </ul>
 
-            <Separator className="my-4" />
-            <p className="text-[10px] font-body font-semibold uppercase tracking-widest text-muted-foreground mb-3 px-2">
-              Ferramentas
-            </p>
-            <Link
-              to="/tendencias-premium-2026"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 px-3 py-2.5 rounded-md text-sm font-body font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors mb-2"
-            >
-              <Sparkles size={14} />
-              Tendências Premium 2026
-              <ArrowRight size={12} className="ml-auto" />
-            </Link>
           </nav>
         </SheetContent>
       </Sheet>

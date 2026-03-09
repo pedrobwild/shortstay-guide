@@ -23,7 +23,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/tendencias-premium-2026" element={<TendenciasPremium />} />
+          
           <Route path="/intelligence" element={<IntelligenceDashboard />} />
           <Route path="/intelligence/ranking" element={<IntelligenceRanking />} />
           <Route path="/intelligence/bairro/:bairro" element={<IntelligenceBairroDetail />} />
