@@ -277,42 +277,54 @@ export function getHighlightWinners(bairros: BairroAirbnb[]): HighlightWinner[] 
   const bestOcc = best(b => Number(b.ocupacao_media_studio));
   const bestCresc = best(b => Number(b.score_crescimento_potencial));
 
+  // Risky opportunity: high yield but low liquidity or low confidence
+  const riskyCandidate = bairros
+    .filter(b => Number(b.yield_bruto_airbnb) >= Number(bestRent.yield_bruto_airbnb) * 0.85)
+    .find(b => Number(b.score_liquidez) < 55 || b.nivel_confianca_dados?.toLowerCase() === "baixo");
+
   return [
     {
       category: "Melhor equilíbrio geral",
       icon: "Scale",
       bairro: bestEquilibrio.bairro,
       value: `Score médio ${fmtScore((Number(bestEquilibrio.score_rentabilidade) + Number(bestEquilibrio.score_liquidez) + Number(bestEquilibrio.score_crescimento_potencial)) / 3)}`,
-      narrative: `${bestEquilibrio.bairro} combina boa ocupação, yield forte e leitura geral positiva.`,
+      narrative: `${bestEquilibrio.bairro} combina boa ocupação, yield forte e leitura geral positiva — o mais completo da amostra.`,
     },
     {
       category: "Bairro premium",
       icon: "Crown",
       bairro: bestPremium.bairro,
       value: `ADR ${fmtBRL(bestPremium.adr_medio_studio)}`,
-      narrative: `${bestPremium.bairro} tem as diárias mais altas e forte percepção de valor.`,
+      narrative: `${bestPremium.bairro} tem as diárias mais altas e forte percepção de valor, mas o custo de entrada é proporcionalmente maior.`,
     },
     {
       category: "Maior retorno potencial",
       icon: "Rocket",
       bairro: bestRent.bairro,
       value: `Yield ${fmtPct(bestRent.yield_bruto_airbnb)}`,
-      narrative: `${bestRent.bairro} mostra o yield mais alto, mas com leitura de risco maior.`,
+      narrative: `${bestRent.bairro} apresenta o yield mais alto da amostra — atrativo para quem busca maximizar retorno sobre capital.`,
     },
     {
-      category: "Maior tração operacional",
+      category: "Alta ocupação",
       icon: "Activity",
       bairro: bestOcc.bairro,
       value: `Ocupação ${fmtPct(bestOcc.ocupacao_media_studio)}`,
-      narrative: `${bestOcc.bairro} se destaca pela ocupação forte e boa eficiência operacional.`,
+      narrative: `${bestOcc.bairro} mantém o imóvel ocupado com mais frequência — fluxo de caixa mais constante e previsível.`,
     },
     {
       category: "Crescimento consistente",
       icon: "TrendingUp",
       bairro: bestCresc.bairro,
       value: `Score ${fmtScore(bestCresc.score_crescimento_potencial)}`,
-      narrative: `${bestCresc.bairro} combina estabilidade atual com boa perspectiva futura.`,
+      narrative: `${bestCresc.bairro} mostra os melhores sinais de valorização e expansão futura da demanda.`,
     },
+    ...(riskyCandidate ? [{
+      category: "Oportunidade com mais risco",
+      icon: "AlertTriangle",
+      bairro: riskyCandidate.bairro,
+      value: `Yield ${fmtPct(riskyCandidate.yield_bruto_airbnb)} · Liquidez ${fmtScore(riskyCandidate.score_liquidez)}`,
+      narrative: `${riskyCandidate.bairro} tem retorno atrativo no papel, mas liquidez ou confiança dos dados pedem leitura mais cautelosa.`,
+    }] : []),
   ];
 }
 

@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   AlertCircle, Gem, Gauge, Scale, ShieldAlert, ArrowUpDown,
-  TrendingUp, AlertTriangle, Lightbulb, BookOpen,
+  TrendingUp, AlertTriangle, Lightbulb, BookOpen, Crown, Activity, Rocket, Zap,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import type { BairroAirbnb } from "@/types/intelligence";
@@ -12,6 +12,9 @@ import {
   type ComparativeNarrative,
 } from "@/lib/storytelling";
 import { PRODUCT } from "@/lib/productFoundation";
+import { getHighlightWinners, getBairroProfile, getAllProfileDefs, type BairroProfileInfo } from "@/lib/intelligenceInsights";
+import { calculateAllScores } from "@/lib/investmentScore";
+import { Link } from "react-router-dom";
 
 const LESSON_ICONS: Record<string, React.ElementType> = {
   AlertCircle, Gem, Gauge, Scale, ShieldAlert, ArrowUpDown,
@@ -144,3 +147,127 @@ export const EducationalBanner = ({ message }: { message: string }) => (
     <p className="text-xs text-muted-foreground italic">"{message}"</p>
   </div>
 );
+
+// ── "O que esta análise mostra" section ─────────────────────────
+
+const HIGHLIGHT_ICONS: Record<string, React.ElementType> = {
+  Scale, Crown, Rocket, Activity, TrendingUp, AlertTriangle,
+};
+
+export const AnalysisSummarySection = ({ bairros }: { bairros: BairroAirbnb[] }) => {
+  if (!bairros.length) return null;
+
+  const highlights = getHighlightWinners(bairros);
+  const ranked = calculateAllScores(bairros);
+  const top3 = ranked.slice(0, 3);
+
+  // Group bairros by profile
+  const profileGroups = new Map<string, { profile: BairroProfileInfo; bairros: string[] }>();
+  bairros.forEach(b => {
+    const p = getBairroProfile(b, bairros);
+    const existing = profileGroups.get(p.profile);
+    if (existing) {
+      existing.bairros.push(b.bairro);
+    } else {
+      profileGroups.set(p.profile, { profile: p, bairros: [b.bairro] });
+    }
+  });
+
+  return (
+    <Card className="border-primary/20">
+      <CardHeader className="pb-3">
+        <div className="flex items-center gap-2">
+          <BookOpen className="h-5 w-5 text-primary" />
+          <CardTitle className="text-lg">O que esta análise mostra</CardTitle>
+        </div>
+        <p className="text-xs text-muted-foreground leading-relaxed mt-1">
+          Com base nos dados de {bairros.length} bairros analisados, estas são as principais conclusões que o sistema identificou automaticamente.
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-5">
+
+        {/* Highlight winners as compact cards */}
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Destaques por categoria</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {highlights.map((h, i) => {
+              const Icon = HIGHLIGHT_ICONS[h.icon] || TrendingUp;
+              return (
+                <motion.div key={h.category} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                  <Link to={`/intelligence/bairro/${encodeURIComponent(h.bairro)}`}>
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/40 hover:bg-muted/70 transition-colors cursor-pointer">
+                      <Icon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{h.category}</p>
+                        <p className="font-bold text-sm">{h.bairro}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{h.value}</p>
+                        <p className="text-xs text-foreground/70 mt-1 leading-relaxed">{h.narrative}</p>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Top 3 by Investment Score */}
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Top 3 — Investment Score ajustado</p>
+          <div className="space-y-2">
+            {top3.map((item, i) => {
+              const profile = getBairroProfile(item.bairro, bairros);
+              const gradeStyles: Record<string, string> = {
+                "text-emerald-600": "bg-emerald-100 text-emerald-800",
+                "text-blue-600": "bg-blue-100 text-blue-800",
+                "text-amber-600": "bg-amber-100 text-amber-800",
+                "text-red-600": "bg-red-100 text-red-800",
+              };
+              return (
+                <motion.div key={item.bairro.bairro} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.06 }}>
+                  <Link to={`/intelligence/bairro/${encodeURIComponent(item.bairro.bairro)}`}>
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/60 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg font-bold text-muted-foreground">#{i + 1}</span>
+                        <div>
+                          <p className="font-semibold text-sm">{item.bairro.bairro}</p>
+                          <p className="text-xs text-muted-foreground">{profile.quickRead}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-bold">{item.investmentScore.score.toFixed(1)}</span>
+                        <Badge className={`${gradeStyles[item.investmentScore.gradeColor] || "bg-muted"} text-[10px]`}>
+                          {item.investmentScore.grade}
+                        </Badge>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Profile distribution */}
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Distribuição por perfil</p>
+          <div className="flex flex-wrap gap-2">
+            {Array.from(profileGroups.entries()).map(([key, { profile, bairros: names }]) => (
+              <div key={key} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/40">
+                <Badge className={`${profile.color} ${profile.textColor} text-[10px]`}>{profile.label}</Badge>
+                <span className="text-xs text-muted-foreground">{names.join(", ")}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Closing narrative */}
+        <div className="border-t border-border/50 pt-4">
+          <p className="text-xs text-foreground/70 leading-relaxed italic">
+            "O melhor investimento não é necessariamente o bairro mais caro ou com a maior diária — é aquele que melhor equilibra retorno, demanda, estabilidade operacional e potencial de crescimento para o seu perfil."
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
