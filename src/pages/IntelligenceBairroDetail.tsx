@@ -7,7 +7,21 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, TrendingUp, BarChart3, Target, Building2, Shield, AlertTriangle, Star, Users } from "lucide-react";
 import { motion } from "framer-motion";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Bar, BarChart, XAxis, YAxis, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from "recharts";
+import { Bar, BarChart, Line, LineChart, XAxis, YAxis, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
+
+// Seasonal multipliers to simulate monthly variation (Jan–Dec)
+const MONTH_LABELS = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+const ADR_SEASONALITY = [0.92, 0.88, 0.95, 0.97, 0.93, 0.90, 1.02, 1.00, 1.05, 1.08, 1.12, 1.18];
+const OCC_SEASONALITY = [0.95, 0.90, 0.93, 0.96, 0.92, 0.88, 1.04, 1.02, 1.06, 1.10, 1.12, 1.14];
+
+function generateMonthlyData(adr: number, occ: number) {
+  return MONTH_LABELS.map((month, i) => ({
+    month,
+    adr: Math.round(adr * ADR_SEASONALITY[i]),
+    ocupacao: parseFloat((occ * OCC_SEASONALITY[i] * 100).toFixed(1)),
+    receita: Math.round((adr * ADR_SEASONALITY[i]) * 30 * (occ * OCC_SEASONALITY[i])),
+  }));
+}
 
 const ScoreCard = ({ label, value, icon: Icon, color }: { label: string; value: number; icon: any; color: string }) => (
   <Card>
@@ -37,6 +51,7 @@ const IntelligenceBairroDetail = () => {
   if (!b) return <div className="min-h-screen bg-background flex items-center justify-center"><p>Bairro não encontrado.</p></div>;
 
   const precoEstudio = Number(b.preco_m2_residencial_medio) * Number(b.area_media_estudio);
+  const monthlyData = generateMonthlyData(Number(b.adr_medio_studio), Number(b.ocupacao_media_studio));
 
   return (
     <div className="min-h-screen bg-background">
@@ -146,6 +161,60 @@ const IntelligenceBairroDetail = () => {
                   <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
                   <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(1)}%`} />} />
                   <Bar dataKey="value" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Temporal Evolution */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader><CardTitle className="text-base flex items-center gap-2"><TrendingUp className="h-4 w-4" /> Tendência ADR Mensal</CardTitle></CardHeader>
+            <CardContent>
+              <ChartContainer config={{
+                adr: { label: "ADR (R$)", color: "hsl(var(--primary))" },
+              }} className="max-h-[280px]">
+                <LineChart data={monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `R$${v}`} domain={['dataMin - 20', 'dataMax + 20']} />
+                  <ChartTooltip content={<ChartTooltipContent formatter={(value) => `R$ ${Number(value).toFixed(0)}`} />} />
+                  <Line type="monotone" dataKey="adr" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ r: 4, fill: "hsl(var(--primary))" }} activeDot={{ r: 6 }} />
+                </LineChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><CardTitle className="text-base flex items-center gap-2"><BarChart3 className="h-4 w-4" /> Tendência Ocupação Mensal</CardTitle></CardHeader>
+            <CardContent>
+              <ChartContainer config={{
+                ocupacao: { label: "Ocupação (%)", color: "hsl(142 76% 36%)" },
+              }} className="max-h-[280px]">
+                <LineChart data={monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} domain={['dataMin - 5', 'dataMax + 5']} />
+                  <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(1)}%`} />} />
+                  <Line type="monotone" dataKey="ocupacao" stroke="hsl(142 76% 36%)" strokeWidth={2.5} dot={{ r: 4, fill: "hsl(142 76% 36%)" }} activeDot={{ r: 6 }} />
+                </LineChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+
+          <Card className="md:col-span-2">
+            <CardHeader><CardTitle className="text-base flex items-center gap-2"><Target className="h-4 w-4" /> Receita Mensal Estimada</CardTitle></CardHeader>
+            <CardContent>
+              <ChartContainer config={{
+                receita: { label: "Receita (R$)", color: "hsl(262 83% 58%)" },
+              }} className="max-h-[280px]">
+                <BarChart data={monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `R$${(v / 1000).toFixed(1)}k`} />
+                  <ChartTooltip content={<ChartTooltipContent formatter={(value) => `R$ ${Number(value).toLocaleString("pt-BR")}`} />} />
+                  <Bar dataKey="receita" fill="hsl(262 83% 58%)" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ChartContainer>
             </CardContent>
