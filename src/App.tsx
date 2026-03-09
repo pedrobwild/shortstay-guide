@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
-import TendenciasPremium from "./pages/TendenciasPremium";
+
 import MapaBairros from "./pages/MapaBairros";
 import IntelligenceDashboard from "./pages/IntelligenceDashboard";
 import IntelligenceRanking from "./pages/IntelligenceRanking";
