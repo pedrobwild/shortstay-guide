@@ -357,8 +357,8 @@ export function buildHeaderNarrative(b: BairroAirbnb, profile: BairroProfileInfo
     premium: `${b.bairro} é o bairro com perfil premium da análise, com as diárias mais altas e forte percepção de valor entre investidores e hóspedes.`,
     "alta-ocupacao": `${b.bairro} se destaca pela alta ocupação, indicando forte demanda de hóspedes e boa tração operacional no short stay.`,
     "alto-retorno": `${b.bairro} apresenta o maior retorno potencial da amostra, com yield bruto elevado que pode atrair investidores com apetite por rentabilidade.`,
-    arriscado: `${b.bairro} mostra retorno potencialmente elevado, mas indicadores de liquidez e risco pedem uma leitura mais cautelosa.`,
-    crescimento: `${b.bairro} aparece como uma aposta de crescimento, com sinais de valorização e expansão futura da demanda por short stay.`,
+    "oportunidade-arriscada": `${b.bairro} mostra retorno potencialmente elevado, mas indicadores de liquidez e risco pedem uma leitura mais cautelosa.`,
+    "crescimento-consistente": `${b.bairro} aparece como uma aposta de crescimento consistente, com sinais de valorização e expansão futura da demanda por short stay.`,
   };
   return map[profile.profile];
 }
