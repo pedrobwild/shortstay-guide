@@ -128,15 +128,69 @@ export const INDICATOR_EXPLAINERS: IndicatorExplainer[] = [
 ];
 
 // ── Bairro Profile ───────────────────────────────────────────────
-export type BairroProfile = "equilibrado" | "premium" | "alta-ocupacao" | "alto-retorno" | "arriscado" | "crescimento";
+export type BairroProfile = "equilibrado" | "premium" | "alta-ocupacao" | "alto-retorno" | "oportunidade-arriscada" | "crescimento-consistente";
 
 export interface BairroProfileInfo {
   profile: BairroProfile;
   label: string;
-  color: string; // tailwind bg class using semantic tokens
+  color: string;
   textColor: string;
   quickRead: string;
+  description: string;
+  interpretation: string;
+  icon: string;
 }
+
+const PROFILE_DEFS: Record<BairroProfile, Omit<BairroProfileInfo, "profile" | "quickRead">> = {
+  equilibrado: {
+    label: "Equilibrado",
+    color: "bg-primary/10",
+    textColor: "text-primary",
+    description: "Combina retorno, demanda e estabilidade de forma consistente.",
+    interpretation: "É o tipo de bairro que costuma funcionar bem para investidores que buscam previsibilidade. Não é o mais rentável nem o mais barato, mas oferece um equilíbrio difícil de encontrar.",
+    icon: "Scale",
+  },
+  premium: {
+    label: "Premium",
+    color: "bg-violet-100",
+    textColor: "text-violet-800",
+    description: "Tem diárias mais altas e percepção de valor maior, embora nem sempre com melhor retorno percentual.",
+    interpretation: "Bairros premium atraem hóspedes dispostos a pagar mais, mas o custo de aquisição do imóvel também é maior. O yield percentual pode ser inferior ao de bairros mais acessíveis.",
+    icon: "Crown",
+  },
+  "alta-ocupacao": {
+    label: "Alta ocupação",
+    color: "bg-blue-100",
+    textColor: "text-blue-800",
+    description: "Mantém o imóvel ocupado com frequência acima da média, gerando fluxo de caixa mais constante.",
+    interpretation: "Ideal para quem prioriza previsibilidade de receita. Alta ocupação reduz o risco de meses vazios, mas a diária média pode ser mais moderada.",
+    icon: "CalendarCheck",
+  },
+  "alto-retorno": {
+    label: "Alto retorno",
+    color: "bg-emerald-100",
+    textColor: "text-emerald-800",
+    description: "Apresenta yield acima da média, com retorno percentual mais agressivo sobre o capital investido.",
+    interpretation: "É o perfil que mais interessa quem quer maximizar o retorno sobre o investimento. Porém, alto retorno nem sempre vem com alta liquidez — é importante checar a demanda.",
+    icon: "TrendingUp",
+  },
+  "oportunidade-arriscada": {
+    label: "Oportunidade arriscada",
+    color: "bg-red-100",
+    textColor: "text-red-800",
+    description: "Pode entregar retorno forte, mas exige maior tolerância a risco e gestão mais ativa.",
+    interpretation: "Bairros neste perfil costumam ter yield atrativo no papel, porém combinado com liquidez baixa, dados menos robustos ou saturação elevada. É para investidores que aceitam mais incerteza.",
+    icon: "AlertTriangle",
+  },
+  "crescimento-consistente": {
+    label: "Crescimento consistente",
+    color: "bg-amber-100",
+    textColor: "text-amber-800",
+    description: "Mostra sinais de valorização e expansão futura da demanda acima dos demais bairros.",
+    interpretation: "Ideal para quem pensa no médio/longo prazo. O retorno atual pode não ser o maior, mas o bairro está em trajetória ascendente — o que pode significar diárias maiores e valorização do imóvel.",
+    icon: "Sprout",
+  },
+};
 
 export function getBairroProfile(b: BairroAirbnb, allBairros: BairroAirbnb[]): BairroProfileInfo {
   const maxADR = Math.max(...allBairros.map(x => Number(x.adr_medio_studio)));
@@ -149,28 +203,46 @@ export function getBairroProfile(b: BairroAirbnb, allBairros: BairroAirbnb[]): B
   const adr = Number(b.adr_medio_studio);
   const yld = Number(b.yield_bruto_airbnb);
   const occ = Number(b.ocupacao_media_studio);
+  const confianca = b.nivel_confianca_dados?.toLowerCase();
+  const saturacao = Number(b.grau_saturacao_index);
 
-  // balanced = good across all three scores
-  const avgScore = (rent + liq + cresc) / 3;
-  const scoreSpread = Math.max(rent, liq, cresc) - Math.min(rent, liq, cresc);
+  // Risky opportunity: high yield but low liquidity OR low confidence OR high saturation
+  if (yld >= maxYield * 0.90 && (liq < 55 || confianca === "baixo" || saturacao > 0.7)) {
+    const def = PROFILE_DEFS["oportunidade-arriscada"];
+    return { ...def, profile: "oportunidade-arriscada", quickRead: `Yield atrativo (${(yld * 100).toFixed(1)}%), mas com sinais de risco${liq < 55 ? " — liquidez abaixo do ideal" : ""}${confianca === "baixo" ? " — dados limitados" : ""}` };
+  }
 
+  // Premium: top ADR
   if (adr >= maxADR * 0.92) {
-    return { profile: "premium", label: "Premium", color: "bg-violet-100", textColor: "text-violet-800", quickRead: "Diárias premium" };
+    const def = PROFILE_DEFS.premium;
+    return { ...def, profile: "premium", quickRead: `Diárias entre as mais altas (R$${adr.toFixed(0)}), percepção premium` };
   }
-  if (yld >= maxYield * 0.95 && liq < 60) {
-    return { profile: "arriscado", label: "Mais arriscado", color: "bg-red-100", textColor: "text-red-800", quickRead: "Mais retorno com mais risco" };
+
+  // High return: top yield with reasonable liquidity
+  if (yld >= maxYield * 0.88) {
+    const def = PROFILE_DEFS["alto-retorno"];
+    return { ...def, profile: "alto-retorno", quickRead: `Yield de ${(yld * 100).toFixed(1)}% — acima da maioria dos bairros` };
   }
-  if (yld >= maxYield * 0.90) {
-    return { profile: "alto-retorno", label: "Alto retorno", color: "bg-emerald-100", textColor: "text-emerald-800", quickRead: "Maior retorno potencial" };
-  }
+
+  // High occupancy
   if (occ >= maxOcc * 0.95) {
-    return { profile: "alta-ocupacao", label: "Alta ocupação", color: "bg-blue-100", textColor: "text-blue-800", quickRead: "Alta ocupação" };
+    const def = PROFILE_DEFS["alta-ocupacao"];
+    return { ...def, profile: "alta-ocupacao", quickRead: `Ocupação de ${(occ * 100).toFixed(0)}% — fluxo de caixa mais estável` };
   }
-  if (cresc >= 70 && cresc > rent) {
-    return { profile: "crescimento", label: "Crescimento forte", color: "bg-amber-100", textColor: "text-amber-800", quickRead: "Boa aposta de crescimento" };
+
+  // Consistent growth: strong growth score that exceeds rentability
+  if (cresc >= 65 && cresc > rent) {
+    const def = PROFILE_DEFS["crescimento-consistente"];
+    return { ...def, profile: "crescimento-consistente", quickRead: `Score de crescimento ${cresc.toFixed(0)} — trajetória ascendente` };
   }
-  // default: equilibrado
-  return { profile: "equilibrado", label: "Equilibrado", color: "bg-primary/10", textColor: "text-primary", quickRead: "Melhor equilíbrio geral" };
+
+  // Default: balanced
+  const def = PROFILE_DEFS.equilibrado;
+  return { ...def, profile: "equilibrado", quickRead: "Bom equilíbrio entre retorno, demanda e estabilidade" };
+}
+
+export function getAllProfileDefs() {
+  return PROFILE_DEFS;
 }
 
 // ── Highlight winners ────────────────────────────────────────────
