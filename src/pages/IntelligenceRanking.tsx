@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import type { BairroAirbnb } from "@/types/intelligence";
 import IndicatorExplainerSection from "@/components/intelligence/IndicatorExplainerSection";
 import { ComparativeNarrativesSection, StrategicLessonsSection, EducationalBanner } from "@/components/intelligence/StorytellingComponents";
+import { calculateInvestmentScore } from "@/lib/investmentScore";
 import {
   COLUMN_TOOLTIPS,
   MICROCOPY,
@@ -20,7 +21,7 @@ import {
   getTableHighlights,
 } from "@/lib/intelligenceInsights";
 
-type SortKey = "score_rentabilidade" | "score_liquidez" | "score_crescimento_potencial" | "adr_medio_studio" | "ocupacao_media_studio" | "yield_bruto_airbnb" | "delta_yield";
+type SortKey = "investment_score" | "score_rentabilidade" | "score_liquidez" | "score_crescimento_potencial" | "adr_medio_studio" | "ocupacao_media_studio" | "yield_bruto_airbnb" | "delta_yield";
 
 const confBadge = (nivel: string) => {
   if (nivel === "alto") return <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100">Alto</Badge>;
@@ -48,15 +49,24 @@ const HeaderTooltip = ({ colKey }: { colKey: string }) => {
 
 const IntelligenceRanking = () => {
   const { data: bairros, isLoading } = useBairrosData();
-  const [sortKey, setSortKey] = useState<SortKey>("score_rentabilidade");
+  const [sortKey, setSortKey] = useState<SortKey>("investment_score");
   const [filterConf, setFilterConf] = useState<string>("todos");
 
   if (isLoading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Carregando…</div></div>;
 
   const allBairros = bairros ?? [];
+  // Pre-calculate investment scores for all bairros
+  const scoreMap = new Map(allBairros.map(b => [b.bairro, calculateInvestmentScore(b, allBairros)]));
+
   let filtered = allBairros;
   if (filterConf !== "todos") filtered = filtered.filter(b => b.nivel_confianca_dados === filterConf);
-  const sorted = [...filtered].sort((a, b) => Number(b[sortKey]) - Number(a[sortKey]));
+
+  const sorted = [...filtered].sort((a, b) => {
+    if (sortKey === "investment_score") {
+      return (scoreMap.get(b.bairro)?.score ?? 0) - (scoreMap.get(a.bairro)?.score ?? 0);
+    }
+    return Number(b[sortKey]) - Number(a[sortKey]);
+  });
 
   const highlights = getHighlightWinners(allBairros);
   const tableHighlights = getTableHighlights(allBairros);
@@ -130,6 +140,7 @@ const IntelligenceRanking = () => {
                 <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
                   <SelectTrigger className="w-52"><SelectValue /></SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="investment_score">Investment Score</SelectItem>
                     <SelectItem value="score_rentabilidade">Score Rentabilidade</SelectItem>
                     <SelectItem value="score_liquidez">Score Liquidez</SelectItem>
                     <SelectItem value="score_crescimento_potencial">Score Crescimento</SelectItem>
@@ -166,6 +177,7 @@ const IntelligenceRanking = () => {
                   <TableRow>
                     <TableHead className="w-8">#</TableHead>
                     <TableHead>Bairro</TableHead>
+                    <TableHead className="text-center">Score</TableHead>
                     <TableHead className="text-center">Perfil</TableHead>
                     <TableHead className="text-right">ADR <HeaderTooltip colKey="adr" /></TableHead>
                     <TableHead className="text-right">Ocupação <HeaderTooltip colKey="ocupacao" /></TableHead>
@@ -181,6 +193,14 @@ const IntelligenceRanking = () => {
                 <TableBody>
                   {sorted.map((b, i) => {
                     const profile = getBairroProfile(b, allBairros);
+                    const invScore = scoreMap.get(b.bairro);
+                    const gradeStyles: Record<string, string> = {
+                      "text-emerald-600": "bg-emerald-100 text-emerald-800",
+                      "text-blue-600": "bg-blue-100 text-blue-800",
+                      "text-amber-600": "bg-amber-100 text-amber-800",
+                      "text-orange-600": "bg-orange-100 text-orange-800",
+                      "text-red-600": "bg-red-100 text-red-800",
+                    };
                     return (
                       <TableRow key={b.bairro} className="cursor-pointer hover:bg-muted/50">
                         <TableCell className="font-medium text-muted-foreground">{i + 1}</TableCell>
@@ -188,6 +208,14 @@ const IntelligenceRanking = () => {
                           <Link to={`/intelligence/bairro/${encodeURIComponent(b.bairro)}`} className="font-medium text-primary hover:underline">
                             {b.bairro}
                           </Link>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {invScore && (
+                            <div className="flex items-center justify-center gap-1">
+                              <span className="text-sm font-bold">{invScore.score.toFixed(1)}</span>
+                              <Badge className={`${gradeStyles[invScore.gradeColor] || "bg-muted"} text-[10px] px-1.5`}>{invScore.grade}</Badge>
+                            </div>
+                          )}
                         </TableCell>
                         <TableCell className="text-center">
                           <Badge className={`${profile.color} ${profile.textColor} hover:${profile.color} text-[10px]`}>{profile.label}</Badge>

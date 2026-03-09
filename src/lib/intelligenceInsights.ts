@@ -3,6 +3,7 @@ import { fmtBRL, fmtPct, fmtScore } from "@/hooks/useIntelligenceData";
 
 // ── Column tooltips ──────────────────────────────────────────────
 export const COLUMN_TOOLTIPS: Record<string, { friendly: string; tip: string }> = {
+  investment_score: { friendly: "Investment Score", tip: "Nota central que combina retorno (35%), demanda (25%), operação (20%) e potencial futuro (20%)." },
   adr: { friendly: "Preço médio da diária", tip: "Quanto, em média, um imóvel cobra por noite neste bairro." },
   ocupacao: { friendly: "% de dias alugados", tip: "Percentual de dias em que o imóvel fica ocupado no mês." },
   yield_airbnb: { friendly: "Retorno anual no Airbnb", tip: "Quanto o imóvel pode render por ano em relação ao valor investido." },

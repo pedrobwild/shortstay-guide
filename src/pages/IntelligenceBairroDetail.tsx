@@ -18,7 +18,9 @@ import {
   buildInvestorProfile,
 } from "@/lib/intelligenceInsights";
 import { buildBairroStoryBlocks } from "@/lib/storytelling";
+import { calculateInvestmentScore } from "@/lib/investmentScore";
 import { BairroStoryCard, EducationalBanner } from "@/components/intelligence/StorytellingComponents";
+import { InvestmentScoreHero } from "@/components/intelligence/InvestmentScoreComponents";
 
 const MONTH_LABELS = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 const ADR_SEASONALITY = [0.92, 0.88, 0.95, 0.97, 0.93, 0.90, 1.02, 1.00, 1.05, 1.08, 1.12, 1.18];
@@ -71,6 +73,7 @@ const IntelligenceBairroDetail = () => {
   const shortVsLong = buildShortVsLongNarrative(b);
   const investorProfiles = buildInvestorProfile(profile);
   const storyBlocks = buildBairroStoryBlocks(b, all);
+  const investmentScore = calculateInvestmentScore(b, all);
 
   const precoEstudio = Number(b.preco_m2_residencial_medio) * Number(b.area_media_estudio);
   const monthlyData = generateMonthlyData(Number(b.adr_medio_studio), Number(b.ocupacao_media_studio));
@@ -92,6 +95,11 @@ const IntelligenceBairroDetail = () => {
       </header>
 
       <main className="container mx-auto px-4 py-6 space-y-6">
+
+        {/* ── Investment Score Hero ───────────────────────── */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+          <InvestmentScoreHero result={investmentScore} bairro={b.bairro} />
+        </motion.div>
 
         {/* ── Resumo para leigos ─────────────────────────── */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>

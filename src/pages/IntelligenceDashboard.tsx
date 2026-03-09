@@ -1,10 +1,12 @@
 import { useBairrosData, fmtBRL, fmtPct, fmtScore } from "@/hooks/useIntelligenceData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Building2, TrendingUp, BarChart3, Target, ArrowRight, Home, ArrowLeft, Scale, Crown, Rocket, Activity } from "lucide-react";
 import { motion } from "framer-motion";
 import { getHighlightWinners } from "@/lib/intelligenceInsights";
+import { calculateAllScores } from "@/lib/investmentScore";
 import IndicatorExplainerSection from "@/components/intelligence/IndicatorExplainerSection";
 import { ComparativeNarrativesSection, StrategicLessonsSection, EducationalBanner } from "@/components/intelligence/StorytellingComponents";
 
@@ -114,10 +116,13 @@ const IntelligenceDashboard = () => {
 
         <EducationalBanner message="O melhor investimento está no equilíbrio, não apenas na diária." />
 
-        {/* Top 5 Ranking Preview */}
+        {/* Top 5 by Investment Score */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-lg">Top 5 — Rentabilidade</CardTitle>
+            <div>
+              <CardTitle className="text-lg">Top 5 — Investment Score</CardTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">Ranking combinando retorno, demanda, operação e potencial futuro</p>
+            </div>
             <Link to="/intelligence/ranking">
               <Button variant="ghost" size="sm">
                 Ver ranking completo <ArrowRight className="ml-1 h-4 w-4" />
@@ -126,28 +131,42 @@ const IntelligenceDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {bairros.slice(0, 5).map((b, i) => (
-                <Link key={b.bairro} to={`/intelligence/bairro/${encodeURIComponent(b.bairro)}`} className="block">
-                  <motion.div
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.06 }}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-bold text-muted-foreground w-6">#{i + 1}</span>
-                      <div>
-                        <p className="font-medium">{b.bairro}</p>
-                        <p className="text-xs text-muted-foreground">ADR {fmtBRL(b.adr_medio_studio)} · Ocupação {fmtPct(b.ocupacao_media_studio)}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-emerald-600">{fmtScore(b.score_rentabilidade)}</p>
-                      <p className="text-xs text-muted-foreground">Yield {fmtPct(b.yield_bruto_airbnb)}</p>
-                    </div>
-                  </motion.div>
-                </Link>
-              ))}
+              {(() => {
+                const ranked = calculateAllScores(bairros);
+                return ranked.slice(0, 5).map((item, i) => {
+                  const b = item.bairro;
+                  const s = item.investmentScore;
+                  const gradeStyles: Record<string, string> = {
+                    "text-emerald-600": "bg-emerald-100 text-emerald-800",
+                    "text-blue-600": "bg-blue-100 text-blue-800",
+                    "text-amber-600": "bg-amber-100 text-amber-800",
+                    "text-orange-600": "bg-orange-100 text-orange-800",
+                    "text-red-600": "bg-red-100 text-red-800",
+                  };
+                  return (
+                    <Link key={b.bairro} to={`/intelligence/bairro/${encodeURIComponent(b.bairro)}`} className="block">
+                      <motion.div
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.06 }}
+                        className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-bold text-muted-foreground w-6">#{i + 1}</span>
+                          <div>
+                            <p className="font-medium">{b.bairro}</p>
+                            <p className="text-xs text-muted-foreground">ADR {fmtBRL(b.adr_medio_studio)} · Ocupação {fmtPct(b.ocupacao_media_studio)}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-bold">{s.score.toFixed(1)}</span>
+                          <Badge className={`${gradeStyles[s.gradeColor] || "bg-muted text-foreground"} text-xs`}>{s.grade}</Badge>
+                        </div>
+                      </motion.div>
+                    </Link>
+                  );
+                });
+              })()}
             </div>
           </CardContent>
         </Card>
