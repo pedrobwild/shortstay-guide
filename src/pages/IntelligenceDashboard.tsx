@@ -155,7 +155,7 @@ const IntelligenceDashboard = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-bold">{s.score.toFixed(1)}</span>
-                          <Badge className={`${gradeStyles[s.gradeColor] || "bg-muted text-foreground"} text-xs`}>{s.grade}</Badge>
+                          <Badge className={`${badgeStyle} text-xs`}>{s.grade}</Badge>
                         </div>
                       </motion.div>
                     </Link>
