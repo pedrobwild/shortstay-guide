@@ -111,25 +111,40 @@ const IntelligenceBairroDetail = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 space-y-6">
+      <main className="container mx-auto px-4 py-6 space-y-8">
 
-        {/* ── Investment Score Hero ───────────────────────── */}
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-          <InvestmentScoreHero result={investmentScore} bairro={b.bairro} />
+        {/* ── Report intro ────────────────────────────────── */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+          <Card className="border-primary/15 bg-gradient-to-br from-primary/[0.03] to-transparent">
+            <CardContent className="p-5">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-3">Relatório consultivo</p>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    {(() => { const ProfileIcon = PROFILE_ICONS[profile.icon] || Scale; return <ProfileIcon className={`h-5 w-5 ${profile.textColor}`} />; })()}
+                    <Badge className={`${profile.color} ${profile.textColor} text-xs`}>{profile.label}</Badge>
+                  </div>
+                  <p className="text-sm font-semibold text-foreground mb-1">{profile.description}</p>
+                  <p className="text-xs text-foreground/70 leading-relaxed">{profile.interpretation}</p>
+                </div>
+                <div className="flex items-center gap-3 sm:border-l sm:border-border/50 sm:pl-5">
+                  <div className="text-center">
+                    <p className="text-3xl font-bold">{investmentScore.score.toFixed(1)}</p>
+                    <p className={`text-sm font-bold ${investmentScore.gradeColor}`}>{investmentScore.grade}</p>
+                    <p className={`text-[10px] font-semibold ${investmentScore.gradeColor}`}>{investmentScore.gradeLabel}</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
-        {/* ── Resumo para leigos ─────────────────────────── */}
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-          <Card className="border-primary/20 bg-primary/[0.02]">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Lightbulb className="h-4 w-4 text-primary" />
-                Resumo para leigos
-              </CardTitle>
-              <p className="text-xs text-muted-foreground">O que você precisa saber sobre {b.bairro} em linguagem simples</p>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-1.5">
+        {/* ── 1. Resumo para leigos ──────────────────────── */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 }}>
+          <Card>
+            <CardContent className="p-5">
+              <SectionHeader number="1" title="Resumo para leigos" subtitle={`O que você precisa saber sobre ${b.bairro} em linguagem simples`} icon={Lightbulb} />
+              <ul className="space-y-2 ml-10">
                 {leigosResumo.map((item, i) => (
                   <li key={i} className="flex gap-2 items-start text-sm">
                     <CheckCircle className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" />
@@ -141,25 +156,25 @@ const IntelligenceBairroDetail = () => {
           </Card>
         </motion.div>
 
-        {/* ── Scores ─────────────────────────────────────── */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <ScoreCard label="Rentabilidade" friendlyLabel="Score geral de retorno" value={b.score_rentabilidade} icon={TrendingUp} color="text-emerald-600" />
-          <ScoreCard label="Liquidez" friendlyLabel="Facilidade de operar" value={b.score_liquidez} icon={BarChart3} color="text-blue-600" />
-          <ScoreCard label="Crescimento" friendlyLabel="Potencial futuro" value={b.score_crescimento_potencial} icon={Target} color="text-amber-600" />
+        {/* ── 2. Investment Score explicado ───────────────── */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
+          <Card>
+            <CardContent className="p-5">
+              <SectionHeader number="2" title="Investment Score" subtitle="Score central que combina retorno, demanda, operação e potencial futuro" icon={Target} />
+              <div className="ml-10">
+                <InvestmentScoreHero result={investmentScore} bairro={b.bairro} />
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
-        {/* ── O que explica / Pontos de atenção ──────────── */}
+        {/* ── 3. O que explica / Pontos de atenção ────────── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
             <Card className="h-full">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Info className="h-4 w-4 text-primary" />
-                  O que explica esse resultado
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-1.5">
+              <CardContent className="p-5">
+                <SectionHeader number="3" title="O que explica esse resultado" subtitle="Fatores que sustentam a posição deste bairro" icon={Info} />
+                <ul className="space-y-2 ml-10">
                   {explicacao.map((item, i) => (
                     <li key={i} className="flex gap-2 items-start text-sm">
                       <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
@@ -173,14 +188,9 @@ const IntelligenceBairroDetail = () => {
 
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
             <Card className="h-full border-amber-200/50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-amber-500" />
-                  Pontos de atenção
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-1.5">
+              <CardContent className="p-5">
+                <SectionHeader number="4" title="Pontos de atenção" subtitle="Riscos e limitações a considerar antes de investir" icon={AlertTriangle} />
+                <ul className="space-y-2 ml-10">
                   {pontosAtencao.map((item, i) => (
                     <li key={i} className="flex gap-2 items-start text-sm">
                       <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
@@ -193,46 +203,38 @@ const IntelligenceBairroDetail = () => {
           </motion.div>
         </div>
 
-        {/* ── Short stay vs aluguel ──────────────────────── */}
+        {/* ── 5. Short stay vs aluguel ────────────────────── */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base flex items-center gap-2">
-                <BarChart3 className="h-4 w-4 text-primary" />
-                Short stay ou aluguel tradicional?
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-3">
-                <div className="text-center p-3 bg-emerald-50 rounded-lg">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Yield Airbnb</p>
-                  <p className="text-xl font-bold text-emerald-600">{fmtPct(b.yield_bruto_airbnb)}</p>
+            <CardContent className="p-5">
+              <SectionHeader number="5" title="Short stay ou aluguel tradicional?" subtitle="Comparativo direto de retorno entre as duas estratégias" icon={BarChart3} />
+              <div className="ml-10 space-y-4">
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="text-center p-3 bg-emerald-50 rounded-lg">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Yield Airbnb</p>
+                    <p className="text-xl font-bold text-emerald-600">{fmtPct(b.yield_bruto_airbnb)}</p>
+                  </div>
+                  <div className="text-center p-3 bg-blue-50 rounded-lg">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Yield Aluguel</p>
+                    <p className="text-xl font-bold text-blue-600">{fmtPct(b.yield_bruto_long_term)}</p>
+                  </div>
+                  <div className="text-center p-3 bg-amber-50 rounded-lg">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Delta</p>
+                    <p className="text-xl font-bold text-amber-600">+{fmtPct(b.delta_yield)}</p>
+                  </div>
                 </div>
-                <div className="text-center p-3 bg-blue-50 rounded-lg">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Yield Aluguel</p>
-                  <p className="text-xl font-bold text-blue-600">{fmtPct(b.yield_bruto_long_term)}</p>
-                </div>
-                <div className="text-center p-3 bg-amber-50 rounded-lg">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Delta</p>
-                  <p className="text-xl font-bold text-amber-600">+{fmtPct(b.delta_yield)}</p>
-                </div>
+                <p className="text-sm text-foreground/80 leading-relaxed">{shortVsLong}</p>
               </div>
-              <p className="text-sm text-foreground/80 leading-relaxed">{shortVsLong}</p>
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* ── Para quem faz sentido ──────────────────────── */}
+        {/* ── 6. Para quem faz sentido ───────────────────── */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}>
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base flex items-center gap-2">
-                <UserCheck className="h-4 w-4 text-primary" />
-                Para quem {b.bairro} faz sentido?
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-1.5">
+            <CardContent className="p-5">
+              <SectionHeader number="6" title={`Para quem ${b.bairro} faz sentido?`} subtitle="Perfis de investidor que mais se beneficiam deste bairro" icon={UserCheck} />
+              <ul className="space-y-2 ml-10">
                 {investorProfiles.map((item, i) => (
                   <li key={i} className="flex gap-2 items-start text-sm">
                     <CheckCircle className="h-4 w-4 text-primary mt-0.5 shrink-0" />
@@ -244,21 +246,17 @@ const IntelligenceBairroDetail = () => {
           </Card>
         </motion.div>
 
-        {/* ── Storytelling: leitura consultiva ────────────── */}
+        {/* ── 7. Leitura consultiva (storytelling) ────────── */}
         {storyBlocks.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.26 }}>
             <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Lightbulb className="h-4 w-4 text-primary" />
-                  Leitura consultiva
-                </CardTitle>
-                <p className="text-xs text-muted-foreground">O que os dados revelam sobre {b.bairro} quando comparado com os demais bairros</p>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {storyBlocks.map((block, i) => (
-                  <BairroStoryCard key={i} title={block.title} text={block.text} type={block.type} />
-                ))}
+              <CardContent className="p-5">
+                <SectionHeader number="7" title="Leitura consultiva" subtitle={`O que os dados revelam sobre ${b.bairro} quando comparado com os demais bairros`} icon={Lightbulb} />
+                <div className="space-y-3 ml-10">
+                  {storyBlocks.map((block, i) => (
+                    <BairroStoryCard key={i} title={block.title} text={block.text} type={block.type} />
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </motion.div>
@@ -266,8 +264,15 @@ const IntelligenceBairroDetail = () => {
 
         <EducationalBanner message="Use os scores como leitura estratégica, não como verdade absoluta." />
 
+        {/* ── Scores cards ────────────────────────────────── */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <ScoreCard label="Rentabilidade" friendlyLabel="Score geral de retorno" value={b.score_rentabilidade} icon={TrendingUp} color="text-emerald-600" />
+          <ScoreCard label="Liquidez" friendlyLabel="Facilidade de operar" value={b.score_liquidez} icon={BarChart3} color="text-blue-600" />
+          <ScoreCard label="Crescimento" friendlyLabel="Potencial futuro" value={b.score_crescimento_potencial} icon={Target} color="text-amber-600" />
+        </motion.div>
+
         {/* ── Charts ─────────────────────────────────────── */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Radar */}
           <Card>
             <CardHeader><CardTitle className="text-base">Análise 360°</CardTitle></CardHeader>
