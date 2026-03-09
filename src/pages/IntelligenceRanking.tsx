@@ -68,7 +68,7 @@ const IntelligenceRanking = () => {
     return Number(b[sortKey]) - Number(a[sortKey]);
   });
 
-  const highlights = getHighlightWinners(allBairros);
+  const _ = getHighlightWinners; // used by AnalysisSummarySection internally
   const tableHighlights = getTableHighlights(allBairros);
 
   const isHighlighted = (bairro: string, type: string) => tableHighlights.some(h => h.bairro === bairro && h.type === type);
