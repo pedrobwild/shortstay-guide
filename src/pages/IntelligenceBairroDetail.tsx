@@ -206,6 +206,7 @@ const IntelligenceBairroDetail = () => {
         </div>
 
         {/* ── 5. Short stay vs aluguel ────────────────────── */}
+        <ContextualNote sectionKey="yield_comparison" />
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
           <Card>
             <CardContent className="p-5">
