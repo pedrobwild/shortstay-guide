@@ -7,17 +7,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Download, Scale, Crown, Rocket, Activity, TrendingUp, Lightbulb, HelpCircle } from "lucide-react";
+import { ArrowLeft, Download, Scale, Crown, Rocket, Activity, TrendingUp, HelpCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import type { BairroAirbnb } from "@/types/intelligence";
 import IndicatorExplainerSection from "@/components/intelligence/IndicatorExplainerSection";
+import { ComparativeNarrativesSection, StrategicLessonsSection, EducationalBanner } from "@/components/intelligence/StorytellingComponents";
 import {
   COLUMN_TOOLTIPS,
-  EDUCATION_MESSAGES,
   MICROCOPY,
   getBairroProfile,
   getHighlightWinners,
-  generateNarrativeInsights,
   getTableHighlights,
 } from "@/lib/intelligenceInsights";
 
@@ -60,7 +59,6 @@ const IntelligenceRanking = () => {
   const sorted = [...filtered].sort((a, b) => Number(b[sortKey]) - Number(a[sortKey]));
 
   const highlights = getHighlightWinners(allBairros);
-  const insights = generateNarrativeInsights(allBairros);
   const tableHighlights = getTableHighlights(allBairros);
 
   const isHighlighted = (bairro: string, type: string) => tableHighlights.some(h => h.bairro === bairro && h.type === type);
@@ -113,44 +111,16 @@ const IntelligenceRanking = () => {
             })}
           </div>
 
-          {/* ── "O que esta análise mostra" ────────────────── */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
-            <Card className="border-primary/20 bg-primary/[0.02]">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Lightbulb className="h-5 w-5 text-primary" />
-                  O que esta análise mostra
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">Nem sempre o bairro com a diária mais cara é o melhor investimento. O melhor resultado costuma aparecer onde existe equilíbrio entre preço da diária, ocupação, retorno do imóvel e potencial do bairro.</p>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {insights.map((ins, i) => (
-                  <div key={i} className="flex gap-2 items-start">
-                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                    <p className="text-sm text-foreground/80 leading-relaxed">{ins}</p>
-                  </div>
-                ))}
+          {/* ── Comparative narratives (auto-generated from data) ── */}
+          <ComparativeNarrativesSection bairros={allBairros} />
 
-                {/* Education messages */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4 pt-4 border-t border-border/50">
-                  {EDUCATION_MESSAGES.map((msg, i) => (
-                    <div key={i} className="bg-muted/50 rounded-lg p-3">
-                      <p className="text-xs font-semibold text-foreground mb-1">{msg.title}</p>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{msg.text}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          {/* ── Strategic Lessons ─────────────────────────────── */}
+          <StrategicLessonsSection bairros={allBairros} />
 
           {/* ── "Como entender esta análise" (collapsible) ── */}
           <IndicatorExplainerSection />
 
-          {/* ── Microcopy banner ──────────────────────────── */}
-          <div className="text-center py-2">
-            <p className="text-xs text-muted-foreground italic">"Compare bairros como um investidor, não como um turista."</p>
-          </div>
+          <EducationalBanner message="Compare bairros como um investidor, não como um turista." />
 
           {/* ── Filters ──────────────────────────────────── */}
           <Card>
@@ -185,6 +155,8 @@ const IntelligenceRanking = () => {
               <Button variant="outline" size="sm" onClick={exportCSV}><Download className="h-4 w-4 mr-1" /> Exportar CSV</Button>
             </CardContent>
           </Card>
+
+          <EducationalBanner message="Preço alto por noite nem sempre significa melhor negócio." />
 
           {/* ── Table ─────────────────────────────────────── */}
           <Card>

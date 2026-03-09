@@ -2,10 +2,11 @@ import { useBairrosData, fmtBRL, fmtPct, fmtScore } from "@/hooks/useIntelligenc
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Building2, TrendingUp, BarChart3, Target, ArrowRight, Home, ArrowLeft, Lightbulb, Scale, Crown, Rocket, Activity } from "lucide-react";
+import { Building2, TrendingUp, BarChart3, Target, ArrowRight, Home, ArrowLeft, Scale, Crown, Rocket, Activity } from "lucide-react";
 import { motion } from "framer-motion";
-import { getHighlightWinners, generateNarrativeInsights, EDUCATION_MESSAGES } from "@/lib/intelligenceInsights";
+import { getHighlightWinners } from "@/lib/intelligenceInsights";
 import IndicatorExplainerSection from "@/components/intelligence/IndicatorExplainerSection";
+import { ComparativeNarrativesSection, StrategicLessonsSection, EducationalBanner } from "@/components/intelligence/StorytellingComponents";
 
 const ICON_MAP: Record<string, any> = { Scale, Crown, Rocket, Activity, TrendingUp };
 
@@ -35,7 +36,6 @@ const IntelligenceDashboard = () => {
   const avgOcc = bairros.reduce((s, b) => s + Number(b.ocupacao_media_studio), 0) / bairros.length;
 
   const highlights = getHighlightWinners(bairros);
-  const insights = generateNarrativeInsights(bairros);
 
   const cards = [
     { label: "Bairros Analisados", value: bairros.length.toString(), icon: Building2, color: "text-primary" },
@@ -86,23 +86,8 @@ const IntelligenceDashboard = () => {
           ))}
         </div>
 
-        {/* ── Insight Highlights ──────────────────────── */}
-        <Card className="border-primary/20 bg-primary/[0.02]">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Lightbulb className="h-5 w-5 text-primary" />
-              O que os dados estão mostrando
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {insights.map((ins, i) => (
-              <div key={i} className="flex gap-2 items-start">
-                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                <p className="text-sm text-foreground/80 leading-relaxed">{ins}</p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+        {/* ── Comparative Narratives ──────────────────── */}
+        <ComparativeNarrativesSection bairros={bairros} />
 
         {/* ── Highlight winners as cards ──────────────── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -126,6 +111,8 @@ const IntelligenceDashboard = () => {
             );
           })}
         </div>
+
+        <EducationalBanner message="O melhor investimento está no equilíbrio, não apenas na diária." />
 
         {/* Top 5 Ranking Preview */}
         <Card>
@@ -168,25 +155,8 @@ const IntelligenceDashboard = () => {
         {/* ── Didactic explainer ────────────────────── */}
         <IndicatorExplainerSection compact />
 
-        {/* ── Education block ────────────────────────── */}
-        <Card className="bg-muted/30 border-dashed">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Como pensar sobre investimento em short stay</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-foreground/80 leading-relaxed mb-4">
-              Alguns bairros cobram mais caro por diária. Outros alugam mais dias. Outros têm imóveis mais baratos e, por isso, rendem mais no final. <strong>O melhor investimento não é só o bairro mais famoso ou a diária mais alta</strong> — é aquele que melhor equilibra preço, ocupação, liquidez e potencial.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {EDUCATION_MESSAGES.map((msg, i) => (
-                <div key={i} className="bg-background rounded-lg p-3 border border-border/50">
-                  <p className="text-xs font-semibold text-foreground mb-1">{msg.title}</p>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{msg.text}</p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {/* ── Strategic Lessons ──────────────────────── */}
+        <StrategicLessonsSection bairros={bairros} />
 
         {/* Quick Links */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
