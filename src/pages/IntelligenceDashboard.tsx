@@ -50,8 +50,8 @@ const IntelligenceDashboard = () => {
               <p className="mt-2 text-primary-foreground/80">São Paulo — Análise de investimento em short stay</p>
             </div>
             <Link to="/">
-              <Button variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
-                <ArrowLeft className="mr-1 h-4 w-4" /> Voltar ao site
+              <Button variant="secondary" size="sm">
+                <ArrowLeft className="mr-1 h-4 w-4" /> Voltar
               </Button>
             </Link>
           </div>
