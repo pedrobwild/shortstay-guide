@@ -280,6 +280,7 @@ const IntelligenceBairroDetail = () => {
         </motion.div>
 
         {/* ── 6. Para quem faz sentido ───────────────────── */}
+        <ContextualNote sectionKey="investor_match" />
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}>
           <Card>
             <CardContent className="p-5">
