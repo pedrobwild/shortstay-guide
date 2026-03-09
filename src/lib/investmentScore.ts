@@ -178,11 +178,11 @@ function getGrade(score: number): { grade: string; gradeColor: string; gradeLabe
 
 export function getGradeExplanation(grade: string): string {
   const map: Record<string, string> = {
-    A: "Excelente equilíbrio entre retorno, demanda, operação e potencial futuro. Um dos bairros mais completos da amostra.",
-    B: "Bom posicionamento geral, com pontos fortes que se destacam. Merece atenção como opção consistente.",
-    C: "Desempenho intermediário. Pode ser atrativo dependendo do perfil do investidor e da estratégia.",
-    D: "Abaixo da média em pelo menos dois pilares. Exige análise mais detalhada antes de investir.",
-    E: "Posicionamento fraco na maioria dos critérios. Recomenda-se cautela e análise complementar.",
+    "A+": "Excelente investimento. Equilíbrio excepcional entre retorno, demanda, operação e futuro, com dados confiáveis.",
+    A: "Muito bom. Forte em quase todos os pilares, com risco controlado e dados robustos.",
+    B: "Bom posicionamento geral, com pontos fortes que se destacam. Opção consistente.",
+    C: "Moderado. Pode ser atrativo dependendo do perfil do investidor, mas exige atenção a riscos.",
+    D: "Arriscado. Fragilidades em múltiplos pilares ou dados de baixa confiança. Cautela recomendada.",
   };
   return map[grade] || "";
 }
