@@ -13,6 +13,7 @@ import type { BairroAirbnb } from "@/types/intelligence";
 import IndicatorExplainerSection from "@/components/intelligence/IndicatorExplainerSection";
 import { ComparativeNarrativesSection, StrategicLessonsSection, EducationalBanner, ContextualNote, AnalysisSummarySection } from "@/components/intelligence/StorytellingComponents";
 import { calculateInvestmentScore } from "@/lib/investmentScore";
+import { getGradeStyle, FOOTER_DISCLAIMER } from "@/lib/uiHelpers";
 import {
   COLUMN_TOOLTIPS,
   MICROCOPY,
