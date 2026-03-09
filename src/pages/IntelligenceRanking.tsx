@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import type { BairroAirbnb } from "@/types/intelligence";
 import IndicatorExplainerSection from "@/components/intelligence/IndicatorExplainerSection";
 import { ComparativeNarrativesSection, StrategicLessonsSection, EducationalBanner } from "@/components/intelligence/StorytellingComponents";
+import { calculateInvestmentScore } from "@/lib/investmentScore";
 import {
   COLUMN_TOOLTIPS,
   MICROCOPY,
