@@ -1,0 +1,216 @@
+/**
+ * ═══════════════════════════════════════════════════════════════
+ * INVESTMENT SCORE — Motor central do produto
+ * Fase 4: Score unificado de decisão de investimento
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * Fórmula:
+ *   Investment Score =
+ *     0.35 × Retorno (Yield Airbnb normalizado) +
+ *     0.25 × Demanda (Liquidez normalizado) +
+ *     0.20 × Operação (Ocupação normalizado) +
+ *     0.20 × Futuro (Crescimento normalizado)
+ *
+ * Todos os pilares normalizados de 0 a 100 usando min-max
+ * dentro da amostra disponível.
+ * ═══════════════════════════════════════════════════════════════
+ */
+
+import type { BairroAirbnb } from "@/types/intelligence";
+
+// ── Pillar definitions ───────────────────────────────────────────
+
+export interface ScorePillar {
+  key: string;
+  label: string;
+  friendlyName: string;
+  weight: number;
+  description: string;
+  icon: string;
+  color: string; // tailwind text color
+}
+
+export const PILLARS: ScorePillar[] = [
+  {
+    key: "retorno",
+    label: "Retorno",
+    friendlyName: "Yield Airbnb",
+    weight: 0.35,
+    description: "Quanto o imóvel pode render por ano no Airbnb em relação ao capital investido.",
+    icon: "TrendingUp",
+    color: "text-emerald-600",
+  },
+  {
+    key: "demanda",
+    label: "Demanda",
+    friendlyName: "Liquidez",
+    weight: 0.25,
+    description: "Facilidade de manter reservas constantes e gerar fluxo de caixa previsível.",
+    icon: "Zap",
+    color: "text-blue-600",
+  },
+  {
+    key: "operacao",
+    label: "Operação",
+    friendlyName: "Ocupação",
+    weight: 0.20,
+    description: "Percentual de dias em que o imóvel fica efetivamente alugado.",
+    icon: "CalendarCheck",
+    color: "text-violet-600",
+  },
+  {
+    key: "futuro",
+    label: "Futuro",
+    friendlyName: "Crescimento",
+    weight: 0.20,
+    description: "Sinais de valorização e expansão futura da demanda no bairro.",
+    icon: "Sprout",
+    color: "text-amber-600",
+  },
+];
+
+// ── Normalization helper (min-max to 0-100) ──────────────────────
+
+function normalize(value: number, min: number, max: number): number {
+  if (max === min) return 50;
+  return Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100));
+}
+
+// ── Core calculation ─────────────────────────────────────────────
+
+export interface InvestmentScoreResult {
+  score: number;
+  pillars: {
+    key: string;
+    raw: number;
+    normalized: number;
+    weighted: number;
+  }[];
+  grade: string;
+  gradeColor: string;
+  narrative: string;
+}
+
+export function calculateInvestmentScore(
+  bairro: BairroAirbnb,
+  allBairros: BairroAirbnb[]
+): InvestmentScoreResult {
+  // Extract raw values for normalization bounds
+  const yields = allBairros.map(b => Number(b.yield_bruto_airbnb));
+  const liquidities = allBairros.map(b => Number(b.score_liquidez));
+  const occupancies = allBairros.map(b => Number(b.ocupacao_media_studio));
+  const growths = allBairros.map(b => Number(b.score_crescimento_potencial));
+
+  const minMax = (arr: number[]) => ({ min: Math.min(...arr), max: Math.max(...arr) });
+
+  const yieldBounds = minMax(yields);
+  const liqBounds = minMax(liquidities);
+  const occBounds = minMax(occupancies);
+  const growBounds = minMax(growths);
+
+  // Raw values for this bairro
+  const rawValues = {
+    retorno: Number(bairro.yield_bruto_airbnb),
+    demanda: Number(bairro.score_liquidez),
+    operacao: Number(bairro.ocupacao_media_studio),
+    futuro: Number(bairro.score_crescimento_potencial),
+  };
+
+  // Normalize
+  const normalized = {
+    retorno: normalize(rawValues.retorno, yieldBounds.min, yieldBounds.max),
+    demanda: normalize(rawValues.demanda, liqBounds.min, liqBounds.max),
+    operacao: normalize(rawValues.operacao, occBounds.min, occBounds.max),
+    futuro: normalize(rawValues.futuro, growBounds.min, growBounds.max),
+  };
+
+  // Weighted
+  const weighted = {
+    retorno: normalized.retorno * 0.35,
+    demanda: normalized.demanda * 0.25,
+    operacao: normalized.operacao * 0.20,
+    futuro: normalized.futuro * 0.20,
+  };
+
+  const score = weighted.retorno + weighted.demanda + weighted.operacao + weighted.futuro;
+
+  // Grade
+  const { grade, gradeColor } = getGrade(score);
+
+  // Pillars breakdown
+  const pillars = PILLARS.map(p => ({
+    key: p.key,
+    raw: rawValues[p.key as keyof typeof rawValues],
+    normalized: normalized[p.key as keyof typeof normalized],
+    weighted: weighted[p.key as keyof typeof weighted],
+  }));
+
+  // Narrative
+  const narrative = buildScoreNarrative(bairro.bairro, score, normalized, grade);
+
+  return { score, pillars, grade, gradeColor, narrative };
+}
+
+// ── Grade system ─────────────────────────────────────────────────
+
+function getGrade(score: number): { grade: string; gradeColor: string } {
+  if (score >= 80) return { grade: "A", gradeColor: "text-emerald-600" };
+  if (score >= 65) return { grade: "B", gradeColor: "text-blue-600" };
+  if (score >= 50) return { grade: "C", gradeColor: "text-amber-600" };
+  if (score >= 35) return { grade: "D", gradeColor: "text-orange-600" };
+  return { grade: "E", gradeColor: "text-red-600" };
+}
+
+export function getGradeExplanation(grade: string): string {
+  const map: Record<string, string> = {
+    A: "Excelente equilíbrio entre retorno, demanda, operação e potencial futuro. Um dos bairros mais completos da amostra.",
+    B: "Bom posicionamento geral, com pontos fortes que se destacam. Merece atenção como opção consistente.",
+    C: "Desempenho intermediário. Pode ser atrativo dependendo do perfil do investidor e da estratégia.",
+    D: "Abaixo da média em pelo menos dois pilares. Exige análise mais detalhada antes de investir.",
+    E: "Posicionamento fraco na maioria dos critérios. Recomenda-se cautela e análise complementar.",
+  };
+  return map[grade] || "";
+}
+
+// ── Narrative builder ────────────────────────────────────────────
+
+function buildScoreNarrative(
+  bairro: string,
+  score: number,
+  normalized: Record<string, number>,
+  grade: string
+): string {
+  const strongest = Object.entries(normalized).reduce((a, b) => a[1] > b[1] ? a : b);
+  const weakest = Object.entries(normalized).reduce((a, b) => a[1] < b[1] ? a : b);
+
+  const pillarNames: Record<string, string> = {
+    retorno: "retorno",
+    demanda: "demanda",
+    operacao: "operação",
+    futuro: "potencial futuro",
+  };
+
+  if (grade === "A") {
+    return `${bairro} alcança nota ${grade} com score ${score.toFixed(1)}, destacando-se em ${pillarNames[strongest[0]]}. É um dos bairros mais completos para investimento em short stay na amostra.`;
+  }
+  if (grade === "B") {
+    return `${bairro} tem nota ${grade} (${score.toFixed(1)}), com destaque em ${pillarNames[strongest[0]]}. Um bairro consistente, embora ${pillarNames[weakest[0]]} possa ser um ponto de atenção.`;
+  }
+  return `${bairro} recebe nota ${grade} (${score.toFixed(1)}). Seu ponto mais forte é ${pillarNames[strongest[0]]}, mas ${pillarNames[weakest[0]]} puxa o score para baixo. Vale avaliar se o perfil se encaixa na sua estratégia.`;
+}
+
+// ── Batch calculation for rankings ───────────────────────────────
+
+export interface BairroWithScore {
+  bairro: BairroAirbnb;
+  investmentScore: InvestmentScoreResult;
+}
+
+export function calculateAllScores(bairros: BairroAirbnb[]): BairroWithScore[] {
+  return bairros
+    .map(b => ({
+      bairro: b,
+      investmentScore: calculateInvestmentScore(b, bairros),
+    }))
+    .sort((a, b) => b.investmentScore.score - a.investmentScore.score);
+}
