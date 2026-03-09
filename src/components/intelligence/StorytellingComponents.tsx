@@ -239,12 +239,7 @@ export const AnalysisSummarySection = ({ bairros }: { bairros: BairroAirbnb[] })
           <div className="space-y-2">
             {top3.map((item, i) => {
               const profile = getBairroProfile(item.bairro, bairros);
-              const gradeStyles: Record<string, string> = {
-                "text-emerald-600": "bg-emerald-100 text-emerald-800",
-                "text-blue-600": "bg-blue-100 text-blue-800",
-                "text-amber-600": "bg-amber-100 text-amber-800",
-                "text-red-600": "bg-red-100 text-red-800",
-              };
+              const badgeStyle = getGradeStyle(item.investmentScore.gradeColor);
               return (
                 <motion.div key={item.bairro.bairro} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.06 }}>
                   <Link to={`/intelligence/bairro/${encodeURIComponent(item.bairro.bairro)}`}>
