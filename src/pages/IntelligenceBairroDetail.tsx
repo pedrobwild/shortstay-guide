@@ -51,6 +51,7 @@ const IntelligenceBairroDetail = () => {
   if (!b) return <div className="min-h-screen bg-background flex items-center justify-center"><p>Bairro não encontrado.</p></div>;
 
   const precoEstudio = Number(b.preco_m2_residencial_medio) * Number(b.area_media_estudio);
+  const monthlyData = generateMonthlyData(Number(b.adr_medio_studio), Number(b.ocupacao_media_studio));
 
   return (
     <div className="min-h-screen bg-background">
