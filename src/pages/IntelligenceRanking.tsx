@@ -108,7 +108,7 @@ const IntelligenceRanking = () => {
           {/* ── "Como entender esta análise" (collapsible) ── */}
           <IndicatorExplainerSection />
 
-          <EducationalBanner message="Compare bairros como um investidor, não como um turista." />
+          <EducationalBanner message="Compare bairros como um investidor, não como um turista." type="insight" />
 
           {/* ── Filters ──────────────────────────────────── */}
           <Card>
