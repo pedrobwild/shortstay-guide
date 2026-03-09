@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   AlertCircle, Gem, Gauge, Scale, ShieldAlert, ArrowUpDown,
-  TrendingUp, AlertTriangle, Lightbulb, BookOpen,
+  TrendingUp, AlertTriangle, Lightbulb, BookOpen, Crown, Activity, Rocket, Zap,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import type { BairroAirbnb } from "@/types/intelligence";
@@ -12,6 +12,9 @@ import {
   type ComparativeNarrative,
 } from "@/lib/storytelling";
 import { PRODUCT } from "@/lib/productFoundation";
+import { getHighlightWinners, getBairroProfile, getAllProfileDefs, type BairroProfileInfo } from "@/lib/intelligenceInsights";
+import { calculateAllScores } from "@/lib/investmentScore";
+import { Link } from "react-router-dom";
 
 const LESSON_ICONS: Record<string, React.ElementType> = {
   AlertCircle, Gem, Gauge, Scale, ShieldAlert, ArrowUpDown,
