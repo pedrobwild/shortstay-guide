@@ -17,7 +17,6 @@ import {
   COLUMN_TOOLTIPS,
   MICROCOPY,
   getBairroProfile,
-  getHighlightWinners,
   getTableHighlights,
 } from "@/lib/intelligenceInsights";
 
