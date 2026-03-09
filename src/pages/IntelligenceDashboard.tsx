@@ -2,7 +2,7 @@ import { useBairrosData, fmtBRL, fmtPct, fmtScore } from "@/hooks/useIntelligenc
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Building2, TrendingUp, BarChart3, Target, ArrowRight, Home } from "lucide-react";
+import { Building2, TrendingUp, BarChart3, Target, ArrowRight, Home, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
 const IntelligenceDashboard = () => {
