@@ -233,6 +233,7 @@ const IntelligenceBairroDetail = () => {
         </motion.div>
 
         {/* ── 5½. True Yield (advanced) ───────────────────── */}
+        <ContextualNote sectionKey="true_yield" />
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <Card className="border-dashed border-primary/20">
             <CardContent className="p-5">
