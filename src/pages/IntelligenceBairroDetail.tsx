@@ -460,6 +460,7 @@ const IntelligenceBairroDetail = () => {
         </motion.div>
 
         {/* ── Detailed metrics ───────────────────────────── */}
+        <ContextualNote sectionKey="before_metrics" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
             <CardHeader><CardTitle className="text-base flex items-center gap-2"><Building2 className="h-4 w-4" /> Volume de Anúncios</CardTitle></CardHeader>
