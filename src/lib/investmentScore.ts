@@ -18,6 +18,41 @@
 
 import type { BairroAirbnb } from "@/types/intelligence";
 
+// ── True Yield ───────────────────────────────────────────────────
+// ADR × Occupancy × 365 / Property Price
+// A more direct estimate of annual return based on actual operating metrics.
+
+export interface TrueYieldResult {
+  trueYield: number;
+  annualRevenue: number;
+  propertyPrice: number;
+  comparison: string;
+  delta: number; // trueYield - yieldBrutoAirbnb
+}
+
+export function calculateTrueYield(b: BairroAirbnb): TrueYieldResult {
+  const adr = Number(b.adr_medio_studio);
+  const occ = Number(b.ocupacao_media_studio);
+  const precoM2 = Number(b.preco_m2_residencial_medio);
+  const area = Number(b.area_media_estudio);
+  const propertyPrice = precoM2 * area;
+  const annualRevenue = adr * occ * 365;
+  const trueYield = propertyPrice > 0 ? annualRevenue / propertyPrice : 0;
+  const yieldBruto = Number(b.yield_bruto_airbnb);
+  const delta = trueYield - yieldBruto;
+
+  let comparison: string;
+  if (Math.abs(delta) < 0.005) {
+    comparison = "O True Yield está alinhado com o Yield Airbnb da plataforma, sugerindo consistência nos dados.";
+  } else if (delta > 0) {
+    comparison = `O True Yield é ${(delta * 100).toFixed(1)}pp acima do Yield Airbnb reportado. Isso pode indicar que o imóvel tem potencial de retorno maior do que o estimado pela plataforma.`;
+  } else {
+    comparison = `O True Yield é ${(Math.abs(delta) * 100).toFixed(1)}pp abaixo do Yield Airbnb reportado. Diferenças em sazonalidade, vacância real ou taxas podem explicar essa diferença.`;
+  }
+
+  return { trueYield, annualRevenue, propertyPrice, comparison, delta };
+}
+
 // ── Pillar definitions ───────────────────────────────────────────
 
 export interface ScorePillar {
