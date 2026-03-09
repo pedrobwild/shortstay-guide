@@ -97,31 +97,10 @@ const IntelligenceRanking = () => {
 
         <main className="container mx-auto px-4 py-6 space-y-6">
 
-          {/* ── Insight Cards ─────────────────────────────────── */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            {highlights.map((h, i) => {
-              const Icon = ICON_MAP[h.icon] || TrendingUp;
-              return (
-                <motion.div key={h.category} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
-                  <Link to={`/intelligence/bairro/${encodeURIComponent(h.bairro)}`}>
-                    <Card className="hover:shadow-md transition-shadow cursor-pointer h-full border-l-4 border-l-primary/30">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <Icon className="h-4 w-4 text-primary" />
-                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{h.category}</span>
-                        </div>
-                        <p className="font-bold text-base">{h.bairro}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{h.value}</p>
-                        <p className="text-xs text-foreground/70 mt-1.5 leading-relaxed">{h.narrative}</p>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                </motion.div>
-              );
-            })}
-          </div>
+          {/* ── "O que esta análise mostra" ──────────────── */}
+          <AnalysisSummarySection bairros={allBairros} />
 
-          {/* ── Comparative narratives (auto-generated from data) ── */}
+          {/* ── Comparative narratives (auto-generated) ─── */}
           <ComparativeNarrativesSection bairros={allBairros} />
 
           {/* ── Strategic Lessons ─────────────────────────────── */}
