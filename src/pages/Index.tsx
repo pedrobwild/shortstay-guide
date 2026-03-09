@@ -127,7 +127,7 @@ const SECTIONS = [
   { id: "antichecklist", label: "Anti-checklist", icon: ShieldCheck },
   { id: "decoracao", label: "Decoração", icon: Palette },
   { id: "projeto", label: "Projeto arquitetônico", icon: Ruler },
-  { id: "tendencias", label: "Tendências 2025", icon: Sparkles },
+  { id: "tendencias", label: "Tendências 2026", icon: Sparkles },
   { id: "casestudy", label: "Case study", icon: BookOpen },
   { id: "checklist", label: "Checklist investidor", icon: CheckSquare },
   { id: "faq", label: "FAQ", icon: HelpCircle },
@@ -1223,42 +1223,323 @@ function ProjetoSection() {
   );
 }
 
-/* ─── 9) Tendências 2025 ─── */
+/* ─── 9) Tendências 2026 ─── */
+
+type TrendDifficulty = "easy" | "medium" | "advanced";
+type TrendImpact = "high" | "medium" | "low";
+
+interface TrendDetails {
+  what: string;
+  how: string[];
+  checklist: string[];
+  expectedImpact: string;
+}
+
+interface TrendItem {
+  id: number;
+  numberLabel: string;
+  title: string;
+  short: string;
+  tags: string[];
+  difficulty: TrendDifficulty;
+  impact: TrendImpact;
+  details: TrendDetails;
+}
+
+const TREND_TAG_ICONS: Record<string, typeof Camera> = {
+  Fotos: Camera,
+  Design: Palette,
+  Operação: FileText,
+  Precificação: DollarSign,
+  "Experiência": Star,
+  Automação: Zap,
+  Escala: BarChart3,
+};
+
+const TREND_TAG_COLORS: Record<string, string> = {
+  Fotos: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
+  Design: "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300",
+  Operação: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+  Precificação: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300",
+  "Experiência": "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300",
+  Automação: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300",
+  Escala: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+};
+
+const TRENDS_2026: TrendItem[] = [
+  { id: 1, numberLabel: "#1", title: "Fotografia profissional estratégica", short: "Fotos profissionais aumentam CTR, conversão e diária.", tags: ["Fotos"], difficulty: "medium", impact: "high", details: { what: "Hosts top investem em fotógrafos especializados em Airbnb.", how: ["Contrate fotógrafo com portfólio de interiores e short stay.", "Fotografe com luz natural e enquadramentos amplos.", "Priorize a foto principal como 'foto de capa'."], checklist: ["Foto de capa forte", "Cozinha/banheiro bem iluminados", "Sequência lógica"], expectedImpact: "+20% a +40% nas reservas." } },
+  { id: 2, numberLabel: "#2", title: "Primeira foto extremamente forte", short: "A primeira imagem define se o usuário clica no anúncio.", tags: ["Fotos"], difficulty: "easy", impact: "high", details: { what: "A imagem de capa é o maior driver de cliques.", how: ["Use iluminação perfeita e enquadramento amplo.", "Inclua um elemento visual marcante.", "Evite fotos escuras ou muito fechadas."], checklist: ["Capa clara e ampla", "Elemento memorável visível"], expectedImpact: "Aumenta CTR e melhora a taxa de reserva." } },
+  { id: 3, numberLabel: "#3", title: "Identidade visual do apartamento", short: "Um conceito único faz o anúncio se destacar.", tags: ["Design"], difficulty: "medium", impact: "high", details: { what: "Hosts profissionais criam um tema consistente.", how: ["Escolha um conceito: industrial, tropical, escandinavo.", "Mantenha paleta de cores consistente.", "Use 1–2 peças 'statement'."], checklist: ["Paleta definida", "Tema aplicado", "Peça marcante"], expectedImpact: "Diferencia o anúncio e aumenta cliques." } },
+  { id: 4, numberLabel: "#4", title: "Self check-in ultra intuitivo", short: "Menos fricção no check-in, mais avaliações.", tags: ["Operação", "Automação"], difficulty: "medium", impact: "high", details: { what: "Além da fechadura digital, a experiência é guiada.", how: ["Crie vídeo de check-in (30–60s).", "Manual visual com fotos e passos curtos."], checklist: ["Fechadura digital + backup", "Vídeo curto", "Manual visual"], expectedImpact: "Reduz perguntas e melhora avaliações." } },
+  { id: 5, numberLabel: "#5", title: "Guia digital personalizado da cidade", short: "Guia local aumenta satisfação e reviews.", tags: ["Experiência"], difficulty: "easy", impact: "medium", details: { what: "Um guia digital melhora a jornada do hóspede.", how: ["Recomende restaurantes, cafés e coworkings.", "Inclua transporte e turismo."], checklist: ["Top 10 lugares", "Mapa/links", "Dicas por perfil"], expectedImpact: "Melhora avaliação e recomendações." } },
+  { id: 6, numberLabel: "#6", title: "Wi-Fi extremamente rápido", short: "Wi-Fi rápido é filtro decisivo para muitos hóspedes.", tags: ["Experiência"], difficulty: "easy", impact: "high", details: { what: "Infra de internet vira diferencial competitivo.", how: ["Instale fibra e roteador premium.", "Use repetidores se necessário."], checklist: ["Fibra ativa", "Roteador bom", "Senha fácil + QR code"], expectedImpact: "Aumenta reservas (trabalho remoto)." } },
+  { id: 7, numberLabel: "#7", title: "Colchão padrão hotel", short: "Sono excelente = mais 5 estrelas.", tags: ["Experiência"], difficulty: "medium", impact: "high", details: { what: "Um dos maiores drivers de avaliação.", how: ["Use queen/king quando possível.", "Pillow top e travesseiros de qualidade."], checklist: ["Colchão premium", "2 tipos de travesseiro", "Protetor impermeável"], expectedImpact: "Aumenta reviews e recorrência." } },
+  { id: 8, numberLabel: "#8", title: "Roupa de cama premium", short: "Sensação de hotel com enxoval superior.", tags: ["Experiência"], difficulty: "medium", impact: "medium", details: { what: "Percepção de valor sobe com enxoval.", how: ["Algodão 300+ fios, duvet, várias almofadas.", "Padronize cores e reposição."], checklist: ["Jogo completo reserva", "Toalhas boas"], expectedImpact: "Melhora nota e permite ADR maior." } },
+  { id: 9, numberLabel: "#9", title: "Cortinas blackout", short: "Sono melhor para hóspedes de qualquer fuso.", tags: ["Experiência"], difficulty: "easy", impact: "medium", details: { what: "Blackout reduz reclamações e melhora conforto.", how: ["Instale trilho e tecido blackout real.", "Evite entrada lateral de luz."], checklist: ["Blackout total", "Vedação lateral"], expectedImpact: "Melhora avaliação de conforto." } },
+  { id: 10, numberLabel: "#10", title: "Iluminação pensada para fotos", short: "Iluminação boa melhora fotos e experiência.", tags: ["Design", "Fotos"], difficulty: "medium", impact: "medium", details: { what: "A luz certa melhora o anúncio e o ambiente.", how: ["Use iluminação indireta e luz quente.", "Inclua luminárias decorativas."], checklist: ["Luz geral + indireta", "Luz de leitura"], expectedImpact: "Fotos mais atrativas." } },
+  { id: 11, numberLabel: "#11", title: "Elemento de design único", short: "Um detalhe memorável aumenta lembrança e cliques.", tags: ["Design"], difficulty: "medium", impact: "medium", details: { what: "Studios de sucesso têm um 'wow factor'.", how: ["Parede artística, cadeira icônica, painel ripado ou luminária escultural."], checklist: ["1 peça wow", "Visível na capa"], expectedImpact: "Diferencia e aumenta CTR." } },
+  { id: 12, numberLabel: "#12", title: "Smart TV com streaming", short: "Streaming é padrão esperado.", tags: ["Experiência"], difficulty: "easy", impact: "medium", details: { what: "TV + streaming reduz atrito e aumenta satisfação.", how: ["Smart TV, YouTube, Chromecast.", "Instruções simples."], checklist: ["Streaming pronto", "Guia rápido"], expectedImpact: "Melhora reviews." } },
+  { id: 13, numberLabel: "#13", title: "Limpeza profissional padronizada", short: "Limpeza consistente = avaliações consistentes.", tags: ["Operação"], difficulty: "medium", impact: "high", details: { what: "Operação profissional exige padrão de hotel.", how: ["Checklist de limpeza e equipe fixa.", "Inspeção por fotos."], checklist: ["Checklist", "Padrão banheiro", "Reposição controlada"], expectedImpact: "Aumenta nota e reduz reclamações." } },
+  { id: 14, numberLabel: "#14", title: "Checklists operacionais", short: "Processos permitem escalar sem perder qualidade.", tags: ["Operação", "Escala"], difficulty: "medium", impact: "high", details: { what: "Empreendedores criam processos replicáveis.", how: ["Check-in checklist, limpeza checklist, reposição checklist."], checklist: ["Processos documentados", "Responsáveis definidos"], expectedImpact: "Escala com menos erro." } },
+  { id: 15, numberLabel: "#15", title: "Preço dinâmico automático", short: "Preço ajustado diariamente maximiza receita.", tags: ["Precificação", "Automação"], difficulty: "medium", impact: "high", details: { what: "Plataformas ajustam preço com base em demanda.", how: ["Use PriceLabs, Beyond ou Wheelhouse.", "Defina piso, teto e regras."], checklist: ["Ferramenta ativa", "Regras por temporada"], expectedImpact: "Maximiza ADR e ocupação." } },
+  { id: 16, numberLabel: "#16", title: "Gestão profissional de calendário", short: "Calendário otimizado captura picos de demanda.", tags: ["Precificação", "Operação"], difficulty: "medium", impact: "medium", details: { what: "Hosts monitoram ocupação, eventos e feriados.", how: ["Antecipe datas-chave e ajuste regras."], checklist: ["Datas de pico mapeadas", "Regras de estadia mínima"], expectedImpact: "Aumenta receita em períodos fortes." } },
+  { id: 17, numberLabel: "#17", title: "Estratégia de estadia mínima", short: "Regras por período melhoram ocupação e eficiência.", tags: ["Precificação"], difficulty: "easy", impact: "medium", details: { what: "Mínimo de noites varia por demanda.", how: ["Fim de semana: mínimo 2 noites.", "Alta temporada: mínimo 3 noites."], checklist: ["Regras por temporada"], expectedImpact: "Menos gaps e melhor ocupação." } },
+  { id: 18, numberLabel: "#18", title: "Automatização de mensagens", short: "Automação reduz trabalho e melhora experiência.", tags: ["Automação", "Operação"], difficulty: "medium", impact: "medium", details: { what: "Mensagens padronizadas e automáticas.", how: ["Pré check-in, guia da casa, pós checkout.", "Use Hospitable ou Guesty."], checklist: ["Templates prontos", "Gatilhos configurados"], expectedImpact: "Menos esforço e menos erro." } },
+  { id: 19, numberLabel: "#19", title: "Reviews estratégicas", short: "Pedir review na hora certa aumenta a taxa de avaliação.", tags: ["Operação"], difficulty: "easy", impact: "medium", details: { what: "Mensagem pós checkout pedindo avaliação.", how: ["Automatize a solicitação e seja cordial."], checklist: ["Mensagem automática"], expectedImpact: "Mais avaliações 5 estrelas." } },
+  { id: 20, numberLabel: "#20", title: "Portfólio de unidades", short: "Hosts +100k escalam com padrão replicável.", tags: ["Escala"], difficulty: "advanced", impact: "high", details: { what: "Receita alta vem de escala e padronização.", how: ["Replicar operação e padrão em 3 a 10 unidades."], checklist: ["Padrão replicável", "Equipe e processos"], expectedImpact: "Transforma o Airbnb em negócio recorrente." } },
+];
+
+const TREND_ALL_TAGS = ["Fotos", "Design", "Operação", "Precificação", "Experiência", "Automação", "Escala"];
+
+const TREND_IMPACT_ORDER: Record<TrendImpact, number> = { high: 0, medium: 1, low: 2 };
+const TREND_DIFF_ORDER: Record<TrendDifficulty, number> = { easy: 0, medium: 1, advanced: 2 };
+const trendDiffLabel: Record<TrendDifficulty, string> = { easy: "Fácil", medium: "Médio", advanced: "Avançado" };
+const trendDiffColor: Record<TrendDifficulty, string> = {
+  easy: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
+  medium: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+  advanced: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
+};
+const trendImpactLabel: Record<TrendImpact, string> = { high: "Alto impacto", medium: "Médio impacto", low: "Baixo impacto" };
+const trendImpactColor: Record<TrendImpact, string> = {
+  high: "bg-primary/10 text-primary",
+  medium: "bg-accent/10 text-accent-foreground",
+  low: "bg-muted text-muted-foreground",
+};
+
+type TrendSortMode = "impact" | "easy" | "pro";
+
+function TrendCardInline({ trend, onOpen, index }: { trend: TrendItem; onOpen: () => void; index: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30, scale: 0.92 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.45, delay: index * 0.04, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -6, transition: { duration: 0.25 } }}
+    >
+      <Card className="border-border bg-card h-full hover:shadow-xl hover:border-primary/40 transition-all duration-300 group cursor-pointer overflow-hidden" onClick={onOpen}>
+        <CardContent className="p-5 flex flex-col h-full relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/0 group-hover:from-primary/[0.03] group-hover:to-accent/[0.06] transition-all duration-500 pointer-events-none" />
+          <div className="relative z-10 flex flex-col h-full">
+            <div className="flex items-center justify-between mb-3">
+              <Badge variant="secondary" className="font-mono text-xs font-bold">{trend.numberLabel}</Badge>
+              <div className="flex gap-1.5">
+                <Badge className={`text-[10px] px-1.5 py-0 ${trendDiffColor[trend.difficulty]}`}>{trendDiffLabel[trend.difficulty]}</Badge>
+                <Badge className={`text-[10px] px-1.5 py-0 ${trendImpactColor[trend.impact]}`}>{trendImpactLabel[trend.impact]}</Badge>
+              </div>
+            </div>
+            <h3 className="font-display text-base font-bold text-foreground mb-2 leading-snug group-hover:text-primary transition-colors duration-300">{trend.title}</h3>
+            <p className="text-sm text-muted-foreground font-body mb-4 flex-1">{trend.short}</p>
+            <div className="flex flex-wrap gap-1.5 mb-4">
+              {trend.tags.map((tag) => {
+                const TagIcon = TREND_TAG_ICONS[tag] || Star;
+                return (
+                  <span key={tag} className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${TREND_TAG_COLORS[tag] || "bg-muted text-muted-foreground"}`}>
+                    <TagIcon size={10} />
+                    {tag}
+                  </span>
+                );
+              })}
+            </div>
+            <Button size="sm" variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+              Ver detalhes
+              <ChevronRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform duration-300" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
+function TrendDetailDialog({ trend, open, onClose }: { trend: TrendItem | null; open: boolean; onClose: () => void }) {
+  if (!trend) return null;
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <div className="flex items-center gap-2 mb-1">
+            <Badge variant="secondary" className="font-mono text-xs font-bold">{trend.numberLabel}</Badge>
+            <Badge className={`text-[10px] px-1.5 py-0 ${trendImpactColor[trend.impact]}`}>{trendImpactLabel[trend.impact]}</Badge>
+          </div>
+          <DialogTitle className="font-display text-xl">{trend.title}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-5 mt-2">
+          <div>
+            <h4 className="text-sm font-semibold text-foreground font-body flex items-center gap-2 mb-2">
+              <Eye size={14} className="text-primary" /> O que é
+            </h4>
+            <p className="text-sm text-muted-foreground">{trend.details.what}</p>
+          </div>
+          <div>
+            <h4 className="text-sm font-semibold text-foreground font-body flex items-center gap-2 mb-2">
+              <Wrench size={14} className="text-primary" /> Como aplicar
+            </h4>
+            <ul className="space-y-1.5">
+              {trend.details.how.map((step, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <span className="text-primary font-bold text-xs mt-0.5">{i + 1}.</span>
+                  {step}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-sm font-semibold text-foreground font-body flex items-center gap-2 mb-2">
+              <Check size={14} className="text-primary" /> Checklist rápido
+            </h4>
+            <ul className="space-y-1">
+              {trend.details.checklist.map((item, i) => (
+                <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Check size={12} className="text-emerald-500 flex-shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="bg-primary/5 rounded-lg p-4">
+            <h4 className="text-sm font-semibold text-foreground font-body flex items-center gap-2 mb-1">
+              <BarChart3 size={14} className="text-primary" /> Impacto esperado
+            </h4>
+            <p className="text-sm text-muted-foreground">{trend.details.expectedImpact}</p>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {trend.tags.map((tag) => {
+              const TagIcon = TREND_TAG_ICONS[tag] || Star;
+              return (
+                <span key={tag} className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full ${TREND_TAG_COLORS[tag] || "bg-muted text-muted-foreground"}`}>
+                  <TagIcon size={12} />
+                  {tag}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function TendenciasSection() {
-  const trends = [
-    "Check-in autônomo",
-    "Design biofílico",
-    "Smart pricing com IA",
-    "Studios pet-friendly",
-    "Experiências locais",
-  ];
+  const [search, setSearch] = useState("");
+  const [activeTags, setActiveTags] = useState<string[]>([]);
+  const [sort, setSort] = useState<TrendSortMode>("impact");
+  const [selectedTrend, setSelectedTrend] = useState<TrendItem | null>(null);
+
+  const toggleTag = (tag: string) => {
+    setActiveTags((prev) => prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]);
+  };
+
+  const filtered = useMemo(() => {
+    let list = [...TRENDS_2026];
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter((t) => t.title.toLowerCase().includes(q) || t.short.toLowerCase().includes(q) || t.tags.some((tag) => tag.toLowerCase().includes(q)));
+    }
+    if (activeTags.length > 0) {
+      list = list.filter((t) => t.tags.some((tag) => activeTags.includes(tag)));
+    }
+    if (sort === "impact") {
+      list.sort((a, b) => TREND_IMPACT_ORDER[a.impact] - TREND_IMPACT_ORDER[b.impact]);
+    } else if (sort === "easy") {
+      list.sort((a, b) => TREND_DIFF_ORDER[a.difficulty] - TREND_DIFF_ORDER[b.difficulty]);
+    }
+    return list;
+  }, [search, activeTags, sort]);
 
   return (
     <SectionBlock
       id="tendencias"
-      title="Tendências 2025"
-      takeaway="O que os hosts mais rentáveis estão fazendo agora."
+      title="Tendências Premium 2026"
+      takeaway="Práticas que os hosts mais rentáveis usam para aumentar ocupação, diária e avaliações."
     >
-      {/* TODO: Replace with real carousel */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 pb-4">
-        {trends.map((t, i) => (
-          <Card
-            key={t}
-            className="border-border"
-          >
-            <CardContent className="p-6">
-              <Badge variant="secondary" className="mb-3 font-body">
-                #{i + 1}
-              </Badge>
-              <p className="font-display font-semibold text-foreground">{t}</p>
-              <p className="text-sm text-muted-foreground font-body mt-1">
-                Detalhes em breve.
-              </p>
+      {/* KPI Highlights */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        {[
+          { icon: MousePointerClick, label: "Mais cliques (CTR)" },
+          { icon: CalendarCheck, label: "Maior taxa de reserva" },
+          { icon: DollarSign, label: "Maior diária média" },
+          { icon: Trophy, label: "Melhores avaliações" },
+        ].map((kpi) => (
+          <Card key={kpi.label} className="border-border bg-card hover:shadow-md transition-shadow">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <kpi.icon className="text-primary" size={20} />
+              </div>
+              <p className="text-sm font-medium text-foreground font-body">{kpi.label}</p>
             </CardContent>
           </Card>
         ))}
       </div>
-      <PlaceholderAccordion label="Tendências 2025" />
+
+      {/* Filters + Search */}
+      <div className="mb-6 space-y-4">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Sparkles size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Buscar tendência…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <div className="flex gap-2">
+            {(["impact", "easy", "pro"] as TrendSortMode[]).map((s) => {
+              const labels: Record<TrendSortMode, string> = { impact: "Mais impacto", easy: "Mais fácil", pro: "Mais usado" };
+              return (
+                <Button key={s} size="sm" variant={sort === s ? "default" : "outline"} onClick={() => setSort(s)}
+                  className={sort === s ? "bg-primary text-primary-foreground" : ""}>
+                  {labels[s]}
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {TREND_ALL_TAGS.map((tag) => {
+            const active = activeTags.includes(tag);
+            const TagIcon = TREND_TAG_ICONS[tag] || Star;
+            return (
+              <button
+                key={tag}
+                onClick={() => toggleTag(tag)}
+                className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all ${
+                  active
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-muted-foreground border-border hover:border-primary/40"
+                }`}
+              >
+                <TagIcon size={12} />
+                {tag}
+              </button>
+            );
+          })}
+          {activeTags.length > 0 && (
+            <button onClick={() => setActiveTags([])} className="text-xs text-muted-foreground hover:text-foreground underline ml-1">
+              Limpar filtros
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Grid */}
+      <p className="text-sm text-muted-foreground mb-4 font-body">{filtered.length} tendência{filtered.length !== 1 ? "s" : ""} encontrada{filtered.length !== 1 ? "s" : ""}</p>
+      <AnimatePresence mode="popLayout">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {filtered.map((t, i) => (
+            <TrendCardInline key={t.id} trend={t} index={i} onOpen={() => setSelectedTrend(t)} />
+          ))}
+        </div>
+      </AnimatePresence>
+      {filtered.length === 0 && (
+        <div className="text-center py-16 text-muted-foreground">
+          <Sparkles size={32} className="mx-auto mb-3 opacity-40" />
+          <p className="font-body">Nenhuma tendência encontrada com esses filtros.</p>
+        </div>
+      )}
+
+      <TrendDetailDialog trend={selectedTrend} open={!!selectedTrend} onClose={() => setSelectedTrend(null)} />
     </SectionBlock>
   );
 }
