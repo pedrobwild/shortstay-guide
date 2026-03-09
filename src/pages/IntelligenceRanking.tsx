@@ -49,7 +49,7 @@ const HeaderTooltip = ({ colKey }: { colKey: string }) => {
 
 const IntelligenceRanking = () => {
   const { data: bairros, isLoading } = useBairrosData();
-  const [sortKey, setSortKey] = useState<SortKey>("score_rentabilidade");
+  const [sortKey, setSortKey] = useState<SortKey>("investment_score");
   const [filterConf, setFilterConf] = useState<string>("todos");
 
   if (isLoading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Carregando…</div></div>;
