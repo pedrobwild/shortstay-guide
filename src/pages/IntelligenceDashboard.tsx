@@ -165,6 +165,9 @@ const IntelligenceDashboard = () => {
           </CardContent>
         </Card>
 
+        {/* ── Didactic explainer ────────────────────── */}
+        <IndicatorExplainerSection compact />
+
         {/* ── Education block ────────────────────────── */}
         <Card className="bg-muted/30 border-dashed">
           <CardHeader className="pb-2">
