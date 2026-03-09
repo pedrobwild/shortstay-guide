@@ -158,6 +158,7 @@ const IntelligenceBairroDetail = () => {
         </motion.div>
 
         {/* ── 2. Investment Score explicado ───────────────── */}
+        <ContextualNote sectionKey="score_intro" />
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
           <Card>
             <CardContent className="p-5">
