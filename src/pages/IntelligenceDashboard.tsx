@@ -1,10 +1,12 @@
 import { useBairrosData, fmtBRL, fmtPct, fmtScore } from "@/hooks/useIntelligenceData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Building2, TrendingUp, BarChart3, Target, ArrowRight, Home, ArrowLeft, Scale, Crown, Rocket, Activity } from "lucide-react";
 import { motion } from "framer-motion";
 import { getHighlightWinners } from "@/lib/intelligenceInsights";
+import { calculateAllScores } from "@/lib/investmentScore";
 import IndicatorExplainerSection from "@/components/intelligence/IndicatorExplainerSection";
 import { ComparativeNarrativesSection, StrategicLessonsSection, EducationalBanner } from "@/components/intelligence/StorytellingComponents";
 
