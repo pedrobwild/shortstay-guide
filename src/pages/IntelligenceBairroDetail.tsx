@@ -323,6 +323,7 @@ const IntelligenceBairroDetail = () => {
         </motion.div>
 
         {/* ── Charts ─────────────────────────────────────── */}
+        <ContextualNote sectionKey="before_charts" />
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Radar */}
           <Card>
