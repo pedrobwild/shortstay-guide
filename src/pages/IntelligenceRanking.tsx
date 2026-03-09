@@ -7,12 +7,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Download, Info, Scale, Crown, Rocket, Activity, TrendingUp, Lightbulb, HelpCircle, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, Download, Scale, Crown, Rocket, Activity, TrendingUp, Lightbulb, HelpCircle } from "lucide-react";
+import { motion } from "framer-motion";
 import type { BairroAirbnb } from "@/types/intelligence";
+import IndicatorExplainerSection from "@/components/intelligence/IndicatorExplainerSection";
 import {
   COLUMN_TOOLTIPS,
-  INDICATOR_EXPLAINERS,
   EDUCATION_MESSAGES,
   MICROCOPY,
   getBairroProfile,
@@ -51,7 +51,6 @@ const IntelligenceRanking = () => {
   const { data: bairros, isLoading } = useBairrosData();
   const [sortKey, setSortKey] = useState<SortKey>("score_rentabilidade");
   const [filterConf, setFilterConf] = useState<string>("todos");
-  const [showExplainer, setShowExplainer] = useState(false);
 
   if (isLoading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Carregando…</div></div>;
 
@@ -146,39 +145,7 @@ const IntelligenceRanking = () => {
           </motion.div>
 
           {/* ── "Como entender esta análise" (collapsible) ── */}
-          <Card>
-            <CardHeader className="cursor-pointer pb-2" onClick={() => setShowExplainer(!showExplainer)}>
-              <CardTitle className="text-base flex items-center justify-between">
-                <span className="flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-primary" />
-                  Como entender esta análise
-                </span>
-                {showExplainer ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              </CardTitle>
-              <p className="text-xs text-muted-foreground">Clique para ver o significado de cada indicador</p>
-            </CardHeader>
-            <AnimatePresence>
-              {showExplainer && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }}>
-                  <CardContent className="pt-0">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                      {INDICATOR_EXPLAINERS.map((ind) => (
-                        <div key={ind.key} className="border border-border/60 rounded-lg p-3 space-y-1.5">
-                          <p className="text-xs font-bold uppercase tracking-wide text-primary">{ind.title}</p>
-                          <p className="text-sm font-semibold">{ind.friendlyTitle}</p>
-                          <p className="text-xs text-muted-foreground leading-relaxed">{ind.explanation}</p>
-                          <div className="bg-muted/40 rounded p-2 mt-1">
-                            <p className="text-[11px] text-muted-foreground italic">💡 {ind.example}</p>
-                          </div>
-                          <p className="text-xs font-medium text-foreground/80 pt-1">→ {ind.keyMessage}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </Card>
+          <IndicatorExplainerSection />
 
           {/* ── Microcopy banner ──────────────────────────── */}
           <div className="text-center py-2">

@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Building2, TrendingUp, BarChart3, Target, ArrowRight, Home, ArrowLeft, Lightbulb, Scale, Crown, Rocket, Activity } from "lucide-react";
 import { motion } from "framer-motion";
 import { getHighlightWinners, generateNarrativeInsights, EDUCATION_MESSAGES } from "@/lib/intelligenceInsights";
+import IndicatorExplainerSection from "@/components/intelligence/IndicatorExplainerSection";
 
 const ICON_MAP: Record<string, any> = { Scale, Crown, Rocket, Activity, TrendingUp };
 
@@ -163,6 +164,9 @@ const IntelligenceDashboard = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* ── Didactic explainer ────────────────────── */}
+        <IndicatorExplainerSection compact />
 
         {/* ── Education block ────────────────────────── */}
         <Card className="bg-muted/30 border-dashed">
