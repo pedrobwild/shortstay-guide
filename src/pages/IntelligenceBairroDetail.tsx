@@ -19,7 +19,7 @@ import {
 } from "@/lib/intelligenceInsights";
 import { buildBairroStoryBlocks } from "@/lib/storytelling";
 import { calculateInvestmentScore, calculateTrueYield } from "@/lib/investmentScore";
-import { BairroStoryCard, EducationalBanner } from "@/components/intelligence/StorytellingComponents";
+import { BairroStoryCard, EducationalBanner, ContextualNote } from "@/components/intelligence/StorytellingComponents";
 import { InvestmentScoreHero } from "@/components/intelligence/InvestmentScoreComponents";
 
 const MONTH_LABELS = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
@@ -158,6 +158,7 @@ const IntelligenceBairroDetail = () => {
         </motion.div>
 
         {/* ── 2. Investment Score explicado ───────────────── */}
+        <ContextualNote sectionKey="score_intro" />
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
           <Card>
             <CardContent className="p-5">
@@ -205,6 +206,7 @@ const IntelligenceBairroDetail = () => {
         </div>
 
         {/* ── 5. Short stay vs aluguel ────────────────────── */}
+        <ContextualNote sectionKey="yield_comparison" />
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
           <Card>
             <CardContent className="p-5">
@@ -231,6 +233,7 @@ const IntelligenceBairroDetail = () => {
         </motion.div>
 
         {/* ── 5½. True Yield (advanced) ───────────────────── */}
+        <ContextualNote sectionKey="true_yield" />
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <Card className="border-dashed border-primary/20">
             <CardContent className="p-5">
@@ -277,6 +280,7 @@ const IntelligenceBairroDetail = () => {
         </motion.div>
 
         {/* ── 6. Para quem faz sentido ───────────────────── */}
+        <ContextualNote sectionKey="investor_match" />
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}>
           <Card>
             <CardContent className="p-5">
@@ -309,7 +313,7 @@ const IntelligenceBairroDetail = () => {
           </motion.div>
         )}
 
-        <EducationalBanner message="Use os scores como leitura estratégica, não como verdade absoluta." />
+        <EducationalBanner message="Use os scores como leitura estratégica, não como verdade absoluta." type="caution" />
 
         {/* ── Scores cards ────────────────────────────────── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -319,6 +323,7 @@ const IntelligenceBairroDetail = () => {
         </motion.div>
 
         {/* ── Charts ─────────────────────────────────────── */}
+        <ContextualNote sectionKey="before_charts" />
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Radar */}
           <Card>
@@ -455,6 +460,7 @@ const IntelligenceBairroDetail = () => {
         </motion.div>
 
         {/* ── Detailed metrics ───────────────────────────── */}
+        <ContextualNote sectionKey="before_metrics" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
             <CardHeader><CardTitle className="text-base flex items-center gap-2"><Building2 className="h-4 w-4" /> Volume de Anúncios</CardTitle></CardHeader>

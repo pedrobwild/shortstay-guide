@@ -11,7 +11,7 @@ import { ArrowLeft, Download, TrendingUp, HelpCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import type { BairroAirbnb } from "@/types/intelligence";
 import IndicatorExplainerSection from "@/components/intelligence/IndicatorExplainerSection";
-import { ComparativeNarrativesSection, StrategicLessonsSection, EducationalBanner, AnalysisSummarySection } from "@/components/intelligence/StorytellingComponents";
+import { ComparativeNarrativesSection, StrategicLessonsSection, EducationalBanner, ContextualNote, AnalysisSummarySection } from "@/components/intelligence/StorytellingComponents";
 import { calculateInvestmentScore } from "@/lib/investmentScore";
 import {
   COLUMN_TOOLTIPS,
@@ -108,7 +108,7 @@ const IntelligenceRanking = () => {
           {/* ── "Como entender esta análise" (collapsible) ── */}
           <IndicatorExplainerSection />
 
-          <EducationalBanner message="Compare bairros como um investidor, não como um turista." />
+          <EducationalBanner message="Compare bairros como um investidor, não como um turista." type="insight" />
 
           {/* ── Filters ──────────────────────────────────── */}
           <Card>
@@ -145,7 +145,7 @@ const IntelligenceRanking = () => {
             </CardContent>
           </Card>
 
-          <EducationalBanner message="Preço alto por noite nem sempre significa melhor negócio." />
+          <ContextualNote sectionKey="before_table" />
 
           {/* ── Table ─────────────────────────────────────── */}
           <Card>

@@ -441,7 +441,25 @@ export const MICROCOPY = [
   "Use os scores como leitura estratégica, não como verdade absoluta.",
   "Confiança alta significa leitura mais consistente.",
   "Delta yield mostra quando o Airbnb supera o aluguel tradicional.",
+  "Investment Score resume retorno, demanda, operação e futuro.",
+  "Bairros baratos podem render mais do que bairros famosos.",
+  "Liquidez baixa pode transformar um bom retorno num investimento difícil.",
+  "O melhor bairro para investir depende do seu perfil, não da fama do bairro.",
+  "Rentabilidade alta com dados de baixa confiança exige cautela redobrada.",
 ];
+
+// ── Contextual microcopy by section ─────────────────────────────
+export const SECTION_MICROCOPY: Record<string, { message: string; type: "insight" | "caution" | "opportunity" }> = {
+  before_table: { message: "A tabela abaixo ordena bairros pelo Investment Score — uma combinação ponderada de retorno, demanda, operação e futuro.", type: "insight" },
+  after_table: { message: "Números altos chamam atenção, mas o contexto é o que transforma dado em decisão.", type: "caution" },
+  before_charts: { message: "Os gráficos abaixo detalham o comportamento do bairro ao longo do tempo. Sazonalidade e tendência importam tanto quanto a média.", type: "insight" },
+  before_metrics: { message: "Esses são os dados brutos que alimentam os scores. Use-os para validar a leitura ou aprofundar sua análise.", type: "insight" },
+  score_intro: { message: "O Investment Score não é uma recomendação de compra — é uma leitura comparativa que indica quais bairros parecem mais equilibrados para short stay.", type: "caution" },
+  yield_comparison: { message: "Airbnb pode render mais que aluguel tradicional, mas exige gestão ativa. O delta yield mostra a diferença, não a garantia.", type: "caution" },
+  true_yield: { message: "O True Yield é uma conta direta, sem ajustes. Serve como referência rápida — não como projeção financeira.", type: "insight" },
+  profile_intro: { message: "Cada bairro tem um perfil que ajuda a entender para quem ele faz sentido, independente de ser o 'melhor' da tabela.", type: "opportunity" },
+  investor_match: { message: "Não existe bairro perfeito — existe o bairro certo para o seu perfil de investidor.", type: "opportunity" },
+};
 
 // ── Key education messages ───────────────────────────────────────
 export const EDUCATION_MESSAGES = [

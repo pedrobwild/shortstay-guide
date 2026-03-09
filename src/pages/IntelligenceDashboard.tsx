@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { getHighlightWinners } from "@/lib/intelligenceInsights";
 import { calculateAllScores } from "@/lib/investmentScore";
 import IndicatorExplainerSection from "@/components/intelligence/IndicatorExplainerSection";
-import { ComparativeNarrativesSection, StrategicLessonsSection, EducationalBanner } from "@/components/intelligence/StorytellingComponents";
+import { ComparativeNarrativesSection, StrategicLessonsSection, EducationalBanner, ContextualNote } from "@/components/intelligence/StorytellingComponents";
 
 const ICON_MAP: Record<string, any> = { Scale, Crown, Rocket, Activity, TrendingUp };
 
@@ -114,7 +114,7 @@ const IntelligenceDashboard = () => {
           })}
         </div>
 
-        <EducationalBanner message="O melhor investimento está no equilíbrio, não apenas na diária." />
+        <ContextualNote sectionKey="profile_intro" />
 
         {/* Top 5 by Investment Score */}
         <Card>
