@@ -14,6 +14,7 @@ import {
 import { PRODUCT } from "@/lib/productFoundation";
 import { getHighlightWinners, getBairroProfile, getAllProfileDefs, type BairroProfileInfo, SECTION_MICROCOPY } from "@/lib/intelligenceInsights";
 import { calculateAllScores } from "@/lib/investmentScore";
+import { getGradeStyle } from "@/lib/uiHelpers";
 import { Link } from "react-router-dom";
 
 const LESSON_ICONS: Record<string, React.ElementType> = {
