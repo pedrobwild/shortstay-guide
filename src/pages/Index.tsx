@@ -120,6 +120,7 @@ const fmt = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 0 
 const SECTIONS = [
   { id: "hero", label: "Início", icon: Home },
   { id: "mapa-bairros", label: "Mapa de Bairros", icon: MapPin },
+  { id: "intelligence", label: "Short Stay Intelligence", icon: BarChart3, href: "/intelligence" },
   { id: "reservas", label: "O que move reservas", icon: TrendingUp },
   { id: "mercado", label: "Mercado SP", icon: BarChart3 },
   { id: "simulador", label: "Simulador", icon: Calculator },
