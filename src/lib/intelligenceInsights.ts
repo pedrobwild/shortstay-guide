@@ -12,6 +12,7 @@ export const COLUMN_TOOLTIPS: Record<string, { friendly: string; tip: string }> 
   liquidez: { friendly: "Facilidade de operar", tip: "Quanto o bairro tem de demanda, reservas e velocidade comercial." },
   crescimento: { friendly: "Potencial futuro", tip: "Sinais de valorização e expansão futura da demanda." },
   confianca: { friendly: "Qualidade dos dados", tip: "Alto = leitura consistente · Médio = útil, com incerteza · Baixo = exploratória." },
+  true_yield: { friendly: "True Yield", tip: "Retorno bruto direto: ADR × Ocupação × 365 ÷ Preço do imóvel. Estimativa simplificada sem custos operacionais." },
 };
 
 // ── Indicator explainer cards (for the didactic section) ────────
