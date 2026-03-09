@@ -114,7 +114,7 @@ const IntelligenceDashboard = () => {
           })}
         </div>
 
-        <EducationalBanner message="O melhor investimento está no equilíbrio, não apenas na diária." />
+        <ContextualNote sectionKey="profile_intro" />
 
         {/* Top 5 by Investment Score */}
         <Card>
