@@ -56,6 +56,23 @@ const MetricRow = ({ label, value }: { label: string; value: string }) => (
   </div>
 );
 
+const SectionHeader = ({ number, title, subtitle, icon: Icon }: { number: string; title: string; subtitle: string; icon: any }) => (
+  <div className="flex items-start gap-3 mb-4">
+    <div className="flex items-center justify-center h-7 w-7 rounded-full bg-primary/10 text-primary text-xs font-bold shrink-0 mt-0.5">{number}</div>
+    <div className="flex-1">
+      <div className="flex items-center gap-2">
+        <Icon className="h-4 w-4 text-primary" />
+        <h2 className="text-base font-semibold">{title}</h2>
+      </div>
+      <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
+    </div>
+  </div>
+);
+
+const PROFILE_ICONS: Record<string, React.ElementType> = {
+  Scale, Crown, CalendarCheck, TrendingUp, AlertTriangle, Sprout,
+};
+
 const IntelligenceBairroDetail = () => {
   const { bairro } = useParams<{ bairro: string }>();
   const { data: b, isLoading } = useBairroDetail(decodeURIComponent(bairro || ""));
