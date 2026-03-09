@@ -313,7 +313,7 @@ const IntelligenceBairroDetail = () => {
           </motion.div>
         )}
 
-        <EducationalBanner message="Use os scores como leitura estratégica, não como verdade absoluta." />
+        <EducationalBanner message="Use os scores como leitura estratégica, não como verdade absoluta." type="caution" />
 
         {/* ── Scores cards ────────────────────────────────── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
