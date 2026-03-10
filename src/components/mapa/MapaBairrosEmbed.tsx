@@ -302,9 +302,15 @@ function InteractiveMap({
 
         {hoveredN && (
           <Popup longitude={hoveredN.centerLng} latitude={hoveredN.centerLat} offset={16} closeButton={false} closeOnClick={false} anchor="bottom">
-            <div className="text-[11px] font-bold">{hoveredN.name}</div>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="text-[12px] font-bold">{hoveredN.name}</div>
+              <div className={`px-1.5 py-0.5 rounded text-[9px] font-bold text-white ${hoveredN.score >= 88 ? "bg-emerald-500" : hoveredN.score >= 84 ? "bg-amber-500" : "bg-gray-400"}`}>
+                Score {hoveredN.score}
+              </div>
+            </div>
             <div className="text-[10px] text-muted-foreground">R${hoveredN.avgNightly}/noite · {hoveredN.avgOccupancy}% ocup.</div>
-            <div className="text-[10px] text-muted-foreground">~{fmt(hoveredN.metrics.activeListings)} studios no Airbnb</div>
+            <div className="text-[10px] text-muted-foreground">ROI est. {hoveredN.metrics.estimatedROI}% · ~{fmt(hoveredN.metrics.activeListings)} studios</div>
+            <div className="text-[9px] text-muted-foreground/60 mt-1">Clique para selecionar</div>
           </Popup>
         )}
 
