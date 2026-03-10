@@ -186,6 +186,11 @@ function InteractiveMap({
   const [hoveredN, setHoveredN] = useState<Neighborhood | null>(null);
   const [hoveredPoly, setHoveredPoly] = useState<{ name: string; roi: number; rate: number; occ: number; rev: number; lng: number; lat: number } | null>(null);
   const [hoveredStation, setHoveredStation] = useState<{ name: string; line: string; lng: number; lat: number } | null>(null);
+  const [poisData, setPoisData] = useState<GeoJSON.FeatureCollection | null>(null);
+
+  useEffect(() => {
+    fetch("/geo/pois.geojson").then(r => r.json()).then(setPoisData).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!mapRef.current || !selected) return;
@@ -378,48 +383,48 @@ function InteractiveMap({
           </Source>
         )}
 
-        {/* POIs */}
-        {showPOIs.length > 0 && (
-          <Source id="pois-source" type="geojson" data="/geo/pois.geojson">
-            {showPOIs.map((cat) => (
-              <Layer
-                key={`poi-${cat}`}
-                id={`poi-${cat}`}
-                type="circle"
-                filter={["==", ["get", "category"], cat]}
-                paint={{
-                  "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 4, 14, 8, 16, 12],
-                  "circle-color": POI_COLORS[cat] || "#888",
-                  "circle-opacity": 0.85,
-                  "circle-stroke-color": "#fff",
-                  "circle-stroke-width": 1.5,
-                }}
-              />
-            ))}
-            {showPOIs.map((cat) => (
-              <Layer
-                key={`poi-label-${cat}`}
-                id={`poi-label-${cat}`}
-                type="symbol"
-                filter={["==", ["get", "category"], cat]}
-                minzoom={13}
-                layout={{
-                  "text-field": ["get", "name"],
-                  "text-size": 10,
-                  "text-offset": [0, 1.4],
-                  "text-anchor": "top",
-                  "text-optional": true,
-                  "text-max-width": 12,
-                }}
-                paint={{
-                  "text-color": POI_COLORS[cat] || "#555",
-                  "text-halo-color": "#fff",
-                  "text-halo-width": 1.5,
-                }}
-              />
-            ))}
-          </Source>
-        )}
+        {/* POIs — Source always mounted with inline data */}
+        {poisData && <Source id="pois-source" type="geojson" data={poisData}>
+          {(["restaurant", "corporate", "tourist", "events", "metro"] as POICategoryKey[]).map((cat) => (
+            <Layer
+              key={`poi-${cat}`}
+              id={`poi-${cat}`}
+              type="circle"
+              filter={["==", ["get", "category"], cat]}
+              layout={{ "visibility": showPOIs.includes(cat) ? "visible" : "none" }}
+              paint={{
+                "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 5, 14, 10, 16, 14],
+                "circle-color": POI_COLORS[cat] || "#888",
+                "circle-opacity": 0.9,
+                "circle-stroke-color": "#fff",
+                "circle-stroke-width": 2,
+              }}
+            />
+          ))}
+          {(["restaurant", "corporate", "tourist", "events", "metro"] as POICategoryKey[]).map((cat) => (
+            <Layer
+              key={`poi-label-${cat}`}
+              id={`poi-label-${cat}`}
+              type="symbol"
+              filter={["==", ["get", "category"], cat]}
+              minzoom={13}
+              layout={{
+                "visibility": showPOIs.includes(cat) ? "visible" : "none",
+                "text-field": ["get", "name"],
+                "text-size": 11,
+                "text-offset": [0, 1.4],
+                "text-anchor": "top",
+                "text-optional": true,
+                "text-max-width": 12,
+              }}
+              paint={{
+                "text-color": POI_COLORS[cat] || "#555",
+                "text-halo-color": "#fff",
+                "text-halo-width": 1.5,
+              }}
+            />
+          ))}
+        </Source>}
       </ReactMap>
 
       {/* Legend */}
@@ -464,52 +469,46 @@ function InteractiveMap({
 
 /* ─── Events Timeline ─── */
 function EventsTimeline({ events, onEventClick, activeEventId }: { events: CityEvent[]; onEventClick: (e: CityEvent) => void; activeEventId: number | null }) {
-  const sorted = useMemo(() => [...events].sort((a, b) => a.startDate.localeCompare(b.startDate)), [events]);
   return (
-    <div className="overflow-x-auto pb-4">
-      <div className="flex gap-4 min-w-max">
-        {sorted.map((ev, i) => {
-          const Icon = EVENT_ICONS[ev.category] || Calendar;
-          const impact = IMPACT_STYLES[ev.impactLevel];
-          const isActive = activeEventId === ev.id;
-          const start = new Date(ev.startDate);
-          const end = new Date(ev.endDate);
-          const fmtDate = (d: Date) => d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
-          return (
-            <motion.div key={ev.id} initial={{ opacity: 0, y: 20, scale: 0.92 }} animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: i * 0.06, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-              whileHover={{ y: -6, scale: 1.03, transition: { duration: 0.2 } }} whileTap={{ scale: 0.97 }}>
-              <Card onClick={() => onEventClick(ev)}
-                className={`w-56 cursor-pointer transition-all duration-300 overflow-hidden relative group ${
-                  isActive ? "ring-2 ring-primary border-primary shadow-lg shadow-primary/10" : "border-border hover:shadow-lg hover:border-primary/30"
-                }`}>
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <CardContent className="p-4 relative">
-                  <div className="flex items-center gap-2 mb-2">
-                    <motion.div className={`h-7 w-7 rounded-md flex items-center justify-center ${impact.bg}`}
-                      whileHover={{ rotate: [0, -10, 10, 0] }} transition={{ duration: 0.4 }}>
-                      <Icon size={14} className={impact.text} />
-                    </motion.div>
-                    <Badge className={`text-[9px] px-1.5 py-0 ${impact.bg} ${impact.text}`}>{impact.label}</Badge>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      {events.map((event, i) => {
+        const Icon = EVENT_ICONS[event.category as keyof typeof EVENT_ICONS] || Calendar;
+        const style = IMPACT_STYLES[event.impactLevel] || IMPACT_STYLES.low;
+        const isActive = activeEventId === event.id;
+        return (
+          <motion.div key={event.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ y: -3, scale: 1.01 }} whileTap={{ scale: 0.98 }}>
+            <Card onClick={() => onEventClick(event)}
+              className={`cursor-pointer transition-all duration-200 ${isActive ? "ring-2 ring-primary border-primary shadow-md" : "border-border hover:shadow-md hover:border-primary/30"}`}>
+              <CardContent className="p-3">
+                <div className="flex items-start gap-2.5">
+                  <div className={`p-1.5 rounded-lg ${style.bg}`}><Icon size={14} className={style.text} /></div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <h4 className="text-xs font-bold font-display text-foreground truncate">{event.name}</h4>
+                      <Badge className={`text-[9px] px-1 py-0 ${style.bg} ${style.text} border-0`}>{style.label}</Badge>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground font-body">{event.startDate} — {event.endDate}</p>
+                    <p className="text-[10px] text-muted-foreground font-body mt-0.5 line-clamp-2">{event.location}</p>
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                      {event.nearbyNeighborhoods.slice(0, 3).map((name) => (
+                        <span key={name} className="text-[9px] px-1.5 py-0.5 rounded bg-secondary text-secondary-foreground">{name}</span>
+                      ))}
+                      {event.nearbyNeighborhoods.length > 3 && <span className="text-[9px] text-muted-foreground">+{event.nearbyNeighborhoods.length - 3}</span>}
+                    </div>
                   </div>
-                  <h4 className="font-display text-sm font-bold text-foreground mb-1 leading-snug">{ev.name}</h4>
-                  <p className="text-[11px] text-muted-foreground font-body mb-2">{fmtDate(start)} — {fmtDate(end)}</p>
-                  <div className="flex flex-wrap gap-1">
-                    {ev.nearbyNeighborhoods.slice(0, 3).map((n) => (
-                      <span key={n} className="text-[9px] px-1.5 py-0.5 rounded-full bg-secondary text-secondary-foreground transition-colors group-hover:bg-primary/10 group-hover:text-primary">{n}</span>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          );
-        })}
-      </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        );
+      })}
     </div>
   );
 }
 
-/* ─── Main Embeddable Component ─── */
+/* ─── Main Component ─── */
 export default function MapaBairrosEmbed() {
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<Neighborhood | null>(null);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
@@ -525,103 +524,79 @@ export default function MapaBairrosEmbed() {
     setActivePOIs((prev) => prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]);
   }, []);
 
-  const toggleFilter = useCallback((key: string) => {
-    if (key === "metro") { setShowMetro((v) => !v); return; }
-    setActiveFilters((prev) => prev.includes(key) ? prev.filter((f) => f !== key) : [...prev, key]);
+  const toggleFilter = useCallback((filterId: string) => {
+    setActiveFilters((prev) => prev.includes(filterId) ? prev.filter((f) => f !== filterId) : [...prev, filterId]);
   }, []);
 
-  const highlightedNames = activeEvent?.nearbyNeighborhoods || [];
-
-  const filtered = useMemo(() => {
-    let list = [...NEIGHBORHOODS];
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter((n) => n.name.toLowerCase().includes(q) || n.tags.some((t) => t.includes(q)));
-    }
-    if (activeFilters.length > 0) {
-      list = list.filter((n) => activeFilters.some((f) => {
-        if (f === "tourism") return n.demandProfile.includes("tourism");
-        if (f === "business") return n.demandProfile === "business";
-        if (f === "events") return n.demandProfile === "events";
-        if (f === "medical") return n.demandProfile === "medical";
-        if (f === "mixed") return n.demandProfile === "mixed";
-        return false;
-      }));
-    }
-    return list.sort((a, b) => b.score - a.score);
-  }, [search, activeFilters]);
-
-  const handleEventClick = useCallback((ev: CityEvent) => {
-    setActiveEvent((prev) => prev?.id === ev.id ? null : ev);
+  const handleEventClick = useCallback((event: CityEvent) => {
+    setActiveEvent((prev) => prev?.id === event.id ? null : event);
   }, []);
 
   const handleRankingSelect = useCallback((n: Neighborhood) => {
     setSelectedNeighborhood(n);
   }, []);
 
+  const highlightedNames = useMemo(() => activeEvent?.nearbyNeighborhoods || [], [activeEvent]);
+
+  const filtered = useMemo(() => {
+    let list = NEIGHBORHOODS;
+    if (search) list = list.filter((n) => n.name.toLowerCase().includes(search.toLowerCase()));
+    if (activeFilters.length > 0) {
+      list = list.filter((n) => activeFilters.some((f) => n.tags.map((t) => t.toLowerCase()).includes(f.toLowerCase())));
+    }
+    return list;
+  }, [search, activeFilters]);
+
+  const [showSimulator, setShowSimulator] = useState(false);
+
   return (
-    <div>
-      {/* Filters + Controls */}
-      <div className="mb-6 space-y-3">
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-          <div className="relative flex-1 w-full sm:max-w-md">
+    <div className="space-y-6">
+      {/* Search + Filters */}
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
             <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Buscar bairro…" value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+            <Input placeholder="Buscar bairro..." value={search} onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 font-body" />
           </div>
-          <div className="flex gap-2 w-full sm:w-auto">
-            <Button variant={showComparison ? "default" : "outline"} size="sm" className="text-xs gap-1.5 flex-1 sm:flex-initial"
-              onClick={() => setShowComparison(!showComparison)}>
-              <ArrowUpDown size={14} />Comparar
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowComparison(!showComparison)} className="font-body text-xs">
+              <ArrowUpDown size={14} className="mr-1.5" />Comparar
             </Button>
           </div>
         </div>
-        <div className="flex flex-nowrap items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap md:overflow-visible md:pb-0 scrollbar-none">
+
+        {/* Demand filters */}
+        <div className="flex flex-wrap gap-2">
           {DEMAND_FILTERS.map((f) => {
-            const active = f.key === "metro" ? showMetro : activeFilters.includes(f.key);
+            const active = activeFilters.includes(f.key);
+            const Icon = f.icon;
             return (
               <button key={f.key} onClick={() => toggleFilter(f.key)}
-                className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all whitespace-nowrap flex-shrink-0 ${
-                  active ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border hover:border-primary/40"
+                className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all ${
+                  active ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
                 }`}>
-                <f.icon size={12} />{f.label}
+                <Icon size={12} />{f.label}
               </button>
             );
           })}
-          <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border flex-shrink-0 group/heatmap relative">
-            <Flame size={12} className={showHeatmap ? "text-destructive" : "text-muted-foreground"} />
-            <span className="text-xs text-muted-foreground">Heatmap</span>
-            <Switch checked={showHeatmap} onCheckedChange={setShowHeatmap} className="scale-75" />
-            <div className="absolute left-0 top-full mt-1 hidden group-hover/heatmap:block z-50 pointer-events-none">
-              <div className="bg-card/95 backdrop-blur-md border border-border rounded-lg shadow-lg px-3 py-2 text-[10px] text-muted-foreground w-48">
-                <p className="font-semibold text-foreground mb-0.5">Mapa de calor</p>
-                Mostra a intensidade da demanda por short stay em cada região, baseado em ocupação e volume de reservas.
-              </div>
+          <div className="flex items-center gap-2 ml-auto">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-body">
+              <Flame size={12} /><span>Heatmap</span>
+              <Switch checked={showHeatmap} onCheckedChange={setShowHeatmap} className="scale-75" />
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-body">
+              <CircleDot size={12} /><span>Clusters</span>
+              <Switch checked={showClusters} onCheckedChange={setShowClusters} className="scale-75" />
             </div>
           </div>
-          <div className="flex items-center gap-2 ml-1 pl-2 border-l border-border flex-shrink-0 group/clusters relative">
-            <CircleDot size={12} className={showClusters ? "text-primary" : "text-muted-foreground"} />
-            <span className="text-xs text-muted-foreground">Clusters</span>
-            <Switch checked={showClusters} onCheckedChange={setShowClusters} className="scale-75" />
-            <div className="absolute left-0 top-full mt-1 hidden group-hover/clusters:block z-50 pointer-events-none">
-              <div className="bg-card/95 backdrop-blur-md border border-border rounded-lg shadow-lg px-3 py-2 text-[10px] text-muted-foreground w-48">
-                <p className="font-semibold text-foreground mb-0.5">Clusters de anúncios</p>
-                Agrupa anúncios de Airbnb por proximidade geográfica. Clique para expandir e ver a densidade de cada área.
-              </div>
-            </div>
-          </div>
-          {(activeFilters.length > 0 || showMetro) && (
-            <button onClick={() => { setActiveFilters([]); setShowMetro(false); }} className="text-xs text-muted-foreground hover:text-foreground underline ml-1 flex-shrink-0">
-              Limpar
-            </button>
-          )}
         </div>
 
-        {/* POI layer toggles */}
-        <div className="flex flex-nowrap items-center gap-2 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap md:overflow-visible md:pb-0 scrollbar-none">
-          <div className="flex items-center gap-1.5 mr-1 flex-shrink-0">
-            <Layers size={12} className="text-muted-foreground" />
-            <span className="text-xs font-semibold text-foreground">Pontos de interesse:</span>
-          </div>
+        {/* POI filters */}
+        <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+          <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap flex items-center gap-1">
+            <Layers size={12} /> Pontos de interesse:
+          </span>
           {POI_CATEGORIES.map((cat) => {
             const active = activePOIs.includes(cat.key);
             const Icon = cat.icon;
@@ -631,10 +606,10 @@ export default function MapaBairrosEmbed() {
                 onClick={() => togglePOI(cat.key)}
                 className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all whitespace-nowrap flex-shrink-0 ${
                   active
-                    ? "border-current shadow-sm"
-                    : "bg-card text-muted-foreground border-border hover:border-primary/40"
+                    ? "border-primary/50 shadow-sm"
+                    : "bg-card text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
                 }`}
-                style={active ? { backgroundColor: `${cat.color}15`, color: cat.color, borderColor: `${cat.color}60` } : undefined}
+                style={active ? { backgroundColor: `${cat.color}18`, color: cat.color, borderColor: `${cat.color}60` } : undefined}
               >
                 <Icon size={12} />{cat.label}
               </button>
