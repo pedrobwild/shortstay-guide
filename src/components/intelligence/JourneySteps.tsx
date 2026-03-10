@@ -435,6 +435,7 @@ export const Step3Learn = ({ onNext }: { onNext: () => void }) => {
 
 export const Step4Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onNext: () => void }) => {
   const ranked = useMemo(() => calculateAllScores(bairros), [bairros]);
+  const [showTrueYield, setShowTrueYield] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -453,6 +454,20 @@ export const Step4Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
         </Card>
       </motion.div>
 
+      {/* True Yield toggle */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={stagger(1)}>
+        <button
+          onClick={() => setShowTrueYield(!showTrueYield)}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-primary/30 bg-primary/[0.02] hover:bg-primary/[0.05] transition-colors text-xs"
+        >
+          <FlaskConical className="h-3.5 w-3.5 text-primary" />
+          <span className="text-muted-foreground font-medium">
+            {showTrueYield ? "Ocultar" : "Mostrar"} True Yield
+          </span>
+          {showTrueYield ? <EyeOff className="h-3 w-3 text-muted-foreground" /> : <Eye className="h-3 w-3 text-muted-foreground" />}
+        </button>
+      </motion.div>
+
       {/* Ranking cards */}
       <div className="space-y-2">
         {ranked.map((item, i) => {
@@ -460,6 +475,7 @@ export const Step4Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
           const s = item.investmentScore;
           const profile = getBairroProfile(b, bairros);
           const badgeStyle = getGradeStyle(s.gradeColor);
+          const trueYield = showTrueYield ? calculateTrueYield(b) : null;
           return (
             <motion.div
               key={b.bairro}
@@ -481,6 +497,17 @@ export const Step4Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
                           <p className="text-xs text-muted-foreground mt-0.5">
                             Diária {fmtBRL(b.adr_medio_studio)} · Ocupação {fmtPct(b.ocupacao_media_studio)} · Yield {fmtPct(b.yield_bruto_airbnb)}
                           </p>
+                          {trueYield && (
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <FlaskConical className="h-3 w-3 text-primary/60" />
+                              <span className="text-[11px] text-primary/80 font-medium">
+                                True Yield {fmtPct(trueYield.trueYield)}
+                              </span>
+                              <span className={`text-[10px] font-medium ${trueYield.delta > 0 ? "text-emerald-600" : trueYield.delta < -0.005 ? "text-amber-600" : "text-muted-foreground"}`}>
+                                ({trueYield.delta > 0 ? "+" : ""}{(trueYield.delta * 100).toFixed(1)}pp)
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0 ml-2">
