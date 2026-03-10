@@ -61,12 +61,12 @@ export default function FinalCTASection() {
       <Card className="border-border">
         <CardContent className="p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input placeholder="Seu nome" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="font-body" />
-            <Input placeholder="WhatsApp (com DDD)" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} className="font-body" />
+            <Input placeholder="Seu nome" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="font-body min-h-[48px] text-base" />
+            <Input placeholder="WhatsApp (com DDD)" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} className="font-body min-h-[48px] text-base" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Select value={form.neighborhood} onValueChange={(v) => setForm({ ...form, neighborhood: v })}>
-              <SelectTrigger className="font-body"><SelectValue placeholder="Bairro (opcional)" /></SelectTrigger>
+              <SelectTrigger className="font-body min-h-[48px] text-base"><SelectValue placeholder="Bairro (opcional)" /></SelectTrigger>
               <SelectContent>
                 {bairros.map((b) => (
                   <SelectItem key={b.name} value={b.name}>{b.name}</SelectItem>
@@ -74,7 +74,7 @@ export default function FinalCTASection() {
               </SelectContent>
             </Select>
             <Select value={form.area_sqm} onValueChange={(v) => setForm({ ...form, area_sqm: v })}>
-              <SelectTrigger className="font-body"><SelectValue placeholder="Metragem (opcional)" /></SelectTrigger>
+              <SelectTrigger className="font-body min-h-[48px] text-base"><SelectValue placeholder="Metragem (opcional)" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="20-25">20–25 m²</SelectItem>
                 <SelectItem value="26-35">26–35 m²</SelectItem>
@@ -82,7 +82,7 @@ export default function FinalCTASection() {
               </SelectContent>
             </Select>
             <Select value={form.objective} onValueChange={(v) => setForm({ ...form, objective: v })}>
-              <SelectTrigger className="font-body"><SelectValue placeholder="Objetivo (opcional)" /></SelectTrigger>
+              <SelectTrigger className="font-body min-h-[48px] text-base"><SelectValue placeholder="Objetivo (opcional)" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="comprar">Comprar studio</SelectItem>
                 <SelectItem value="reformar">Reformar studio</SelectItem>
@@ -91,7 +91,7 @@ export default function FinalCTASection() {
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={handleSubmit} disabled={loading} className="w-full font-body" size="lg">
+          <Button onClick={handleSubmit} disabled={loading} className="w-full font-body min-h-[48px]" size="lg">
             <Send size={16} className="mr-2" />
             {loading ? "Enviando..." : "Solicitar diagnóstico gratuito"}
           </Button>

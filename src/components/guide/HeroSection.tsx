@@ -15,7 +15,7 @@ export default function HeroSection() {
   return (
     <section id="hero" className="scroll-mt-24 pt-8 pb-16 md:pt-16 md:pb-24">
       <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }} className="rounded-2xl overflow-hidden mb-10 shadow-lg">
-        <img src={sectionHeroStudio} alt="Studio moderno para short stay em São Paulo" className="w-full h-48 md:h-72 lg:h-80 object-cover" loading="eager" />
+        <img src={sectionHeroStudio} alt="Studio moderno para short stay em São Paulo" className="w-full h-48 md:h-72 lg:h-80 object-cover object-[center_30%]" loading="eager" />
       </motion.div>
       <div className="text-center">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="flex flex-col items-center">
@@ -42,10 +42,10 @@ export default function HeroSection() {
             </ul>
           </div>
           <div className="flex flex-wrap justify-center gap-3 mb-4">
-            <Button size="lg" className="bg-primary text-primary-foreground font-body w-full sm:w-auto" asChild>
+            <Button size="lg" className="bg-primary text-primary-foreground font-body w-full sm:w-auto min-h-[44px]" asChild>
               <a href="#simulador"><Calculator size={18} className="mr-2" />Simular rentabilidade</a>
             </Button>
-            <Button size="lg" variant="outline" asChild className="font-body w-full sm:w-auto">
+            <Button size="lg" variant="outline" asChild className="font-body w-full sm:w-auto min-h-[44px]">
               <a href="#mapa-bairros"><MapPin size={18} className="mr-2" />Ver mapa de bairros</a>
             </Button>
           </div>

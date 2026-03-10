@@ -33,7 +33,7 @@ export default function ChecklistSection() {
               className={`border-border cursor-pointer transition-colors ${checked[i] ? "bg-primary/5 border-primary/30" : ""}`}
               onClick={() => toggle(i)}
             >
-              <CardContent className="p-4 flex items-center gap-3">
+              <CardContent className="p-4 flex items-center gap-3 min-h-[48px]">
                 <Checkbox checked={checked[i]} onCheckedChange={() => toggle(i)} />
                 <span className={`text-sm font-body ${checked[i] ? "text-foreground font-medium" : "text-muted-foreground"}`}>{item}</span>
               </CardContent>

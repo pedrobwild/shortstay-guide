@@ -20,7 +20,7 @@ export default function ReservasSection() {
           {PERSONAS.map((p) => (
             <Button key={p.key} size="sm" variant={persona === p.key ? "default" : "outline"}
               onClick={() => { setPersona(p.key); trackGlobal("persona_toggle", { persona: p.key }); }}
-              className={persona === p.key ? "bg-primary text-primary-foreground" : ""}>
+              className={`min-h-[44px] px-4 ${persona === p.key ? "bg-primary text-primary-foreground" : ""}`}>
               <p.icon size={14} className="mr-1.5" />{p.label}
             </Button>
           ))}
@@ -59,11 +59,11 @@ export default function ReservasSection() {
       </div>
       <Accordion type="multiple" className="mt-4 font-body">
         <AccordionItem value="interpretar">
-          <AccordionTrigger className="text-primary font-semibold">Como interpretar esses drivers</AccordionTrigger>
+          <AccordionTrigger className="text-primary font-semibold min-h-[48px]">Como interpretar esses drivers</AccordionTrigger>
           <AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">Cada driver tem peso diferente por persona. Executivos priorizam check-in rápido e Wi-Fi estável para reuniões. Turistas priorizam localização e experiência visual. Estudantes valorizam preço e avaliações de outros hóspedes. Use os filtros de persona acima para ver a priorização e adapte seu studio ao público dominante do bairro.</p></AccordionContent>
         </AccordionItem>
         <AccordionItem value="fontes">
-          <AccordionTrigger className="text-primary font-semibold">Fontes dos dados</AccordionTrigger>
+          <AccordionTrigger className="text-primary font-semibold min-h-[48px]">Fontes dos dados</AccordionTrigger>
           <AccordionContent>
             <ul className="text-sm text-muted-foreground space-y-2">
               <li>• <strong className="text-foreground">Airbnb Global Quality Report</strong> — Fatores de qualidade e drivers de decisão baseados em milhões de reviews globais</li>
@@ -74,7 +74,7 @@ export default function ReservasSection() {
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="pratica">
-          <AccordionTrigger className="text-primary font-semibold">Como aplicar na prática</AccordionTrigger>
+          <AccordionTrigger className="text-primary font-semibold min-h-[48px]">Como aplicar na prática</AccordionTrigger>
           <AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">Priorize os 3 primeiros drivers da persona dominante do seu bairro. Em Pinheiros (público misto executivo/turista), foque em limpeza impecável + check-in digital + fotos reais. Em Vila Mariana (mais estudantes e casais), priorize avaliações altas + preço competitivo + ambiente confortável para estadias longas. O segredo é alinhar produto e operação ao perfil real de quem reserva na sua região.</p></AccordionContent>
         </AccordionItem>
       </Accordion>
