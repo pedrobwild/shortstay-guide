@@ -503,9 +503,14 @@ export default function MapaBairrosEmbed() {
   const [showMetro, setShowMetro] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showClusters, setShowClusters] = useState(false);
+  const [activePOIs, setActivePOIs] = useState<POICategoryKey[]>([]);
   const [activeEvent, setActiveEvent] = useState<CityEvent | null>(null);
   const [search, setSearch] = useState("");
   const [showComparison, setShowComparison] = useState(false);
+
+  const togglePOI = useCallback((key: POICategoryKey) => {
+    setActivePOIs((prev) => prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]);
+  }, []);
 
   const toggleFilter = useCallback((key: string) => {
     if (key === "metro") { setShowMetro((v) => !v); return; }
