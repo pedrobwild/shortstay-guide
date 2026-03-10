@@ -518,15 +518,27 @@ export default function MapaBairrosEmbed() {
               </button>
             );
           })}
-          <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border flex-shrink-0">
+          <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border flex-shrink-0 group/heatmap relative">
             <Flame size={12} className={showHeatmap ? "text-destructive" : "text-muted-foreground"} />
             <span className="text-xs text-muted-foreground">Heatmap</span>
             <Switch checked={showHeatmap} onCheckedChange={setShowHeatmap} className="scale-75" />
+            <div className="absolute left-0 top-full mt-1 hidden group-hover/heatmap:block z-50 pointer-events-none">
+              <div className="bg-card/95 backdrop-blur-md border border-border rounded-lg shadow-lg px-3 py-2 text-[10px] text-muted-foreground w-48">
+                <p className="font-semibold text-foreground mb-0.5">Mapa de calor</p>
+                Mostra a intensidade da demanda por short stay em cada região, baseado em ocupação e volume de reservas.
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2 ml-1 pl-2 border-l border-border flex-shrink-0">
+          <div className="flex items-center gap-2 ml-1 pl-2 border-l border-border flex-shrink-0 group/clusters relative">
             <CircleDot size={12} className={showClusters ? "text-primary" : "text-muted-foreground"} />
             <span className="text-xs text-muted-foreground">Clusters</span>
             <Switch checked={showClusters} onCheckedChange={setShowClusters} className="scale-75" />
+            <div className="absolute left-0 top-full mt-1 hidden group-hover/clusters:block z-50 pointer-events-none">
+              <div className="bg-card/95 backdrop-blur-md border border-border rounded-lg shadow-lg px-3 py-2 text-[10px] text-muted-foreground w-48">
+                <p className="font-semibold text-foreground mb-0.5">Clusters de anúncios</p>
+                Agrupa anúncios de Airbnb por proximidade geográfica. Clique para expandir e ver a densidade de cada área.
+              </div>
+            </div>
           </div>
           {(activeFilters.length > 0 || showMetro) && (
             <button onClick={() => { setActiveFilters([]); setShowMetro(false); }} className="text-xs text-muted-foreground hover:text-foreground underline ml-1 flex-shrink-0">
@@ -534,6 +546,12 @@ export default function MapaBairrosEmbed() {
             </button>
           )}
         </div>
+        {/* Filter explainer */}
+        {activeFilters.length > 0 && (
+          <p className="text-[10px] text-muted-foreground font-body mt-1 ml-1">
+            🔍 Filtrando por perfil de demanda — mostrando apenas bairros com esse tipo de público predominante.
+          </p>
+        )}
       </div>
 
       {/* Comparison panel */}
