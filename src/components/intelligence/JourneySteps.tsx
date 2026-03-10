@@ -1318,6 +1318,7 @@ export const Step7Explore = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
 
   return (
     <div className="space-y-6">
+      <MicroNote sectionKey="journey_explore" />
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
         <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
           <CardContent className="p-6">
