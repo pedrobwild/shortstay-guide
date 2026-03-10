@@ -1018,10 +1018,10 @@ export const Step6Profile = ({ onComplete }: Step6Props) => {
 };
 
 // ═══════════════════════════════════════════════════════════════════
-// STEP 6: Placeholder for bairro detail (link to detail page)
+// STEP 7: EXPLORE
 // ═══════════════════════════════════════════════════════════════════
 
-export const Step6Explore = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onNext: () => void }) => {
+export const Step7Explore = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onNext: () => void }) => {
   const ranked = useMemo(() => calculateAllScores(bairros).slice(0, 5), [bairros]);
 
   return (
