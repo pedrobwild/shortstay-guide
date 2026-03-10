@@ -460,8 +460,168 @@ function InteractiveMap({
       </motion.div>
     </motion.div>
   );
+
+/* ─── Events Timeline ─── */
+function EventsTimeline({ events, onEventClick, activeEventId }: { events: CityEvent[]; onEventClick: (e: CityEvent) => void; activeEventId: string | null }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      {events.map((event, i) => {
+        const Icon = EVENT_ICONS[event.icon as keyof typeof EVENT_ICONS] || Calendar;
+        const style = IMPACT_STYLES[event.impact] || IMPACT_STYLES.low;
+        const isActive = activeEventId === event.id;
+        return (
+          <motion.div key={event.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ y: -3, scale: 1.01 }} whileTap={{ scale: 0.98 }}>
+            <Card onClick={() => onEventClick(event)}
+              className={`cursor-pointer transition-all duration-200 ${isActive ? "ring-2 ring-primary border-primary shadow-md" : "border-border hover:shadow-md hover:border-primary/30"}`}>
+              <CardContent className="p-3">
+                <div className="flex items-start gap-2.5">
+                  <div className={`p-1.5 rounded-lg ${style.bg}`}><Icon size={14} className={style.text} /></div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <h4 className="text-xs font-bold font-display text-foreground truncate">{event.name}</h4>
+                      <Badge className={`text-[9px] px-1 py-0 ${style.bg} ${style.text} border-0`}>{event.impact}</Badge>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground font-body">{event.date}</p>
+                    <p className="text-[10px] text-muted-foreground font-body mt-0.5 line-clamp-2">{event.description}</p>
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                      {event.neighborhoods.slice(0, 3).map((name) => (
+                        <span key={name} className="text-[9px] px-1.5 py-0.5 rounded bg-secondary text-secondary-foreground">{name}</span>
+                      ))}
+                      {event.neighborhoods.length > 3 && <span className="text-[9px] text-muted-foreground">+{event.neighborhoods.length - 3}</span>}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
 }
 
+/* ─── Main Component ─── */
+export default function MapaBairrosEmbed() {
+  const [selectedNeighborhood, setSelectedNeighborhood] = useState<Neighborhood | null>(null);
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [showMetro, setShowMetro] = useState(false);
+  const [showHeatmap, setShowHeatmap] = useState(false);
+  const [showClusters, setShowClusters] = useState(false);
+  const [activePOIs, setActivePOIs] = useState<POICategoryKey[]>([]);
+  const [activeEvent, setActiveEvent] = useState<CityEvent | null>(null);
+  const [search, setSearch] = useState("");
+  const [showComparison, setShowComparison] = useState(false);
+
+  const togglePOI = useCallback((key: POICategoryKey) => {
+    setActivePOIs((prev) => prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]);
+  }, []);
+
+  const toggleFilter = useCallback((filterId: string) => {
+    setActiveFilters((prev) => prev.includes(filterId) ? prev.filter((f) => f !== filterId) : [...prev, filterId]);
+  }, []);
+
+  const handleEventClick = useCallback((event: CityEvent) => {
+    setActiveEvent((prev) => prev?.id === event.id ? null : event);
+  }, []);
+
+  const handleRankingSelect = useCallback((n: Neighborhood) => {
+    setSelectedNeighborhood(n);
+  }, []);
+
+  const highlightedNames = useMemo(() => activeEvent?.neighborhoods || [], [activeEvent]);
+
+  const filtered = useMemo(() => {
+    let list = NEIGHBORHOODS;
+    if (search) list = list.filter((n) => n.name.toLowerCase().includes(search.toLowerCase()));
+    if (activeFilters.length > 0) {
+      list = list.filter((n) => activeFilters.some((f) => n.tags.map((t) => t.toLowerCase()).includes(f.toLowerCase())));
+    }
+    return list;
+  }, [search, activeFilters]);
+
+  const [showSimulator, setShowSimulator] = useState(false);
+
+  return (
+    <div className="space-y-6">
+      {/* Search + Filters */}
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input placeholder="Buscar bairro..." value={search} onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 font-body" />
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowComparison(!showComparison)} className="font-body text-xs">
+              <ArrowUpDown size={14} className="mr-1.5" />Comparar
+            </Button>
+          </div>
+        </div>
+
+        {/* Demand filters */}
+        <div className="flex flex-wrap gap-2">
+          {DEMAND_FILTERS.map((f) => {
+            const active = activeFilters.includes(f.id);
+            const Icon = f.icon;
+            return (
+              <button key={f.id} onClick={() => toggleFilter(f.id)}
+                className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all ${
+                  active ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
+                }`}>
+                <Icon size={12} />{f.label}
+              </button>
+            );
+          })}
+          <div className="flex items-center gap-2 ml-auto">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-body">
+              <Flame size={12} /><span>Heatmap</span>
+              <Switch checked={showHeatmap} onCheckedChange={setShowHeatmap} className="scale-75" />
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-body">
+              <CircleDot size={12} /><span>Clusters</span>
+              <Switch checked={showClusters} onCheckedChange={setShowClusters} className="scale-75" />
+            </div>
+          </div>
+        </div>
+
+        {/* POI filters */}
+        <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+          <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap flex items-center gap-1">
+            <Layers size={12} /> Pontos de interesse:
+          </span>
+          {POI_CATEGORIES.map((cat) => {
+            const active = activePOIs.includes(cat.key);
+            const Icon = cat.icon;
+            return (
+              <button
+                key={cat.key}
+                onClick={() => togglePOI(cat.key)}
+                className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all whitespace-nowrap flex-shrink-0 ${
+                  active
+                    ? "border-primary/50 shadow-sm"
+                    : "bg-card text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
+                }`}
+                style={active ? { backgroundColor: `${cat.color}18`, color: cat.color, borderColor: `${cat.color}60` } : undefined}
+              >
+                <Icon size={12} />{cat.label}
+              </button>
+            );
+          })}
+          {activePOIs.length > 0 && (
+            <button onClick={() => setActivePOIs([])} className="text-xs text-muted-foreground hover:text-foreground underline ml-1 flex-shrink-0">
+              Limpar POIs
+            </button>
+          )}
+        </div>
+
+        {/* POI legend when active */}
+        {activePOIs.length > 0 && (
+          <div className="flex flex-wrap items-center gap-3 mt-1 text-[10px] text-muted-foreground font-body">
+            📍 Mostrando {activePOIs.length} categoria{activePOIs.length > 1 ? "s" : ""} de pontos de interesse no mapa. Zoom in para ver nomes.
+          </div>
+        )}
 
         {/* Filter explainer */}
         {activeFilters.length > 0 && (
