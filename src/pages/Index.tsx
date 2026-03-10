@@ -1788,11 +1788,10 @@ function TendenciasSection() {
 /* ─── 10) Case study ─── */
 function CaseStudySection() {
   const handleUsePremissas = () => {
-    // Dispatch custom event to populate the simulator
+    trackGlobal("case_study_to_simulator", {});
     window.dispatchEvent(new CustomEvent("populate-simulator", {
       detail: { bairro: "Vila Mariana", diaria: "230", ocupacao: 75, boost: 30 },
     }));
-    // Scroll to simulator
     document.getElementById("simulador")?.scrollIntoView({ behavior: "smooth" });
   };
 
