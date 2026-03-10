@@ -48,6 +48,28 @@ const ICON_MAP: Record<string, React.ElementType> = {
 
 const stagger = (i: number, base = 0) => ({ delay: base + i * 0.06 });
 
+// ── Inline microcopy note for journey transitions ────────────────
+const MICRO_ICONS: Record<string, React.ElementType> = { insight: Lightbulb, caution: AlertTriangle, opportunity: Sparkles };
+const MICRO_STYLES: Record<string, string> = {
+  insight: "border-primary/20 bg-primary/[0.02] text-foreground/70",
+  caution: "border-amber-500/20 bg-amber-500/[0.02] text-foreground/70",
+  opportunity: "border-emerald-500/20 bg-emerald-500/[0.02] text-foreground/70",
+};
+
+const MicroNote = ({ sectionKey }: { sectionKey: string }) => {
+  const note = SECTION_MICROCOPY[sectionKey];
+  if (!note) return null;
+  const Icon = MICRO_ICONS[note.type] || Lightbulb;
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
+      <div className={`flex items-center gap-2.5 px-4 py-2.5 rounded-lg border ${MICRO_STYLES[note.type]}`}>
+        <Icon className="h-3.5 w-3.5 shrink-0 opacity-60" />
+        <p className="text-[11px] leading-relaxed italic">{note.message}</p>
+      </div>
+    </motion.div>
+  );
+};
+
 // ═══════════════════════════════════════════════════════════════════
 // STEP 1: CONTEXTUALIZAR
 // ═══════════════════════════════════════════════════════════════════
@@ -67,6 +89,7 @@ export const Step1Context = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
 
   return (
     <div className="space-y-6">
+      <MicroNote sectionKey="journey_context" />
       {/* Hero opening */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
         <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent overflow-hidden relative">
@@ -227,6 +250,7 @@ export const Step2Highlights = ({ bairros, onNext }: { bairros: BairroAirbnb[]; 
 
   return (
     <div className="space-y-6">
+      <MicroNote sectionKey="journey_highlights" />
       {/* Intro */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
         <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
@@ -458,6 +482,7 @@ export const Step3Learn = ({ onNext }: { onNext: () => void }) => {
 
   return (
     <div className="space-y-6">
+      <MicroNote sectionKey="journey_indicators" />
       {/* Intro */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
         <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
@@ -674,6 +699,7 @@ export const Step4Learnings = ({ bairros, onNext }: { bairros: BairroAirbnb[]; o
 
   return (
     <div className="space-y-6">
+      <MicroNote sectionKey="journey_learnings" />
       {/* Intro */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
         <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
@@ -819,6 +845,7 @@ export const Step5Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
   return (
     <TooltipProvider delayDuration={200}>
       <div className="space-y-6">
+        <MicroNote sectionKey="journey_ranking" />
         {/* Intro */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
@@ -1132,6 +1159,7 @@ export const Step6Profile = ({ bairros, onComplete }: Step6Props) => {
 
   return (
     <div className="space-y-6">
+      <MicroNote sectionKey="journey_profile" />
       {/* Intro */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
         <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
@@ -1293,6 +1321,7 @@ export const Step7Explore = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
 
   return (
     <div className="space-y-6">
+      <MicroNote sectionKey="journey_explore" />
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
         <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
           <CardContent className="p-6">
@@ -1378,6 +1407,7 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
 
   return (
     <div className="space-y-6">
+      <MicroNote sectionKey="journey_recommendation" />
       {/* Profile summary */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
         <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
