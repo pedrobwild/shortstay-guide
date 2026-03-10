@@ -1090,16 +1090,16 @@ export const Step7Explore = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
 };
 
 // ═══════════════════════════════════════════════════════════════════
-// STEP 7: RECOMENDAÇÃO
+// STEP 8: RECOMENDAÇÃO
 // ═══════════════════════════════════════════════════════════════════
 
-interface Step7Props {
+interface Step8Props {
   bairros: BairroAirbnb[];
   profile: InvestorProfile | null;
   answers: QuizAnswers | null;
 }
 
-export const Step7Recommendation = ({ bairros, profile, answers }: Step7Props) => {
+export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) => {
   const finalProfile = profile || resolveProfile({ objective: "equilibrio", risk: "moderado", priority: "retorno" });
   const [showTrueYield, setShowTrueYield] = useState(false);
   const recommendations = useMemo(
