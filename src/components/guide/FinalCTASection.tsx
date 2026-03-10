@@ -74,7 +74,7 @@ export default function FinalCTASection() {
               </SelectContent>
             </Select>
             <Select value={form.area_sqm} onValueChange={(v) => setForm({ ...form, area_sqm: v })}>
-              <SelectTrigger className="font-body"><SelectValue placeholder="Metragem (opcional)" /></SelectTrigger>
+              <SelectTrigger className="font-body min-h-[48px] text-base"><SelectValue placeholder="Metragem (opcional)" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="20-25">20–25 m²</SelectItem>
                 <SelectItem value="26-35">26–35 m²</SelectItem>
