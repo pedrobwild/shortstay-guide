@@ -2051,10 +2051,11 @@ function FinalCTASection() {
                 </Select>
                 <Button
                   onClick={validateAndSubmit}
+                  disabled={submitting}
                   className="sm:col-span-2 bg-accent text-accent-foreground font-body font-semibold"
                 >
-                  Solicitar diagnóstico gratuito
-                  <ChevronRight size={16} className="ml-1" />
+                  {submitting ? "Enviando..." : "Solicitar diagnóstico gratuito"}
+                  {!submitting && <ChevronRight size={16} className="ml-1" />}
                 </Button>
               </div>
             )}
