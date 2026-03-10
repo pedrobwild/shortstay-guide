@@ -1,0 +1,815 @@
+/**
+ * Journey Step Components — 7 steps of the guided decision journey
+ * Each step is a self-contained component that builds on the previous one.
+ */
+
+import React, { useState, useMemo } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import {
+  Building2, TrendingUp, BarChart3, Target, Scale, Crown, Rocket, Activity,
+  Zap, BookOpen, Lightbulb, ChevronRight, ArrowRight, Shield, CalendarCheck,
+  ArrowUpRight, Sprout, Gauge, AlertTriangle, CheckCircle, Banknote, Sparkles,
+  Info, Star, ChevronDown, ChevronUp,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
+import type { BairroAirbnb } from "@/types/intelligence";
+import { PRODUCT, DATA_COMMUNICATION, DISCLAIMERS } from "@/lib/productFoundation";
+import {
+  getHighlightWinners,
+  getBairroProfile,
+  INDICATOR_EXPLAINERS,
+  SECTION_MICROCOPY,
+} from "@/lib/intelligenceInsights";
+import { calculateAllScores, calculateInvestmentScore, PILLARS } from "@/lib/investmentScore";
+import { getGradeStyle, FOOTER_DISCLAIMER } from "@/lib/uiHelpers";
+import {
+  STRATEGIC_LESSONS,
+  generateComparativeNarratives,
+} from "@/lib/storytelling";
+import {
+  QUIZ_QUESTIONS,
+  resolveProfile,
+  generateRecommendations,
+  type QuizAnswers,
+  type InvestorProfile,
+  type Recommendation,
+} from "@/lib/investorQuiz";
+import { fmtBRL, fmtPct, fmtScore } from "@/hooks/useIntelligenceData";
+
+const ICON_MAP: Record<string, React.ElementType> = {
+  Scale, Crown, Rocket, Activity, TrendingUp, AlertTriangle, Shield,
+  CalendarCheck, ArrowUpRight, Sprout, Gauge, Zap, Banknote, Sparkles,
+  DollarSign: Banknote, Target, BookOpen,
+};
+
+const stagger = (i: number, base = 0) => ({ delay: base + i * 0.06 });
+
+// ═══════════════════════════════════════════════════════════════════
+// STEP 1: CONTEXTUALIZAR
+// ═══════════════════════════════════════════════════════════════════
+
+export const Step1Context = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onNext: () => void }) => {
+  const avgADR = bairros.reduce((s, b) => s + Number(b.adr_medio_studio), 0) / bairros.length;
+  const avgOcc = bairros.reduce((s, b) => s + Number(b.ocupacao_media_studio), 0) / bairros.length;
+  const avgYield = bairros.reduce((s, b) => s + Number(b.yield_bruto_airbnb), 0) / bairros.length;
+  const avgDelta = bairros.reduce((s, b) => s + Number(b.delta_yield), 0) / bairros.length;
+
+  return (
+    <div className="space-y-6">
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
+          <CardContent className="p-6 md:p-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Badge className="bg-primary/10 text-primary text-[10px] uppercase tracking-wider">
+                Sobre esta análise
+              </Badge>
+            </div>
+            <h2 className="text-xl md:text-2xl font-bold font-[var(--font-display)] text-foreground mb-3">
+              Short stay é investir em imóveis para alugar por temporada curta
+            </h2>
+            <p className="text-sm text-foreground/80 leading-relaxed mb-4">
+              Em vez de alugar um apartamento por 12 meses para um inquilino, você opera como um 
+              hotel boutique: diárias por noite, em plataformas como Airbnb. O retorno pode ser 
+              significativamente maior — mas o risco e a operação também são diferentes.
+            </p>
+            <p className="text-sm text-foreground/70 leading-relaxed">
+              Analisamos <strong>{bairros.length} bairros de São Paulo</strong> com mais de 30 variáveis 
+              cada para ajudar você a entender onde investir faz mais sentido.
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Market pulse */}
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={stagger(1)}>
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+          📊 Pulso do mercado — São Paulo
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { label: "Diária média", value: fmtBRL(avgADR), sub: "por noite" },
+            { label: "Ocupação média", value: fmtPct(avgOcc), sub: "dos dias" },
+            { label: "Retorno médio", value: fmtPct(avgYield), sub: "ao ano (Airbnb)" },
+            { label: "Prêmio short stay", value: `+${fmtPct(avgDelta)}`, sub: "vs aluguel comum" },
+          ].map((kpi, i) => (
+            <motion.div key={kpi.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(i, 0.1)}>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold">{kpi.label}</p>
+                  <p className="text-xl font-bold mt-1">{kpi.value}</p>
+                  <p className="text-xs text-muted-foreground">{kpi.sub}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Key narrative */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(2)}>
+        <Card className="bg-muted/30 border-dashed">
+          <CardContent className="p-5">
+            <div className="flex items-start gap-3">
+              <Lightbulb className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-foreground">O que você precisa saber antes de começar</p>
+                {DATA_COMMUNICATION.narratives.slice(0, 3).map((n, i) => (
+                  <p key={i} className="text-xs text-foreground/70 leading-relaxed flex items-start gap-2">
+                    <span className="text-primary mt-0.5">→</span> {n}
+                  </p>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={stagger(3)} className="flex justify-end">
+        <Button onClick={onNext} className="gap-2">
+          Entendi, vamos começar <ArrowRight className="h-4 w-4" />
+        </Button>
+      </motion.div>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// STEP 2: DESTAQUES
+// ═══════════════════════════════════════════════════════════════════
+
+export const Step2Highlights = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onNext: () => void }) => {
+  const highlights = getHighlightWinners(bairros);
+  const narratives = generateComparativeNarratives(bairros);
+
+  const NARRATIVE_STYLE: Record<string, { border: string; bg: string }> = {
+    insight: { border: "border-l-primary", bg: "bg-primary/[0.03]" },
+    comparison: { border: "border-l-blue-500", bg: "bg-blue-50/50" },
+    caution: { border: "border-l-amber-500", bg: "bg-amber-50/50" },
+  };
+
+  return (
+    <div className="space-y-6">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Star className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-bold font-[var(--font-display)]">Destaques da análise</h2>
+            </div>
+            <p className="text-sm text-foreground/70 leading-relaxed">
+              Antes de mergulhar nos números, veja os principais destaques que a análise identificou automaticamente. 
+              Cada bairro tem seu ponto forte — o melhor investimento depende do seu perfil.
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Winner cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {highlights.map((h, i) => {
+          const Icon = ICON_MAP[h.icon] || TrendingUp;
+          return (
+            <motion.div key={h.category} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(i, 0.1)}>
+              <Card className="h-full hover:shadow-md transition-all group border-l-4 border-l-primary/20 hover:border-l-primary">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Icon className="h-4 w-4 text-primary" />
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{h.category}</span>
+                  </div>
+                  <p className="font-bold text-base">{h.bairro}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{h.value}</p>
+                  <p className="text-xs text-foreground/70 mt-2 leading-relaxed">{h.narrative}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Key insights */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(highlights.length, 0.1)}>
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+          💡 O que os dados revelam
+        </p>
+        <div className="space-y-2">
+          {narratives.slice(0, 4).map((n, i) => {
+            const style = NARRATIVE_STYLE[n.type] || NARRATIVE_STYLE.insight;
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={stagger(i, 0.3)}
+                className={`p-3 rounded-lg border-l-4 ${style.border} ${style.bg}`}
+              >
+                <p className="text-sm text-foreground/80 leading-relaxed">{n.text}</p>
+              </motion.div>
+            );
+          })}
+        </div>
+      </motion.div>
+
+      <div className="flex justify-end">
+        <Button onClick={onNext} className="gap-2">
+          Continuar <ArrowRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// STEP 3: APRENDA A LER
+// ═══════════════════════════════════════════════════════════════════
+
+export const Step3Learn = ({ onNext }: { onNext: () => void }) => {
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
+
+  const EXPLAINER_ICONS: Record<string, React.ElementType> = {
+    DollarSign: Banknote, CalendarCheck, TrendingUp, ArrowUpRight, Target, Zap, Sprout, ShieldCheck: Shield,
+  };
+
+  return (
+    <div className="space-y-6">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <BookOpen className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-bold font-[var(--font-display)]">Aprenda a ler esta análise</h2>
+            </div>
+            <p className="text-sm text-foreground/70 leading-relaxed">
+              Antes de comparar bairros, é importante entender o que cada indicador significa na prática. 
+              Clique em cada um para ver a explicação completa.
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Score composition */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(1)}>
+        <Card>
+          <CardContent className="p-5">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+              <Target className="h-4 w-4 text-primary" /> Como o Investment Score é calculado
+            </p>
+            <p className="text-sm text-foreground/70 leading-relaxed mb-4">
+              O Investment Score combina 4 dimensões para responder: "esse bairro parece bom para investir?". 
+              Cada uma tem um peso diferente na decisão.
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {PILLARS.map((p, i) => {
+                const Icon = ICON_MAP[p.icon] || TrendingUp;
+                return (
+                  <motion.div key={p.key} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={stagger(i, 0.1)}>
+                    <div className="text-center p-3 rounded-lg bg-muted/40">
+                      <Icon className={`h-5 w-5 ${p.color} mx-auto mb-1.5`} />
+                      <p className="text-lg font-bold text-primary">{(p.weight * 100).toFixed(0)}%</p>
+                      <p className="text-xs font-medium">{p.label}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{p.friendlyName}</p>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Indicator cards — expandable */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {INDICATOR_EXPLAINERS.map((ind, i) => {
+          const isOpen = expandedCard === ind.key;
+          const Icon = ICON_MAP[ind.icon] || TrendingUp;
+          return (
+            <motion.div key={ind.key} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(i, 0.15)}>
+              <Card
+                className={`cursor-pointer transition-all ${isOpen ? "ring-1 ring-primary/30" : "hover:shadow-md"}`}
+                onClick={() => setExpandedCard(isOpen ? null : ind.key)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center">
+                        <Icon className="h-3.5 w-3.5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold">{ind.friendlyTitle}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{ind.title}</p>
+                      </div>
+                    </div>
+                    {isOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                  </div>
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="mt-3 space-y-2 pt-3 border-t border-border/50">
+                          <p className="text-xs text-foreground/80 leading-relaxed">{ind.whatItIs}</p>
+                          <div className="bg-primary/[0.04] rounded-md p-2.5">
+                            <p className="text-[11px] font-semibold text-primary mb-0.5">Por que importa</p>
+                            <p className="text-[11px] text-foreground/70 leading-relaxed">{ind.whyItMatters}</p>
+                          </div>
+                          <div className="bg-muted/40 rounded p-2">
+                            <p className="text-[11px] text-muted-foreground italic">💡 {ind.example}</p>
+                          </div>
+                          <p className="text-xs font-medium text-foreground/80">→ {ind.keyMessage}</p>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </CardContent>
+              </Card>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Key lessons */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(INDICATOR_EXPLAINERS.length, 0.15)}>
+        <Card className="bg-muted/30 border-dashed">
+          <CardContent className="p-5">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+              📚 Lições-chave antes de comparar
+            </p>
+            <div className="space-y-2">
+              {STRATEGIC_LESSONS.slice(0, 3).map((lesson, i) => (
+                <div key={lesson.id} className="flex items-start gap-2">
+                  <span className="text-primary text-sm mt-0.5">→</span>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{lesson.title}</p>
+                    <p className="text-xs text-foreground/60">{lesson.takeaway}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <div className="flex justify-end">
+        <Button onClick={onNext} className="gap-2">
+          Agora quero comparar bairros <ArrowRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// STEP 4: COMPARAR (Ranking table)
+// ═══════════════════════════════════════════════════════════════════
+
+export const Step4Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onNext: () => void }) => {
+  const ranked = useMemo(() => calculateAllScores(bairros), [bairros]);
+
+  return (
+    <div className="space-y-6">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-bold font-[var(--font-display)]">Compare os bairros</h2>
+            </div>
+            <p className="text-sm text-foreground/70 leading-relaxed">
+              Agora que você sabe ler os indicadores, veja como os {bairros.length} bairros se posicionam 
+              no ranking geral. Clique em qualquer bairro para ver a análise completa.
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Ranking cards */}
+      <div className="space-y-2">
+        {ranked.map((item, i) => {
+          const b = item.bairro;
+          const s = item.investmentScore;
+          const profile = getBairroProfile(b, bairros);
+          const badgeStyle = getGradeStyle(s.gradeColor);
+          return (
+            <motion.div
+              key={b.bairro}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={stagger(i)}
+            >
+              <Link to={`/intelligence/bairro/${encodeURIComponent(b.bairro)}`}>
+                <Card className="hover:shadow-md transition-all group">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="text-lg font-bold text-muted-foreground w-8">#{i + 1}</span>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-semibold group-hover:text-primary transition-colors">{b.bairro}</p>
+                            <Badge className={`${profile.color} ${profile.textColor} text-[9px]`}>{profile.label}</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Diária {fmtBRL(b.adr_medio_studio)} · Ocupação {fmtPct(b.ocupacao_media_studio)} · Yield {fmtPct(b.yield_bruto_airbnb)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0 ml-2">
+                        <div className="text-right">
+                          <p className="text-lg font-bold">{s.score.toFixed(1)}</p>
+                          <Badge className={`${badgeStyle} text-[10px]`}>{s.grade}</Badge>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={stagger(ranked.length)}>
+        <Card className="bg-muted/30 border-dashed">
+          <CardContent className="p-4">
+            <p className="text-xs text-center text-muted-foreground italic">
+              "O melhor investimento não é o bairro mais famoso — é aquele que melhor equilibra retorno, demanda e estabilidade para o seu perfil."
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <div className="flex items-center justify-between">
+        <Link to="/intelligence/ranking">
+          <Button variant="outline" size="sm" className="text-xs gap-1">
+            Ranking completo com tabela <ArrowRight className="h-3 w-3" />
+          </Button>
+        </Link>
+        <Button onClick={onNext} className="gap-2">
+          Personalizar por perfil <ArrowRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// STEP 5: QUIZ DE PERFIL
+// ═══════════════════════════════════════════════════════════════════
+
+interface Step5Props {
+  onComplete: (answers: QuizAnswers, profile: InvestorProfile) => void;
+}
+
+export const Step5Profile = ({ onComplete }: Step5Props) => {
+  const [currentQ, setCurrentQ] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+
+  const q = QUIZ_QUESTIONS[currentQ];
+  const totalQ = QUIZ_QUESTIONS.length;
+  const progress = ((currentQ + 1) / totalQ) * 100;
+
+  const handleSelect = (value: string) => {
+    const newAnswers = { ...answers, [q.id]: value };
+    setAnswers(newAnswers);
+
+    if (currentQ < totalQ - 1) {
+      setCurrentQ(currentQ + 1);
+    } else {
+      const quizAnswers: QuizAnswers = {
+        objective: newAnswers.objective || "equilibrio",
+        risk: newAnswers.risk || "moderado",
+        priority: newAnswers.priority || "retorno",
+      };
+      const profile = resolveProfile(quizAnswers);
+      onComplete(quizAnswers, profile);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Target className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-bold font-[var(--font-display)]">Descubra seu perfil de investidor</h2>
+            </div>
+            <p className="text-sm text-foreground/70 leading-relaxed">
+              Responda 3 perguntas rápidas para personalizar a recomendação final.
+              Não existe resposta certa — apenas a que mais combina com você.
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Progress */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>Pergunta {currentQ + 1} de {totalQ}</span>
+          <span>{Math.round(progress)}%</span>
+        </div>
+        <Progress value={progress} className="h-2" />
+      </div>
+
+      {/* Current question */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={q.id}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.25 }}
+        >
+          <Card>
+            <CardContent className="p-6">
+              <h3 className="text-base font-semibold text-foreground mb-1">{q.question}</h3>
+              <p className="text-xs text-muted-foreground mb-5">{q.subtitle}</p>
+              <div className="space-y-3">
+                {q.options.map((opt) => {
+                  const Icon = ICON_MAP[opt.icon] || Scale;
+                  const isSelected = answers[q.id] === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      onClick={() => handleSelect(opt.value)}
+                      className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+                        isSelected
+                          ? "border-primary bg-primary/[0.05]"
+                          : "border-border hover:border-primary/40 hover:bg-muted/30"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${
+                          isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
+                        }`}>
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold">{opt.label}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{opt.description}</p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </AnimatePresence>
+
+      {currentQ > 0 && (
+        <Button variant="ghost" size="sm" onClick={() => setCurrentQ(currentQ - 1)} className="text-xs">
+          ← Voltar
+        </Button>
+      )}
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// STEP 6: Placeholder for bairro detail (link to detail page)
+// ═══════════════════════════════════════════════════════════════════
+
+export const Step6Explore = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onNext: () => void }) => {
+  const ranked = useMemo(() => calculateAllScores(bairros).slice(0, 5), [bairros]);
+
+  return (
+    <div className="space-y-6">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Building2 className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-bold font-[var(--font-display)]">Explore em profundidade</h2>
+            </div>
+            <p className="text-sm text-foreground/70 leading-relaxed">
+              Escolha um bairro para ver a análise completa: scores detalhados, gráficos de sazonalidade, 
+              comparativo short stay vs aluguel, pontos de atenção e para qual perfil de investidor ele faz mais sentido.
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {ranked.map((item, i) => {
+          const b = item.bairro;
+          const s = item.investmentScore;
+          const profile = getBairroProfile(b, bairros);
+          const badgeStyle = getGradeStyle(s.gradeColor);
+          return (
+            <motion.div key={b.bairro} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(i)}>
+              <Link to={`/intelligence/bairro/${encodeURIComponent(b.bairro)}`}>
+                <Card className="h-full hover:shadow-md transition-all group cursor-pointer">
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <Badge className={`${profile.color} ${profile.textColor} text-[10px]`}>{profile.label}</Badge>
+                      <Badge className={`${badgeStyle} text-[10px]`}>{s.grade}</Badge>
+                    </div>
+                    <p className="text-lg font-bold group-hover:text-primary transition-colors">{b.bairro}</p>
+                    <p className="text-2xl font-bold mt-1">{s.score.toFixed(1)}</p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Yield {fmtPct(b.yield_bruto_airbnb)} · Ocupação {fmtPct(b.ocupacao_media_studio)}
+                    </p>
+                    <p className="text-xs text-primary mt-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Ver análise completa <ChevronRight className="h-3 w-3" />
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      <div className="text-center">
+        <Link to="/intelligence/ranking">
+          <Button variant="outline" size="sm" className="text-xs gap-1">
+            Ver todos os {bairros.length} bairros <ArrowRight className="h-3 w-3" />
+          </Button>
+        </Link>
+      </div>
+
+      <div className="flex justify-end">
+        <Button onClick={onNext} className="gap-2">
+          Ver recomendação personalizada <ArrowRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// STEP 7: RECOMENDAÇÃO
+// ═══════════════════════════════════════════════════════════════════
+
+interface Step7Props {
+  bairros: BairroAirbnb[];
+  profile: InvestorProfile | null;
+  answers: QuizAnswers | null;
+}
+
+export const Step7Recommendation = ({ bairros, profile, answers }: Step7Props) => {
+  const finalProfile = profile || resolveProfile({ objective: "equilibrio", risk: "moderado", priority: "retorno" });
+  const recommendations = useMemo(
+    () => generateRecommendations(bairros, finalProfile).slice(0, 3),
+    [bairros, finalProfile]
+  );
+
+  const ProfileIcon = ICON_MAP[finalProfile.icon] || Scale;
+
+  return (
+    <div className="space-y-6">
+      {/* Profile summary */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-4">
+              <div className={`h-12 w-12 rounded-xl ${finalProfile.color} flex items-center justify-center shrink-0`}>
+                <ProfileIcon className={`h-6 w-6 ${finalProfile.textColor}`} />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Seu perfil</p>
+                <h2 className="text-lg font-bold font-[var(--font-display)]">{finalProfile.name}</h2>
+                <p className="text-sm text-foreground/70 leading-relaxed mt-1">{finalProfile.description}</p>
+              </div>
+            </div>
+
+            {/* Weight visualization */}
+            <div className="mt-5 grid grid-cols-4 gap-2">
+              {PILLARS.map(p => {
+                const w = finalProfile.weights[p.key as keyof typeof finalProfile.weights];
+                const Icon = ICON_MAP[p.icon] || TrendingUp;
+                return (
+                  <div key={p.key} className="text-center">
+                    <Icon className={`h-4 w-4 ${p.color} mx-auto mb-1`} />
+                    <p className="text-sm font-bold">{(w * 100).toFixed(0)}%</p>
+                    <p className="text-[10px] text-muted-foreground">{p.label}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Top 3 */}
+      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        🏆 Top 3 bairros para o seu perfil
+      </p>
+      
+      <div className="space-y-4">
+        {recommendations.map((rec, i) => {
+          const badgeStyle = getGradeStyle(rec.gradeColor);
+          return (
+            <motion.div key={rec.bairro.bairro} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={stagger(i, 0.1)}>
+              <Card className={`${i === 0 ? "ring-2 ring-primary/30 border-primary/20" : ""}`}>
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <span className={`text-2xl font-bold ${i === 0 ? "text-primary" : "text-muted-foreground"}`}>
+                        #{i + 1}
+                      </span>
+                      <div>
+                        <p className="text-lg font-bold">{rec.bairro.bairro}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <Badge className={`${badgeStyle} text-[10px]`}>{rec.grade}</Badge>
+                          <Badge variant="outline" className="text-[10px]">{rec.profileLabel}</Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold">{rec.personalizedScore.toFixed(1)}</p>
+                      <p className="text-[10px] text-muted-foreground">Score personalizado</p>
+                    </div>
+                  </div>
+
+                  {/* Key metrics */}
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    <div className="text-center p-2 rounded-lg bg-muted/40">
+                      <p className="text-[10px] text-muted-foreground">Yield</p>
+                      <p className="text-sm font-bold">{fmtPct(rec.bairro.yield_bruto_airbnb)}</p>
+                    </div>
+                    <div className="text-center p-2 rounded-lg bg-muted/40">
+                      <p className="text-[10px] text-muted-foreground">Ocupação</p>
+                      <p className="text-sm font-bold">{fmtPct(rec.bairro.ocupacao_media_studio)}</p>
+                    </div>
+                    <div className="text-center p-2 rounded-lg bg-muted/40">
+                      <p className="text-[10px] text-muted-foreground">Diária</p>
+                      <p className="text-sm font-bold">{fmtBRL(rec.bairro.adr_medio_studio)}</p>
+                    </div>
+                  </div>
+
+                  {/* Reasons */}
+                  <div className="space-y-1.5 mb-3">
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Por que este bairro</p>
+                    {rec.reasons.map((r, j) => (
+                      <div key={j} className="flex items-start gap-2">
+                        <CheckCircle className="h-3.5 w-3.5 text-emerald-500 mt-0.5 shrink-0" />
+                        <p className="text-xs text-foreground/80">{r}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Cautions */}
+                  {rec.cautions.length > 0 && (
+                    <div className="space-y-1.5">
+                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Pontos de atenção</p>
+                      {rec.cautions.map((c, j) => (
+                        <div key={j} className="flex items-start gap-2">
+                          <AlertTriangle className="h-3.5 w-3.5 text-amber-500 mt-0.5 shrink-0" />
+                          <p className="text-xs text-foreground/60">{c}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="mt-4 pt-3 border-t border-border/50">
+                    <Link to={`/intelligence/bairro/${encodeURIComponent(rec.bairro.bairro)}`}>
+                      <Button variant="outline" size="sm" className="text-xs w-full gap-1">
+                        Ver análise completa de {rec.bairro.bairro} <ChevronRight className="h-3 w-3" />
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Closing */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(3, 0.2)}>
+        <Card className="bg-muted/30 border-dashed">
+          <CardContent className="p-5 text-center">
+            <p className="text-sm text-foreground/70 leading-relaxed italic mb-3">
+              "Esta recomendação é baseada no cruzamento do seu perfil com os dados de {bairros.length} bairros. 
+              Use como ponto de partida, não como decisão final."
+            </p>
+            <p className="text-[11px] text-muted-foreground">{FOOTER_DISCLAIMER}</p>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <div className="flex flex-wrap gap-3 justify-center">
+        <Link to="/intelligence/ranking">
+          <Button variant="outline" size="sm" className="text-xs gap-1">
+            <BarChart3 className="h-3.5 w-3.5" /> Ranking completo
+          </Button>
+        </Link>
+        <Link to="/intelligence/listings">
+          <Button variant="outline" size="sm" className="text-xs gap-1">
+            <Building2 className="h-3.5 w-3.5" /> Base de listings
+          </Button>
+        </Link>
+      </div>
+    </div>
+  );
+};
