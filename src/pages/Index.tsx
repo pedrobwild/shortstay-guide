@@ -840,7 +840,7 @@ function SimuladorSection() {
     return () => window.removeEventListener("populate-simulator", handler);
   }, []);
 
-  const selected = BAIRRO_DATA.find((b) => b.name === simBairro) ?? BAIRRO_DATA[0];
+  const selected = bairros.find((b) => b.name === simBairro) ?? bairros[0];
 
   const sim = useMemo(() => {
     const baseDaily = simDiariaAtual ? Number(simDiariaAtual) : (selected.dailyMin + selected.dailyMax) / 2;
