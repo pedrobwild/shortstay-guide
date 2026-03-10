@@ -58,34 +58,98 @@ export const Step1Context = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
   const avgYield = bairros.reduce((s, b) => s + Number(b.yield_bruto_airbnb), 0) / bairros.length;
   const avgDelta = bairros.reduce((s, b) => s + Number(b.delta_yield), 0) / bairros.length;
 
+  const BENEFITS = [
+    { icon: BarChart3, text: "Entender quais bairros parecem mais atrativos para short stay" },
+    { icon: Scale, text: "Comparar retorno e risco lado a lado, sem achismo" },
+    { icon: Target, text: "Enxergar onde há melhor equilíbrio entre demanda, ocupação e rentabilidade" },
+    { icon: TrendingUp, text: "Avaliar se o Airbnb supera o aluguel tradicional no bairro escolhido" },
+  ];
+
   return (
     <div className="space-y-6">
+      {/* Hero opening */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
-          <CardContent className="p-6 md:p-8">
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/[0.04] rounded-full -translate-y-1/2 translate-x-1/2" />
+          <CardContent className="p-6 md:p-8 relative z-10">
             <div className="flex items-center gap-2 mb-4">
               <Badge className="bg-primary/10 text-primary text-[10px] uppercase tracking-wider">
-                Sobre esta análise
+                Guia de investimento
+              </Badge>
+              <Badge className="bg-muted text-muted-foreground text-[10px]">
+                {bairros.length} bairros · 30+ variáveis
               </Badge>
             </div>
-            <h2 className="text-xl md:text-2xl font-bold font-[var(--font-display)] text-foreground mb-3">
-              Short stay é investir em imóveis para alugar por temporada curta
+            <h2 className="text-xl md:text-2xl font-bold font-[var(--font-display)] text-foreground mb-3 leading-tight">
+              Análise estratégica de bairros para<br className="hidden md:block" /> investimento em short stay
             </h2>
-            <p className="text-sm text-foreground/80 leading-relaxed mb-4">
-              Em vez de alugar um apartamento por 12 meses para um inquilino, você opera como um 
-              hotel boutique: diárias por noite, em plataformas como Airbnb. O retorno pode ser 
-              significativamente maior — mas o risco e a operação também são diferentes.
+            <p className="text-sm text-foreground/80 leading-relaxed mb-4 max-w-2xl">
+              Esta ferramenta ajuda você a comparar bairros de São Paulo para investimento em short stay. 
+              Em vez de olhar só diária ou só retorno, ela combina <strong>demanda, rentabilidade, liquidez 
+              e potencial futuro</strong> para apoiar sua decisão.
             </p>
-            <p className="text-sm text-foreground/70 leading-relaxed">
-              Analisamos <strong>{bairros.length} bairros de São Paulo</strong> com mais de 30 variáveis 
-              cada para ajudar você a entender onde investir faz mais sentido.
+            <p className="text-sm text-foreground/60 leading-relaxed max-w-2xl">
+              Não é apenas uma tabela de dados — é uma <strong>leitura estratégica do mercado</strong>, 
+              construída para transformar números complexos em uma jornada clara de decisão.
             </p>
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Market pulse */}
+      {/* Como esta análise ajuda você */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={stagger(1)}>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Como esta análise ajuda você
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {BENEFITS.map((b, i) => {
+                const Icon = b.icon;
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={stagger(i, 0.1)}
+                    className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <Icon className="h-4 w-4 text-primary" />
+                    </div>
+                    <p className="text-sm text-foreground/80 leading-relaxed">{b.text}</p>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* O que é short stay */}
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={stagger(2)}>
+        <Card className="bg-muted/20 border-dashed">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-3">
+              <Info className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-foreground mb-2">O que é short stay?</p>
+                <p className="text-sm text-foreground/70 leading-relaxed">
+                  Em vez de alugar um apartamento por 12 meses para um inquilino, você opera como um 
+                  hotel boutique: diárias por noite, em plataformas como Airbnb. O retorno pode ser 
+                  significativamente maior — mas o risco e a operação também são diferentes.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Market pulse */}
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={stagger(3)}>
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
           📊 Pulso do mercado — São Paulo
         </p>
@@ -96,7 +160,7 @@ export const Step1Context = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
             { label: "Retorno médio", value: fmtPct(avgYield), sub: "ao ano (Airbnb)" },
             { label: "Prêmio short stay", value: `+${fmtPct(avgDelta)}`, sub: "vs aluguel comum" },
           ].map((kpi, i) => (
-            <motion.div key={kpi.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(i, 0.1)}>
+            <motion.div key={kpi.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(i, 0.15)}>
               <Card>
                 <CardContent className="p-4 text-center">
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold">{kpi.label}</p>
@@ -110,7 +174,7 @@ export const Step1Context = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
       </motion.div>
 
       {/* Key narrative */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(2)}>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(4)}>
         <Card className="bg-muted/30 border-dashed">
           <CardContent className="p-5">
             <div className="flex items-start gap-3">
@@ -128,8 +192,8 @@ export const Step1Context = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
         </Card>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={stagger(3)} className="flex justify-end">
-        <Button onClick={onNext} className="gap-2">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={stagger(5)} className="flex justify-end">
+        <Button onClick={onNext} size="lg" className="gap-2">
           Entendi, vamos começar <ArrowRight className="h-4 w-4" />
         </Button>
       </motion.div>
