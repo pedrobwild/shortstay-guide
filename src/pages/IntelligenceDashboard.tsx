@@ -90,6 +90,9 @@ const IntelligenceDashboard = () => {
           ))}
         </div>
 
+        {/* ── Methodology & Transparency ──────────────── */}
+        <MethodologySection bairros={bairros} />
+
         {/* ── Comparative Narratives ──────────────────── */}
         <ComparativeNarrativesSection bairros={bairros} />
 
