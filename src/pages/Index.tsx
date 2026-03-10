@@ -730,7 +730,7 @@ function MercadoSection() {
               <Select value={bairro} onValueChange={setBairro}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {BAIRRO_DATA.map((b) => (
+                  {bairros.map((b) => (
                     <SelectItem key={b.name} value={b.name}>{b.name}</SelectItem>
                   ))}
                 </SelectContent>
