@@ -123,7 +123,7 @@ export default function SimuladorSection() {
           <div className="flex flex-col sm:flex-row gap-2">
             <Button variant="outline" className="flex-1 min-h-[44px]" onClick={saveScenario}><Bookmark size={16} className="mr-2" />Salvar cenário</Button>
             <Dialog open={exportOpen} onOpenChange={setExportOpen}>
-              <DialogTrigger asChild><Button variant="outline" className="flex-1"><FileText size={16} className="mr-2" />Exportar simulação</Button></DialogTrigger>
+              <DialogTrigger asChild><Button variant="outline" className="flex-1 min-h-[44px]"><FileText size={16} className="mr-2" />Exportar simulação</Button></DialogTrigger>
               <DialogContent className="font-body"><DialogHeader><DialogTitle className="font-display">Resumo da Simulação</DialogTitle></DialogHeader><pre className="bg-muted rounded-lg p-4 text-sm text-foreground whitespace-pre-wrap max-h-80 overflow-y-auto">{summaryText}</pre><Button onClick={handleCopy} className="w-full bg-primary text-primary-foreground">{copied ? <><Check size={16} className="mr-2" /> Copiado!</> : <><Copy size={16} className="mr-2" /> Copiar texto</>}</Button></DialogContent>
             </Dialog>
           </div>
