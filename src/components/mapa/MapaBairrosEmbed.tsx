@@ -389,24 +389,47 @@ function InteractiveMap({
           </Source>
         )}
 
-        {/* POIs as DOM Markers with tooltips */}
-        {poisData
-          .filter(p => showPOIs.includes(p.category as POICategoryKey))
-          .map((p, i) => (
-            <Marker key={`poi-${i}`} longitude={p.lng} latitude={p.lat} anchor="center">
-              <div
-                className="relative group cursor-pointer"
-                onMouseEnter={() => setHoveredPOI(p)}
-                onMouseLeave={() => setHoveredPOI(null)}
-              >
-                <div
-                  className="w-3.5 h-3.5 rounded-full border-2 border-white shadow-md transition-transform group-hover:scale-150"
-                  style={{ backgroundColor: POI_COLORS[p.category] ?? "#888" }}
-                />
-              </div>
-            </Marker>
-          ))
-        }
+        {/* POIs as clustered native layers for performance */}
+        {poisGeoJSON && showPOIs.length > 0 && (() => {
+          // Filter features to only active categories
+          const filteredGeoJSON: GeoJSON.FeatureCollection = {
+            type: "FeatureCollection",
+            features: poisGeoJSON.features.filter(f =>
+              showPOIs.includes((f.properties as any)?.category as POICategoryKey)
+            ),
+          };
+          // Build a match expression for colors by category
+          const colorExpr: any = ["match", ["get", "category"]];
+          POI_CATEGORIES.forEach(c => { colorExpr.push(c.key, c.color); });
+          colorExpr.push("#888"); // fallback
+
+          return (
+            <Source id="pois-clustered" type="geojson" data={filteredGeoJSON} cluster={true} clusterRadius={40} clusterMaxZoom={14}>
+              {/* Cluster circles */}
+              <Layer id="poi-clusters" type="circle" filter={["has", "point_count"]} paint={{
+                "circle-color": "hsl(var(--primary))",
+                "circle-radius": ["step", ["get", "point_count"], 16, 5, 20, 10, 26],
+                "circle-opacity": 0.85,
+                "circle-stroke-width": 2,
+                "circle-stroke-color": "#fff",
+              }} />
+              {/* Cluster count labels */}
+              <Layer id="poi-cluster-count" type="symbol" filter={["has", "point_count"]} layout={{
+                "text-field": "{point_count_abbreviated}",
+                "text-size": 11,
+              }} paint={{ "text-color": "#fff" }} />
+              {/* Individual POI points */}
+              <Layer id="poi-unclustered" type="circle" filter={["!", ["has", "point_count"]]} paint={{
+                "circle-color": colorExpr,
+                "circle-radius": 6,
+                "circle-stroke-width": 2,
+                "circle-stroke-color": "#fff",
+                "circle-opacity": 0.9,
+              }}
+              />
+            </Source>
+          );
+        })()}
 
         {hoveredPOI && (
           <Popup
