@@ -134,6 +134,36 @@ export type Database = {
         }
         Relationships: []
       }
+      guide_events: {
+        Row: {
+          created_at: string | null
+          device_type: string | null
+          event_data: Json | null
+          event_type: string
+          id: string
+          page: string | null
+          session_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          device_type?: string | null
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          page?: string | null
+          session_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          device_type?: string | null
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          page?: string | null
+          session_id?: string | null
+        }
+        Relationships: []
+      }
       guide_leads: {
         Row: {
           area_sqm: string | null
