@@ -378,6 +378,49 @@ function InteractiveMap({
           </Source>
         )}
 
+        {/* POIs — Source always mounted to avoid dynamic loading issues */}
+        <Source id="pois-source" type="geojson" data="/geo/pois.geojson">
+          {(["restaurant", "corporate", "tourist", "events", "metro"] as POICategoryKey[]).map((cat) => (
+            <Layer
+              key={`poi-${cat}`}
+              id={`poi-${cat}`}
+              type="circle"
+              filter={["==", ["get", "category"], cat]}
+              layout={{ "visibility": showPOIs.includes(cat) ? "visible" : "none" }}
+              paint={{
+                "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 5, 14, 10, 16, 14],
+                "circle-color": POI_COLORS[cat] || "#888",
+                "circle-opacity": 0.9,
+                "circle-stroke-color": "#fff",
+                "circle-stroke-width": 2,
+              }}
+            />
+          ))}
+          {(["restaurant", "corporate", "tourist", "events", "metro"] as POICategoryKey[]).map((cat) => (
+            <Layer
+              key={`poi-label-${cat}`}
+              id={`poi-label-${cat}`}
+              type="symbol"
+              filter={["==", ["get", "category"], cat]}
+              minzoom={13}
+              layout={{
+                "visibility": showPOIs.includes(cat) ? "visible" : "none",
+                "text-field": ["get", "name"],
+                "text-size": 11,
+                "text-offset": [0, 1.4],
+                "text-anchor": "top",
+                "text-optional": true,
+                "text-max-width": 12,
+              }}
+              paint={{
+                "text-color": POI_COLORS[cat] || "#555",
+                "text-halo-color": "#fff",
+                "text-halo-width": 1.5,
+              }}
+            />
+          ))}
+        </Source>
+
         {/* POIs */}
         {showPOIs.length > 0 && (
           <Source id="pois-source" type="geojson" data="/geo/pois.geojson">
