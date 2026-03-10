@@ -2263,7 +2263,7 @@ function FinalCTASection() {
       return;
     }
     setSubmitted(true);
-  };
+    trackGlobal("lead_submitted", { neighborhood: formData.bairro, objective: formData.objetivo });
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
