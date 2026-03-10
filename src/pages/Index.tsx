@@ -1410,7 +1410,37 @@ function ProjetoSection() {
           <p className="text-sm text-muted-foreground">O método Bwild trabalha com orçamento fechado e cronograma definido desde o início. Sem surpresas — você sabe exatamente quanto vai investir e quando o studio estará pronto para operar.</p>
         </div>
       </div>
-      <PlaceholderAccordion label="Projeto arquitetônico" />
+      <Accordion type="multiple" className="mt-4 font-body">
+        <AccordionItem value="etapas">
+          <AccordionTrigger className="text-primary font-semibold">O que acontece em cada etapa</AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-4 text-sm">
+              <div>
+                <p className="font-semibold text-foreground">1. Projeto (2–3 semanas)</p>
+                <p className="text-muted-foreground">Entregáveis: planta humanizada, layout 3D renderizado, detalhamento técnico para execução, lista de materiais e orçamento fechado. O investidor precisa fornecer a planta do imóvel, fotos e briefing de estilo. Aprovação do projeto antes de iniciar a obra.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">2. Execução (3–5 semanas)</p>
+                <p className="text-muted-foreground">Entregáveis: obra completa (pintura, elétrica, iluminação, piso se necessário). Fornecedores homologados pela Bwild executam com acompanhamento semanal. Relatório de progresso por milestone. O investidor recebe atualizações semanais com fotos.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">3. Marcenaria (2–3 semanas)</p>
+                <p className="text-muted-foreground">Entregáveis: armários, bancadas e nichos sob medida. Produção em paralelo com a obra. Instalação coordenada para evitar retrabalho. O investidor aprova amostras de acabamento antes da produção.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">4. Decoração (1 semana)</p>
+                <p className="text-muted-foreground">Entregáveis: montagem completa (mobília, enxoval, objetos decorativos), fotos profissionais para o anúncio, guia de reposição. O investidor recebe o studio pronto para operar com todas as fotos otimizadas para as plataformas.</p>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="diferencial">
+          <AccordionTrigger className="text-primary font-semibold">Diferencial do método Bwild</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">Orçamento fechado desde o projeto — sem surpresas. Cronograma com milestone por semana e penalidades para atrasos. Fornecedores homologados com histórico comprovado em short stay. Garantia de 1 ano em todos os serviços. A experiência de +200 studios permite antecipar problemas comuns e evitar desperdícios que investidores de primeira viagem não conseguem prever.</p>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </SectionBlock>
   );
 }
