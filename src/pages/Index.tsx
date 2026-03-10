@@ -2186,7 +2186,7 @@ export default function Index() {
 
         <footer className="text-center py-8 text-sm text-muted-foreground font-body border-t border-border">
           <img src={bwildLogo} alt="Bwild" className="h-6 w-auto mx-auto mb-3 opacity-60" />
-          © 2025 Bwild · Guia do Investidor em Studios para Short Stay
+          © 2026 Bwild · Guia do Investidor em Studios para Short Stay
         </footer>
        </div>
       </main>
