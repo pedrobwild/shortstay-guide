@@ -150,8 +150,26 @@ function SectionBlock({
   takeaway: string;
   children: React.ReactNode;
 }) {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          trackGlobal("section_enter", { section_id: id });
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [id]);
+
   return (
-    <section id={id} className="scroll-mt-24 py-16 md:py-20">
+    <section ref={sectionRef} id={id} className="scroll-mt-24 py-16 md:py-20">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
