@@ -459,6 +459,15 @@ export const SECTION_MICROCOPY: Record<string, { message: string; type: "insight
   true_yield: { message: "O True Yield é uma conta direta, sem ajustes. Serve como referência rápida — não como projeção financeira.", type: "insight" },
   profile_intro: { message: "Cada bairro tem um perfil que ajuda a entender para quem ele faz sentido, independente de ser o 'melhor' da tabela.", type: "opportunity" },
   investor_match: { message: "Não existe bairro perfeito — existe o bairro certo para o seu perfil de investidor.", type: "opportunity" },
+  // Journey step transitions
+  journey_context: { message: "Entenda o que realmente move o retorno no short stay.", type: "insight" },
+  journey_highlights: { message: "Compare bairros como um investidor, não como um turista.", type: "insight" },
+  journey_indicators: { message: "Preço alto por noite nem sempre significa melhor negócio.", type: "caution" },
+  journey_learnings: { message: "O melhor investimento está no equilíbrio, não apenas na diária.", type: "insight" },
+  journey_ranking: { message: "Investment Score resume retorno, demanda, operação e futuro.", type: "insight" },
+  journey_profile: { message: "Confiança alta significa leitura mais consistente.", type: "caution" },
+  journey_explore: { message: "Delta yield mostra quando o Airbnb supera o aluguel tradicional.", type: "insight" },
+  journey_recommendation: { message: "Use os scores como leitura estratégica, não como verdade absoluta.", type: "caution" },
 };
 
 // ── Key education messages ───────────────────────────────────────
