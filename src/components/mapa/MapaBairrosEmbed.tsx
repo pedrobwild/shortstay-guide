@@ -14,11 +14,12 @@ import { Switch } from "@/components/ui/switch";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin, Train, Calendar, DollarSign, TrendingUp,
-  X, Clock, Wallet, Calculator, Flame, ArrowUpDown, CircleDot,
+  X, Clock, Wallet, Calculator, Flame, ArrowUpDown, CircleDot, Layers,
 } from "lucide-react";
 import {
   Neighborhood, MetroStation, CityEvent, NEIGHBORHOODS, METRO_STATIONS, EVENTS,
   DEMAND_FILTERS, EVENT_ICONS, IMPACT_STYLES, TAG_ICONS, scoreColor, fmt,
+  POI_CATEGORIES, POI_COLORS, type POICategoryKey,
 } from "@/data/mapaBairrosData";
 import ROIRanking from "@/components/mapa/ROIRanking";
 import NeighborhoodComparison from "@/components/mapa/NeighborhoodComparison";
@@ -175,9 +176,10 @@ const SP_BOUNDS: [[number, number], [number, number]] = [[-46.82, -23.68], [-46.
 
 /* ─── Interactive Map ─── */
 function InteractiveMap({
-  neighborhoods, stations, showMetro, showHeatmap, showClusters, selected, highlightedNames, onSelect,
+  neighborhoods, stations, showMetro, showHeatmap, showClusters, showPOIs, selected, highlightedNames, onSelect,
 }: {
   neighborhoods: Neighborhood[]; stations: MetroStation[]; showMetro: boolean; showHeatmap: boolean; showClusters: boolean;
+  showPOIs: POICategoryKey[];
   selected: Neighborhood | null; highlightedNames: string[]; onSelect: (n: Neighborhood) => void;
 }) {
   const mapRef = useRef<MapRef>(null);
@@ -375,6 +377,49 @@ function InteractiveMap({
             <Layer id="unclustered-point" type="circle" filter={["!", ["has", "point_count"]]} paint={{ "circle-color": "rgba(34,197,94,0.6)", "circle-radius": 5, "circle-stroke-width": 1, "circle-stroke-color": "#fff" }} />
           </Source>
         )}
+
+        {/* POIs */}
+        {showPOIs.length > 0 && (
+          <Source id="pois-source" type="geojson" data="/geo/pois.geojson">
+            {showPOIs.map((cat) => (
+              <Layer
+                key={`poi-${cat}`}
+                id={`poi-${cat}`}
+                type="circle"
+                filter={["==", ["get", "category"], cat]}
+                paint={{
+                  "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 4, 14, 8, 16, 12],
+                  "circle-color": POI_COLORS[cat] || "#888",
+                  "circle-opacity": 0.85,
+                  "circle-stroke-color": "#fff",
+                  "circle-stroke-width": 1.5,
+                }}
+              />
+            ))}
+            {showPOIs.map((cat) => (
+              <Layer
+                key={`poi-label-${cat}`}
+                id={`poi-label-${cat}`}
+                type="symbol"
+                filter={["==", ["get", "category"], cat]}
+                minzoom={13}
+                layout={{
+                  "text-field": ["get", "name"],
+                  "text-size": 10,
+                  "text-offset": [0, 1.4],
+                  "text-anchor": "top",
+                  "text-optional": true,
+                  "text-max-width": 12,
+                }}
+                paint={{
+                  "text-color": POI_COLORS[cat] || "#555",
+                  "text-halo-color": "#fff",
+                  "text-halo-width": 1.5,
+                }}
+              />
+            ))}
+          </Source>
+        )}
       </ReactMap>
 
       {/* Legend */}
@@ -399,6 +444,19 @@ function InteractiveMap({
           </span>
         </div>
         <p className="text-[9px] text-muted-foreground mt-2 font-body">Clique nos pontos para ver detalhes</p>
+        {showPOIs.length > 0 && (
+          <div className="mt-2 pt-2 border-t border-border/50">
+            <p className="text-[11px] font-semibold text-foreground font-display mb-1.5">Pontos de Interesse</p>
+            <div className="flex flex-col gap-1">
+              {POI_CATEGORIES.filter((c) => showPOIs.includes(c.key)).map((c) => (
+                <span key={c.key} className="flex items-center gap-2 text-xs font-body">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: c.color, boxShadow: `0 0 0 2px ${c.color}33` }} />
+                  <span className="text-foreground/80">{c.label}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </motion.div>
     </motion.div>
   );
@@ -458,9 +516,14 @@ export default function MapaBairrosEmbed() {
   const [showMetro, setShowMetro] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showClusters, setShowClusters] = useState(false);
+  const [activePOIs, setActivePOIs] = useState<POICategoryKey[]>([]);
   const [activeEvent, setActiveEvent] = useState<CityEvent | null>(null);
   const [search, setSearch] = useState("");
   const [showComparison, setShowComparison] = useState(false);
+
+  const togglePOI = useCallback((key: POICategoryKey) => {
+    setActivePOIs((prev) => prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]);
+  }, []);
 
   const toggleFilter = useCallback((key: string) => {
     if (key === "metro") { setShowMetro((v) => !v); return; }
@@ -552,6 +615,45 @@ export default function MapaBairrosEmbed() {
             </button>
           )}
         </div>
+
+        {/* POI layer toggles */}
+        <div className="flex flex-nowrap items-center gap-2 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap md:overflow-visible md:pb-0 scrollbar-none">
+          <div className="flex items-center gap-1.5 mr-1 flex-shrink-0">
+            <Layers size={12} className="text-muted-foreground" />
+            <span className="text-xs font-semibold text-foreground">Pontos de interesse:</span>
+          </div>
+          {POI_CATEGORIES.map((cat) => {
+            const active = activePOIs.includes(cat.key);
+            const Icon = cat.icon;
+            return (
+              <button
+                key={cat.key}
+                onClick={() => togglePOI(cat.key)}
+                className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all whitespace-nowrap flex-shrink-0 ${
+                  active
+                    ? "border-current shadow-sm"
+                    : "bg-card text-muted-foreground border-border hover:border-primary/40"
+                }`}
+                style={active ? { backgroundColor: `${cat.color}15`, color: cat.color, borderColor: `${cat.color}60` } : undefined}
+              >
+                <Icon size={12} />{cat.label}
+              </button>
+            );
+          })}
+          {activePOIs.length > 0 && (
+            <button onClick={() => setActivePOIs([])} className="text-xs text-muted-foreground hover:text-foreground underline ml-1 flex-shrink-0">
+              Limpar POIs
+            </button>
+          )}
+        </div>
+
+        {/* POI legend when active */}
+        {activePOIs.length > 0 && (
+          <div className="flex flex-wrap items-center gap-3 mt-1 text-[10px] text-muted-foreground font-body">
+            📍 Mostrando {activePOIs.length} categoria{activePOIs.length > 1 ? "s" : ""} de pontos de interesse no mapa. Zoom in para ver nomes.
+          </div>
+        )}
+
         {/* Filter explainer */}
         {activeFilters.length > 0 && (
           <p className="text-[10px] text-muted-foreground font-body mt-1 ml-1">
@@ -578,6 +680,7 @@ export default function MapaBairrosEmbed() {
             showMetro={showMetro}
             showHeatmap={showHeatmap}
             showClusters={showClusters}
+            showPOIs={activePOIs}
             selected={selectedNeighborhood}
             highlightedNames={highlightedNames}
             onSelect={(n) => { setSelectedNeighborhood(n); }}
