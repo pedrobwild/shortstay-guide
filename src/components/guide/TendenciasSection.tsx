@@ -108,7 +108,7 @@ export default function TendenciasSection() {
       <div className="flex flex-wrap gap-2 mb-4">
         <Badge
           variant={!activeTag && !activeKpi ? "default" : "secondary"}
-          className="cursor-pointer font-body"
+          className="cursor-pointer font-body min-h-[36px] px-3 flex items-center"
           onClick={() => handleTagClick(null)}
         >
           Todos
@@ -119,7 +119,7 @@ export default function TendenciasSection() {
             <Badge
               key={tag}
               variant={activeTag === tag ? "default" : "secondary"}
-              className={`cursor-pointer font-body ${activeTag !== tag && !activeKpi ? TREND_TAG_COLORS[tag] || "" : ""}`}
+              className={`cursor-pointer font-body min-h-[36px] px-3 flex items-center ${activeTag !== tag && !activeKpi ? TREND_TAG_COLORS[tag] || "" : ""}`}
               onClick={() => handleTagClick(tag === activeTag ? null : tag)}
             >
               {Icon && <Icon size={12} className="mr-1" />}
