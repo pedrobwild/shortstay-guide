@@ -2079,7 +2079,7 @@ export default function Index() {
       {/* ChatBot is rendered globally in App.tsx */}
       <MobileStickyBar />
 
-      <main className="lg:ml-56 xl:ml-64 w-full flex justify-center pb-24 lg:pb-8 pt-16 lg:pt-0">
+      <main className="lg:ml-[60px] w-full flex justify-center pb-24 lg:pb-8 pt-16 lg:pt-0">
        <div className="w-full max-w-[1280px] px-5 lg:px-10 py-0 lg:py-10">
         <HeroSection />
 
