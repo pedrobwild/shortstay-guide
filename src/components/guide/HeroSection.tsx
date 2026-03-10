@@ -42,10 +42,10 @@ export default function HeroSection() {
             </ul>
           </div>
           <div className="flex flex-wrap justify-center gap-3 mb-4">
-            <Button size="lg" className="bg-primary text-primary-foreground font-body w-full sm:w-auto" asChild>
+            <Button size="lg" className="bg-primary text-primary-foreground font-body w-full sm:w-auto min-h-[44px]" asChild>
               <a href="#simulador"><Calculator size={18} className="mr-2" />Simular rentabilidade</a>
             </Button>
-            <Button size="lg" variant="outline" asChild className="font-body w-full sm:w-auto">
+            <Button size="lg" variant="outline" asChild className="font-body w-full sm:w-auto min-h-[44px]">
               <a href="#mapa-bairros"><MapPin size={18} className="mr-2" />Ver mapa de bairros</a>
             </Button>
           </div>
