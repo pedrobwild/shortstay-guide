@@ -450,7 +450,7 @@ function InteractiveMap({
             <div className="flex flex-col gap-1">
               {POI_CATEGORIES.filter((c) => showPOIs.includes(c.key)).map((c) => (
                 <span key={c.key} className="flex items-center gap-2 text-xs font-body">
-                  <span className="w-2.5 h-2.5 rounded-full ring-2 ring-opacity-20" style={{ backgroundColor: c.color, ringColor: c.color }} />
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: c.color, boxShadow: `0 0 0 2px ${c.color}33` }} />
                   <span className="text-foreground/80">{c.label}</span>
                 </span>
               ))}
