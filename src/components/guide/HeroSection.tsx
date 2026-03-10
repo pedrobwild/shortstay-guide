@@ -30,6 +30,9 @@ export default function HeroSection() {
             alt="Studio moderno para short stay em São Paulo"
             className="w-full h-full object-cover object-[center_30%]"
             loading="eager"
+            fetchPriority="high"
+            width={800}
+            height={224}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
         </div>
