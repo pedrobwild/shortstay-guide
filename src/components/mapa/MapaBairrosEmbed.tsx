@@ -176,9 +176,10 @@ const SP_BOUNDS: [[number, number], [number, number]] = [[-46.82, -23.68], [-46.
 
 /* ─── Interactive Map ─── */
 function InteractiveMap({
-  neighborhoods, stations, showMetro, showHeatmap, showClusters, selected, highlightedNames, onSelect,
+  neighborhoods, stations, showMetro, showHeatmap, showClusters, showPOIs, selected, highlightedNames, onSelect,
 }: {
   neighborhoods: Neighborhood[]; stations: MetroStation[]; showMetro: boolean; showHeatmap: boolean; showClusters: boolean;
+  showPOIs: POICategoryKey[];
   selected: Neighborhood | null; highlightedNames: string[]; onSelect: (n: Neighborhood) => void;
 }) {
   const mapRef = useRef<MapRef>(null);
