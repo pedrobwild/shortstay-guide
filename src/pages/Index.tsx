@@ -733,6 +733,8 @@ function SimuladorSection() {
   const [rateBoost, setRateBoost] = useState(0);
   const [exportOpen, setExportOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [scenarios, setScenarios] = useState<SavedScenario[]>(loadScenarios);
+  const [compareOpen, setCompareOpen] = useState(false);
 
   // Listen for case study "populate" events
   useEffect(() => {
