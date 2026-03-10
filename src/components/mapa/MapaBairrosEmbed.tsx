@@ -460,6 +460,7 @@ function InteractiveMap({
       </motion.div>
     </motion.div>
   );
+}
 
 /* ─── Events Timeline ─── */
 function EventsTimeline({ events, onEventClick, activeEventId }: { events: CityEvent[]; onEventClick: (e: CityEvent) => void; activeEventId: string | null }) {
