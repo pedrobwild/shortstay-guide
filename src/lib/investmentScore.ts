@@ -210,10 +210,10 @@ export function calculateInvestmentScore(
 // ── Grade system ─────────────────────────────────────────────────
 
 function getGrade(score: number): { grade: string; gradeColor: string; gradeLabel: string } {
-  if (score >= 90) return { grade: "A+", gradeColor: "text-emerald-600", gradeLabel: "Excelente investimento" };
-  if (score >= 80) return { grade: "A", gradeColor: "text-emerald-600", gradeLabel: "Muito bom" };
-  if (score >= 70) return { grade: "B", gradeColor: "text-blue-600", gradeLabel: "Bom" };
-  if (score >= 60) return { grade: "C", gradeColor: "text-amber-600", gradeLabel: "Moderado" };
+  if (score >= 62) return { grade: "A+", gradeColor: "text-emerald-600", gradeLabel: "Excelente investimento" };
+  if (score >= 55) return { grade: "A", gradeColor: "text-emerald-600", gradeLabel: "Muito bom" };
+  if (score >= 48) return { grade: "B", gradeColor: "text-blue-600", gradeLabel: "Bom" };
+  if (score >= 40) return { grade: "C", gradeColor: "text-amber-600", gradeLabel: "Moderado" };
   return { grade: "D", gradeColor: "text-red-600", gradeLabel: "Arriscado" };
 }
 
