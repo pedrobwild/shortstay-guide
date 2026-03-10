@@ -1144,7 +1144,55 @@ function AntiChecklistSection() {
           <p className="text-sm text-muted-foreground">Ao evitar demolições desnecessárias e priorizar marcenaria + layout, investidores experientes economizam até 30% do orçamento de reforma — dinheiro que vai direto para decoração e fotos, onde o retorno é comprovado.</p>
         </div>
       </div>
-      <PlaceholderAccordion label="Anti-checklist" />
+      <Accordion type="multiple" className="mt-4 font-body">
+        <AccordionItem value="custos-evitaveis">
+          <AccordionTrigger className="text-primary font-semibold">Detalhamento dos custos evitáveis</AccordionTrigger>
+          <AccordionContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="border-b border-border">
+                  <th className="text-left py-2 text-muted-foreground font-medium">Item evitável</th>
+                  <th className="text-right py-2 text-muted-foreground font-medium">Custo médio</th>
+                  <th className="text-left py-2 pl-4 text-muted-foreground font-medium">Alternativa inteligente</th>
+                  <th className="text-right py-2 text-muted-foreground font-medium">Economia</th>
+                </tr></thead>
+                <tbody>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 text-foreground">Trocar bancadas novas</td>
+                    <td className="py-2 text-right text-muted-foreground">R$ 5.200</td>
+                    <td className="py-2 pl-4 text-muted-foreground">Manter originais da construtora</td>
+                    <td className="py-2 text-right font-medium text-primary">R$ 5.200</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 text-foreground">Integrar sacada</td>
+                    <td className="py-2 text-right text-muted-foreground">R$ 8.000+</td>
+                    <td className="py-2 pl-4 text-muted-foreground">Decorar sacada como espaço funcional</td>
+                    <td className="py-2 text-right font-medium text-primary">R$ 7.000+</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 text-foreground">Remover revestimento banheiro</td>
+                    <td className="py-2 text-right text-muted-foreground">R$ 6.000+</td>
+                    <td className="py-2 pl-4 text-muted-foreground">Pintura epóxi ou adesivos sobre o existente</td>
+                    <td className="py-2 text-right font-medium text-primary">R$ 5.000+</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 text-foreground">Mover pontos hidráulicos</td>
+                    <td className="py-2 text-right text-muted-foreground">R$ 4.000+</td>
+                    <td className="py-2 pl-4 text-muted-foreground">Trabalhar com a planta existente</td>
+                    <td className="py-2 text-right font-medium text-primary">R$ 4.000+</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="quando-demolir">
+          <AccordionTrigger className="text-primary font-semibold">Quando SIM faz sentido demolir</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">Apenas quando o layout atual impede a funcionalidade básica do studio (ex: cozinha inacessível, banheiro sem ventilação mínima) <strong className="text-foreground">E</strong> o ROI projetado compensa o custo adicional. Antes de demolir, faça a conta: se a demolição custa R$ 10.000 e o ganho mensal projetado é R$ 300, o payback será de +33 meses — provavelmente não compensa. Consulte um arquiteto com experiência em short stay antes de tomar essa decisão.</p>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </SectionBlock>
   );
 }
