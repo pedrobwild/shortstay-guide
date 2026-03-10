@@ -100,6 +100,36 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useGuideAnalytics, setGlobalTrack, trackGlobal } from "@/hooks/useGuideAnalytics";
 
+/* ─── Scenario type ─── */
+type SavedScenario = {
+  id: string;
+  name: string;
+  bairro: string;
+  metragem: number;
+  ocupacao: number;
+  diariaAtual: string;
+  objetivo: string;
+  rateBoost: number;
+  reformaBudget: string;
+  // results
+  boostedDaily: number;
+  receitaMensal: number;
+  receitaAnual: number;
+  paybackMonths: number | null;
+};
+
+const SCENARIOS_KEY = "bwild_guide_scenarios";
+
+function loadScenarios(): SavedScenario[] {
+  try {
+    return JSON.parse(sessionStorage.getItem(SCENARIOS_KEY) || "[]");
+  } catch { return []; }
+}
+
+function persistScenarios(scenarios: SavedScenario[]) {
+  sessionStorage.setItem(SCENARIOS_KEY, JSON.stringify(scenarios));
+}
+
 /* ─── Shared dataset ─── */
 const BAIRRO_DATA = [
   { name: "Vila Mariana", dailyMin: 280, dailyMax: 420, avgOccupancy: 80, perSqm: 9.5, avgBySize: { "20–25 m²": 260, "26–35 m²": 330, "36–50 m²": 410 } },
