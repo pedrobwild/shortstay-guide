@@ -791,6 +791,37 @@ function SimuladorSection() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const saveScenario = () => {
+    if (scenarios.length >= 5) {
+      toast({ title: "Limite atingido", description: "Remova um cenário antes de salvar outro.", variant: "destructive" });
+      return;
+    }
+    const newScenario: SavedScenario = {
+      id: crypto.randomUUID(),
+      name: `Cenário ${scenarios.length + 1} — ${simBairro} ${simMetragem}m²`,
+      bairro: simBairro, metragem: simMetragem, ocupacao: simOcupacao[0],
+      diariaAtual: simDiariaAtual, objetivo: simObjetivo, rateBoost, reformaBudget: simReformaBudget,
+      boostedDaily: sim.boostedDaily, receitaMensal: sim.receitaMensal, receitaAnual: sim.receitaAnual, paybackMonths: sim.paybackMonths,
+    };
+    const updated = [...scenarios, newScenario];
+    setScenarios(updated);
+    persistScenarios(updated);
+    toast({ title: "Cenário salvo!", description: `Você tem ${updated.length} de 5 cenários.` });
+  };
+
+  const removeScenario = (id: string) => {
+    const updated = scenarios.filter(s => s.id !== id);
+    setScenarios(updated);
+    persistScenarios(updated);
+  };
+
+  const loadScenarioIntoSim = (s: SavedScenario) => {
+    setSimBairro(s.bairro); setSimMetragem(s.metragem); setSimOcupacao([s.ocupacao]);
+    setSimDiariaAtual(s.diariaAtual); setSimObjetivo(s.objetivo); setRateBoost(s.rateBoost);
+    setSimReformaBudget(s.reformaBudget);
+    setCompareOpen(false);
+  };
+
   // Track simulator usage (debounced — fires when results settle)
   const simTracked = useRef(false);
   useEffect(() => {
