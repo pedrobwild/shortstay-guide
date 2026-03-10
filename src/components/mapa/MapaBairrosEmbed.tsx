@@ -254,6 +254,32 @@ function InteractiveMap({
     }
   }, []);
 
+  const onPOIHover = useCallback((e: MapLayerMouseEvent) => {
+    if (e.features && e.features.length > 0) {
+      const p = e.features[0].properties;
+      setHoveredPOI({ name: p?.name || "", category: p?.category || "", neighborhood: p?.neighborhood || "", lng: e.lngLat.lng, lat: e.lngLat.lat });
+      if (mapRef.current) mapRef.current.getCanvas().style.cursor = "pointer";
+    }
+  }, []);
+
+  const onPOILeave = useCallback(() => {
+    setHoveredPOI(null);
+    if (mapRef.current) mapRef.current.getCanvas().style.cursor = "";
+  }, []);
+
+  const onPOIClusterClick = useCallback((e: MapLayerMouseEvent) => {
+    if (!mapRef.current || !e.features?.length) return;
+    const feature = e.features[0];
+    const clusterId = feature.properties?.cluster_id;
+    const source = mapRef.current.getSource("pois-clustered") as GeoJSONSource;
+    if (source && clusterId != null) {
+      source.getClusterExpansionZoom(clusterId).then((zoom) => {
+        const geom = feature.geometry as GeoJSON.Point;
+        mapRef.current!.easeTo({ center: geom.coordinates as [number, number], zoom: Math.min(zoom, 16), duration: 500 });
+      });
+    }
+  }, []);
+
   return (
     <motion.div
       className="relative w-full aspect-square md:aspect-[4/3] rounded-xl border border-border overflow-hidden min-h-[320px]"
