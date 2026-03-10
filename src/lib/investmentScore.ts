@@ -142,10 +142,9 @@ function getConfidenceFactor(nivel: string): number {
 }
 
 function getLiquidityRiskFactor(rawScoreLiquidez: number): number {
-  // Use absolute raw score_liquidez (0-100 scale) instead of normalized value
-  // to avoid cliff effects from min-max compression
-  if (rawScoreLiquidez < 45) return 0.90;
-  if (rawScoreLiquidez < 55) return 0.95;
+  // Use absolute raw score_liquidez (0-100 scale)
+  if (rawScoreLiquidez < 50) return 0.90;
+  if (rawScoreLiquidez < 60) return 0.95;
   return 1.0;
 }
 
@@ -210,10 +209,10 @@ export function calculateInvestmentScore(
 // ── Grade system ─────────────────────────────────────────────────
 
 function getGrade(score: number): { grade: string; gradeColor: string; gradeLabel: string } {
-  if (score >= 62) return { grade: "A+", gradeColor: "text-emerald-600", gradeLabel: "Excelente investimento" };
-  if (score >= 55) return { grade: "A", gradeColor: "text-emerald-600", gradeLabel: "Muito bom" };
-  if (score >= 48) return { grade: "B", gradeColor: "text-blue-600", gradeLabel: "Bom" };
-  if (score >= 40) return { grade: "C", gradeColor: "text-amber-600", gradeLabel: "Moderado" };
+  if (score >= 90) return { grade: "A+", gradeColor: "text-emerald-600", gradeLabel: "Excelente investimento" };
+  if (score >= 80) return { grade: "A", gradeColor: "text-emerald-600", gradeLabel: "Muito bom" };
+  if (score >= 70) return { grade: "B", gradeColor: "text-blue-600", gradeLabel: "Bom" };
+  if (score >= 60) return { grade: "C", gradeColor: "text-amber-600", gradeLabel: "Moderado" };
   return { grade: "D", gradeColor: "text-red-600", gradeLabel: "Arriscado" };
 }
 
