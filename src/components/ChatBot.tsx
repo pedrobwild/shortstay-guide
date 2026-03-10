@@ -37,6 +37,7 @@ export default function ChatBot() {
 
   const sendText = async (text: string) => {
     if (!text.trim() || loading) return;
+    trackGlobal("chatbot_message", { message_preview: text.trim().slice(0, 50) });
     setInput("");
     const userMsg: Msg = { role: "user", content: text.trim() };
     setMessages((prev) => [...prev, userMsg]);
