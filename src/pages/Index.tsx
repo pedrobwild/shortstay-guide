@@ -2723,7 +2723,7 @@ export default function Index() {
                       </tr>
                     </thead>
                     <tbody>
-                      {BAIRRO_DATA.map((b) => (
+                      {bairros.map((b) => (
                         <tr key={b.name} className="border-t border-border hover:bg-muted/50 transition-colors">
                           <td className="px-4 py-3 font-medium text-foreground">{b.name}</td>
                           <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.dailyMin)}</td>
