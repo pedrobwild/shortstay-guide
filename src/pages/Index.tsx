@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, lazy, Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { BarChart3, Calculator, CheckSquare } from "lucide-react";
-import MapaBairrosEmbed from "@/components/mapa/MapaBairrosEmbed";
+import LazyMapaBairrosEmbed from "@/components/mapa/LazyMapaBairrosEmbed";
 import bwildLogo from "@/assets/bwild-logo.png";
 import { useGuideAnalytics, setGlobalTrack } from "@/hooks/useGuideAnalytics";
 import { useScrollspy } from "@/hooks/useScrollspy";
@@ -26,12 +26,13 @@ import ReformaSection from "@/components/guide/ReformaSection";
 import AntiChecklistSection from "@/components/guide/AntiChecklistSection";
 import DecoracaoSection from "@/components/guide/DecoracaoSection";
 import ProjetoSection from "@/components/guide/ProjetoSection";
-import TendenciasSection from "@/components/guide/TendenciasSection";
 import CaseStudySection from "@/components/guide/CaseStudySection";
 import ChecklistSection from "@/components/guide/ChecklistSection";
 import TrustSignals from "@/components/guide/TrustSignals";
 import FAQSection from "@/components/guide/FAQSection";
 import FinalCTASection from "@/components/guide/FinalCTASection";
+
+const TendenciasSection = lazy(() => import("@/components/guide/TendenciasSection"));
 
 export default function Index() {
   return (
