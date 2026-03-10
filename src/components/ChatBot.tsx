@@ -3,6 +3,7 @@ import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles } from "lucide-rea
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
+import { trackGlobal } from "@/hooks/useGuideAnalytics";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
