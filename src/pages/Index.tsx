@@ -6,6 +6,9 @@ import MapaBairrosEmbed from "@/components/mapa/MapaBairrosEmbed";
 import bwildLogo from "@/assets/bwild-logo.png";
 import { useGuideAnalytics, setGlobalTrack } from "@/hooks/useGuideAnalytics";
 import { useScrollspy } from "@/hooks/useScrollspy";
+import { useReadingProgress } from "@/hooks/useReadingProgress";
+import ScrollProgressBar from "@/components/guide/ScrollProgressBar";
+import ResumeToast from "@/components/guide/ResumeToast";
 import { BairroProvider, useBairroData } from "@/hooks/useBairroData";
 import { SECTIONS, fmt } from "@/data/guide-data";
 
@@ -44,6 +47,7 @@ function IndexInner() {
   const { trackEvent } = useGuideAnalytics();
   const { bairros } = useBairroData();
   const scrollMilestones = useRef(new Set<string>());
+  const { scrollPercent, visitedSections, sectionIndex, sectionCount, resumeData, dismissResume } = useReadingProgress(activeId);
 
   useEffect(() => {
     setGlobalTrack(trackEvent);
@@ -70,8 +74,10 @@ function IndexInner() {
 
   return (
     <>
-      <TableOfContents activeId={activeId} />
-      <MobileMenu activeId={activeId} />
+      <ScrollProgressBar percent={scrollPercent} />
+      <ResumeToast data={resumeData} onDismiss={dismissResume} />
+      <TableOfContents activeId={activeId} visitedSections={visitedSections} />
+      <MobileMenu activeId={activeId} sectionIndex={sectionIndex} sectionCount={sectionCount} />
       <MobileStickyBar />
 
       <main className="lg:ml-[60px] w-full flex flex-col items-center pb-24 lg:pb-8 pt-16 lg:pt-0">

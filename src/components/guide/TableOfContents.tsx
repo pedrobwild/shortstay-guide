@@ -4,7 +4,12 @@ import { ArrowUpRight } from "lucide-react";
 import bwildLogo from "@/assets/bwild-logo.png";
 import { SECTIONS } from "@/data/guide-data";
 
-export default function TableOfContents({ activeId }: { activeId: string }) {
+interface Props {
+  activeId: string;
+  visitedSections: Set<string>;
+}
+
+export default function TableOfContents({ activeId, visitedSections }: Props) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -27,15 +32,27 @@ export default function TableOfContents({ activeId }: { activeId: string }) {
         {SECTIONS.map((s) => {
           const Icon = s.icon;
           const isActive = activeId === s.id;
+          const isVisited = visitedSections.has(s.id);
           const isExternal = "href" in s && s.href;
           const baseClass = isActive
             ? "bg-primary text-primary-foreground font-semibold shadow-sm"
             : "text-muted-foreground hover:text-foreground hover:bg-muted/60";
+
+          // Dot color
+          const dotClass = isActive
+            ? "bg-primary"
+            : isVisited
+            ? "bg-primary/40"
+            : "bg-muted-foreground/30";
+
           const inner = (
             <>
               <Icon size={16} className="shrink-0" />
               {expanded && <span className="truncate text-sm font-body whitespace-nowrap">{s.label}</span>}
               {expanded && isExternal && <ArrowUpRight size={11} className="ml-auto opacity-40 shrink-0" />}
+              {expanded && !isExternal && (
+                <span className={`ml-auto w-2 h-2 rounded-full shrink-0 transition-colors duration-300 ${dotClass}`} />
+              )}
             </>
           );
           return (
