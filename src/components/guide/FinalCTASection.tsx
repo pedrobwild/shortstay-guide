@@ -61,8 +61,8 @@ export default function FinalCTASection() {
       <Card className="border-border">
         <CardContent className="p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input placeholder="Seu nome" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="font-body" />
-            <Input placeholder="WhatsApp (com DDD)" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} className="font-body" />
+            <Input placeholder="Seu nome" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="font-body min-h-[48px] text-base" />
+            <Input placeholder="WhatsApp (com DDD)" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} className="font-body min-h-[48px] text-base" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Select value={form.neighborhood} onValueChange={(v) => setForm({ ...form, neighborhood: v })}>
