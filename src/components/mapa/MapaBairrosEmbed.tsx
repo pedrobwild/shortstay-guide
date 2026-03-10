@@ -667,6 +667,7 @@ export default function MapaBairrosEmbed() {
             showMetro={showMetro}
             showHeatmap={showHeatmap}
             showClusters={showClusters}
+            showPOIs={activePOIs}
             selected={selectedNeighborhood}
             highlightedNames={highlightedNames}
             onSelect={(n) => { setSelectedNeighborhood(n); }}
