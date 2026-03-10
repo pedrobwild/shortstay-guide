@@ -293,21 +293,26 @@ function InteractiveMap({
         style={{ width: "100%", height: "100%" }}
         mapStyle={MAP_STYLE}
         minZoom={10} maxZoom={17} maxBounds={SP_BOUNDS}
-        interactiveLayerIds={["neighborhood-fill", "metro-stations-circle", "cluster-circles"]}
+        interactiveLayerIds={["neighborhood-fill", "metro-stations-circle", "cluster-circles", "poi-unclustered", "poi-clusters"]}
         onMouseMove={(e) => {
           const polyFeatures = e.features?.filter((f) => f.layer?.id === "neighborhood-fill");
           const metroFeatures = e.features?.filter((f) => f.layer?.id === "metro-stations-circle");
+          const poiFeatures = e.features?.filter((f) => f.layer?.id === "poi-unclustered");
           if (polyFeatures?.length) onPolygonHover({ ...e, features: polyFeatures } as MapLayerMouseEvent);
           else setHoveredPoly(null);
           if (metroFeatures?.length) onMetroHover({ ...e, features: metroFeatures } as MapLayerMouseEvent);
           else setHoveredStation(null);
+          if (poiFeatures?.length) onPOIHover({ ...e, features: poiFeatures } as MapLayerMouseEvent);
+          else setHoveredPOI(null);
         }}
-        onMouseLeave={() => { onPolygonLeave(); onMetroLeave(); }}
+        onMouseLeave={() => { onPolygonLeave(); onMetroLeave(); onPOILeave(); }}
         onClick={(e) => {
           const polyFeatures = e.features?.filter((f) => f.layer?.id === "neighborhood-fill");
           const clusterFeatures = e.features?.filter((f) => f.layer?.id === "cluster-circles");
+          const poiClusterFeatures = e.features?.filter((f) => f.layer?.id === "poi-clusters");
           if (polyFeatures?.length) onPolygonClick({ ...e, features: polyFeatures } as MapLayerMouseEvent);
           if (clusterFeatures?.length) onClusterClick({ ...e, features: clusterFeatures } as MapLayerMouseEvent);
+          if (poiClusterFeatures?.length) onPOIClusterClick({ ...e, features: poiClusterFeatures } as MapLayerMouseEvent);
         }}
       >
         <NavigationControl position="top-right" showCompass={false} />
