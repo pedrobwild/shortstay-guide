@@ -383,8 +383,8 @@ function InteractiveMap({
           </Source>
         )}
 
-        {/* POIs — Source always mounted to avoid dynamic loading issues */}
-        <Source id="pois-source" type="geojson" data="/geo/pois.geojson">
+        {/* POIs — Source always mounted with inline data */}
+        {poisData && <Source id="pois-source" type="geojson" data={poisData}>
           {(["restaurant", "corporate", "tourist", "events", "metro"] as POICategoryKey[]).map((cat) => (
             <Layer
               key={`poi-${cat}`}
