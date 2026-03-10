@@ -814,7 +814,8 @@ function MercadoSection() {
 
 /* ─── 4) Simulador de receita ─── */
 function SimuladorSection() {
-  const [simBairro, setSimBairro] = useState<string>(BAIRRO_DATA[0].name);
+  const { bairros } = useBairroData();
+  const [simBairro, setSimBairro] = useState<string>(bairros[0]?.name ?? "");
   const [simMetragem, setSimMetragem] = useState(30);
   const [simOcupacao, setSimOcupacao] = useState([75]);
   const [simDiariaAtual, setSimDiariaAtual] = useState("");
