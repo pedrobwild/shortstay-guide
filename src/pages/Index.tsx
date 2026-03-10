@@ -74,8 +74,10 @@ function IndexInner() {
 
   return (
     <>
-      <TableOfContents activeId={activeId} />
-      <MobileMenu activeId={activeId} />
+      <ScrollProgressBar percent={scrollPercent} />
+      <ResumeToast data={resumeData} onDismiss={dismissResume} />
+      <TableOfContents activeId={activeId} visitedSections={visitedSections} />
+      <MobileMenu activeId={activeId} sectionIndex={sectionIndex} sectionCount={sectionCount} />
       <MobileStickyBar />
 
       <main className="lg:ml-[60px] w-full flex flex-col items-center pb-24 lg:pb-8 pt-16 lg:pt-0">
