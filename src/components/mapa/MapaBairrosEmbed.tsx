@@ -602,6 +602,45 @@ export default function MapaBairrosEmbed() {
             </button>
           )}
         </div>
+
+        {/* POI layer toggles */}
+        <div className="flex flex-nowrap items-center gap-2 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap md:overflow-visible md:pb-0 scrollbar-none">
+          <div className="flex items-center gap-1.5 mr-1 flex-shrink-0">
+            <Layers size={12} className="text-muted-foreground" />
+            <span className="text-xs font-semibold text-foreground">Pontos de interesse:</span>
+          </div>
+          {POI_CATEGORIES.map((cat) => {
+            const active = activePOIs.includes(cat.key);
+            const Icon = cat.icon;
+            return (
+              <button
+                key={cat.key}
+                onClick={() => togglePOI(cat.key)}
+                className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all whitespace-nowrap flex-shrink-0 ${
+                  active
+                    ? "border-current shadow-sm"
+                    : "bg-card text-muted-foreground border-border hover:border-primary/40"
+                }`}
+                style={active ? { backgroundColor: `${cat.color}15`, color: cat.color, borderColor: `${cat.color}60` } : undefined}
+              >
+                <Icon size={12} />{cat.label}
+              </button>
+            );
+          })}
+          {activePOIs.length > 0 && (
+            <button onClick={() => setActivePOIs([])} className="text-xs text-muted-foreground hover:text-foreground underline ml-1 flex-shrink-0">
+              Limpar POIs
+            </button>
+          )}
+        </div>
+
+        {/* POI legend when active */}
+        {activePOIs.length > 0 && (
+          <div className="flex flex-wrap items-center gap-3 mt-1 text-[10px] text-muted-foreground font-body">
+            📍 Mostrando {activePOIs.length} categoria{activePOIs.length > 1 ? "s" : ""} de pontos de interesse no mapa. Zoom in para ver nomes.
+          </div>
+        )}
+
         {/* Filter explainer */}
         {activeFilters.length > 0 && (
           <p className="text-[10px] text-muted-foreground font-body mt-1 ml-1">
