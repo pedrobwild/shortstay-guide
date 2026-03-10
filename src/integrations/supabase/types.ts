@@ -134,6 +134,39 @@ export type Database = {
         }
         Relationships: []
       }
+      guide_leads: {
+        Row: {
+          area_sqm: string | null
+          created_at: string | null
+          id: string
+          name: string
+          neighborhood: string | null
+          objective: string | null
+          source: string | null
+          whatsapp: string
+        }
+        Insert: {
+          area_sqm?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          neighborhood?: string | null
+          objective?: string | null
+          source?: string | null
+          whatsapp: string
+        }
+        Update: {
+          area_sqm?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          neighborhood?: string | null
+          objective?: string | null
+          source?: string | null
+          whatsapp?: string
+        }
+        Relationships: []
+      }
       raw_listings: {
         Row: {
           adr_estimado: number | null
