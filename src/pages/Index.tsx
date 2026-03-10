@@ -187,14 +187,14 @@ function PlaceholderAccordion({ label }: { label: string }) {
 /* ─── TOC (desktop sticky) ─── */
 function TableOfContents({ activeId }: { activeId: string }) {
   return (
-    <nav className="hidden lg:block fixed left-0 top-0 w-56 xl:w-64 h-screen overflow-y-auto px-4 py-6 border-r border-border bg-card/80 backdrop-blur-sm z-30">
+    <nav className="hidden lg:block fixed left-0 top-0 w-56 xl:w-64 h-screen overflow-y-auto px-4 py-6 border-r border-border/60 bg-card/90 backdrop-blur-md z-30 scrollbar-thin">
       <div className="mb-6 px-3">
         <img src={bwildLogo} alt="Bwild" className="h-8 w-auto" />
       </div>
-      <p className="text-xs font-body font-semibold uppercase tracking-widest text-muted-foreground mb-4">
+      <p className="text-[10px] font-body font-bold uppercase tracking-[0.15em] text-muted-foreground/70 mb-4 px-3">
         Índice
       </p>
-      <ul className="space-y-1">
+      <ul className="space-y-0.5">
         {SECTIONS.map((s) => {
           const Icon = s.icon;
           const isActive = activeId === s.id;
@@ -204,30 +204,29 @@ function TableOfContents({ activeId }: { activeId: string }) {
               {isExternal ? (
                 <Link
                   to={s.href!}
-                  className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-body transition-colors text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-body transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/60"
                 >
-                  <Icon size={14} />
-                  {s.label}
-                  <ArrowUpRight size={12} className="ml-auto opacity-50" />
+                  <Icon size={14} className="shrink-0" />
+                  <span className="truncate">{s.label}</span>
+                  <ArrowUpRight size={11} className="ml-auto opacity-40 shrink-0" />
                 </Link>
               ) : (
                 <a
                   href={`#${s.id}`}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-body transition-colors ${
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-body transition-all duration-200 ${
                     isActive
-                      ? "bg-primary text-primary-foreground font-semibold"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                      ? "bg-primary text-primary-foreground font-semibold shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                   }`}
                 >
-                  <Icon size={14} />
-                  {s.label}
+                  <Icon size={14} className="shrink-0" />
+                  <span className="truncate">{s.label}</span>
                 </a>
               )}
             </li>
           );
         })}
       </ul>
-
     </nav>
   );
 }
