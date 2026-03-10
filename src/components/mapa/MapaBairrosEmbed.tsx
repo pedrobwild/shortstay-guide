@@ -420,6 +420,47 @@ function InteractiveMap({
             />
           ))}
         </Source>
+      </ReactMap>
+
+      {/* Legend */}
+      <motion.div className="absolute bottom-4 left-4 bg-card/95 backdrop-blur-md border border-border rounded-xl px-4 py-3 z-10 shadow-lg"
+        initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+        <p className="text-[11px] font-semibold text-foreground font-display mb-2">Score de Rentabilidade</p>
+        <div className="flex flex-col gap-1.5">
+          <span className="flex items-center gap-2 text-xs text-foreground/80 font-body">
+            <span className="w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-emerald-500/20" />
+            <span className="font-medium">Alto</span>
+            <span className="text-muted-foreground">(score ≥ 88)</span>
+          </span>
+          <span className="flex items-center gap-2 text-xs text-foreground/80 font-body">
+            <span className="w-3 h-3 rounded-full bg-amber-500 ring-2 ring-amber-500/20" />
+            <span className="font-medium">Médio</span>
+            <span className="text-muted-foreground">(score 84–87)</span>
+          </span>
+          <span className="flex items-center gap-2 text-xs text-foreground/80 font-body">
+            <span className="w-3 h-3 rounded-full bg-gray-400 ring-2 ring-gray-400/20" />
+            <span className="font-medium">Baixo</span>
+            <span className="text-muted-foreground">(score &lt; 84)</span>
+          </span>
+        </div>
+        <p className="text-[9px] text-muted-foreground mt-2 font-body">Clique nos pontos para ver detalhes</p>
+        {showPOIs.length > 0 && (
+          <div className="mt-2 pt-2 border-t border-border/50">
+            <p className="text-[11px] font-semibold text-foreground font-display mb-1.5">Pontos de Interesse</p>
+            <div className="flex flex-col gap-1">
+              {POI_CATEGORIES.filter((c) => showPOIs.includes(c.key)).map((c) => (
+                <span key={c.key} className="flex items-center gap-2 text-xs font-body">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: c.color, boxShadow: `0 0 0 2px ${c.color}33` }} />
+                  <span className="text-foreground/80">{c.label}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+}
 
 
         {/* Filter explainer */}
