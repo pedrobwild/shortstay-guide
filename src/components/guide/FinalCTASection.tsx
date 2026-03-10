@@ -44,8 +44,8 @@ export default function FinalCTASection() {
 
   if (submitted) {
     return (
-      <SectionBlock id="cta-final" title="Diagnóstico Solicitado" takeaway="Recebemos seus dados.">
-        <Card className="border-primary/30 bg-primary/5">
+      <SectionBlock id="cta-final" title="Diagnóstico Solicitado" takeaway="Recebemos seus dados." className="[&_h2]:text-primary-foreground [&_>div>p:first-of-type]:text-primary-foreground/80">
+        <Card className="border-primary-foreground/20 bg-card/95 backdrop-blur-sm">
           <CardContent className="p-8 text-center">
             <CheckCircle2 size={48} className="text-primary mx-auto mb-4" />
             <p className="font-display text-2xl font-bold text-foreground mb-2">Obrigado, {form.name}!</p>
@@ -57,8 +57,8 @@ export default function FinalCTASection() {
   }
 
   return (
-    <SectionBlock id="cta-final" title="Solicitar Diagnóstico Gratuito" takeaway="Análise personalizada do potencial do seu studio em short stay.">
-      <Card className="border-border">
+    <SectionBlock id="cta-final" title="Solicitar Diagnóstico Gratuito" takeaway="Análise personalizada do potencial do seu studio em short stay." className="[&_h2]:text-primary-foreground [&_>div>p:first-of-type]:text-primary-foreground/80">
+      <Card className="border-border/30 bg-card/95 backdrop-blur-sm">
         <CardContent className="p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input placeholder="Seu nome" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="font-body min-h-[48px] text-base" />

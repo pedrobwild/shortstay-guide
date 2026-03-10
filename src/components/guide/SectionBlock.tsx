@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
 
@@ -8,9 +7,10 @@ interface SectionBlockProps {
   title: string;
   takeaway: string;
   children: React.ReactNode;
+  className?: string;
 }
 
-export default function SectionBlock({ id, title, takeaway, children }: SectionBlockProps) {
+export default function SectionBlock({ id, title, takeaway, children, className }: SectionBlockProps) {
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function SectionBlock({ id, title, takeaway, children }: SectionB
   }, [id]);
 
   return (
-    <section ref={sectionRef} id={id} className="scroll-mt-24 py-16 md:py-20">
+    <section ref={sectionRef} id={id} className={`scroll-mt-24 py-16 md:py-20 ${className ?? ""}`}>
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -39,7 +39,6 @@ export default function SectionBlock({ id, title, takeaway, children }: SectionB
       >
         <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">{title}</h2>
         <p className="text-muted-foreground text-lg mb-6">{takeaway}</p>
-        <Separator className="mb-8" />
         {children}
       </motion.div>
     </section>

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
+import { BarChart3, Calculator, CheckSquare } from "lucide-react";
 import MapaBairrosEmbed from "@/components/mapa/MapaBairrosEmbed";
 import bwildLogo from "@/assets/bwild-logo.png";
 import { useGuideAnalytics, setGlobalTrack } from "@/hooks/useGuideAnalytics";
@@ -14,6 +14,7 @@ import HeroSection from "@/components/guide/HeroSection";
 import TableOfContents from "@/components/guide/TableOfContents";
 import MobileMenu from "@/components/guide/MobileMenu";
 import MobileStickyBar from "@/components/guide/MobileStickyBar";
+import SectionIntro from "@/components/guide/SectionIntro";
 import ReservasSection from "@/components/guide/ReservasSection";
 import MercadoSection from "@/components/guide/MercadoSection";
 import SimuladorSection from "@/components/guide/SimuladorSection";
@@ -73,66 +74,164 @@ function IndexInner() {
       <MobileMenu activeId={activeId} />
       <MobileStickyBar />
 
-      <main className="lg:ml-[60px] w-full flex justify-center pb-24 lg:pb-8 pt-16 lg:pt-0">
-        <div className="w-full max-w-[1280px] px-5 lg:px-10 py-0 lg:py-10">
-          <HeroSection />
+      <main className="lg:ml-[60px] w-full flex flex-col items-center pb-24 lg:pb-8 pt-16 lg:pt-0">
+        {/* Hero — white */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10 py-0 lg:py-10">
+            <HeroSection />
+          </div>
+        </div>
 
-          <section id="mapa-bairros" className="scroll-mt-24 py-16 md:py-20">
-            <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.5 }}>
-              <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">Mapa de Bairros Rentáveis</h2>
-              <p className="text-muted-foreground text-lg mb-6">Analise demanda, compare bairros, simule ROI e identifique os melhores investimentos em studios.</p>
-              <Separator className="mb-8" />
-              <MapaBairrosEmbed />
-              <Card className="border-border overflow-hidden mt-8">
-                <CardContent className="p-0">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm font-body">
-                      <thead className="bg-secondary">
-                        <tr>
-                          {["Bairro", "Diária mín.", "Ocupação média", "20–25 m²", "26–35 m²", "36–50 m²"].map((h) => (
-                            <th key={h} className="px-4 py-3 text-left font-semibold text-foreground">{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {bairros.map((b) => (
-                          <tr key={b.name} className="border-t border-border hover:bg-muted/50 transition-colors">
-                            <td className="px-4 py-3 font-medium text-foreground">{b.name}</td>
-                            <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.dailyMin)}</td>
-                            <td className="px-4 py-3 text-muted-foreground">{b.avgOccupancy}%</td>
-                            <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.avgBySize["20–25 m²"])}</td>
-                            <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.avgBySize["26–35 m²"])}</td>
-                            <td className="px-4 py-3 font-semibold text-foreground">R$ {fmt(b.avgBySize["36–50 m²"])}</td>
+        {/* Mapa — white */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <section id="mapa-bairros" className="scroll-mt-24 py-16 md:py-20">
+              <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.5 }}>
+                <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">Mapa de Bairros Rentáveis</h2>
+                <p className="text-muted-foreground text-lg mb-6">Analise demanda, compare bairros, simule ROI e identifique os melhores investimentos em studios.</p>
+                <MapaBairrosEmbed />
+                <Card className="border-border overflow-hidden mt-8">
+                  <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm font-body">
+                        <thead className="bg-secondary">
+                          <tr>
+                            {["Bairro", "Diária mín.", "Ocupação média", "20–25 m²", "26–35 m²", "36–50 m²"].map((h) => (
+                              <th key={h} className="px-4 py-3 text-left font-semibold text-foreground">{h}</th>
+                            ))}
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </section>
+                        </thead>
+                        <tbody>
+                          {bairros.map((b) => (
+                            <tr key={b.name} className="border-t border-border hover:bg-muted/50 transition-colors">
+                              <td className="px-4 py-3 font-medium text-foreground">{b.name}</td>
+                              <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.dailyMin)}</td>
+                              <td className="px-4 py-3 text-muted-foreground">{b.avgOccupancy}%</td>
+                              <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.avgBySize["20–25 m²"])}</td>
+                              <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.avgBySize["26–35 m²"])}</td>
+                              <td className="px-4 py-3 font-semibold text-foreground">R$ {fmt(b.avgBySize["36–50 m²"])}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </section>
+          </div>
+        </div>
 
-          <ReservasSection />
-          <MercadoSection />
-          <SimuladorSection />
-          <MidPageCTA variant="slim" />
-          <ReformaSection />
-          <AntiChecklistSection />
-          <DecoracaoSection />
-          <MidPageCTA variant="slim" />
-          <ProjetoSection />
-          <TendenciasSection />
-          <CaseStudySection />
-          <ChecklistSection />
-          <TrustSignals />
-          <FAQSection />
-          <FinalCTASection />
+        {/* Reservas — muted zone */}
+        <div className="w-full bg-muted/20">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <ReservasSection />
+          </div>
+        </div>
 
-          <footer className="text-center py-8 text-sm text-muted-foreground font-body border-t border-border">
-            <img src={bwildLogo} alt="Bwild" className="h-6 w-auto mx-auto mb-3 opacity-60" />
-            © 2026 Bwild · Guia do Investidor em Studios para Short Stay
-          </footer>
+        {/* Mercado — white */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <SectionIntro icon={BarChart3} text="Analise dados de mercado e simule diárias por bairro" />
+            <MercadoSection />
+          </div>
+        </div>
+
+        {/* Simulador — muted zone */}
+        <div className="w-full bg-muted/20">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <SectionIntro icon={Calculator} text="Monte cenários e compare rentabilidade em minutos" />
+            <SimuladorSection />
+          </div>
+        </div>
+
+        {/* MidPageCTA */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <MidPageCTA variant="slim" />
+          </div>
+        </div>
+
+        {/* Reforma — white */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <ReformaSection />
+          </div>
+        </div>
+
+        {/* Anti-checklist — destructive subtle zone */}
+        <div className="w-full bg-destructive/[0.02]">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <AntiChecklistSection />
+          </div>
+        </div>
+
+        {/* Decoração — white */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <DecoracaoSection />
+          </div>
+        </div>
+
+        {/* MidPageCTA */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <MidPageCTA variant="slim" />
+          </div>
+        </div>
+
+        {/* Projeto — muted zone */}
+        <div className="w-full bg-muted/20">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <ProjetoSection />
+          </div>
+        </div>
+
+        {/* Tendências — white */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <TendenciasSection />
+          </div>
+        </div>
+
+        {/* Case Study — muted zone */}
+        <div className="w-full bg-muted/20">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <CaseStudySection />
+          </div>
+        </div>
+
+        {/* Checklist — white */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <SectionIntro icon={CheckSquare} text="Avalie se você está pronto para dar o próximo passo" />
+            <ChecklistSection />
+          </div>
+        </div>
+
+        {/* Trust + FAQ + Final CTA — white */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <TrustSignals />
+            <FAQSection />
+          </div>
+        </div>
+
+        {/* Final CTA — gradient zone */}
+        <div className="w-full bg-hero-gradient">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <FinalCTASection />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <footer className="text-center py-8 text-sm text-muted-foreground font-body">
+              <img src={bwildLogo} alt="Bwild" className="h-6 w-auto mx-auto mb-3 opacity-60" />
+              © 2026 Bwild · Guia do Investidor em Studios para Short Stay
+            </footer>
+          </div>
         </div>
       </main>
     </>

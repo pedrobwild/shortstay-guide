@@ -16,7 +16,7 @@ export default function ReformaSection() {
 
   return (
     <SectionBlock id="reforma" title="Reforma Inteligente" takeaway="Quanto investir, onde priorizar e o que gera mais retorno por m².">
-      <div className="rounded-2xl overflow-hidden mb-8 shadow-sm"><img src={sectionReforma} alt="Antes e depois de reforma de studio" className="w-full h-40 md:h-64 object-cover" loading="lazy" /></div>
+      <div className="rounded-2xl overflow-hidden mb-8 shadow-sm ring-1 ring-border"><img src={sectionReforma} alt="Antes e depois de reforma de studio" className="w-full h-40 md:h-64 object-cover" loading="lazy" /></div>
       <Tabs defaultValue="piso" className="font-body">
         <TabsList className="mb-4"><TabsTrigger value="piso" className="min-h-[44px] px-4">Piso (25m²)</TabsTrigger><TabsTrigger value="marcenaria" className="min-h-[44px] px-4">Marcenaria</TabsTrigger><TabsTrigger value="iluminacao" className="min-h-[44px] px-4">Iluminação vs Bancada</TabsTrigger></TabsList>
         <TabsContent value="piso">
@@ -31,7 +31,7 @@ export default function ReformaSection() {
                 <div className="flex items-center gap-3"><span className="text-sm w-28 text-muted-foreground">Vinílico</span><div className="flex-1 bg-muted rounded-full h-6 overflow-hidden"><motion.div className="h-full bg-primary rounded-full flex items-center justify-end pr-2" initial={{ width: 0 }} whileInView={{ width: `${(totalVinilico / totalPorcelanato) * 100}%` }} viewport={{ once: true }} transition={{ duration: 0.6 }}><span className="text-xs text-primary-foreground font-bold">R$ {fmt(totalVinilico)}</span></motion.div></div></div>
                 <div className="flex items-center gap-3"><span className="text-sm w-28 text-muted-foreground">Porcelanato</span><div className="flex-1 bg-muted rounded-full h-6 overflow-hidden"><motion.div className="h-full bg-accent rounded-full flex items-center justify-end pr-2" initial={{ width: 0 }} whileInView={{ width: "100%" }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.1 }}><span className="text-xs text-accent-foreground font-bold">R$ {fmt(totalPorcelanato)}</span></motion.div></div></div>
               </div>
-              <div className="bg-gold-subtle rounded-lg p-3 flex items-center gap-2"><Lightbulb className="text-accent flex-shrink-0" size={16} /><p className="text-sm text-foreground">Diferença: <span className="font-bold">+R$ {fmt(diffPiso)}</span> pelo porcelanato. Para short stay, vinílico oferece melhor custo-benefício e resistência a riscos.</p></div>
+              <div className="bg-gold-light/50 border border-gold/20 rounded-xl p-4 flex items-center gap-2"><Lightbulb className="text-gold flex-shrink-0" size={16} /><p className="text-sm text-foreground">Diferença: <span className="font-bold">+R$ {fmt(diffPiso)}</span> pelo porcelanato. Para short stay, vinílico oferece melhor custo-benefício e resistência a riscos.</p></div>
             </div>
           </CardContent></Card>
         </TabsContent>
@@ -41,7 +41,7 @@ export default function ReformaSection() {
               <Card className="border-border"><CardContent className="p-5 text-center"><p className="text-3xl font-display font-bold text-primary">R$ 24.000</p><p className="text-sm text-muted-foreground mt-1">Armários fechados</p><Badge className="mt-2 bg-gold-light text-foreground border-0 font-body">Mais proteção</Badge></CardContent></Card>
               <Card className="border-border"><CardContent className="p-5 text-center"><p className="text-3xl font-display font-bold text-primary">R$ 19.000</p><p className="text-sm text-muted-foreground mt-1">Armários abertos / nichos</p><Badge className="mt-2 bg-gold-light text-foreground border-0 font-body">Mais estético</Badge></CardContent></Card>
             </div>
-            <div className="bg-gold-subtle rounded-lg p-4 flex items-start gap-3"><Lightbulb className="text-accent mt-0.5 flex-shrink-0" size={20} /><div><p className="font-semibold text-foreground text-sm mb-1">Marcenaria é o que aparece no anúncio</p><p className="text-sm text-muted-foreground">Equilibre estética e funcionalidade. Armários fechados protegem itens dos hóspedes, mas abertos com iluminação fotografam melhor e geram mais cliques.</p></div></div>
+            <div className="bg-gold-light/50 border border-gold/20 rounded-xl p-4 flex items-start gap-3"><Lightbulb className="text-gold mt-0.5 flex-shrink-0" size={20} /><div><p className="font-semibold text-foreground text-sm mb-1">Marcenaria é o que aparece no anúncio</p><p className="text-sm text-muted-foreground">Equilibre estética e funcionalidade. Armários fechados protegem itens dos hóspedes, mas abertos com iluminação fotografam melhor e geram mais cliques.</p></div></div>
           </CardContent></Card>
         </TabsContent>
         <TabsContent value="iluminacao">

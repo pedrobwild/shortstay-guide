@@ -12,7 +12,7 @@ export default function ProjetoSection() {
 
   return (
     <SectionBlock id="projeto" title="Projeto Arquitetônico Personalizado" takeaway="Como um bom projeto multiplica o valor percebido do seu studio.">
-      <div className="rounded-2xl overflow-hidden mb-8 shadow-sm"><img src={sectionProjeto} alt="Planta e renderização 3D de studio" className="w-full h-40 md:h-64 object-cover" loading="lazy" /></div>
+      <div className="rounded-2xl overflow-hidden mb-8 shadow-sm ring-1 ring-border"><img src={sectionProjeto} alt="Planta e renderização 3D de studio" className="w-full h-40 md:h-64 object-cover" loading="lazy" /></div>
       <h3 className="font-display text-xl font-bold text-foreground mb-4">O que você precisa fornecer</h3>
       <Card className="border-border mb-8"><CardContent className="p-5 font-body"><ul className="space-y-2">{inputs.map((item, i) => <li key={i} className="flex items-center gap-3"><div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0"><span className="text-xs font-bold text-primary">{i + 1}</span></div><span className="text-sm text-foreground">{item}</span></li>)}</ul></CardContent></Card>
       <h3 className="font-display text-xl font-bold text-foreground mb-4">Método Bwild — Pipeline</h3>
