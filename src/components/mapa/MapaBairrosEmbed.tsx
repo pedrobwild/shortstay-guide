@@ -438,7 +438,7 @@ function InteractiveMap({
             <Source id="pois-clustered" type="geojson" data={filteredGeoJSON} cluster={true} clusterRadius={40} clusterMaxZoom={14}>
               {/* Cluster circles */}
               <Layer id="poi-clusters" type="circle" filter={["has", "point_count"]} paint={{
-                "circle-color": "hsl(var(--primary))",
+                "circle-color": "#1e3a5f",
                 "circle-radius": ["step", ["get", "point_count"], 16, 5, 20, 10, 26],
                 "circle-opacity": 0.85,
                 "circle-stroke-width": 2,
