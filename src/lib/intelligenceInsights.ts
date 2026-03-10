@@ -208,31 +208,31 @@ export function getBairroProfile(b: BairroAirbnb, allBairros: BairroAirbnb[]): B
   const saturacao = Number(b.grau_saturacao_index);
 
   // Risky opportunity: high yield but low liquidity OR low confidence OR high saturation
-  if (yld >= maxYield * 0.90 && (liq < 55 || confianca === "baixo" || saturacao > 0.7)) {
+  if (yld >= maxYield * 0.85 && (liq < 50 || confianca === "baixo" || saturacao > 0.65)) {
     const def = PROFILE_DEFS["oportunidade-arriscada"];
-    return { ...def, profile: "oportunidade-arriscada", quickRead: `Yield atrativo (${(yld * 100).toFixed(1)}%), mas com sinais de risco${liq < 55 ? " — liquidez abaixo do ideal" : ""}${confianca === "baixo" ? " — dados limitados" : ""}` };
+    return { ...def, profile: "oportunidade-arriscada", quickRead: `Yield atrativo (${(yld * 100).toFixed(1)}%), mas com sinais de risco${liq < 50 ? " — liquidez abaixo do ideal" : ""}${confianca === "baixo" ? " — dados limitados" : ""}` };
   }
 
   // Premium: top ADR
-  if (adr >= maxADR * 0.92) {
+  if (adr >= maxADR * 0.90) {
     const def = PROFILE_DEFS.premium;
     return { ...def, profile: "premium", quickRead: `Diárias entre as mais altas (R$${adr.toFixed(0)}), percepção premium` };
   }
 
   // High return: top yield with reasonable liquidity
-  if (yld >= maxYield * 0.88) {
+  if (yld >= maxYield * 0.80 && liq >= 50) {
     const def = PROFILE_DEFS["alto-retorno"];
     return { ...def, profile: "alto-retorno", quickRead: `Yield de ${(yld * 100).toFixed(1)}% — acima da maioria dos bairros` };
   }
 
-  // High occupancy
-  if (occ >= maxOcc * 0.95) {
+  // High occupancy: top 85% instead of 95%
+  if (occ >= maxOcc * 0.85) {
     const def = PROFILE_DEFS["alta-ocupacao"];
     return { ...def, profile: "alta-ocupacao", quickRead: `Ocupação de ${(occ * 100).toFixed(0)}% — fluxo de caixa mais estável` };
   }
 
-  // Consistent growth: strong growth score that exceeds rentability
-  if (cresc >= 65 && cresc > rent) {
+  // Consistent growth: lowered threshold from 65 to 55
+  if (cresc >= 55 && cresc > rent * 0.9) {
     const def = PROFILE_DEFS["crescimento-consistente"];
     return { ...def, profile: "crescimento-consistente", quickRead: `Score de crescimento ${cresc.toFixed(0)} — trajetória ascendente` };
   }

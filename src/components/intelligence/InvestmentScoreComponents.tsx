@@ -127,9 +127,7 @@ export const InvestmentScoreHero = ({ result, bairro }: { result: InvestmentScor
 export const InvestmentScoreBadge = ({ score, grade, gradeColor }: { score: number; grade: string; gradeColor: string }) => (
   <div className="flex items-center gap-1.5">
     <span className="text-sm font-bold">{score.toFixed(1)}</span>
-    <span className={`text-xs font-bold ${gradeColor} bg-current/10 px-1.5 py-0.5 rounded`}>
-      <span className={gradeColor}>{grade}</span>
-    </span>
+    <Badge className={`${getGradeStyle(gradeColor)} text-xs px-1.5 py-0`}>{grade}</Badge>
   </div>
 );
 

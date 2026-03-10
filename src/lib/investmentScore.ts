@@ -188,9 +188,9 @@ export function calculateInvestmentScore(
 
   const rawScore = weighted.retorno + weighted.demanda + weighted.operacao + weighted.futuro;
 
-  // Risk adjustments
+  // Risk adjustments — use RAW score_liquidez, not normalized
   const confidenceFactor = getConfidenceFactor(bairro.nivel_confianca_dados);
-  const liquidityRiskFactor = getLiquidityRiskFactor(normalized.demanda);
+  const liquidityRiskFactor = getLiquidityRiskFactor(rawValues.demanda);
   const score = Math.max(0, Math.min(100, rawScore * confidenceFactor * liquidityRiskFactor));
 
   const { grade, gradeColor, gradeLabel } = getGrade(score);
