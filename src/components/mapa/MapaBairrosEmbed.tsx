@@ -389,12 +389,15 @@ function InteractiveMap({
             <Layer
               id="poi-circles"
               type="circle"
-              filter={showPOIs.length > 0
-                ? ["in", ["get", "category"], ["literal", showPOIs]]
-                : ["==", ["get", "category"], "__none__"]
+              filter={
+                showPOIs.length > 0
+                  ? showPOIs.length === 1
+                    ? ["==", ["get", "category"], showPOIs[0]]
+                    : ["any", ...showPOIs.map(cat => ["==", ["get", "category"], cat] as any)]
+                  : ["boolean", false]
               }
               paint={{
-                "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 6, 14, 12, 16, 16],
+                "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 7, 14, 14, 16, 18],
                 "circle-color": [
                   "match", ["get", "category"],
                   "restaurant", POI_COLORS.restaurant,
@@ -412,9 +415,12 @@ function InteractiveMap({
             <Layer
               id="poi-labels"
               type="symbol"
-              filter={showPOIs.length > 0
-                ? ["in", ["get", "category"], ["literal", showPOIs]]
-                : ["==", ["get", "category"], "__none__"]
+              filter={
+                showPOIs.length > 0
+                  ? showPOIs.length === 1
+                    ? ["==", ["get", "category"], showPOIs[0]]
+                    : ["any", ...showPOIs.map(cat => ["==", ["get", "category"], cat] as any)]
+                  : ["boolean", false]
               }
               minzoom={13}
               layout={{
