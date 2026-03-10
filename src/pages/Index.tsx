@@ -841,6 +841,21 @@ function SimuladorSection() {
       title="Simulador de Receita"
       takeaway="Calcule sua rentabilidade estimada em menos de 1 minuto."
     >
+      {/* Saved scenario chips */}
+      {scenarios.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {scenarios.map((s) => (
+            <Badge
+              key={s.id}
+              variant="outline"
+              className="cursor-pointer hover:bg-primary/10 transition-colors px-3 py-1.5 text-xs"
+              onClick={() => loadScenarioIntoSim(s)}
+            >
+              {s.name}
+            </Badge>
+          ))}
+        </div>
+      )}
       <Card className="border-border">
         <CardContent className="p-6 space-y-5 font-body">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
