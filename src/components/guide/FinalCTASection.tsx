@@ -66,7 +66,7 @@ export default function FinalCTASection() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Select value={form.neighborhood} onValueChange={(v) => setForm({ ...form, neighborhood: v })}>
-              <SelectTrigger className="font-body"><SelectValue placeholder="Bairro (opcional)" /></SelectTrigger>
+              <SelectTrigger className="font-body min-h-[48px] text-base"><SelectValue placeholder="Bairro (opcional)" /></SelectTrigger>
               <SelectContent>
                 {bairros.map((b) => (
                   <SelectItem key={b.name} value={b.name}>{b.name}</SelectItem>
