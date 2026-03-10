@@ -2578,8 +2578,8 @@ function FinalCTASection() {
                       <SelectValue placeholder="Bairro do imóvel *" />
                     </SelectTrigger>
                     <SelectContent>
-                      {bairroNames.map((name) => (
-                        <SelectItem key={name} value={name}>{name}</SelectItem>
+                      {bairros.map((b) => (
+                        <SelectItem key={b.name} value={b.name}>{b.name}</SelectItem>
                       ))}
                       <SelectItem value="outro">Outro bairro</SelectItem>
                     </SelectContent>
