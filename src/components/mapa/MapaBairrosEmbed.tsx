@@ -186,21 +186,14 @@ function InteractiveMap({
   const [hoveredN, setHoveredN] = useState<Neighborhood | null>(null);
   const [hoveredPoly, setHoveredPoly] = useState<{ name: string; roi: number; rate: number; occ: number; rev: number; lng: number; lat: number } | null>(null);
   const [hoveredStation, setHoveredStation] = useState<{ name: string; line: string; lng: number; lat: number } | null>(null);
-  const [poisData, setPoisData] = useState<Array<{ name: string; category: string; neighborhood: string; lng: number; lat: number }>>([]);
+  const [poisGeoJSON, setPoisGeoJSON] = useState<GeoJSON.FeatureCollection | null>(null);
   const [hoveredPOI, setHoveredPOI] = useState<{ name: string; category: string; neighborhood: string; lng: number; lat: number } | null>(null);
 
   useEffect(() => {
     fetch("/geo/pois.geojson")
       .then(r => r.json())
       .then((geojson: GeoJSON.FeatureCollection) => {
-        const pts = geojson.features.map(f => ({
-          name: (f.properties as any)?.name ?? "",
-          category: (f.properties as any)?.category ?? "",
-          neighborhood: (f.properties as any)?.neighborhood ?? "",
-          lng: (f.geometry as any).coordinates[0] as number,
-          lat: (f.geometry as any).coordinates[1] as number,
-        }));
-        setPoisData(pts);
+        setPoisGeoJSON(geojson);
       })
       .catch(() => {});
   }, []);
@@ -261,6 +254,32 @@ function InteractiveMap({
     }
   }, []);
 
+  const onPOIHover = useCallback((e: MapLayerMouseEvent) => {
+    if (e.features && e.features.length > 0) {
+      const p = e.features[0].properties;
+      setHoveredPOI({ name: p?.name || "", category: p?.category || "", neighborhood: p?.neighborhood || "", lng: e.lngLat.lng, lat: e.lngLat.lat });
+      if (mapRef.current) mapRef.current.getCanvas().style.cursor = "pointer";
+    }
+  }, []);
+
+  const onPOILeave = useCallback(() => {
+    setHoveredPOI(null);
+    if (mapRef.current) mapRef.current.getCanvas().style.cursor = "";
+  }, []);
+
+  const onPOIClusterClick = useCallback((e: MapLayerMouseEvent) => {
+    if (!mapRef.current || !e.features?.length) return;
+    const feature = e.features[0];
+    const clusterId = feature.properties?.cluster_id;
+    const source = mapRef.current.getSource("pois-clustered") as GeoJSONSource;
+    if (source && clusterId != null) {
+      source.getClusterExpansionZoom(clusterId).then((zoom) => {
+        const geom = feature.geometry as GeoJSON.Point;
+        mapRef.current!.easeTo({ center: geom.coordinates as [number, number], zoom: Math.min(zoom, 16), duration: 500 });
+      });
+    }
+  }, []);
+
   return (
     <motion.div
       className="relative w-full aspect-square md:aspect-[4/3] rounded-xl border border-border overflow-hidden min-h-[320px]"
@@ -274,21 +293,26 @@ function InteractiveMap({
         style={{ width: "100%", height: "100%" }}
         mapStyle={MAP_STYLE}
         minZoom={10} maxZoom={17} maxBounds={SP_BOUNDS}
-        interactiveLayerIds={["neighborhood-fill", "metro-stations-circle", "cluster-circles"]}
+        interactiveLayerIds={["neighborhood-fill", "metro-stations-circle", "cluster-circles", "poi-unclustered", "poi-clusters"]}
         onMouseMove={(e) => {
           const polyFeatures = e.features?.filter((f) => f.layer?.id === "neighborhood-fill");
           const metroFeatures = e.features?.filter((f) => f.layer?.id === "metro-stations-circle");
+          const poiFeatures = e.features?.filter((f) => f.layer?.id === "poi-unclustered");
           if (polyFeatures?.length) onPolygonHover({ ...e, features: polyFeatures } as MapLayerMouseEvent);
           else setHoveredPoly(null);
           if (metroFeatures?.length) onMetroHover({ ...e, features: metroFeatures } as MapLayerMouseEvent);
           else setHoveredStation(null);
+          if (poiFeatures?.length) onPOIHover({ ...e, features: poiFeatures } as MapLayerMouseEvent);
+          else setHoveredPOI(null);
         }}
-        onMouseLeave={() => { onPolygonLeave(); onMetroLeave(); }}
+        onMouseLeave={() => { onPolygonLeave(); onMetroLeave(); onPOILeave(); }}
         onClick={(e) => {
           const polyFeatures = e.features?.filter((f) => f.layer?.id === "neighborhood-fill");
           const clusterFeatures = e.features?.filter((f) => f.layer?.id === "cluster-circles");
+          const poiClusterFeatures = e.features?.filter((f) => f.layer?.id === "poi-clusters");
           if (polyFeatures?.length) onPolygonClick({ ...e, features: polyFeatures } as MapLayerMouseEvent);
           if (clusterFeatures?.length) onClusterClick({ ...e, features: clusterFeatures } as MapLayerMouseEvent);
+          if (poiClusterFeatures?.length) onPOIClusterClick({ ...e, features: poiClusterFeatures } as MapLayerMouseEvent);
         }}
       >
         <NavigationControl position="top-right" showCompass={false} />
@@ -396,24 +420,47 @@ function InteractiveMap({
           </Source>
         )}
 
-        {/* POIs as DOM Markers with tooltips */}
-        {poisData
-          .filter(p => showPOIs.includes(p.category as POICategoryKey))
-          .map((p, i) => (
-            <Marker key={`poi-${i}`} longitude={p.lng} latitude={p.lat} anchor="center">
-              <div
-                className="relative group cursor-pointer"
-                onMouseEnter={() => setHoveredPOI(p)}
-                onMouseLeave={() => setHoveredPOI(null)}
-              >
-                <div
-                  className="w-3.5 h-3.5 rounded-full border-2 border-white shadow-md transition-transform group-hover:scale-150"
-                  style={{ backgroundColor: POI_COLORS[p.category] ?? "#888" }}
-                />
-              </div>
-            </Marker>
-          ))
-        }
+        {/* POIs as clustered native layers for performance */}
+        {poisGeoJSON && showPOIs.length > 0 && (() => {
+          // Filter features to only active categories
+          const filteredGeoJSON: GeoJSON.FeatureCollection = {
+            type: "FeatureCollection",
+            features: poisGeoJSON.features.filter(f =>
+              showPOIs.includes((f.properties as any)?.category as POICategoryKey)
+            ),
+          };
+          // Build a match expression for colors by category
+          const colorExpr: any = ["match", ["get", "category"]];
+          POI_CATEGORIES.forEach(c => { colorExpr.push(c.key, c.color); });
+          colorExpr.push("#888"); // fallback
+
+          return (
+            <Source id="pois-clustered" type="geojson" data={filteredGeoJSON} cluster={true} clusterRadius={40} clusterMaxZoom={14}>
+              {/* Cluster circles */}
+              <Layer id="poi-clusters" type="circle" filter={["has", "point_count"]} paint={{
+                "circle-color": "hsl(var(--primary))",
+                "circle-radius": ["step", ["get", "point_count"], 16, 5, 20, 10, 26],
+                "circle-opacity": 0.85,
+                "circle-stroke-width": 2,
+                "circle-stroke-color": "#fff",
+              }} />
+              {/* Cluster count labels */}
+              <Layer id="poi-cluster-count" type="symbol" filter={["has", "point_count"]} layout={{
+                "text-field": "{point_count_abbreviated}",
+                "text-size": 11,
+              }} paint={{ "text-color": "#fff" }} />
+              {/* Individual POI points */}
+              <Layer id="poi-unclustered" type="circle" filter={["!", ["has", "point_count"]]} paint={{
+                "circle-color": colorExpr,
+                "circle-radius": 6,
+                "circle-stroke-width": 2,
+                "circle-stroke-color": "#fff",
+                "circle-opacity": 0.9,
+              }}
+              />
+            </Source>
+          );
+        })()}
 
         {hoveredPOI && (
           <Popup
