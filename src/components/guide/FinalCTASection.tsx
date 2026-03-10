@@ -91,7 +91,7 @@ export default function FinalCTASection() {
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={handleSubmit} disabled={loading} className="w-full font-body" size="lg">
+          <Button onClick={handleSubmit} disabled={loading} className="w-full font-body min-h-[48px]" size="lg">
             <Send size={16} className="mr-2" />
             {loading ? "Enviando..." : "Solicitar diagnóstico gratuito"}
           </Button>

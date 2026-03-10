@@ -74,7 +74,7 @@ export default function ReservasSection() {
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="pratica">
-          <AccordionTrigger className="text-primary font-semibold">Como aplicar na prática</AccordionTrigger>
+          <AccordionTrigger className="text-primary font-semibold min-h-[48px]">Como aplicar na prática</AccordionTrigger>
           <AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">Priorize os 3 primeiros drivers da persona dominante do seu bairro. Em Pinheiros (público misto executivo/turista), foque em limpeza impecável + check-in digital + fotos reais. Em Vila Mariana (mais estudantes e casais), priorize avaliações altas + preço competitivo + ambiente confortável para estadias longas. O segredo é alinhar produto e operação ao perfil real de quem reserva na sua região.</p></AccordionContent>
         </AccordionItem>
       </Accordion>

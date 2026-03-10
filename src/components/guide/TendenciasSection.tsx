@@ -156,7 +156,7 @@ export default function TendenciasSection() {
               key={opt.mode}
               size="sm"
               variant={sortMode === opt.mode ? "default" : "outline"}
-              className="text-xs h-7 font-body"
+              className="text-xs h-7 font-body min-h-[36px]"
               onClick={() => setSortMode(opt.mode)}
             >
               {opt.label}
