@@ -186,10 +186,23 @@ function InteractiveMap({
   const [hoveredN, setHoveredN] = useState<Neighborhood | null>(null);
   const [hoveredPoly, setHoveredPoly] = useState<{ name: string; roi: number; rate: number; occ: number; rev: number; lng: number; lat: number } | null>(null);
   const [hoveredStation, setHoveredStation] = useState<{ name: string; line: string; lng: number; lat: number } | null>(null);
-  const [poisData, setPoisData] = useState<GeoJSON.FeatureCollection | null>(null);
+  const [poisData, setPoisData] = useState<Array<{ name: string; category: string; neighborhood: string; lng: number; lat: number }>>([]);
+  const [hoveredPOI, setHoveredPOI] = useState<{ name: string; category: string; neighborhood: string; lng: number; lat: number } | null>(null);
 
   useEffect(() => {
-    fetch("/geo/pois.geojson").then(r => r.json()).then(setPoisData).catch(() => {});
+    fetch("/geo/pois.geojson")
+      .then(r => r.json())
+      .then((geojson: GeoJSON.FeatureCollection) => {
+        const pts = geojson.features.map(f => ({
+          name: (f.properties as any)?.name ?? "",
+          category: (f.properties as any)?.category ?? "",
+          neighborhood: (f.properties as any)?.neighborhood ?? "",
+          lng: (f.geometry as any).coordinates[0] as number,
+          lat: (f.geometry as any).coordinates[1] as number,
+        }));
+        setPoisData(pts);
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
