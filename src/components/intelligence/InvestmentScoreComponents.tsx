@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { motion } from "framer-motion";
 import type { InvestmentScoreResult } from "@/lib/investmentScore";
 import { PILLARS, getGradeExplanation } from "@/lib/investmentScore";
+import { getGradeStyle } from "@/lib/uiHelpers";
 
 const PILLAR_ICONS: Record<string, React.ElementType> = {
   TrendingUp, Zap, CalendarCheck, Sprout,
