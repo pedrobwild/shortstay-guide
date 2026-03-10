@@ -792,14 +792,26 @@ export const Step7Recommendation = ({ bairros, profile, answers }: Step7Props) =
         </Card>
       </motion.div>
 
-      {/* Top 3 */}
-      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-        🏆 Top 3 bairros para o seu perfil
-      </p>
+      {/* True Yield toggle */}
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          🏆 Top 3 bairros para o seu perfil
+        </p>
+        <button
+          onClick={() => setShowTrueYield(!showTrueYield)}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-dashed border-primary/30 bg-primary/[0.02] hover:bg-primary/[0.05] transition-colors text-[10px]"
+        >
+          <FlaskConical className="h-3 w-3 text-primary" />
+          <span className="text-muted-foreground font-medium">
+            {showTrueYield ? "Ocultar" : "Ver"} True Yield
+          </span>
+        </button>
+      </div>
       
       <div className="space-y-4">
         {recommendations.map((rec, i) => {
           const badgeStyle = getGradeStyle(rec.gradeColor);
+          const trueYield = showTrueYield ? calculateTrueYield(rec.bairro) : null;
           return (
             <motion.div key={rec.bairro.bairro} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={stagger(i, 0.1)}>
               <Card className={`${i === 0 ? "ring-2 ring-primary/30 border-primary/20" : ""}`}>
@@ -824,7 +836,7 @@ export const Step7Recommendation = ({ bairros, profile, answers }: Step7Props) =
                   </div>
 
                   {/* Key metrics */}
-                  <div className="grid grid-cols-3 gap-3 mb-4">
+                  <div className={`grid ${showTrueYield ? "grid-cols-4" : "grid-cols-3"} gap-3 mb-4`}>
                     <div className="text-center p-2 rounded-lg bg-muted/40">
                       <p className="text-[10px] text-muted-foreground">Yield</p>
                       <p className="text-sm font-bold">{fmtPct(rec.bairro.yield_bruto_airbnb)}</p>
@@ -837,7 +849,28 @@ export const Step7Recommendation = ({ bairros, profile, answers }: Step7Props) =
                       <p className="text-[10px] text-muted-foreground">Diária</p>
                       <p className="text-sm font-bold">{fmtBRL(rec.bairro.adr_medio_studio)}</p>
                     </div>
+                    {trueYield && (
+                      <div className="text-center p-2 rounded-lg bg-primary/[0.06] border border-primary/10">
+                        <p className="text-[10px] text-primary/70 flex items-center justify-center gap-0.5">
+                          <FlaskConical className="h-2.5 w-2.5" /> True Yield
+                        </p>
+                        <p className="text-sm font-bold text-primary">{fmtPct(trueYield.trueYield)}</p>
+                        <p className={`text-[9px] font-medium ${trueYield.delta > 0 ? "text-emerald-600" : trueYield.delta < -0.005 ? "text-amber-600" : "text-muted-foreground"}`}>
+                          {trueYield.delta > 0 ? "+" : ""}{(trueYield.delta * 100).toFixed(1)}pp vs Yield
+                        </p>
+                      </div>
+                    )}
                   </div>
+
+                  {/* True Yield insight */}
+                  {trueYield && (
+                    <div className="mb-3 p-2.5 rounded-lg bg-muted/30 border border-dashed border-primary/15">
+                      <p className="text-[11px] text-foreground/70 leading-relaxed">
+                        <FlaskConical className="h-3 w-3 text-primary inline mr-1" />
+                        {trueYield.comparison}
+                      </p>
+                    </div>
+                  )}
 
                   {/* Reasons */}
                   <div className="space-y-1.5 mb-3">
