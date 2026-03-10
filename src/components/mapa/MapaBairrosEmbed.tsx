@@ -531,7 +531,7 @@ export default function MapaBairrosEmbed() {
     setSelectedNeighborhood(n);
   }, []);
 
-  const highlightedNames = useMemo(() => activeEvent?.neighborhoods || [], [activeEvent]);
+  const highlightedNames = useMemo(() => activeEvent?.nearbyNeighborhoods || [], [activeEvent]);
 
   const filtered = useMemo(() => {
     let list = NEIGHBORHOODS;
