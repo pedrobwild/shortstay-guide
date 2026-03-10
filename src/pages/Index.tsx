@@ -2480,6 +2480,7 @@ function TrustSignals() {
 
 /* ─── 13) Final CTA + lead form ─── */
 function FinalCTASection() {
+  const { bairros } = useBairroData();
   const [formData, setFormData] = useState({ nome: "", whatsapp: "", bairro: "", metragem: "", objetivo: "" });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
