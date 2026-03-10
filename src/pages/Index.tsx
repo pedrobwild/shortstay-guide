@@ -2402,6 +2402,34 @@ function useScrollspy(ids: string[]) {
 export default function Index() {
   const sectionIds = SECTIONS.map((s) => s.id);
   const activeId = useScrollspy(sectionIds);
+  const { trackEvent } = useGuideAnalytics();
+  const scrollMilestones = useRef(new Set<string>());
+
+  // Register global tracker
+  useEffect(() => {
+    setGlobalTrack(trackEvent);
+    return () => setGlobalTrack(null);
+  }, [trackEvent]);
+
+  // page_view
+  useEffect(() => {
+    trackEvent("page_view", { referrer: document.referrer, ua: navigator.userAgent });
+  }, [trackEvent]);
+
+  // Scroll milestones
+  useEffect(() => {
+    const handler = () => {
+      const pct = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+      for (const m of [25, 50, 75, 100]) {
+        if (pct >= m && !scrollMilestones.current.has(`scroll_${m}`)) {
+          scrollMilestones.current.add(`scroll_${m}`);
+          trackEvent(`scroll_${m}`, {});
+        }
+      }
+    };
+    window.addEventListener("scroll", handler, { passive: true });
+    return () => window.removeEventListener("scroll", handler);
+  }, [trackEvent]);
 
   return (
     <>
