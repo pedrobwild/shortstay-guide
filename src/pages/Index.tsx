@@ -1948,7 +1948,55 @@ function ChecklistSection() {
           </div>
         </CardContent>
       </Card>
-      <PlaceholderAccordion label="Checklist do investidor" />
+      <Accordion type="multiple" className="mt-4 font-body">
+        <AccordionItem value="detalhes-checklist">
+          <AccordionTrigger className="text-primary font-semibold">Detalhamento de cada item</AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-3 text-sm">
+              <div>
+                <p className="font-semibold text-foreground">1. Localização com demanda comprovada</p>
+                <p className="text-muted-foreground">Verifique a taxa de ocupação média do bairro (acima de 70% é bom sinal). Consulte o mapa de bairros e a tabela de mercado neste guia. Bairros próximos a metrô, centros comerciais e hospitais tendem a ter demanda mais constante.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">2. Condomínio permite short stay</p>
+                <p className="text-muted-foreground">Leia a convenção do condomínio e o regimento interno. Verifique se há restrição explícita a locações por temporada. Converse com o síndico. Prédios com restrição podem multar e até proibir a operação.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">3. Análise de concorrência feita</p>
+                <p className="text-muted-foreground">Pesquise 10-20 anúncios similares no mesmo bairro. Compare diárias, fotos, avaliações e amenidades. Identifique onde você pode se diferenciar (design, check-in, localização).</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">4. Orçamento de reforma definido</p>
+                <p className="text-muted-foreground">Tenha um orçamento fechado antes de iniciar. Inclua margem de 10-15% para imprevistos. Priorize os itens com maior impacto visual: iluminação, marcenaria e pintura.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">5. Projeção financeira validada</p>
+                <p className="text-muted-foreground">Use o simulador deste guia para validar cenários. Compare receita projetada com custos totais (reforma + operação mensal). O yield bruto deve ser superior a 6% ao ano para justificar o investimento.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">6. Fotos profissionais planejadas</p>
+                <p className="text-muted-foreground">Fotos são o principal fator de conversão em cliques. Reserve orçamento para fotógrafo profissional com experiência em interiores. Mínimo 15-20 fotos com luz natural. Considere vídeo walkthrough.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">7. Mobília funcional selecionada</p>
+                <p className="text-muted-foreground">Priorize durabilidade e praticidade. Sofá-cama de qualidade, mesa que serve para trabalho e refeições, armazenamento inteligente. Evite peças frágeis ou difíceis de limpar.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">8. Plano de precificação dinâmica</p>
+                <p className="text-muted-foreground">Defina preço base e ajuste por sazonalidade (alta temporada +20-30%, baixa -10-15%). Use ferramentas de precificação automática ou acompanhe manualmente a concorrência semanalmente.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">9. Gestão operacional definida</p>
+                <p className="text-muted-foreground">Decida: autogestão ou empresa especializada? Autogestão exige disponibilidade 24/7 para mensagens. Operadoras cobram 15-25% da receita mas resolvem limpeza, check-in, manutenção e atendimento.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">10. Documentação fiscal em ordem</p>
+                <p className="text-muted-foreground">Registre-se como MEI ou no Simples Nacional. Declare os rendimentos de aluguel por temporada. Verifique a legislação municipal sobre ISS e taxa de turismo. Consulte um contador com experiência em locação por temporada.</p>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </SectionBlock>
   );
 }
