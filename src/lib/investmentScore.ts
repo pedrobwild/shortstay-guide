@@ -133,13 +133,19 @@ export interface InvestmentScoreResult {
 // ── Risk adjustment helpers ──────────────────────────────────────
 
 function getConfidenceFactor(nivel: string): number {
-  const map: Record<string, number> = { alto: 1.0, médio: 0.93, baixo: 0.85 };
-  return map[nivel.toLowerCase()] ?? 0.93;
+  const lower = nivel.toLowerCase();
+  // Support both accented ("médio") and unaccented ("medio") variants
+  if (lower === "alto") return 1.0;
+  if (lower === "médio" || lower === "medio") return 0.93;
+  if (lower === "baixo") return 0.85;
+  return 0.93;
 }
 
-function getLiquidityRiskFactor(liquidezNormalized: number): number {
-  if (liquidezNormalized < 50) return 0.90;
-  if (liquidezNormalized < 60) return 0.95;
+function getLiquidityRiskFactor(rawScoreLiquidez: number): number {
+  // Use absolute raw score_liquidez (0-100 scale) instead of normalized value
+  // to avoid cliff effects from min-max compression
+  if (rawScoreLiquidez < 45) return 0.90;
+  if (rawScoreLiquidez < 55) return 0.95;
   return 1.0;
 }
 
