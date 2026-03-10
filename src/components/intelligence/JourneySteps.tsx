@@ -957,8 +957,44 @@ export const Step5Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
           </div>
         </motion.div>
 
+        {/* ── "O que esta análise mostra" ── */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(3)} className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Lightbulb className="h-4.5 w-4.5 text-primary" />
+            <h3 className="text-base font-bold font-[var(--font-display)]">O que esta análise mostra</h3>
+          </div>
+
+          {/* Winner cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {getHighlightWinners(bairros).map((h, i) => {
+              const IconMap: Record<string, React.ElementType> = { Scale, Crown, Rocket, Activity, TrendingUp, AlertTriangle };
+              const Icon = IconMap[h.icon] || Lightbulb;
+              const isRisky = h.icon === "AlertTriangle";
+              return (
+                <motion.div key={h.category} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={stagger(i, 0.06)}>
+                  <Card className={`h-full ${isRisky ? "border-amber-500/20 bg-amber-500/[0.02]" : "border-border/50"}`}>
+                    <CardContent className="p-4 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className={`h-7 w-7 rounded-lg flex items-center justify-center ${isRisky ? "bg-amber-100 text-amber-700" : "bg-primary/10 text-primary"}`}>
+                          <Icon className="h-3.5 w-3.5" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{h.category}</p>
+                          <p className="text-sm font-bold">{h.bairro}</p>
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground font-medium">{h.value}</p>
+                      <p className="text-[11px] text-foreground/70 leading-relaxed">{h.narrative}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </div>
+        </motion.div>
+
         {/* Closing insight */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={stagger(3)}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={stagger(4)}>
           <Card className="bg-muted/30 border-dashed">
             <CardContent className="p-4">
               <p className="text-xs text-center text-muted-foreground italic">
