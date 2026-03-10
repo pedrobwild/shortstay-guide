@@ -184,44 +184,73 @@ function PlaceholderAccordion({ label }: { label: string }) {
   );
 }
 
-/* ─── TOC (desktop sticky) ─── */
+/* ─── TOC (desktop sticky) — slim icon rail, expands on hover ─── */
 function TableOfContents({ activeId }: { activeId: string }) {
+  const [expanded, setExpanded] = useState(false);
+
   return (
-    <nav className="hidden lg:block fixed left-0 top-0 w-56 xl:w-64 h-screen overflow-y-auto px-4 py-6 border-r border-border/60 bg-card/90 backdrop-blur-md z-30 scrollbar-thin">
-      <div className="mb-6 px-3">
-        <img src={bwildLogo} alt="Bwild" className="h-8 w-auto" />
+    <nav
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
+      className={`hidden lg:flex flex-col fixed left-0 top-0 h-screen overflow-y-auto overflow-x-hidden border-r border-border/60 bg-card/90 backdrop-blur-md z-30 scrollbar-thin py-6 transition-all duration-300 ease-in-out ${
+        expanded ? "w-56 px-3" : "w-[60px] px-2"
+      }`}
+    >
+      <div className={`mb-6 flex items-center ${expanded ? "px-2" : "justify-center"}`}>
+        {expanded ? (
+          <img src={bwildLogo} alt="Bwild" className="h-7 w-auto" />
+        ) : (
+          <img src={bwildLogo} alt="Bwild" className="h-6 w-6 object-contain object-left" style={{ clipPath: "inset(0 60% 0 0)" }} />
+        )}
       </div>
-      <p className="text-[10px] font-body font-bold uppercase tracking-[0.15em] text-muted-foreground/70 mb-4 px-3">
-        Índice
-      </p>
-      <ul className="space-y-0.5">
+      {expanded && (
+        <p className="text-[10px] font-body font-bold uppercase tracking-[0.15em] text-muted-foreground/70 mb-3 px-2">
+          Índice
+        </p>
+      )}
+      <ul className="space-y-0.5 flex-1">
         {SECTIONS.map((s) => {
           const Icon = s.icon;
           const isActive = activeId === s.id;
           const isExternal = "href" in s && s.href;
+          const baseClass = isActive
+            ? "bg-primary text-primary-foreground font-semibold shadow-sm"
+            : "text-muted-foreground hover:text-foreground hover:bg-muted/60";
+
+          const inner = (
+            <>
+              <Icon size={16} className="shrink-0" />
+              {expanded && <span className="truncate text-sm font-body whitespace-nowrap">{s.label}</span>}
+              {expanded && isExternal && <ArrowUpRight size={11} className="ml-auto opacity-40 shrink-0" />}
+            </>
+          );
+
           return (
-            <li key={s.id}>
+            <li key={s.id} className="relative group">
               {isExternal ? (
                 <Link
                   to={s.href!}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-body transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                  className={`flex items-center gap-2.5 rounded-lg transition-all duration-200 ${baseClass} ${
+                    expanded ? "px-3 py-2" : "px-0 py-2 justify-center"
+                  }`}
                 >
-                  <Icon size={14} className="shrink-0" />
-                  <span className="truncate">{s.label}</span>
-                  <ArrowUpRight size={11} className="ml-auto opacity-40 shrink-0" />
+                  {inner}
                 </Link>
               ) : (
                 <a
                   href={`#${s.id}`}
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-body transition-all duration-200 ${
-                    isActive
-                      ? "bg-primary text-primary-foreground font-semibold shadow-sm"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                  className={`flex items-center gap-2.5 rounded-lg transition-all duration-200 ${baseClass} ${
+                    expanded ? "px-3 py-2" : "px-0 py-2 justify-center"
                   }`}
                 >
-                  <Icon size={14} className="shrink-0" />
-                  <span className="truncate">{s.label}</span>
+                  {inner}
                 </a>
+              )}
+              {/* Tooltip when collapsed */}
+              {!expanded && (
+                <span className="pointer-events-none absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-foreground text-background text-xs font-body px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+                  {s.label}
+                </span>
               )}
             </li>
           );
@@ -2050,7 +2079,7 @@ export default function Index() {
       {/* ChatBot is rendered globally in App.tsx */}
       <MobileStickyBar />
 
-      <main className="lg:ml-56 xl:ml-64 w-full flex justify-center pb-24 lg:pb-8 pt-16 lg:pt-0">
+      <main className="lg:ml-[60px] w-full flex justify-center pb-24 lg:pb-8 pt-16 lg:pt-0">
        <div className="w-full max-w-[1280px] px-5 lg:px-10 py-0 lg:py-10">
         <HeroSection />
 
