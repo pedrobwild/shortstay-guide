@@ -1295,7 +1295,45 @@ function DecoracaoSection() {
         <Badge variant="secondary" className="font-body">Reputação orgânica</Badge>
       </div>
 
-      <PlaceholderAccordion label="Decoração estratégica" />
+      <Accordion type="multiple" className="mt-4 font-body">
+        <AccordionItem value="budget">
+          <AccordionTrigger className="text-primary font-semibold">Budget breakdown por nível</AccordionTrigger>
+          <AccordionContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="border-b border-border">
+                  <th className="text-left py-2 text-muted-foreground font-medium">Nível</th>
+                  <th className="text-right py-2 text-muted-foreground font-medium">Investimento</th>
+                  <th className="text-left py-2 pl-4 text-muted-foreground font-medium">O que inclui</th>
+                </tr></thead>
+                <tbody>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 text-foreground font-medium">Básico</td>
+                    <td className="py-2 text-right text-muted-foreground">R$ 15–25k</td>
+                    <td className="py-2 pl-4 text-muted-foreground">Pintura, iluminação LED, mobília essencial, enxoval padrão, fotos com celular profissional</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 text-foreground font-medium">Premium</td>
+                    <td className="py-2 text-right text-muted-foreground">R$ 25–40k</td>
+                    <td className="py-2 pl-4 text-muted-foreground">Marcenaria planejada, iluminação cênica, mobília curada, enxoval premium, fotos profissionais, smart lock</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 text-foreground font-medium">Alto padrão</td>
+                    <td className="py-2 text-right text-muted-foreground">R$ 40–60k</td>
+                    <td className="py-2 pl-4 text-muted-foreground">Design autoral, marcenaria premium, piso vinílico/porcelanato, automação, arte original, styling completo, fotos + vídeo</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="roi-decoracao">
+          <AccordionTrigger className="text-primary font-semibold">ROI por nível de decoração</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed"><strong className="text-foreground">Básico:</strong> payback de 10–14 meses. Melhora marginal na diária (+10-15%), mas custo baixo. <strong className="text-foreground">Premium:</strong> payback de 8–12 meses. Melhor custo-benefício — o aumento de diária (+20-30%) compensa o investimento adicional com folga. <strong className="text-foreground">Alto padrão:</strong> payback de 6–10 meses. Diária +30-45%, mas exige público-alvo compatível e bairro premium (Itaim, Pinheiros, Vila Olímpia). O nível Premium geralmente oferece o melhor retorno ajustado ao risco.</p>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </SectionBlock>
   );
 }
