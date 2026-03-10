@@ -16,7 +16,7 @@ export default function ReformaSection() {
 
   return (
     <SectionBlock id="reforma" title="Reforma Inteligente" takeaway="Quanto investir, onde priorizar e o que gera mais retorno por m².">
-      <div className="rounded-2xl overflow-hidden mb-8 shadow-sm"><img src={sectionReforma} alt="Antes e depois de reforma de studio" className="w-full h-48 md:h-64 object-cover" loading="lazy" /></div>
+      <div className="rounded-2xl overflow-hidden mb-8 shadow-sm"><img src={sectionReforma} alt="Antes e depois de reforma de studio" className="w-full h-40 md:h-64 object-cover" loading="lazy" /></div>
       <Tabs defaultValue="piso" className="font-body">
         <TabsList className="mb-4"><TabsTrigger value="piso">Piso (25m²)</TabsTrigger><TabsTrigger value="marcenaria">Marcenaria</TabsTrigger><TabsTrigger value="iluminacao">Iluminação vs Bancada</TabsTrigger></TabsList>
         <TabsContent value="piso">
