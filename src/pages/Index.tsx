@@ -95,6 +95,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useGuideAnalytics, setGlobalTrack, trackGlobal } from "@/hooks/useGuideAnalytics";
 
 /* ─── Shared dataset ─── */
 const BAIRRO_DATA = [
@@ -149,8 +150,26 @@ function SectionBlock({
   takeaway: string;
   children: React.ReactNode;
 }) {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          trackGlobal("section_enter", { section_id: id });
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [id]);
+
   return (
-    <section id={id} className="scroll-mt-24 py-16 md:py-20">
+    <section ref={sectionRef} id={id} className="scroll-mt-24 py-16 md:py-20">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -315,10 +334,10 @@ function MobileMenu({ activeId }: { activeId: string }) {
 function MobileStickyBar() {
   return (
     <div className="fixed bottom-0 left-0 right-0 lg:hidden z-40 bg-card/95 backdrop-blur border-t border-border px-4 py-3 flex gap-2">
-      <Button asChild className="flex-1 bg-primary text-primary-foreground">
+      <Button asChild className="flex-1 bg-primary text-primary-foreground" onClick={() => trackGlobal("cta_clicked", { cta_id: "simular_agora", section: "sticky_bar" })}>
         <a href="#simulador">Simular agora</a>
       </Button>
-      <Button asChild variant="outline" className="flex-1">
+      <Button asChild variant="outline" className="flex-1" onClick={() => trackGlobal("cta_clicked", { cta_id: "diagnostico", section: "sticky_bar" })}>
         <a href="#cta-final">Diagnóstico grátis</a>
       </Button>
     </div>
@@ -459,7 +478,7 @@ function ReservasSection() {
               key={p.key}
               size="sm"
               variant={persona === p.key ? "default" : "outline"}
-              onClick={() => setPersona(p.key)}
+              onClick={() => { setPersona(p.key); trackGlobal("persona_toggle", { persona: p.key }); }}
               className={persona === p.key ? "bg-primary text-primary-foreground" : ""}
             >
               <p.icon size={14} className="mr-1.5" />
@@ -560,6 +579,17 @@ function MercadoSection() {
     const receitaAnual = receitaMensal * 12;
     return { min, max, receitaMensal, receitaAnual };
   }, [selected, decLevel, metragem, ocupacao]);
+
+  // Track mercado usage
+  const mercadoTracked = useRef(false);
+  useEffect(() => {
+    if (mercadoTracked.current) return;
+    const t = setTimeout(() => {
+      trackGlobal("mercado_used", { bairro, metragem, decoracao });
+      mercadoTracked.current = true;
+    }, 3000);
+    return () => clearTimeout(t);
+  }, [bairro, metragem, decoracao]);
 
   return (
     <SectionBlock
@@ -722,8 +752,22 @@ function SimuladorSection() {
   const handleCopy = () => {
     navigator.clipboard.writeText(summaryText);
     setCopied(true);
+    trackGlobal("export_simulation", { bairro: simBairro, metragem: simMetragem, ocupacao: simOcupacao[0], resultado: sim.receitaMensal });
     setTimeout(() => setCopied(false), 2000);
   };
+
+  // Track simulator usage (debounced — fires when results settle)
+  const simTracked = useRef(false);
+  useEffect(() => {
+    if (simTracked.current) return;
+    const t = setTimeout(() => {
+      if (simDiariaAtual || rateBoost > 0 || simReformaBudget) {
+        trackGlobal("simulator_used", { bairro: simBairro, metragem: simMetragem, ocupacao: simOcupacao[0], diaria: sim.boostedDaily, resultado: sim.receitaMensal });
+        simTracked.current = true;
+      }
+    }, 2000);
+    return () => clearTimeout(t);
+  }, [sim.receitaMensal]);
 
   return (
     <SectionBlock
@@ -1733,7 +1777,10 @@ function TendenciasSection() {
       <AnimatePresence mode="popLayout">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {filtered.map((t, i) => (
-            <TrendCardInline key={t.id} trend={t} index={i} onOpen={() => setSelectedTrend(t)} />
+      <TrendCardInline key={t.id} trend={t} index={i} onOpen={() => {
+        setSelectedTrend(t);
+        trackGlobal("trend_opened", { trend_title: t.title });
+      }} />
           ))}
         </div>
       </AnimatePresence>
@@ -1752,11 +1799,10 @@ function TendenciasSection() {
 /* ─── 10) Case study ─── */
 function CaseStudySection() {
   const handleUsePremissas = () => {
-    // Dispatch custom event to populate the simulator
+    trackGlobal("case_study_to_simulator", {});
     window.dispatchEvent(new CustomEvent("populate-simulator", {
       detail: { bairro: "Vila Mariana", diaria: "230", ocupacao: 75, boost: 30 },
     }));
-    // Scroll to simulator
     document.getElementById("simulador")?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -1889,7 +1935,15 @@ function ChecklistSection() {
   const pct = (score / CHECKLIST_ITEMS.length) * 100;
 
   const toggle = (i: number) => {
-    setChecked((prev) => prev.map((v, idx) => (idx === i ? !v : v)));
+    setChecked((prev) => {
+      const next = prev.map((v, idx) => (idx === i ? !v : v));
+      const newScore = next.filter(Boolean).length;
+      if (newScore === CHECKLIST_ITEMS.length) {
+        const t = SCORE_TIERS.find((t) => newScore >= t.min && newScore <= t.max);
+        trackGlobal("checklist_completed", { score: newScore, tier: t?.label });
+      }
+      return next;
+    });
   };
 
   return (
@@ -2133,10 +2187,10 @@ function MidPageCTA({ variant = "default" }: { variant?: "default" | "slim" }) {
             <p className="text-sm text-primary-foreground/70 font-body mt-1">Use nosso simulador gratuito ou solicite um diagnóstico personalizado.</p>
           </div>
           <div className="flex gap-2 flex-shrink-0">
-            <Button asChild size="sm" className="bg-accent text-accent-foreground font-body">
+            <Button asChild size="sm" className="bg-accent text-accent-foreground font-body" onClick={() => trackGlobal("cta_clicked", { cta_id: "simular_agora", section: `midpage_${variant}` })}>
               <a href="#simulador">Simular agora</a>
             </Button>
-            <Button asChild size="sm" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-body">
+            <Button asChild size="sm" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-body" onClick={() => trackGlobal("cta_clicked", { cta_id: "diagnostico", section: `midpage_${variant}` })}>
               <a href="#cta-final">Diagnóstico grátis</a>
             </Button>
           </div>
@@ -2209,6 +2263,7 @@ function FinalCTASection() {
       return;
     }
     setSubmitted(true);
+    trackGlobal("lead_submitted", { neighborhood: formData.bairro, objective: formData.objetivo });
   };
 
   const updateField = (field: string, value: string) => {
@@ -2347,6 +2402,34 @@ function useScrollspy(ids: string[]) {
 export default function Index() {
   const sectionIds = SECTIONS.map((s) => s.id);
   const activeId = useScrollspy(sectionIds);
+  const { trackEvent } = useGuideAnalytics();
+  const scrollMilestones = useRef(new Set<string>());
+
+  // Register global tracker
+  useEffect(() => {
+    setGlobalTrack(trackEvent);
+    return () => setGlobalTrack(null);
+  }, [trackEvent]);
+
+  // page_view
+  useEffect(() => {
+    trackEvent("page_view", { referrer: document.referrer, ua: navigator.userAgent });
+  }, [trackEvent]);
+
+  // Scroll milestones
+  useEffect(() => {
+    const handler = () => {
+      const pct = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+      for (const m of [25, 50, 75, 100]) {
+        if (pct >= m && !scrollMilestones.current.has(`scroll_${m}`)) {
+          scrollMilestones.current.add(`scroll_${m}`);
+          trackEvent(`scroll_${m}`, {});
+        }
+      }
+    };
+    window.addEventListener("scroll", handler, { passive: true });
+    return () => window.removeEventListener("scroll", handler);
+  }, [trackEvent]);
 
   return (
     <>

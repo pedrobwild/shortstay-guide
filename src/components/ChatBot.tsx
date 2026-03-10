@@ -3,6 +3,7 @@ import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles } from "lucide-rea
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
+import { trackGlobal } from "@/hooks/useGuideAnalytics";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -36,6 +37,7 @@ export default function ChatBot() {
 
   const sendText = async (text: string) => {
     if (!text.trim() || loading) return;
+    trackGlobal("chatbot_message", { message_preview: text.trim().slice(0, 50) });
     setInput("");
     const userMsg: Msg = { role: "user", content: text.trim() };
     setMessages((prev) => [...prev, userMsg]);
@@ -122,7 +124,7 @@ export default function ChatBot() {
               {/* Pulse ring */}
               <span className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
               <Button
-                onClick={() => setOpen(true)}
+                onClick={() => { setOpen(true); trackGlobal("chatbot_opened", {}); }}
                 className="relative h-14 w-14 rounded-full shadow-[0_8px_30px_-4px_hsl(var(--primary)/0.4)] bg-primary hover:bg-primary/90 transition-all duration-300 hover:shadow-[0_12px_40px_-4px_hsl(var(--primary)/0.5)] hover:scale-105"
                 size="icon"
               >
