@@ -172,6 +172,9 @@ const IntelligenceDashboard = () => {
         {/* ── Strategic Lessons ──────────────────────── */}
         <StrategicLessonsSection bairros={bairros} />
 
+        {/* ── Analysis Summary ───────────────────────── */}
+        <AnalysisSummarySection bairros={bairros} />
+
         {/* Quick Links */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Link to="/intelligence/ranking">
