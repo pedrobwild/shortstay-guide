@@ -130,6 +130,15 @@ export default function NeighborhoodComparison({ onClose, initialNeighborhoods =
         </div>
       ) : (
         <>
+          {/* Color legend */}
+          <div className="flex flex-wrap items-center gap-3 mb-4 text-[10px] font-body text-muted-foreground">
+            <span className="font-semibold text-foreground text-[11px]">Legenda:</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Melhor valor</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> Intermediário</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-gray-400" /> Menor valor</span>
+            <span className="text-muted-foreground/50">|</span>
+            <span>✓ = melhor na métrica</span>
+          </div>
           {/* Comparison table */}
           <div className="overflow-x-auto mb-6">
             <table className="w-full text-xs">

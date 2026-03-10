@@ -623,7 +623,14 @@ export default function MapaBairrosEmbed() {
           <Calendar size={20} className="text-primary" />
           <h3 className="font-display text-xl font-bold text-foreground">Eventos que aumentam a demanda</h3>
         </div>
-        <p className="text-sm text-muted-foreground font-body mb-4">Clique em um evento para destacar os bairros impactados no mapa.</p>
+        <p className="text-sm text-muted-foreground font-body mb-3">Clique em um evento para destacar os bairros impactados no mapa.</p>
+        {/* Events impact legend */}
+        <div className="flex flex-wrap items-center gap-3 mb-4 text-[11px] font-body">
+          <span className="text-muted-foreground font-semibold">Nível de impacto:</span>
+          <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-destructive/10 text-destructive">🔴 Alta demanda — picos de até +40% nas reservas</span>
+          <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300">🟡 Média demanda — aumento moderado</span>
+          <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-muted text-muted-foreground">⚪ Baixa demanda — impacto localizado</span>
+        </div>
         <EventsTimeline events={EVENTS} onEventClick={handleEventClick} activeEventId={activeEvent?.id ?? null} />
       </div>
     </div>
