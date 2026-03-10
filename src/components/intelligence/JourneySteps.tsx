@@ -89,6 +89,7 @@ export const Step1Context = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
 
   return (
     <div className="space-y-6">
+      <MicroNote sectionKey="journey_context" />
       {/* Hero opening */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
         <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent overflow-hidden relative">
