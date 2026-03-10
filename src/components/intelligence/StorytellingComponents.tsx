@@ -164,11 +164,14 @@ export const EducationalBanner = ({ message, type = "neutral" }: { message: stri
 };
 
 // ── Contextual note (for section transitions) ────────────────────
-export const ContextualNote = ({ sectionKey }: { sectionKey: string }) => {
-  const note = SECTION_MICROCOPY[sectionKey];
-  if (!note) return null;
-  return <EducationalBanner message={note.message} type={note.type} />;
-};
+export const ContextualNote = React.forwardRef<HTMLDivElement, { sectionKey: string }>(
+  ({ sectionKey }, ref) => {
+    const note = SECTION_MICROCOPY[sectionKey];
+    if (!note) return null;
+    return <div ref={ref}><EducationalBanner message={note.message} type={note.type} /></div>;
+  }
+);
+ContextualNote.displayName = "ContextualNote";
 
 // ── "O que esta análise mostra" section ─────────────────────────
 
