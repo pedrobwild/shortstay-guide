@@ -741,8 +741,22 @@ function SimuladorSection() {
   const handleCopy = () => {
     navigator.clipboard.writeText(summaryText);
     setCopied(true);
+    trackGlobal("export_simulation", { bairro: simBairro, metragem: simMetragem, ocupacao: simOcupacao[0], resultado: sim.receitaMensal });
     setTimeout(() => setCopied(false), 2000);
   };
+
+  // Track simulator usage (debounced — fires when results settle)
+  const simTracked = useRef(false);
+  useEffect(() => {
+    if (simTracked.current) return;
+    const t = setTimeout(() => {
+      if (simDiariaAtual || rateBoost > 0 || simReformaBudget) {
+        trackGlobal("simulator_used", { bairro: simBairro, metragem: simMetragem, ocupacao: simOcupacao[0], diaria: sim.boostedDaily, resultado: sim.receitaMensal });
+        simTracked.current = true;
+      }
+    }, 2000);
+    return () => clearTimeout(t);
+  }, [sim.receitaMensal]);
 
   return (
     <SectionBlock
