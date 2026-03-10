@@ -12,7 +12,7 @@ import {
   Building2, TrendingUp, BarChart3, Target, Scale, Crown, Rocket, Activity,
   Zap, BookOpen, Lightbulb, ChevronRight, ArrowRight, Shield, CalendarCheck,
   ArrowUpRight, Sprout, Gauge, AlertTriangle, CheckCircle, Banknote, Sparkles,
-  Info, Star, ChevronDown, ChevronUp,
+  Info, Star, ChevronDown, ChevronUp, FlaskConical, Eye, EyeOff,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -24,7 +24,7 @@ import {
   INDICATOR_EXPLAINERS,
   SECTION_MICROCOPY,
 } from "@/lib/intelligenceInsights";
-import { calculateAllScores, calculateInvestmentScore, PILLARS } from "@/lib/investmentScore";
+import { calculateAllScores, calculateInvestmentScore, calculateTrueYield, PILLARS } from "@/lib/investmentScore";
 import { getGradeStyle, FOOTER_DISCLAIMER } from "@/lib/uiHelpers";
 import {
   STRATEGIC_LESSONS,
@@ -356,6 +356,70 @@ export const Step3Learn = ({ onNext }: { onNext: () => void }) => {
         </Card>
       </motion.div>
 
+      {/* True Yield — Advanced optional layer */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(INDICATOR_EXPLAINERS.length + 1, 0.15)}>
+        <Card className="border-dashed border-primary/20">
+          <CardContent className="p-5">
+            <button
+              onClick={() => setExpandedCard(expandedCard === "true-yield" ? null : "true-yield")}
+              className="w-full flex items-center justify-between"
+            >
+              <div className="flex items-center gap-2">
+                <FlaskConical className="h-4 w-4 text-primary" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  🔬 Camada avançada: True Yield
+                </span>
+              </div>
+              {expandedCard === "true-yield" ? (
+                <EyeOff className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <Eye className="h-4 w-4 text-muted-foreground" />
+              )}
+            </button>
+            <AnimatePresence>
+              {expandedCard === "true-yield" && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-4 pt-4 border-t border-border/50 space-y-3">
+                    <p className="text-sm text-foreground/80 leading-relaxed">
+                      O <strong>True Yield</strong> é uma estimativa mais direta do retorno anual real do imóvel, 
+                      calculada com base na diária média, taxa de ocupação e valor do ativo.
+                    </p>
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <p className="text-xs font-mono text-center text-foreground/70">
+                        True Yield = ADR × Ocupação × 365 ÷ Preço médio do imóvel
+                      </p>
+                    </div>
+                    <div className="bg-primary/[0.04] rounded-lg p-3">
+                      <p className="text-[11px] font-semibold text-primary mb-1">Por que é útil?</p>
+                      <p className="text-[11px] text-foreground/70 leading-relaxed">
+                        Enquanto o Yield Airbnb usa a receita reportada pela plataforma, o True Yield recalcula 
+                        o retorno a partir dos dados operacionais reais (diária e ocupação). A diferença entre os dois 
+                        pode revelar oportunidades ocultas ou alertar sobre inconsistências.
+                      </p>
+                    </div>
+                    <div className="bg-muted/30 rounded p-2">
+                      <p className="text-[11px] text-muted-foreground italic">
+                        💡 Exemplo: se o True Yield é 2pp acima do Yield Airbnb, pode indicar que o bairro tem 
+                        potencial de retorno maior do que o estimado pela plataforma.
+                      </p>
+                    </div>
+                    <p className="text-xs text-foreground/60">
+                      → Esse indicador aparecerá como comparativo opcional nas próximas etapas.
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       <div className="flex justify-end">
         <Button onClick={onNext} className="gap-2">
           Agora quero comparar bairros <ArrowRight className="h-4 w-4" />
@@ -371,6 +435,7 @@ export const Step3Learn = ({ onNext }: { onNext: () => void }) => {
 
 export const Step4Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onNext: () => void }) => {
   const ranked = useMemo(() => calculateAllScores(bairros), [bairros]);
+  const [showTrueYield, setShowTrueYield] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -389,6 +454,20 @@ export const Step4Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
         </Card>
       </motion.div>
 
+      {/* True Yield toggle */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={stagger(1)}>
+        <button
+          onClick={() => setShowTrueYield(!showTrueYield)}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-primary/30 bg-primary/[0.02] hover:bg-primary/[0.05] transition-colors text-xs"
+        >
+          <FlaskConical className="h-3.5 w-3.5 text-primary" />
+          <span className="text-muted-foreground font-medium">
+            {showTrueYield ? "Ocultar" : "Mostrar"} True Yield
+          </span>
+          {showTrueYield ? <EyeOff className="h-3 w-3 text-muted-foreground" /> : <Eye className="h-3 w-3 text-muted-foreground" />}
+        </button>
+      </motion.div>
+
       {/* Ranking cards */}
       <div className="space-y-2">
         {ranked.map((item, i) => {
@@ -396,6 +475,7 @@ export const Step4Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
           const s = item.investmentScore;
           const profile = getBairroProfile(b, bairros);
           const badgeStyle = getGradeStyle(s.gradeColor);
+          const trueYield = showTrueYield ? calculateTrueYield(b) : null;
           return (
             <motion.div
               key={b.bairro}
@@ -417,6 +497,17 @@ export const Step4Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
                           <p className="text-xs text-muted-foreground mt-0.5">
                             Diária {fmtBRL(b.adr_medio_studio)} · Ocupação {fmtPct(b.ocupacao_media_studio)} · Yield {fmtPct(b.yield_bruto_airbnb)}
                           </p>
+                          {trueYield && (
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <FlaskConical className="h-3 w-3 text-primary/60" />
+                              <span className="text-[11px] text-primary/80 font-medium">
+                                True Yield {fmtPct(trueYield.trueYield)}
+                              </span>
+                              <span className={`text-[10px] font-medium ${trueYield.delta > 0 ? "text-emerald-600" : trueYield.delta < -0.005 ? "text-amber-600" : "text-muted-foreground"}`}>
+                                ({trueYield.delta > 0 ? "+" : ""}{(trueYield.delta * 100).toFixed(1)}pp)
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0 ml-2">
@@ -658,6 +749,7 @@ interface Step7Props {
 
 export const Step7Recommendation = ({ bairros, profile, answers }: Step7Props) => {
   const finalProfile = profile || resolveProfile({ objective: "equilibrio", risk: "moderado", priority: "retorno" });
+  const [showTrueYield, setShowTrueYield] = useState(false);
   const recommendations = useMemo(
     () => generateRecommendations(bairros, finalProfile).slice(0, 3),
     [bairros, finalProfile]
@@ -700,14 +792,26 @@ export const Step7Recommendation = ({ bairros, profile, answers }: Step7Props) =
         </Card>
       </motion.div>
 
-      {/* Top 3 */}
-      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-        🏆 Top 3 bairros para o seu perfil
-      </p>
+      {/* True Yield toggle */}
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          🏆 Top 3 bairros para o seu perfil
+        </p>
+        <button
+          onClick={() => setShowTrueYield(!showTrueYield)}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-dashed border-primary/30 bg-primary/[0.02] hover:bg-primary/[0.05] transition-colors text-[10px]"
+        >
+          <FlaskConical className="h-3 w-3 text-primary" />
+          <span className="text-muted-foreground font-medium">
+            {showTrueYield ? "Ocultar" : "Ver"} True Yield
+          </span>
+        </button>
+      </div>
       
       <div className="space-y-4">
         {recommendations.map((rec, i) => {
           const badgeStyle = getGradeStyle(rec.gradeColor);
+          const trueYield = showTrueYield ? calculateTrueYield(rec.bairro) : null;
           return (
             <motion.div key={rec.bairro.bairro} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={stagger(i, 0.1)}>
               <Card className={`${i === 0 ? "ring-2 ring-primary/30 border-primary/20" : ""}`}>
@@ -732,7 +836,7 @@ export const Step7Recommendation = ({ bairros, profile, answers }: Step7Props) =
                   </div>
 
                   {/* Key metrics */}
-                  <div className="grid grid-cols-3 gap-3 mb-4">
+                  <div className={`grid ${showTrueYield ? "grid-cols-4" : "grid-cols-3"} gap-3 mb-4`}>
                     <div className="text-center p-2 rounded-lg bg-muted/40">
                       <p className="text-[10px] text-muted-foreground">Yield</p>
                       <p className="text-sm font-bold">{fmtPct(rec.bairro.yield_bruto_airbnb)}</p>
@@ -745,7 +849,28 @@ export const Step7Recommendation = ({ bairros, profile, answers }: Step7Props) =
                       <p className="text-[10px] text-muted-foreground">Diária</p>
                       <p className="text-sm font-bold">{fmtBRL(rec.bairro.adr_medio_studio)}</p>
                     </div>
+                    {trueYield && (
+                      <div className="text-center p-2 rounded-lg bg-primary/[0.06] border border-primary/10">
+                        <p className="text-[10px] text-primary/70 flex items-center justify-center gap-0.5">
+                          <FlaskConical className="h-2.5 w-2.5" /> True Yield
+                        </p>
+                        <p className="text-sm font-bold text-primary">{fmtPct(trueYield.trueYield)}</p>
+                        <p className={`text-[9px] font-medium ${trueYield.delta > 0 ? "text-emerald-600" : trueYield.delta < -0.005 ? "text-amber-600" : "text-muted-foreground"}`}>
+                          {trueYield.delta > 0 ? "+" : ""}{(trueYield.delta * 100).toFixed(1)}pp vs Yield
+                        </p>
+                      </div>
+                    )}
                   </div>
+
+                  {/* True Yield insight */}
+                  {trueYield && (
+                    <div className="mb-3 p-2.5 rounded-lg bg-muted/30 border border-dashed border-primary/15">
+                      <p className="text-[11px] text-foreground/70 leading-relaxed">
+                        <FlaskConical className="h-3 w-3 text-primary inline mr-1" />
+                        {trueYield.comparison}
+                      </p>
+                    </div>
+                  )}
 
                   {/* Reasons */}
                   <div className="space-y-1.5 mb-3">
