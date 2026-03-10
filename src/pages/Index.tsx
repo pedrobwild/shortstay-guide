@@ -2654,9 +2654,18 @@ function useScrollspy(ids: string[]) {
 
 /* ─── Main page ─── */
 export default function Index() {
+  return (
+    <BairroProvider>
+      <IndexInner />
+    </BairroProvider>
+  );
+}
+
+function IndexInner() {
   const sectionIds = SECTIONS.map((s) => s.id);
   const activeId = useScrollspy(sectionIds);
   const { trackEvent } = useGuideAnalytics();
+  const { bairros } = useBairroData();
   const scrollMilestones = useRef(new Set<string>());
 
   // Register global tracker
