@@ -652,7 +652,26 @@ function MercadoSection() {
           </div>
         </CardContent>
       </Card>
-      <PlaceholderAccordion label="Mercado e precificação" />
+      <Accordion type="multiple" className="mt-4 font-body">
+        <AccordionItem value="metodologia">
+          <AccordionTrigger className="text-primary font-semibold">Metodologia de cálculo</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">A diária mínima e máxima são faixas observadas para studios do bairro selecionado, baseadas em dados de mercado. O multiplicador de decoração ajusta a faixa: Básico (1.0×) mantém valores base, Premium (1.2×) reflete studios com acabamento e fotos acima da média, Alto padrão (1.45×) reflete studios com design autoral e operação profissional. A metragem aplica ajuste adicional: studios abaixo de 25m² recebem -8% e acima de 35m² recebem +8%.</p>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="coleta">
+          <AccordionTrigger className="text-primary font-semibold">Como os dados são coletados</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">Dados de mercado coletados e cruzados pela Bwild a partir de bases do setor (AirDNA, plataformas de reserva, dados públicos de anúncios ativos). Os valores representam médias trimestrais e são atualizados periodicamente para refletir a dinâmica real do mercado paulistano.</p>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="limitacoes">
+          <AccordionTrigger className="text-primary font-semibold">Limitações</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">Valores são estimativas baseadas em médias de mercado e não constituem garantia de resultado. Resultados reais dependem de fatores como execução da reforma, qualidade das fotos, gestão operacional, sazonalidade, concorrência local e posicionamento na plataforma. Use como referência para tomada de decisão, não como projeção financeira definitiva.</p>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </SectionBlock>
   );
 }
