@@ -6,13 +6,24 @@ import { Menu, ArrowUpRight } from "lucide-react";
 import bwildLogo from "@/assets/bwild-logo.png";
 import { SECTIONS } from "@/data/guide-data";
 
-export default function MobileMenu({ activeId }: { activeId: string }) {
+interface Props {
+  activeId: string;
+  sectionIndex: number;
+  sectionCount: number;
+}
+
+export default function MobileMenu({ activeId, sectionIndex, sectionCount }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
     <div className="lg:hidden fixed top-0 left-0 right-0 z-40 glass-nav px-4 py-3 flex items-center justify-between">
       <img src={bwildLogo} alt="Bwild" className="h-7 w-auto" />
-      <Button variant="ghost" size="icon" onClick={() => setOpen(true)} className="hover:bg-muted/50"><Menu size={22} /></Button>
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-muted-foreground font-body bg-muted/60 rounded-full px-2.5 py-0.5">
+          {sectionIndex}/{sectionCount} seções
+        </span>
+        <Button variant="ghost" size="icon" onClick={() => setOpen(true)} className="hover:bg-muted/50"><Menu size={22} /></Button>
+      </div>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="left" className="w-72 p-0">
           <SheetHeader className="px-4 pt-5 pb-3 border-b border-border/60">
