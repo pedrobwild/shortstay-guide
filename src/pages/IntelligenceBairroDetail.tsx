@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, TrendingUp, BarChart3, Target, Building2, Shield, AlertTriangle, Star, Users, CheckCircle, Info, Lightbulb, UserCheck, Scale, Crown, Zap, Sprout, CalendarCheck } from "lucide-react";
+import { ArrowLeft, TrendingUp, BarChart3, Target, Building2, Shield, AlertTriangle, Star, Users, CheckCircle, Info, Lightbulb, UserCheck, Scale, Crown, Zap, Sprout, CalendarCheck, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, Line, LineChart, XAxis, YAxis, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, CartesianGrid } from "recharts";
@@ -100,15 +100,27 @@ const IntelligenceBairroDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-hero-gradient text-primary-foreground">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-4 mb-3">
-            <Link to="/intelligence/ranking"><Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10"><ArrowLeft /></Button></Link>
+        <div className="container mx-auto px-4 py-8">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-1.5 text-primary-foreground/50 text-xs mb-3">
+            <Link to="/intelligence" className="hover:text-primary-foreground/80 transition-colors">Intelligence</Link>
+            <ChevronRight className="h-3 w-3" />
+            <Link to="/intelligence/ranking" className="hover:text-primary-foreground/80 transition-colors">Ranking</Link>
+            <ChevronRight className="h-3 w-3" />
+            <span className="text-primary-foreground/80">{b.bairro}</span>
+          </div>
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold font-[var(--font-display)]">{b.bairro}</h1>
+              <h1 className="text-2xl md:text-3xl font-bold font-[var(--font-display)]">{b.bairro}</h1>
               <Badge className={`${profile.color} ${profile.textColor}`}>{profile.label}</Badge>
             </div>
+            <Link to="/intelligence/ranking">
+              <Button variant="secondary" size="sm" className="shadow-lg">
+                <ArrowLeft className="mr-1 h-4 w-4" /> Ranking
+              </Button>
+            </Link>
           </div>
-          <p className="text-sm text-primary-foreground/80 max-w-2xl leading-relaxed">{headerNarrative}</p>
+          <p className="text-sm text-primary-foreground/80 max-w-2xl leading-relaxed mt-3">{headerNarrative}</p>
           <p className="text-xs text-primary-foreground/50 mt-2">{b.periodo_inicio} a {b.periodo_fim} · {b.nivel_confianca_dados === "alto" ? "Alta confiança nos dados" : "Confiança intermediária nos dados"}</p>
         </div>
       </header>
