@@ -63,7 +63,7 @@ export default function ReservasSection() {
           <AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">Cada driver tem peso diferente por persona. Executivos priorizam check-in rápido e Wi-Fi estável para reuniões. Turistas priorizam localização e experiência visual. Estudantes valorizam preço e avaliações de outros hóspedes. Use os filtros de persona acima para ver a priorização e adapte seu studio ao público dominante do bairro.</p></AccordionContent>
         </AccordionItem>
         <AccordionItem value="fontes">
-          <AccordionTrigger className="text-primary font-semibold">Fontes dos dados</AccordionTrigger>
+          <AccordionTrigger className="text-primary font-semibold min-h-[48px]">Fontes dos dados</AccordionTrigger>
           <AccordionContent>
             <ul className="text-sm text-muted-foreground space-y-2">
               <li>• <strong className="text-foreground">Airbnb Global Quality Report</strong> — Fatores de qualidade e drivers de decisão baseados em milhões de reviews globais</li>
