@@ -1935,7 +1935,15 @@ function ChecklistSection() {
   const pct = (score / CHECKLIST_ITEMS.length) * 100;
 
   const toggle = (i: number) => {
-    setChecked((prev) => prev.map((v, idx) => (idx === i ? !v : v)));
+    setChecked((prev) => {
+      const next = prev.map((v, idx) => (idx === i ? !v : v));
+      const newScore = next.filter(Boolean).length;
+      if (newScore === CHECKLIST_ITEMS.length) {
+        const t = SCORE_TIERS.find((t) => newScore >= t.min && newScore <= t.max);
+        trackGlobal("checklist_completed", { score: newScore, tier: t?.label });
+      }
+      return next;
+    });
   };
 
   return (
