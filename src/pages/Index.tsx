@@ -662,16 +662,26 @@ function SimuladorSection() {
 
   const sim = useMemo(() => {
     const baseDaily = simDiariaAtual ? Number(simDiariaAtual) : (selected.dailyMin + selected.dailyMax) / 2;
-    const boostedDaily = baseDaily * (1 + rateBoost / 100);
-    const nights = 30 * (simOcupacao[0] / 100);
+
+    // Apply objective modifiers
+    let occMod = 0;
+    let dailyMod = 0;
+    if (simObjetivo === "maximizar") { occMod = 5; dailyMod = 0; }
+    else if (simObjetivo === "estabilidade") { occMod = 0; dailyMod = -10; }
+    else if (simObjetivo === "premium") { occMod = -10; dailyMod = 20; }
+
+    const adjustedDaily = baseDaily * (1 + dailyMod / 100);
+    const adjustedOcc = Math.min(95, Math.max(30, simOcupacao[0] + occMod));
+    const boostedDaily = adjustedDaily * (1 + rateBoost / 100);
+    const nights = 30 * (adjustedOcc / 100);
     const receitaMensal = Math.round(boostedDaily * nights);
     const receitaAnual = receitaMensal * 12;
-    const baseMensal = Math.round(baseDaily * nights);
+    const baseMensal = Math.round(baseDaily * (30 * (simOcupacao[0] / 100)));
     const delta = receitaMensal - baseMensal;
     const budget = Number(simReformaBudget) || 0;
     const paybackMonths = delta > 0 && budget > 0 ? Math.ceil(budget / delta) : null;
-    return { baseDaily: Math.round(baseDaily), boostedDaily: Math.round(boostedDaily), receitaMensal, receitaAnual, baseMensal, delta, paybackMonths };
-  }, [selected, simDiariaAtual, simOcupacao, rateBoost, simReformaBudget]);
+    return { baseDaily: Math.round(baseDaily), boostedDaily: Math.round(boostedDaily), receitaMensal, receitaAnual, baseMensal, delta, paybackMonths, adjustedOcc };
+  }, [selected, simDiariaAtual, simOcupacao, rateBoost, simReformaBudget, simObjetivo]);
 
   const summaryText = useMemo(() => {
     return `📊 Simulação de Receita — Short Stay\n\n` +
