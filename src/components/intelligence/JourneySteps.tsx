@@ -24,7 +24,7 @@ import {
   INDICATOR_EXPLAINERS,
   SECTION_MICROCOPY,
 } from "@/lib/intelligenceInsights";
-import { calculateAllScores, calculateInvestmentScore, PILLARS } from "@/lib/investmentScore";
+import { calculateAllScores, calculateInvestmentScore, calculateTrueYield, PILLARS } from "@/lib/investmentScore";
 import { getGradeStyle, FOOTER_DISCLAIMER } from "@/lib/uiHelpers";
 import {
   STRATEGIC_LESSONS,
