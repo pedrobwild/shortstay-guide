@@ -96,7 +96,7 @@ function IndexInner() {
               <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.5 }}>
                 <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">Mapa de Bairros Rentáveis</h2>
                 <p className="text-muted-foreground text-lg mb-6">Analise demanda, compare bairros, simule ROI e identifique os melhores investimentos em studios.</p>
-                <MapaBairrosEmbed />
+                <LazyMapaBairrosEmbed />
                 <Card className="border-border overflow-hidden mt-8">
                   <CardContent className="p-0">
                     <div className="overflow-x-auto">
