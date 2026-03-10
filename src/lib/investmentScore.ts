@@ -142,10 +142,9 @@ function getConfidenceFactor(nivel: string): number {
 }
 
 function getLiquidityRiskFactor(rawScoreLiquidez: number): number {
-  // Use absolute raw score_liquidez (0-100 scale) instead of normalized value
-  // to avoid cliff effects from min-max compression
-  if (rawScoreLiquidez < 45) return 0.90;
-  if (rawScoreLiquidez < 55) return 0.95;
+  // Use absolute raw score_liquidez (0-100 scale)
+  if (rawScoreLiquidez < 50) return 0.90;
+  if (rawScoreLiquidez < 60) return 0.95;
   return 1.0;
 }
 
