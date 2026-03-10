@@ -527,7 +527,31 @@ function ReservasSection() {
         </ul>
       </div>
 
-      <PlaceholderAccordion label="O que move reservas" />
+      <Accordion type="multiple" className="mt-4 font-body">
+        <AccordionItem value="interpretar">
+          <AccordionTrigger className="text-primary font-semibold">Como interpretar esses drivers</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">Cada driver tem peso diferente por persona. Executivos priorizam check-in rápido e Wi-Fi estável para reuniões. Turistas priorizam localização e experiência visual. Estudantes valorizam preço e avaliações de outros hóspedes. Use os filtros de persona acima para ver a priorização e adapte seu studio ao público dominante do bairro.</p>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="fontes">
+          <AccordionTrigger className="text-primary font-semibold">Fontes dos dados</AccordionTrigger>
+          <AccordionContent>
+            <ul className="text-sm text-muted-foreground space-y-2">
+              <li>• <strong className="text-foreground">Airbnb Global Quality Report</strong> — Fatores de qualidade e drivers de decisão baseados em milhões de reviews globais</li>
+              <li>• <strong className="text-foreground">AHLA (American Hotel & Lodging Association)</strong> — Estatística de que 90% dos hóspedes consideram limpeza o critério #1</li>
+              <li>• <strong className="text-foreground">Expedia Group 2025 Traveler Value Index</strong> — Influência de social proof (avaliações, nota) na taxa de conversão</li>
+              <li>• <strong className="text-foreground">Annals of Tourism Research: Empirical Insights</strong> — Categorias de amenidades e impacto na experiência do hóspede</li>
+            </ul>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="pratica">
+          <AccordionTrigger className="text-primary font-semibold">Como aplicar na prática</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">Priorize os 3 primeiros drivers da persona dominante do seu bairro. Em Pinheiros (público misto executivo/turista), foque em limpeza impecável + check-in digital + fotos reais. Em Vila Mariana (mais estudantes e casais), priorize avaliações altas + preço competitivo + ambiente confortável para estadias longas. O segredo é alinhar produto e operação ao perfil real de quem reserva na sua região.</p>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </SectionBlock>
   );
 }
