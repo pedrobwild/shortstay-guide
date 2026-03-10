@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, lazy, Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { BarChart3, Calculator, CheckSquare } from "lucide-react";
-import MapaBairrosEmbed from "@/components/mapa/MapaBairrosEmbed";
+import LazyMapaBairrosEmbed from "@/components/mapa/LazyMapaBairrosEmbed";
 import bwildLogo from "@/assets/bwild-logo.png";
 import { useGuideAnalytics, setGlobalTrack } from "@/hooks/useGuideAnalytics";
 import { useScrollspy } from "@/hooks/useScrollspy";
@@ -26,12 +26,13 @@ import ReformaSection from "@/components/guide/ReformaSection";
 import AntiChecklistSection from "@/components/guide/AntiChecklistSection";
 import DecoracaoSection from "@/components/guide/DecoracaoSection";
 import ProjetoSection from "@/components/guide/ProjetoSection";
-import TendenciasSection from "@/components/guide/TendenciasSection";
 import CaseStudySection from "@/components/guide/CaseStudySection";
 import ChecklistSection from "@/components/guide/ChecklistSection";
 import TrustSignals from "@/components/guide/TrustSignals";
 import FAQSection from "@/components/guide/FAQSection";
 import FinalCTASection from "@/components/guide/FinalCTASection";
+
+const TendenciasSection = lazy(() => import("@/components/guide/TendenciasSection"));
 
 export default function Index() {
   return (
@@ -95,7 +96,7 @@ function IndexInner() {
               <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.5 }}>
                 <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">Mapa de Bairros Rentáveis</h2>
                 <p className="text-muted-foreground text-lg mb-6">Analise demanda, compare bairros, simule ROI e identifique os melhores investimentos em studios.</p>
-                <MapaBairrosEmbed />
+                <LazyMapaBairrosEmbed />
                 <Card className="border-border overflow-hidden mt-8">
                   <CardContent className="p-0">
                     <div className="overflow-x-auto">
@@ -196,7 +197,9 @@ function IndexInner() {
         {/* Tendências — white */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <TendenciasSection />
+            <Suspense fallback={<div className="py-16"><div className="h-4 w-4 border-2 border-primary/40 border-t-primary rounded-full animate-spin mx-auto" /></div>}>
+              <TendenciasSection />
+            </Suspense>
           </div>
         </div>
 
