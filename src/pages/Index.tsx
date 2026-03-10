@@ -47,6 +47,7 @@ function IndexInner() {
   const { trackEvent } = useGuideAnalytics();
   const { bairros } = useBairroData();
   const scrollMilestones = useRef(new Set<string>());
+  const { scrollPercent, visitedSections, sectionIndex, sectionCount, resumeData, dismissResume } = useReadingProgress(activeId);
 
   useEffect(() => {
     setGlobalTrack(trackEvent);
