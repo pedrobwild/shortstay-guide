@@ -6,6 +6,9 @@ import MapaBairrosEmbed from "@/components/mapa/MapaBairrosEmbed";
 import bwildLogo from "@/assets/bwild-logo.png";
 import { useGuideAnalytics, setGlobalTrack } from "@/hooks/useGuideAnalytics";
 import { useScrollspy } from "@/hooks/useScrollspy";
+import { useReadingProgress } from "@/hooks/useReadingProgress";
+import ScrollProgressBar from "@/components/guide/ScrollProgressBar";
+import ResumeToast from "@/components/guide/ResumeToast";
 import { BairroProvider, useBairroData } from "@/hooks/useBairroData";
 import { SECTIONS, fmt } from "@/data/guide-data";
 
