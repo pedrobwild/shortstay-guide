@@ -482,6 +482,7 @@ export const Step3Learn = ({ onNext }: { onNext: () => void }) => {
 
   return (
     <div className="space-y-6">
+      <MicroNote sectionKey="journey_indicators" />
       {/* Intro */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
         <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
