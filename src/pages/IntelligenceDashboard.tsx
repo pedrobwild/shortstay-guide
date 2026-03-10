@@ -9,7 +9,7 @@ import { getHighlightWinners } from "@/lib/intelligenceInsights";
 import { calculateAllScores } from "@/lib/investmentScore";
 import IndicatorExplainerSection from "@/components/intelligence/IndicatorExplainerSection";
 import { getGradeStyle, FOOTER_DISCLAIMER } from "@/lib/uiHelpers";
-import { ComparativeNarrativesSection, StrategicLessonsSection, EducationalBanner, ContextualNote } from "@/components/intelligence/StorytellingComponents";
+import { ComparativeNarrativesSection, StrategicLessonsSection, EducationalBanner, ContextualNote, AnalysisSummarySection } from "@/components/intelligence/StorytellingComponents";
 
 const ICON_MAP: Record<string, any> = { Scale, Crown, Rocket, Activity, TrendingUp };
 
