@@ -903,14 +903,14 @@ export const Step5Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
 };
 
 // ═══════════════════════════════════════════════════════════════════
-// STEP 5: QUIZ DE PERFIL
+// STEP 6: QUIZ DE PERFIL
 // ═══════════════════════════════════════════════════════════════════
 
-interface Step5Props {
+interface Step6Props {
   onComplete: (answers: QuizAnswers, profile: InvestorProfile) => void;
 }
 
-export const Step5Profile = ({ onComplete }: Step5Props) => {
+export const Step6Profile = ({ onComplete }: Step6Props) => {
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
