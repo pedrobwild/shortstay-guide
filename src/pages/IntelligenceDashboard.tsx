@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { getHighlightWinners } from "@/lib/intelligenceInsights";
 import { calculateAllScores } from "@/lib/investmentScore";
 import IndicatorExplainerSection from "@/components/intelligence/IndicatorExplainerSection";
+import MethodologySection from "@/components/intelligence/MethodologySection";
 import { getGradeStyle, FOOTER_DISCLAIMER } from "@/lib/uiHelpers";
 import { ComparativeNarrativesSection, StrategicLessonsSection, EducationalBanner, ContextualNote, AnalysisSummarySection } from "@/components/intelligence/StorytellingComponents";
 
