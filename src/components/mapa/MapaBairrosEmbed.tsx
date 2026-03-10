@@ -424,7 +424,7 @@ function InteractiveMap({
               }}
             />
           ))}
-        </Source>
+        </Source>}
       </ReactMap>
 
       {/* Legend */}
