@@ -97,8 +97,8 @@ export default function SimuladorSection() {
       <Card className="border-border">
         <CardContent className="p-6 space-y-5 font-body">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div><label className="text-sm font-medium text-foreground mb-1 block">Bairro</label><Select value={simBairro} onValueChange={setSimBairro}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{bairros.map((b) => <SelectItem key={b.name} value={b.name}>{b.name}</SelectItem>)}</SelectContent></Select></div>
-            <div><label className="text-sm font-medium text-foreground mb-1 block">Metragem (m²)</label><Input type="number" min={15} max={80} value={simMetragem} onChange={(e) => setSimMetragem(Number(e.target.value) || 30)} /></div>
+            <div><label className="text-sm font-medium text-foreground mb-1.5 block">Bairro</label><Select value={simBairro} onValueChange={setSimBairro}><SelectTrigger className="min-h-[48px] text-base"><SelectValue /></SelectTrigger><SelectContent>{bairros.map((b) => <SelectItem key={b.name} value={b.name}>{b.name}</SelectItem>)}</SelectContent></Select></div>
+            <div><label className="text-sm font-medium text-foreground mb-1.5 block">Metragem (m²)</label><Input type="number" min={15} max={80} value={simMetragem} onChange={(e) => setSimMetragem(Number(e.target.value) || 30)} className="min-h-[48px] text-base" /></div>
           </div>
           <div><label className="text-sm font-medium text-foreground mb-2 block">Ocupação estimada: <span className="font-bold text-primary">{simOcupacao[0]}%</span></label><Slider value={simOcupacao} onValueChange={setSimOcupacao} min={50} max={90} step={1} /></div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
