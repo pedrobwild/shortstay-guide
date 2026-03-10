@@ -1931,7 +1931,9 @@ function FinalCTASection() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
 
-  const validateAndSubmit = () => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const validateAndSubmit = async () => {
     const errors: Record<string, string> = {};
     const nome = formData.nome.trim();
     const whatsapp = formData.whatsapp.trim();
@@ -1943,10 +1945,24 @@ function FinalCTASection() {
     if (!formData.bairro) errors.bairro = "Selecione um bairro";
 
     setFormErrors(errors);
-    if (Object.keys(errors).length === 0) {
-      setSubmitted(true);
-      // TODO: Connect to real form submission / backend
+    if (Object.keys(errors).length > 0) return;
+
+    setSubmitting(true);
+    const { error } = await supabase.from("guide_leads").insert({
+      name: nome,
+      whatsapp,
+      neighborhood: formData.bairro || null,
+      area_sqm: formData.metragem || null,
+      objective: formData.objetivo || null,
+      source: "guide",
+    });
+    setSubmitting(false);
+
+    if (error) {
+      toast({ title: "Erro ao enviar", description: "Tente novamente ou entre em contato pelo WhatsApp.", variant: "destructive" });
+      return;
     }
+    setSubmitted(true);
   };
 
   const updateField = (field: string, value: string) => {
