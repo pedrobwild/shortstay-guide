@@ -749,6 +749,7 @@ interface Step7Props {
 
 export const Step7Recommendation = ({ bairros, profile, answers }: Step7Props) => {
   const finalProfile = profile || resolveProfile({ objective: "equilibrio", risk: "moderado", priority: "retorno" });
+  const [showTrueYield, setShowTrueYield] = useState(false);
   const recommendations = useMemo(
     () => generateRecommendations(bairros, finalProfile).slice(0, 3),
     [bairros, finalProfile]
