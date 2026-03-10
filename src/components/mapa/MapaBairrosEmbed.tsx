@@ -14,11 +14,12 @@ import { Switch } from "@/components/ui/switch";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin, Train, Calendar, DollarSign, TrendingUp,
-  X, Clock, Wallet, Calculator, Flame, ArrowUpDown, CircleDot,
+  X, Clock, Wallet, Calculator, Flame, ArrowUpDown, CircleDot, Layers,
 } from "lucide-react";
 import {
   Neighborhood, MetroStation, CityEvent, NEIGHBORHOODS, METRO_STATIONS, EVENTS,
   DEMAND_FILTERS, EVENT_ICONS, IMPACT_STYLES, TAG_ICONS, scoreColor, fmt,
+  POI_CATEGORIES, POI_COLORS, type POICategoryKey,
 } from "@/data/mapaBairrosData";
 import ROIRanking from "@/components/mapa/ROIRanking";
 import NeighborhoodComparison from "@/components/mapa/NeighborhoodComparison";
