@@ -383,33 +383,41 @@ function InteractiveMap({
           </Source>
         )}
 
-        {/* POIs — Source always mounted with inline data */}
-        {poisData && <Source id="pois-source" type="geojson" data={poisData}>
-          {(["restaurant", "corporate", "tourist", "events", "metro"] as POICategoryKey[]).map((cat) => (
+        {/* POIs */}
+        {poisData && (
+          <Source id="pois-source" type="geojson" data={poisData}>
             <Layer
-              key={`poi-${cat}`}
-              id={`poi-${cat}`}
+              id="poi-circles"
               type="circle"
-              filter={["==", ["get", "category"], cat]}
-              layout={{ "visibility": showPOIs.includes(cat) ? "visible" : "none" }}
+              filter={showPOIs.length > 0
+                ? ["in", ["get", "category"], ["literal", showPOIs]]
+                : ["==", ["get", "category"], "__none__"]
+              }
               paint={{
-                "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 5, 14, 10, 16, 14],
-                "circle-color": POI_COLORS[cat] || "#888",
+                "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 6, 14, 12, 16, 16],
+                "circle-color": [
+                  "match", ["get", "category"],
+                  "restaurant", POI_COLORS.restaurant,
+                  "corporate", POI_COLORS.corporate,
+                  "tourist", POI_COLORS.tourist,
+                  "events", POI_COLORS.events,
+                  "metro", POI_COLORS.metro,
+                  "#888"
+                ],
                 "circle-opacity": 0.9,
                 "circle-stroke-color": "#fff",
                 "circle-stroke-width": 2,
               }}
             />
-          ))}
-          {(["restaurant", "corporate", "tourist", "events", "metro"] as POICategoryKey[]).map((cat) => (
             <Layer
-              key={`poi-label-${cat}`}
-              id={`poi-label-${cat}`}
+              id="poi-labels"
               type="symbol"
-              filter={["==", ["get", "category"], cat]}
+              filter={showPOIs.length > 0
+                ? ["in", ["get", "category"], ["literal", showPOIs]]
+                : ["==", ["get", "category"], "__none__"]
+              }
               minzoom={13}
               layout={{
-                "visibility": showPOIs.includes(cat) ? "visible" : "none",
                 "text-field": ["get", "name"],
                 "text-size": 11,
                 "text-offset": [0, 1.4],
@@ -418,13 +426,21 @@ function InteractiveMap({
                 "text-max-width": 12,
               }}
               paint={{
-                "text-color": POI_COLORS[cat] || "#555",
+                "text-color": [
+                  "match", ["get", "category"],
+                  "restaurant", POI_COLORS.restaurant,
+                  "corporate", POI_COLORS.corporate,
+                  "tourist", POI_COLORS.tourist,
+                  "events", POI_COLORS.events,
+                  "metro", POI_COLORS.metro,
+                  "#555"
+                ],
                 "text-halo-color": "#fff",
                 "text-halo-width": 1.5,
               }}
             />
-          ))}
-        </Source>}
+          </Source>
+        )}
       </ReactMap>
 
       {/* Legend */}
