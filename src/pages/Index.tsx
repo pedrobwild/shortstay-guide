@@ -93,6 +93,8 @@ import {
   BadgeCheck,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 /* ─── Shared dataset ─── */
 const BAIRRO_DATA = [
@@ -660,16 +662,26 @@ function SimuladorSection() {
 
   const sim = useMemo(() => {
     const baseDaily = simDiariaAtual ? Number(simDiariaAtual) : (selected.dailyMin + selected.dailyMax) / 2;
-    const boostedDaily = baseDaily * (1 + rateBoost / 100);
-    const nights = 30 * (simOcupacao[0] / 100);
+
+    // Apply objective modifiers
+    let occMod = 0;
+    let dailyMod = 0;
+    if (simObjetivo === "maximizar") { occMod = 5; dailyMod = 0; }
+    else if (simObjetivo === "estabilidade") { occMod = 0; dailyMod = -10; }
+    else if (simObjetivo === "premium") { occMod = -10; dailyMod = 20; }
+
+    const adjustedDaily = baseDaily * (1 + dailyMod / 100);
+    const adjustedOcc = Math.min(95, Math.max(30, simOcupacao[0] + occMod));
+    const boostedDaily = adjustedDaily * (1 + rateBoost / 100);
+    const nights = 30 * (adjustedOcc / 100);
     const receitaMensal = Math.round(boostedDaily * nights);
     const receitaAnual = receitaMensal * 12;
-    const baseMensal = Math.round(baseDaily * nights);
+    const baseMensal = Math.round(baseDaily * (30 * (simOcupacao[0] / 100)));
     const delta = receitaMensal - baseMensal;
     const budget = Number(simReformaBudget) || 0;
     const paybackMonths = delta > 0 && budget > 0 ? Math.ceil(budget / delta) : null;
-    return { baseDaily: Math.round(baseDaily), boostedDaily: Math.round(boostedDaily), receitaMensal, receitaAnual, baseMensal, delta, paybackMonths };
-  }, [selected, simDiariaAtual, simOcupacao, rateBoost, simReformaBudget]);
+    return { baseDaily: Math.round(baseDaily), boostedDaily: Math.round(boostedDaily), receitaMensal, receitaAnual, baseMensal, delta, paybackMonths, adjustedOcc };
+  }, [selected, simDiariaAtual, simOcupacao, rateBoost, simReformaBudget, simObjetivo]);
 
   const summaryText = useMemo(() => {
     return `📊 Simulação de Receita — Short Stay\n\n` +
@@ -1862,29 +1874,30 @@ function HowToBlock() {
 
 /* ─── Mid-page CTA ─── */
 function MidPageCTA({ variant = "default" }: { variant?: "default" | "slim" }) {
-  if (variant === "slim") {
-    return (
-      <div className="py-8">
-        <Card className="bg-hero-gradient border-0">
-          <CardContent className="p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-              <p className="font-display text-lg font-bold text-primary-foreground">Quer saber quanto seu studio pode render?</p>
-              <p className="text-sm text-primary-foreground/70 font-body">Use nosso simulador gratuito ou solicite um diagnóstico personalizado.</p>
-            </div>
-            <div className="flex gap-2 flex-shrink-0">
-              <Button asChild size="sm" className="bg-accent text-accent-foreground font-body">
-                <a href="#simulador">Simular agora</a>
-              </Button>
-              <Button asChild size="sm" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-body">
-                <a href="#cta-final">Diagnóstico grátis</a>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-  return null;
+  const isSlim = variant === "slim";
+  return (
+    <div className={isSlim ? "py-4" : "py-8"}>
+      <Card className="bg-hero-gradient border-0">
+        <CardContent className={`${isSlim ? "p-6" : "p-8"} flex flex-col sm:flex-row items-center justify-between gap-4`}>
+          <div>
+            <p className="font-display text-lg font-bold text-primary-foreground">Quer saber quanto seu studio pode render?</p>
+            {!isSlim && (
+              <p className="text-base text-primary-foreground/80 font-body mt-1">Compare cenários, simule receita e descubra o potencial real do seu imóvel.</p>
+            )}
+            <p className="text-sm text-primary-foreground/70 font-body mt-1">Use nosso simulador gratuito ou solicite um diagnóstico personalizado.</p>
+          </div>
+          <div className="flex gap-2 flex-shrink-0">
+            <Button asChild size="sm" className="bg-accent text-accent-foreground font-body">
+              <a href="#simulador">Simular agora</a>
+            </Button>
+            <Button asChild size="sm" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-body">
+              <a href="#cta-final">Diagnóstico grátis</a>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
 
 /* ─── Trust signals ─── */
@@ -1918,7 +1931,9 @@ function FinalCTASection() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
 
-  const validateAndSubmit = () => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const validateAndSubmit = async () => {
     const errors: Record<string, string> = {};
     const nome = formData.nome.trim();
     const whatsapp = formData.whatsapp.trim();
@@ -1930,10 +1945,24 @@ function FinalCTASection() {
     if (!formData.bairro) errors.bairro = "Selecione um bairro";
 
     setFormErrors(errors);
-    if (Object.keys(errors).length === 0) {
-      setSubmitted(true);
-      // TODO: Connect to real form submission / backend
+    if (Object.keys(errors).length > 0) return;
+
+    setSubmitting(true);
+    const { error } = await supabase.from("guide_leads").insert({
+      name: nome,
+      whatsapp,
+      neighborhood: formData.bairro || null,
+      area_sqm: formData.metragem || null,
+      objective: formData.objetivo || null,
+      source: "guide",
+    });
+    setSubmitting(false);
+
+    if (error) {
+      toast({ title: "Erro ao enviar", description: "Tente novamente ou entre em contato pelo WhatsApp.", variant: "destructive" });
+      return;
     }
+    setSubmitted(true);
   };
 
   const updateField = (field: string, value: string) => {
@@ -2022,10 +2051,11 @@ function FinalCTASection() {
                 </Select>
                 <Button
                   onClick={validateAndSubmit}
+                  disabled={submitting}
                   className="sm:col-span-2 bg-accent text-accent-foreground font-body font-semibold"
                 >
-                  Solicitar diagnóstico gratuito
-                  <ChevronRight size={16} className="ml-1" />
+                  {submitting ? "Enviando..." : "Solicitar diagnóstico gratuito"}
+                  {!submitting && <ChevronRight size={16} className="ml-1" />}
                 </Button>
               </div>
             )}
@@ -2053,7 +2083,7 @@ function useScrollspy(ids: string[]) {
           setActiveId(top.target.id);
         }
       },
-      { rootMargin: "-20% 0px -60% 0px", threshold: 0 }
+      { rootMargin: "-15% 0px -70% 0px", threshold: 0 }
     );
 
     ids.forEach((id) => {
@@ -2156,7 +2186,7 @@ export default function Index() {
 
         <footer className="text-center py-8 text-sm text-muted-foreground font-body border-t border-border">
           <img src={bwildLogo} alt="Bwild" className="h-6 w-auto mx-auto mb-3 opacity-60" />
-          © 2025 Bwild · Guia do Investidor em Studios para Short Stay
+          © 2026 Bwild · Guia do Investidor em Studios para Short Stay
         </footer>
        </div>
       </main>

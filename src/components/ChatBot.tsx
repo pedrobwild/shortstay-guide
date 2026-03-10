@@ -147,7 +147,7 @@ export default function ChatBot() {
             <div className="relative flex items-center gap-3 px-5 py-4 overflow-hidden">
               {/* Gradient bg */}
               <div className="absolute inset-0 bg-hero-gradient" />
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-hsl(var(--primary)/0.3)" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[hsl(200,60%,30%)]" />
 
               <motion.div
                 initial={{ rotate: -20, scale: 0 }}
