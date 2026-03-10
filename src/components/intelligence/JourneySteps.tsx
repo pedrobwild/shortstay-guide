@@ -356,6 +356,70 @@ export const Step3Learn = ({ onNext }: { onNext: () => void }) => {
         </Card>
       </motion.div>
 
+      {/* True Yield — Advanced optional layer */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(INDICATOR_EXPLAINERS.length + 1, 0.15)}>
+        <Card className="border-dashed border-primary/20">
+          <CardContent className="p-5">
+            <button
+              onClick={() => setExpandedCard(expandedCard === "true-yield" ? null : "true-yield")}
+              className="w-full flex items-center justify-between"
+            >
+              <div className="flex items-center gap-2">
+                <FlaskConical className="h-4 w-4 text-primary" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  🔬 Camada avançada: True Yield
+                </span>
+              </div>
+              {expandedCard === "true-yield" ? (
+                <EyeOff className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <Eye className="h-4 w-4 text-muted-foreground" />
+              )}
+            </button>
+            <AnimatePresence>
+              {expandedCard === "true-yield" && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-4 pt-4 border-t border-border/50 space-y-3">
+                    <p className="text-sm text-foreground/80 leading-relaxed">
+                      O <strong>True Yield</strong> é uma estimativa mais direta do retorno anual real do imóvel, 
+                      calculada com base na diária média, taxa de ocupação e valor do ativo.
+                    </p>
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <p className="text-xs font-mono text-center text-foreground/70">
+                        True Yield = ADR × Ocupação × 365 ÷ Preço médio do imóvel
+                      </p>
+                    </div>
+                    <div className="bg-primary/[0.04] rounded-lg p-3">
+                      <p className="text-[11px] font-semibold text-primary mb-1">Por que é útil?</p>
+                      <p className="text-[11px] text-foreground/70 leading-relaxed">
+                        Enquanto o Yield Airbnb usa a receita reportada pela plataforma, o True Yield recalcula 
+                        o retorno a partir dos dados operacionais reais (diária e ocupação). A diferença entre os dois 
+                        pode revelar oportunidades ocultas ou alertar sobre inconsistências.
+                      </p>
+                    </div>
+                    <div className="bg-muted/30 rounded p-2">
+                      <p className="text-[11px] text-muted-foreground italic">
+                        💡 Exemplo: se o True Yield é 2pp acima do Yield Airbnb, pode indicar que o bairro tem 
+                        potencial de retorno maior do que o estimado pela plataforma.
+                      </p>
+                    </div>
+                    <p className="text-xs text-foreground/60">
+                      → Esse indicador aparecerá como comparativo opcional nas próximas etapas.
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       <div className="flex justify-end">
         <Button onClick={onNext} className="gap-2">
           Agora quero comparar bairros <ArrowRight className="h-4 w-4" />
