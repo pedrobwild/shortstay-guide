@@ -44,8 +44,8 @@ export default function FinalCTASection() {
 
   if (submitted) {
     return (
-      <SectionBlock id="cta-final" title="Diagnóstico Solicitado" takeaway="Recebemos seus dados.">
-        <Card className="border-primary/30 bg-primary/5">
+      <SectionBlock id="cta-final" title="Diagnóstico Solicitado" takeaway="Recebemos seus dados." className="[&_h2]:text-primary-foreground [&_>div>p:first-of-type]:text-primary-foreground/80">
+        <Card className="border-primary-foreground/20 bg-card/95 backdrop-blur-sm">
           <CardContent className="p-8 text-center">
             <CheckCircle2 size={48} className="text-primary mx-auto mb-4" />
             <p className="font-display text-2xl font-bold text-foreground mb-2">Obrigado, {form.name}!</p>
