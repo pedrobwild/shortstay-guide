@@ -1,11 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { MapPin } from "lucide-react";
 
-const MapaBairrosEmbed = await import("@/components/mapa/MapaBairrosEmbed").then(m => m.default) ? null : null;
-
-interface LazyMapProps {}
-
-export default function LazyMapaBairrosEmbed(_props: LazyMapProps) {
+export default function LazyMapaBairrosEmbed() {
   const [visible, setVisible] = useState(false);
   const [Component, setComponent] = useState<React.ComponentType | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
