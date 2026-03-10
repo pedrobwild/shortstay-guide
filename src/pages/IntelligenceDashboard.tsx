@@ -93,6 +93,17 @@ const IntelligenceDashboard = () => {
               <p className="mt-2 text-primary-foreground/80 text-sm md:text-base leading-relaxed max-w-xl">
                 Uma jornada guiada para ajudar você a decidir onde investir em studios de short stay em São Paulo.
               </p>
+              <div className="flex items-center gap-2 mt-3">
+                <div className="h-1.5 w-32 bg-primary-foreground/10 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary-foreground/40 rounded-full transition-all duration-500"
+                    style={{ width: `${(currentStep / 8) * 100}%` }}
+                  />
+                </div>
+                <span className="text-[10px] text-primary-foreground/50 font-medium">
+                  Etapa {currentStep} de 8
+                </span>
+              </div>
             </div>
             <Link to="/" className="shrink-0">
               <Button variant="secondary" size="sm" className="shadow-lg">
