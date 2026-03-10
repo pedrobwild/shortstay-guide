@@ -14,10 +14,11 @@ import {
   Step1Context,
   Step2Highlights,
   Step3Learn,
-  Step4Compare,
-  Step5Profile,
-  Step6Explore,
-  Step7Recommendation,
+  Step4Learnings,
+  Step5Compare,
+  Step6Profile,
+  Step7Explore,
+  Step8Recommendation,
 } from "@/components/intelligence/JourneySteps";
 
 // ── Step definitions ─────────────────────────────────────────────
@@ -25,11 +26,12 @@ import {
 const STEPS = [
   { id: 1, label: "Contexto", icon: MapPin, shortLabel: "1" },
   { id: 2, label: "Destaques", icon: Lightbulb, shortLabel: "2" },
-  { id: 3, label: "Aprenda", icon: BookOpen, shortLabel: "3" },
-  { id: 4, label: "Compare", icon: BarChart3, shortLabel: "4" },
-  { id: 5, label: "Seu perfil", icon: Target, shortLabel: "5" },
-  { id: 6, label: "Explore", icon: Building2, shortLabel: "6" },
-  { id: 7, label: "Recomendação", icon: Trophy, shortLabel: "7" },
+  { id: 3, label: "Indicadores", icon: BookOpen, shortLabel: "3" },
+  { id: 4, label: "Aprendizados", icon: GraduationCap, shortLabel: "4" },
+  { id: 5, label: "Compare", icon: BarChart3, shortLabel: "5" },
+  { id: 6, label: "Seu perfil", icon: Target, shortLabel: "6" },
+  { id: 7, label: "Explore", icon: Building2, shortLabel: "7" },
+  { id: 8, label: "Recomendação", icon: Trophy, shortLabel: "8" },
 ];
 
 const IntelligenceDashboard = () => {
