@@ -59,7 +59,7 @@ export default function ReservasSection() {
       </div>
       <Accordion type="multiple" className="mt-4 font-body">
         <AccordionItem value="interpretar">
-          <AccordionTrigger className="text-primary font-semibold">Como interpretar esses drivers</AccordionTrigger>
+          <AccordionTrigger className="text-primary font-semibold min-h-[48px]">Como interpretar esses drivers</AccordionTrigger>
           <AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">Cada driver tem peso diferente por persona. Executivos priorizam check-in rápido e Wi-Fi estável para reuniões. Turistas priorizam localização e experiência visual. Estudantes valorizam preço e avaliações de outros hóspedes. Use os filtros de persona acima para ver a priorização e adapte seu studio ao público dominante do bairro.</p></AccordionContent>
         </AccordionItem>
         <AccordionItem value="fontes">
