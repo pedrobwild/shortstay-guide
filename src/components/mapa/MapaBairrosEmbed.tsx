@@ -193,14 +193,7 @@ function InteractiveMap({
     fetch("/geo/pois.geojson")
       .then(r => r.json())
       .then((geojson: GeoJSON.FeatureCollection) => {
-        const pts = geojson.features.map(f => ({
-          name: (f.properties as any)?.name ?? "",
-          category: (f.properties as any)?.category ?? "",
-          neighborhood: (f.properties as any)?.neighborhood ?? "",
-          lng: (f.geometry as any).coordinates[0] as number,
-          lat: (f.geometry as any).coordinates[1] as number,
-        }));
-        setPoisData(pts);
+        setPoisGeoJSON(geojson);
       })
       .catch(() => {});
   }, []);
