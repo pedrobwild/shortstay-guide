@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft, MapPin, Lightbulb, BookOpen, BarChart3, Target,
-  Building2, Trophy, ChevronRight,
+  Building2, Trophy, ChevronRight, GraduationCap,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FOOTER_DISCLAIMER } from "@/lib/uiHelpers";
