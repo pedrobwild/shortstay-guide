@@ -57,8 +57,8 @@ export default function FinalCTASection() {
   }
 
   return (
-    <SectionBlock id="cta-final" title="Solicitar Diagnóstico Gratuito" takeaway="Análise personalizada do potencial do seu studio em short stay.">
-      <Card className="border-border">
+    <SectionBlock id="cta-final" title="Solicitar Diagnóstico Gratuito" takeaway="Análise personalizada do potencial do seu studio em short stay." className="[&_h2]:text-primary-foreground [&_>div>p:first-of-type]:text-primary-foreground/80">
+      <Card className="border-border/30 bg-card/95 backdrop-blur-sm">
         <CardContent className="p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input placeholder="Seu nome" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="font-body min-h-[48px] text-base" />
