@@ -82,7 +82,7 @@ export default function FinalCTASection() {
               </SelectContent>
             </Select>
             <Select value={form.objective} onValueChange={(v) => setForm({ ...form, objective: v })}>
-              <SelectTrigger className="font-body"><SelectValue placeholder="Objetivo (opcional)" /></SelectTrigger>
+              <SelectTrigger className="font-body min-h-[48px] text-base"><SelectValue placeholder="Objetivo (opcional)" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="comprar">Comprar studio</SelectItem>
                 <SelectItem value="reformar">Reformar studio</SelectItem>
