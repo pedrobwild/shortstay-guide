@@ -137,7 +137,7 @@ const IntelligenceDashboard = () => {
       </nav>
 
       {/* ── STEP CONTENT ─────────────────────────────────── */}
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
+      <main className="container mx-auto px-4 py-8 max-w-5xl">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentStep}
