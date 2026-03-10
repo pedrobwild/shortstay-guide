@@ -1874,29 +1874,30 @@ function HowToBlock() {
 
 /* ─── Mid-page CTA ─── */
 function MidPageCTA({ variant = "default" }: { variant?: "default" | "slim" }) {
-  if (variant === "slim") {
-    return (
-      <div className="py-8">
-        <Card className="bg-hero-gradient border-0">
-          <CardContent className="p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-              <p className="font-display text-lg font-bold text-primary-foreground">Quer saber quanto seu studio pode render?</p>
-              <p className="text-sm text-primary-foreground/70 font-body">Use nosso simulador gratuito ou solicite um diagnóstico personalizado.</p>
-            </div>
-            <div className="flex gap-2 flex-shrink-0">
-              <Button asChild size="sm" className="bg-accent text-accent-foreground font-body">
-                <a href="#simulador">Simular agora</a>
-              </Button>
-              <Button asChild size="sm" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-body">
-                <a href="#cta-final">Diagnóstico grátis</a>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-  return null;
+  const isSlim = variant === "slim";
+  return (
+    <div className={isSlim ? "py-4" : "py-8"}>
+      <Card className="bg-hero-gradient border-0">
+        <CardContent className={`${isSlim ? "p-6" : "p-8"} flex flex-col sm:flex-row items-center justify-between gap-4`}>
+          <div>
+            <p className="font-display text-lg font-bold text-primary-foreground">Quer saber quanto seu studio pode render?</p>
+            {!isSlim && (
+              <p className="text-base text-primary-foreground/80 font-body mt-1">Compare cenários, simule receita e descubra o potencial real do seu imóvel.</p>
+            )}
+            <p className="text-sm text-primary-foreground/70 font-body mt-1">Use nosso simulador gratuito ou solicite um diagnóstico personalizado.</p>
+          </div>
+          <div className="flex gap-2 flex-shrink-0">
+            <Button asChild size="sm" className="bg-accent text-accent-foreground font-body">
+              <a href="#simulador">Simular agora</a>
+            </Button>
+            <Button asChild size="sm" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-body">
+              <a href="#cta-final">Diagnóstico grátis</a>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
 
 /* ─── Trust signals ─── */
