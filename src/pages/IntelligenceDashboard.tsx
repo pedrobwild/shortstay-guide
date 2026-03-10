@@ -149,11 +149,12 @@ const IntelligenceDashboard = () => {
             {currentStep === 1 && <Step1Context bairros={bairros} onNext={goNext} />}
             {currentStep === 2 && <Step2Highlights bairros={bairros} onNext={goNext} />}
             {currentStep === 3 && <Step3Learn onNext={goNext} />}
-            {currentStep === 4 && <Step4Compare bairros={bairros} onNext={goNext} />}
-            {currentStep === 5 && <Step5Profile onComplete={handleQuizComplete} />}
-            {currentStep === 6 && <Step6Explore bairros={bairros} onNext={goNext} />}
-            {currentStep === 7 && (
-              <Step7Recommendation
+            {currentStep === 4 && <Step4Learnings bairros={bairros} onNext={goNext} />}
+            {currentStep === 5 && <Step5Compare bairros={bairros} onNext={goNext} />}
+            {currentStep === 6 && <Step6Profile onComplete={handleQuizComplete} />}
+            {currentStep === 7 && <Step7Explore bairros={bairros} onNext={goNext} />}
+            {currentStep === 8 && (
+              <Step8Recommendation
                 bairros={bairros}
                 profile={investorProfile}
                 answers={quizAnswers}
