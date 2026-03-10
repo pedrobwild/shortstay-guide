@@ -186,6 +186,11 @@ function InteractiveMap({
   const [hoveredN, setHoveredN] = useState<Neighborhood | null>(null);
   const [hoveredPoly, setHoveredPoly] = useState<{ name: string; roi: number; rate: number; occ: number; rev: number; lng: number; lat: number } | null>(null);
   const [hoveredStation, setHoveredStation] = useState<{ name: string; line: string; lng: number; lat: number } | null>(null);
+  const [poisData, setPoisData] = useState<GeoJSON.FeatureCollection | null>(null);
+
+  useEffect(() => {
+    fetch("/geo/pois.geojson").then(r => r.json()).then(setPoisData).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!mapRef.current || !selected) return;
