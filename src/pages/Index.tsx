@@ -675,12 +675,13 @@ function ReservasSection() {
 
 /* ─── 3) Mercado e precificação + Meta de diária ─── */
 function MercadoSection() {
-  const [bairro, setBairro] = useState<string>(BAIRRO_DATA[0].name);
+  const { bairros, lastUpdated } = useBairroData();
+  const [bairro, setBairro] = useState<string>(bairros[0]?.name ?? "");
   const [metragem, setMetragem] = useState(30);
   const [decoracao, setDecoracao] = useState<string>("basico");
   const [ocupacao, setOcupacao] = useState([75]);
 
-  const selected = BAIRRO_DATA.find((b) => b.name === bairro) ?? BAIRRO_DATA[0];
+  const selected = bairros.find((b) => b.name === bairro) ?? bairros[0];
   const decLevel = DECORATION_LEVELS.find((d) => d.value === decoracao) ?? DECORATION_LEVELS[0];
 
   const result = useMemo(() => {
@@ -712,6 +713,13 @@ function MercadoSection() {
       title="Mercado e Precificação — São Paulo"
       takeaway="Diárias médias, ocupação e receita por bairro atualizado."
     >
+      {lastUpdated && (
+        <Badge variant="secondary" className="mb-4 text-xs font-body">
+          Dados atualizados em {new Date(lastUpdated).toLocaleDateString("pt-BR")}
+        </Badge>
+      )}
+      {/* Meta de diária tool */}
+      <h3 className="font-display text-xl font-bold text-foreground mb-4">🎯 Meta de Diária</h3>
       {/* Meta de diária tool */}
       <h3 className="font-display text-xl font-bold text-foreground mb-4">🎯 Meta de Diária</h3>
       <Card className="border-border">
