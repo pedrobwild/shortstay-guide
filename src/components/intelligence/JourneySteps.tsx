@@ -1529,17 +1529,118 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
         })}
       </div>
 
-      {/* Closing */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(3, 0.2)}>
-        <Card className="bg-muted/30 border-dashed">
-          <CardContent className="p-5 text-center">
-            <p className="text-sm text-foreground/70 leading-relaxed italic mb-3">
-              "Esta recomendação é baseada no cruzamento do seu perfil com os dados de {bairros.length} bairros. 
-              Use como ponto de partida, não como decisão final."
-            </p>
-            <p className="text-[11px] text-muted-foreground">{FOOTER_DISCLAIMER}</p>
+      {/* ── Leitura final ── */}
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={stagger(3, 0.15)} className="space-y-5">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-bold font-[var(--font-display)]">Leitura final</h3>
+        </div>
+
+        {/* Winners by category */}
+        {(() => {
+          const winners = getHighlightWinners(bairros);
+          return (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {winners.map((w, i) => {
+                const IconMap: Record<string, React.ElementType> = { Scale, Crown, Rocket, Activity, TrendingUp, AlertTriangle };
+                const Icon = IconMap[w.icon] || Lightbulb;
+                const isRisky = w.icon === "AlertTriangle";
+                return (
+                  <motion.div key={w.category} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={stagger(i, 0.05)}>
+                    <Link to={`/intelligence/bairro/${encodeURIComponent(w.bairro)}`}>
+                      <Card className={`h-full hover:shadow-md transition-all group cursor-pointer ${isRisky ? "border-amber-500/20" : "border-border/50"}`}>
+                        <CardContent className="p-4 space-y-1.5">
+                          <div className="flex items-center gap-2">
+                            <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${isRisky ? "bg-amber-100 text-amber-700" : "bg-primary/10 text-primary"}`}>
+                              <Icon className="h-3.5 w-3.5" />
+                            </div>
+                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{w.category}</p>
+                          </div>
+                          <p className="text-sm font-bold group-hover:text-primary transition-colors">{w.bairro}</p>
+                          <p className="text-[10px] text-muted-foreground">{w.value}</p>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
+                );
+              })}
+            </div>
+          );
+        })()}
+
+        {/* Recommendation by profile intent */}
+        <Card className="border-primary/15">
+          <CardContent className="p-5 space-y-4">
+            <div className="flex items-center gap-2 mb-1">
+              <Target className="h-4 w-4 text-primary" />
+              <p className="text-sm font-bold">Próximo passo para decisão</p>
+            </div>
+            {(() => {
+              const winners = getHighlightWinners(bairros);
+              const equilibrio = winners.find(w => w.category.includes("equilíbrio"))?.bairro ?? "—";
+              const premium = winners.find(w => w.category.includes("premium"))?.bairro ?? "—";
+              const retorno = winners.find(w => w.category.includes("retorno"))?.bairro ?? "—";
+              const ocupacao = winners.find(w => w.category.includes("ocupação"))?.bairro ?? "—";
+              const risco = winners.find(w => w.category.includes("risco"))?.bairro ?? retorno;
+              const crescimento = winners.find(w => w.category.includes("rescimento"))?.bairro ?? "—";
+
+              const profileAdvice = [
+                { label: "Se você quer equilíbrio", bairro: equilibrio, text: `${equilibrio} tende a ser a leitura mais forte — retorno consistente com risco controlado.`, icon: Scale },
+                { label: "Se você quer retorno", bairro: retorno, text: `${retorno} apresenta o yield mais agressivo da amostra. Avalie a liquidez antes de decidir.`, icon: TrendingUp },
+                { label: "Se você quer liquidez", bairro: ocupacao, text: `${ocupacao} mantém ocupação acima da média — fluxo de caixa mais previsível.`, icon: Zap },
+                { label: "Se você quer bairro premium", bairro: premium, text: `${premium} se destaca por diárias mais altas e forte percepção de valor.`, icon: Crown },
+                { label: "Se você aceita mais risco", bairro: risco, text: `${risco} pode entregar retorno forte, mas exige maior tolerância a incerteza.`, icon: Rocket },
+                { label: "Se você pensa no futuro", bairro: crescimento, text: `${crescimento} mostra os melhores sinais de valorização e expansão de demanda.`, icon: Sprout },
+              ];
+
+              return (
+                <div className="space-y-3">
+                  {profileAdvice.map((a, i) => {
+                    const Icon = a.icon;
+                    return (
+                      <motion.div key={a.label} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={stagger(i, 0.05)}>
+                        <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                          <Icon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                          <div>
+                            <p className="text-xs font-semibold text-foreground">{a.label}</p>
+                            <p className="text-[11px] text-foreground/70 leading-relaxed mt-0.5">{a.text}</p>
+                          </div>
+                          <Link to={`/intelligence/bairro/${encodeURIComponent(a.bairro)}`} className="shrink-0 ml-auto self-center">
+                            <Button variant="ghost" size="sm" className="text-[10px] h-7 px-2 gap-0.5">
+                              Ver <ChevronRight className="h-3 w-3" />
+                            </Button>
+                          </Link>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
+
+        {/* Narrative closing */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
+          <Card className="bg-gradient-to-br from-primary/[0.04] to-transparent border-primary/10">
+            <CardContent className="p-6 text-center space-y-3">
+              {(() => {
+                const winners = getHighlightWinners(bairros);
+                const eq = winners.find(w => w.category.includes("equilíbrio"))?.bairro;
+                const pr = winners.find(w => w.category.includes("premium"))?.bairro;
+                const rt = winners.find(w => w.category.includes("retorno"))?.bairro;
+                return (
+                  <p className="text-sm text-foreground/80 leading-relaxed italic max-w-xl mx-auto">
+                    "Se você busca equilíbrio entre retorno e estabilidade, {eq} tende a ser a leitura mais forte. 
+                    Se busca diárias premium e percepção de valor, {pr} pode fazer mais sentido. 
+                    Se aceita mais risco por maior retorno, {rt} aparece como alternativa mais agressiva."
+                  </p>
+                );
+              })()}
+              <p className="text-[11px] text-muted-foreground">{FOOTER_DISCLAIMER}</p>
+            </CardContent>
+          </Card>
+        </motion.div>
       </motion.div>
 
       <div className="flex flex-wrap gap-3 justify-center">
