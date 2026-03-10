@@ -91,6 +91,9 @@ import {
   ThumbsDown,
   Phone,
   BadgeCheck,
+  Bookmark,
+  Columns2,
+  Trash2,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
