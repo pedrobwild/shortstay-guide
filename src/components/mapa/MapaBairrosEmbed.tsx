@@ -186,10 +186,23 @@ function InteractiveMap({
   const [hoveredN, setHoveredN] = useState<Neighborhood | null>(null);
   const [hoveredPoly, setHoveredPoly] = useState<{ name: string; roi: number; rate: number; occ: number; rev: number; lng: number; lat: number } | null>(null);
   const [hoveredStation, setHoveredStation] = useState<{ name: string; line: string; lng: number; lat: number } | null>(null);
-  const [poisData, setPoisData] = useState<GeoJSON.FeatureCollection | null>(null);
+  const [poisData, setPoisData] = useState<Array<{ name: string; category: string; neighborhood: string; lng: number; lat: number }>>([]);
+  const [hoveredPOI, setHoveredPOI] = useState<{ name: string; category: string; neighborhood: string; lng: number; lat: number } | null>(null);
 
   useEffect(() => {
-    fetch("/geo/pois.geojson").then(r => r.json()).then(setPoisData).catch(() => {});
+    fetch("/geo/pois.geojson")
+      .then(r => r.json())
+      .then((geojson: GeoJSON.FeatureCollection) => {
+        const pts = geojson.features.map(f => ({
+          name: (f.properties as any)?.name ?? "",
+          category: (f.properties as any)?.category ?? "",
+          neighborhood: (f.properties as any)?.neighborhood ?? "",
+          lng: (f.geometry as any).coordinates[0] as number,
+          lat: (f.geometry as any).coordinates[1] as number,
+        }));
+        setPoisData(pts);
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -383,69 +396,42 @@ function InteractiveMap({
           </Source>
         )}
 
-        {/* POIs */}
-        {poisData && (
-          <Source id="pois-source" type="geojson" data={poisData}>
-            <Layer
-              id="poi-circles"
-              type="circle"
-              filter={
-                showPOIs.length > 0
-                  ? showPOIs.length === 1
-                    ? ["==", ["get", "category"], showPOIs[0]]
-                    : ["any", ...showPOIs.map(cat => ["==", ["get", "category"], cat] as any)]
-                  : ["boolean", false]
-              }
-              paint={{
-                "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 7, 14, 14, 16, 18],
-                "circle-color": [
-                  "match", ["get", "category"],
-                  "restaurant", POI_COLORS.restaurant,
-                  "corporate", POI_COLORS.corporate,
-                  "tourist", POI_COLORS.tourist,
-                  "events", POI_COLORS.events,
-                  "metro", POI_COLORS.metro,
-                  "#888"
-                ],
-                "circle-opacity": 0.9,
-                "circle-stroke-color": "#fff",
-                "circle-stroke-width": 2,
-              }}
-            />
-            <Layer
-              id="poi-labels"
-              type="symbol"
-              filter={
-                showPOIs.length > 0
-                  ? showPOIs.length === 1
-                    ? ["==", ["get", "category"], showPOIs[0]]
-                    : ["any", ...showPOIs.map(cat => ["==", ["get", "category"], cat] as any)]
-                  : ["boolean", false]
-              }
-              minzoom={13}
-              layout={{
-                "text-field": ["get", "name"],
-                "text-size": 11,
-                "text-offset": [0, 1.4],
-                "text-anchor": "top",
-                "text-optional": true,
-                "text-max-width": 12,
-              }}
-              paint={{
-                "text-color": [
-                  "match", ["get", "category"],
-                  "restaurant", POI_COLORS.restaurant,
-                  "corporate", POI_COLORS.corporate,
-                  "tourist", POI_COLORS.tourist,
-                  "events", POI_COLORS.events,
-                  "metro", POI_COLORS.metro,
-                  "#555"
-                ],
-                "text-halo-color": "#fff",
-                "text-halo-width": 1.5,
-              }}
-            />
-          </Source>
+        {/* POIs as DOM Markers with tooltips */}
+        {poisData
+          .filter(p => showPOIs.includes(p.category as POICategoryKey))
+          .map((p, i) => (
+            <Marker key={`poi-${i}`} longitude={p.lng} latitude={p.lat} anchor="center">
+              <div
+                className="relative group cursor-pointer"
+                onMouseEnter={() => setHoveredPOI(p)}
+                onMouseLeave={() => setHoveredPOI(null)}
+              >
+                <div
+                  className="w-3.5 h-3.5 rounded-full border-2 border-white shadow-md transition-transform group-hover:scale-150"
+                  style={{ backgroundColor: POI_COLORS[p.category] ?? "#888" }}
+                />
+              </div>
+            </Marker>
+          ))
+        }
+
+        {hoveredPOI && (
+          <Popup
+            longitude={hoveredPOI.lng}
+            latitude={hoveredPOI.lat}
+            offset={14}
+            closeButton={false}
+            closeOnClick={false}
+            anchor="bottom"
+          >
+            <div className="text-[11px] leading-tight">
+              <p className="font-bold text-foreground">{hoveredPOI.name}</p>
+              <p className="text-muted-foreground mt-0.5">
+                {POI_CATEGORIES.find(c => c.key === hoveredPOI.category)?.label ?? hoveredPOI.category}
+                {" · "}{hoveredPOI.neighborhood}
+              </p>
+            </div>
+          </Popup>
         )}
       </ReactMap>
 
