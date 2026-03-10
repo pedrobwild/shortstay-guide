@@ -590,7 +590,22 @@ export default function MapaBairrosEmbed() {
       {/* Neighborhood Grid */}
       <div className="mb-12">
         <h3 className="font-display text-xl font-bold text-foreground mb-1">Bairros analisados</h3>
-        <p className="text-sm text-muted-foreground font-body mb-4">{filtered.length} bairro{filtered.length !== 1 ? "s" : ""}</p>
+        <p className="text-sm text-muted-foreground font-body mb-3">{filtered.length} bairro{filtered.length !== 1 ? "s" : ""}</p>
+        {/* Card legend */}
+        <div className="flex flex-wrap items-center gap-4 mb-4 p-3 rounded-lg bg-muted/30 border border-border/50 text-[11px] text-muted-foreground font-body">
+          <span className="font-semibold text-foreground text-xs">Como ler os cards:</span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Score ≥ 88 (alto potencial)
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Score 84–87 (moderado)
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-gray-400" /> Score &lt; 84 (menor potencial)
+          </span>
+          <span className="hidden sm:inline text-muted-foreground/60">|</span>
+          <span className="hidden sm:inline">Tags indicam perfil de demanda e amenidades da região</span>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           <AnimatePresence>
             {filtered.map((n, i) => (
