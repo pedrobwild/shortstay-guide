@@ -679,7 +679,7 @@ export const Step3Learn = ({ onNext }: { onNext: () => void }) => {
 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={stagger(STEP3_INDICATORS.length + 3, 0.06)} className="flex justify-end">
         <Button onClick={onNext} className="gap-2">
-          Agora quero comparar bairros <ArrowRight className="h-4 w-4" />
+          Ver os aprendizados da análise <ArrowRight className="h-4 w-4" />
         </Button>
       </motion.div>
     </div>
