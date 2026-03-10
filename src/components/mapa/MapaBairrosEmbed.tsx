@@ -564,10 +564,10 @@ export default function MapaBairrosEmbed() {
         {/* Demand filters */}
         <div className="flex flex-wrap gap-2">
           {DEMAND_FILTERS.map((f) => {
-            const active = activeFilters.includes(f.id);
+            const active = activeFilters.includes(f.key);
             const Icon = f.icon;
             return (
-              <button key={f.id} onClick={() => toggleFilter(f.id)}
+              <button key={f.key} onClick={() => toggleFilter(f.key)}
                 className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all ${
                   active ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
                 }`}>
