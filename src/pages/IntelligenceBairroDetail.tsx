@@ -413,51 +413,59 @@ const IntelligenceBairroDetail = () => {
         </motion.div>
 
         {/* ── Temporal evolution ──────────────────────────── */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader><CardTitle className="text-base flex items-center gap-2"><TrendingUp className="h-4 w-4" /> Tendência ADR Mensal</CardTitle></CardHeader>
-            <CardContent>
-              <ChartContainer config={{ adr: { label: "ADR (R$)", color: "hsl(var(--primary))" } }} className="max-h-[280px]">
-                <LineChart data={monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `R$${v}`} domain={['dataMin - 20', 'dataMax + 20']} />
-                  <ChartTooltip content={<ChartTooltipContent formatter={(value) => `R$ ${Number(value).toFixed(0)}`} />} />
-                  <Line type="monotone" dataKey="adr" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ r: 4, fill: "hsl(var(--primary))" }} activeDot={{ r: 6 }} />
-                </LineChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="space-y-2">
+          <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50/60 border border-amber-200/40">
+            <Info className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+            <p className="text-xs text-amber-800 leading-relaxed">
+              <strong>Projeções estimadas:</strong> Os gráficos abaixo utilizam sazonalidade estimada aplicada sobre a média atual. Não representam dados históricos reais — são projeções para auxiliar na análise de tendências.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader><CardTitle className="text-base flex items-center gap-2"><TrendingUp className="h-4 w-4" /> Tendência ADR Mensal</CardTitle></CardHeader>
+              <CardContent>
+                <ChartContainer config={{ adr: { label: "ADR (R$)", color: "hsl(var(--primary))" } }} className="max-h-[280px]">
+                  <LineChart data={monthlyData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `R$${v}`} domain={['dataMin - 20', 'dataMax + 20']} />
+                    <ChartTooltip content={<ChartTooltipContent formatter={(value) => `R$ ${Number(value).toFixed(0)}`} />} />
+                    <Line type="monotone" dataKey="adr" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ r: 4, fill: "hsl(var(--primary))" }} activeDot={{ r: 6 }} />
+                  </LineChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader><CardTitle className="text-base flex items-center gap-2"><BarChart3 className="h-4 w-4" /> Tendência Ocupação Mensal</CardTitle></CardHeader>
-            <CardContent>
-              <ChartContainer config={{ ocupacao: { label: "Ocupação (%)", color: "hsl(142 76% 36%)" } }} className="max-h-[280px]">
-                <LineChart data={monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} domain={['dataMin - 5', 'dataMax + 5']} />
-                  <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(1)}%`} />} />
-                  <Line type="monotone" dataKey="ocupacao" stroke="hsl(142 76% 36%)" strokeWidth={2.5} dot={{ r: 4, fill: "hsl(142 76% 36%)" }} activeDot={{ r: 6 }} />
-                </LineChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader><CardTitle className="text-base flex items-center gap-2"><BarChart3 className="h-4 w-4" /> Tendência Ocupação Mensal</CardTitle></CardHeader>
+              <CardContent>
+                <ChartContainer config={{ ocupacao: { label: "Ocupação (%)", color: "hsl(142 76% 36%)" } }} className="max-h-[280px]">
+                  <LineChart data={monthlyData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} domain={['dataMin - 5', 'dataMax + 5']} />
+                    <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(1)}%`} />} />
+                    <Line type="monotone" dataKey="ocupacao" stroke="hsl(142 76% 36%)" strokeWidth={2.5} dot={{ r: 4, fill: "hsl(142 76% 36%)" }} activeDot={{ r: 6 }} />
+                  </LineChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
 
-          <Card className="md:col-span-2">
-            <CardHeader><CardTitle className="text-base flex items-center gap-2"><Target className="h-4 w-4" /> Receita Mensal Estimada</CardTitle></CardHeader>
-            <CardContent>
-              <ChartContainer config={{ receita: { label: "Receita (R$)", color: "hsl(262 83% 58%)" } }} className="max-h-[280px]">
-                <BarChart data={monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `R$${(v / 1000).toFixed(1)}k`} />
-                  <ChartTooltip content={<ChartTooltipContent formatter={(value) => `R$ ${Number(value).toLocaleString("pt-BR")}`} />} />
-                  <Bar dataKey="receita" fill="hsl(262 83% 58%)" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
+            <Card className="md:col-span-2">
+              <CardHeader><CardTitle className="text-base flex items-center gap-2"><Target className="h-4 w-4" /> Receita Mensal Estimada</CardTitle></CardHeader>
+              <CardContent>
+                <ChartContainer config={{ receita: { label: "Receita (R$)", color: "hsl(262 83% 58%)" } }} className="max-h-[280px]">
+                  <BarChart data={monthlyData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `R$${(v / 1000).toFixed(1)}k`} />
+                    <ChartTooltip content={<ChartTooltipContent formatter={(value) => `R$ ${Number(value).toLocaleString("pt-BR")}`} />} />
+                    <Bar dataKey="receita" fill="hsl(262 83% 58%)" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          </div>
         </motion.div>
 
         {/* ── Detailed metrics ───────────────────────────── */}
