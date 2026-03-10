@@ -518,15 +518,27 @@ export default function MapaBairrosEmbed() {
               </button>
             );
           })}
-          <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border flex-shrink-0">
+          <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border flex-shrink-0 group/heatmap relative">
             <Flame size={12} className={showHeatmap ? "text-destructive" : "text-muted-foreground"} />
             <span className="text-xs text-muted-foreground">Heatmap</span>
             <Switch checked={showHeatmap} onCheckedChange={setShowHeatmap} className="scale-75" />
+            <div className="absolute left-0 top-full mt-1 hidden group-hover/heatmap:block z-50 pointer-events-none">
+              <div className="bg-card/95 backdrop-blur-md border border-border rounded-lg shadow-lg px-3 py-2 text-[10px] text-muted-foreground w-48">
+                <p className="font-semibold text-foreground mb-0.5">Mapa de calor</p>
+                Mostra a intensidade da demanda por short stay em cada região, baseado em ocupação e volume de reservas.
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2 ml-1 pl-2 border-l border-border flex-shrink-0">
+          <div className="flex items-center gap-2 ml-1 pl-2 border-l border-border flex-shrink-0 group/clusters relative">
             <CircleDot size={12} className={showClusters ? "text-primary" : "text-muted-foreground"} />
             <span className="text-xs text-muted-foreground">Clusters</span>
             <Switch checked={showClusters} onCheckedChange={setShowClusters} className="scale-75" />
+            <div className="absolute left-0 top-full mt-1 hidden group-hover/clusters:block z-50 pointer-events-none">
+              <div className="bg-card/95 backdrop-blur-md border border-border rounded-lg shadow-lg px-3 py-2 text-[10px] text-muted-foreground w-48">
+                <p className="font-semibold text-foreground mb-0.5">Clusters de anúncios</p>
+                Agrupa anúncios de Airbnb por proximidade geográfica. Clique para expandir e ver a densidade de cada área.
+              </div>
+            </div>
           </div>
           {(activeFilters.length > 0 || showMetro) && (
             <button onClick={() => { setActiveFilters([]); setShowMetro(false); }} className="text-xs text-muted-foreground hover:text-foreground underline ml-1 flex-shrink-0">
@@ -534,6 +546,12 @@ export default function MapaBairrosEmbed() {
             </button>
           )}
         </div>
+        {/* Filter explainer */}
+        {activeFilters.length > 0 && (
+          <p className="text-[10px] text-muted-foreground font-body mt-1 ml-1">
+            🔍 Filtrando por perfil de demanda — mostrando apenas bairros com esse tipo de público predominante.
+          </p>
+        )}
       </div>
 
       {/* Comparison panel */}
@@ -572,7 +590,22 @@ export default function MapaBairrosEmbed() {
       {/* Neighborhood Grid */}
       <div className="mb-12">
         <h3 className="font-display text-xl font-bold text-foreground mb-1">Bairros analisados</h3>
-        <p className="text-sm text-muted-foreground font-body mb-4">{filtered.length} bairro{filtered.length !== 1 ? "s" : ""}</p>
+        <p className="text-sm text-muted-foreground font-body mb-3">{filtered.length} bairro{filtered.length !== 1 ? "s" : ""}</p>
+        {/* Card legend */}
+        <div className="flex flex-wrap items-center gap-4 mb-4 p-3 rounded-lg bg-muted/30 border border-border/50 text-[11px] text-muted-foreground font-body">
+          <span className="font-semibold text-foreground text-xs">Como ler os cards:</span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Score ≥ 88 (alto potencial)
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Score 84–87 (moderado)
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-gray-400" /> Score &lt; 84 (menor potencial)
+          </span>
+          <span className="hidden sm:inline text-muted-foreground/60">|</span>
+          <span className="hidden sm:inline">Tags indicam perfil de demanda e amenidades da região</span>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           <AnimatePresence>
             {filtered.map((n, i) => (
@@ -590,7 +623,14 @@ export default function MapaBairrosEmbed() {
           <Calendar size={20} className="text-primary" />
           <h3 className="font-display text-xl font-bold text-foreground">Eventos que aumentam a demanda</h3>
         </div>
-        <p className="text-sm text-muted-foreground font-body mb-4">Clique em um evento para destacar os bairros impactados no mapa.</p>
+        <p className="text-sm text-muted-foreground font-body mb-3">Clique em um evento para destacar os bairros impactados no mapa.</p>
+        {/* Events impact legend */}
+        <div className="flex flex-wrap items-center gap-3 mb-4 text-[11px] font-body">
+          <span className="text-muted-foreground font-semibold">Nível de impacto:</span>
+          <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-destructive/10 text-destructive">🔴 Alta demanda — picos de até +40% nas reservas</span>
+          <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300">🟡 Média demanda — aumento moderado</span>
+          <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-muted text-muted-foreground">⚪ Baixa demanda — impacto localizado</span>
+        </div>
         <EventsTimeline events={EVENTS} onEventClick={handleEventClick} activeEventId={activeEvent?.id ?? null} />
       </div>
     </div>

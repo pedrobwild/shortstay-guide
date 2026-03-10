@@ -85,6 +85,13 @@ export default function ROIRanking({ neighborhoods, onSelectNeighborhood, select
       </div>
 
       {/* Ranking list */}
+      <div className="flex flex-wrap items-center gap-3 mb-2 text-[10px] text-muted-foreground font-body p-2 rounded-md bg-muted/30">
+        <span className="font-semibold text-foreground">Legenda:</span>
+        <span><strong className="text-emerald-600">ROI est.</strong> = retorno anual sobre investimento</span>
+        <span><strong>Diária</strong> = preço médio/noite</span>
+        <span><strong>Ocupação</strong> = % de dias reservados</span>
+        <span><strong>Receita/mês</strong> = faturamento mensal estimado</span>
+      </div>
       <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
         <AnimatePresence mode="popLayout">
           {sorted.map((n, i) => {
