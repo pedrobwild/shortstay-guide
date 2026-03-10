@@ -63,7 +63,7 @@ const IntelligenceDashboard = () => {
   }
 
   const goTo = (step: number) => setCurrentStep(step);
-  const goNext = () => setCurrentStep(prev => Math.min(prev + 1, 7));
+  const goNext = () => setCurrentStep(prev => Math.min(prev + 1, 8));
 
   const handleQuizComplete = (answers: QuizAnswers, profile: InvestorProfile) => {
     setQuizAnswers(answers);
