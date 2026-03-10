@@ -580,6 +580,17 @@ function MercadoSection() {
     return { min, max, receitaMensal, receitaAnual };
   }, [selected, decLevel, metragem, ocupacao]);
 
+  // Track mercado usage
+  const mercadoTracked = useRef(false);
+  useEffect(() => {
+    if (mercadoTracked.current) return;
+    const t = setTimeout(() => {
+      trackGlobal("mercado_used", { bairro, metragem, decoracao });
+      mercadoTracked.current = true;
+    }, 3000);
+    return () => clearTimeout(t);
+  }, [bairro, metragem, decoracao]);
+
   return (
     <SectionBlock
       id="mercado"
