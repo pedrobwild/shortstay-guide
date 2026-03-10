@@ -168,23 +168,6 @@ function SectionBlock({
   );
 }
 
-function PlaceholderAccordion({ label }: { label: string }) {
-  return (
-    <Accordion type="single" collapsible className="mt-4">
-      <AccordionItem value="details">
-        <AccordionTrigger className="text-primary font-semibold">
-          Ver detalhes
-        </AccordionTrigger>
-        <AccordionContent>
-          <p className="text-muted-foreground">
-            {/* TODO: Fill with real content for "{label}" */}
-            Conteúdo detalhado de "{label}" será adicionado nas próximas etapas.
-          </p>
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
-  );
-}
 
 /* ─── TOC (desktop sticky) — slim icon rail, expands on hover ─── */
 function TableOfContents({ activeId }: { activeId: string }) {
@@ -527,7 +510,31 @@ function ReservasSection() {
         </ul>
       </div>
 
-      <PlaceholderAccordion label="O que move reservas" />
+      <Accordion type="multiple" className="mt-4 font-body">
+        <AccordionItem value="interpretar">
+          <AccordionTrigger className="text-primary font-semibold">Como interpretar esses drivers</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">Cada driver tem peso diferente por persona. Executivos priorizam check-in rápido e Wi-Fi estável para reuniões. Turistas priorizam localização e experiência visual. Estudantes valorizam preço e avaliações de outros hóspedes. Use os filtros de persona acima para ver a priorização e adapte seu studio ao público dominante do bairro.</p>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="fontes">
+          <AccordionTrigger className="text-primary font-semibold">Fontes dos dados</AccordionTrigger>
+          <AccordionContent>
+            <ul className="text-sm text-muted-foreground space-y-2">
+              <li>• <strong className="text-foreground">Airbnb Global Quality Report</strong> — Fatores de qualidade e drivers de decisão baseados em milhões de reviews globais</li>
+              <li>• <strong className="text-foreground">AHLA (American Hotel & Lodging Association)</strong> — Estatística de que 90% dos hóspedes consideram limpeza o critério #1</li>
+              <li>• <strong className="text-foreground">Expedia Group 2025 Traveler Value Index</strong> — Influência de social proof (avaliações, nota) na taxa de conversão</li>
+              <li>• <strong className="text-foreground">Annals of Tourism Research: Empirical Insights</strong> — Categorias de amenidades e impacto na experiência do hóspede</li>
+            </ul>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="pratica">
+          <AccordionTrigger className="text-primary font-semibold">Como aplicar na prática</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">Priorize os 3 primeiros drivers da persona dominante do seu bairro. Em Pinheiros (público misto executivo/turista), foque em limpeza impecável + check-in digital + fotos reais. Em Vila Mariana (mais estudantes e casais), priorize avaliações altas + preço competitivo + ambiente confortável para estadias longas. O segredo é alinhar produto e operação ao perfil real de quem reserva na sua região.</p>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </SectionBlock>
   );
 }
@@ -628,7 +635,26 @@ function MercadoSection() {
           </div>
         </CardContent>
       </Card>
-      <PlaceholderAccordion label="Mercado e precificação" />
+      <Accordion type="multiple" className="mt-4 font-body">
+        <AccordionItem value="metodologia">
+          <AccordionTrigger className="text-primary font-semibold">Metodologia de cálculo</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">A diária mínima e máxima são faixas observadas para studios do bairro selecionado, baseadas em dados de mercado. O multiplicador de decoração ajusta a faixa: Básico (1.0×) mantém valores base, Premium (1.2×) reflete studios com acabamento e fotos acima da média, Alto padrão (1.45×) reflete studios com design autoral e operação profissional. A metragem aplica ajuste adicional: studios abaixo de 25m² recebem -8% e acima de 35m² recebem +8%.</p>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="coleta">
+          <AccordionTrigger className="text-primary font-semibold">Como os dados são coletados</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">Dados de mercado coletados e cruzados pela Bwild a partir de bases do setor (AirDNA, plataformas de reserva, dados públicos de anúncios ativos). Os valores representam médias trimestrais e são atualizados periodicamente para refletir a dinâmica real do mercado paulistano.</p>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="limitacoes">
+          <AccordionTrigger className="text-primary font-semibold">Limitações</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">Valores são estimativas baseadas em médias de mercado e não constituem garantia de resultado. Resultados reais dependem de fatores como execução da reforma, qualidade das fotos, gestão operacional, sazonalidade, concorrência local e posicionamento na plataforma. Use como referência para tomada de decisão, não como projeção financeira definitiva.</p>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </SectionBlock>
   );
 }
@@ -821,7 +847,20 @@ function SimuladorSection() {
           </Dialog>
         </CardContent>
       </Card>
-      <PlaceholderAccordion label="Simulador de receita" />
+      <Accordion type="multiple" className="mt-4 font-body">
+        <AccordionItem value="rateboost">
+          <AccordionTrigger className="text-primary font-semibold">Como funciona o rate boost</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">O cenário Base usa a diária média do bairro (ou sua diária atual, se informada). <strong className="text-foreground">+10%</strong> = decoração básica melhorada (pintura, iluminação, enxoval novo). <strong className="text-foreground">+20%</strong> = decoração premium com fotos profissionais e mobília planejada. <strong className="text-foreground">+30%</strong> = studio de alto padrão com design autoral, fotos de catálogo e operação otimizada. Cada nível é cumulativo ao anterior.</p>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="payback">
+          <AccordionTrigger className="text-primary font-semibold">O que o payback considera</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">O cálculo de payback é simplificado: <strong className="text-foreground">Payback = Orçamento de reforma ÷ Receita incremental mensal</strong> (diferença entre cenário boosted e cenário base). Não inclui custos operacionais como limpeza (~R$ 80-120/virada), taxa da plataforma (~15%), condomínio, IPTU ou imposto de renda. Para uma projeção completa, solicite um diagnóstico personalizado.</p>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </SectionBlock>
   );
 }
@@ -1013,7 +1052,20 @@ function ReformaSection() {
           </Card>
         </TabsContent>
       </Tabs>
-      <PlaceholderAccordion label="Reforma inteligente" />
+      <Accordion type="multiple" className="mt-4 font-body">
+        <AccordionItem value="vinilico-roi">
+          <AccordionTrigger className="text-primary font-semibold">Por que vinílico vence no ROI</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">O vinílico custa 56% menos que porcelanato, tem instalação mais rápida (1-2 dias vs 3-5 dias) e é visualmente indistinguível em fotos de anúncio. Para short stay, onde o hóspede fica 2-5 dias, a percepção de qualidade é a mesma. Além disso, vinílico é mais silencioso, confortável ao pisar e mais fácil de reparar em caso de dano pontual — basta trocar uma régua.</p>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="porcelanato">
+          <AccordionTrigger className="text-primary font-semibold">Quando porcelanato faz sentido</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">Em áreas molhadas (banheiro, cozinha aberta com pia) onde a resistência à água é crítica. Também faz sentido em studios de alto padrão (diária acima de R$ 400) onde o investimento adicional é compensado pela diária mais alta e pelo público-alvo que percebe a diferença. Se o condomínio já tem porcelanato em bom estado, não troque — aproveite.</p>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </SectionBlock>
   );
 }
@@ -1075,7 +1127,55 @@ function AntiChecklistSection() {
           <p className="text-sm text-muted-foreground">Ao evitar demolições desnecessárias e priorizar marcenaria + layout, investidores experientes economizam até 30% do orçamento de reforma — dinheiro que vai direto para decoração e fotos, onde o retorno é comprovado.</p>
         </div>
       </div>
-      <PlaceholderAccordion label="Anti-checklist" />
+      <Accordion type="multiple" className="mt-4 font-body">
+        <AccordionItem value="custos-evitaveis">
+          <AccordionTrigger className="text-primary font-semibold">Detalhamento dos custos evitáveis</AccordionTrigger>
+          <AccordionContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="border-b border-border">
+                  <th className="text-left py-2 text-muted-foreground font-medium">Item evitável</th>
+                  <th className="text-right py-2 text-muted-foreground font-medium">Custo médio</th>
+                  <th className="text-left py-2 pl-4 text-muted-foreground font-medium">Alternativa inteligente</th>
+                  <th className="text-right py-2 text-muted-foreground font-medium">Economia</th>
+                </tr></thead>
+                <tbody>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 text-foreground">Trocar bancadas novas</td>
+                    <td className="py-2 text-right text-muted-foreground">R$ 5.200</td>
+                    <td className="py-2 pl-4 text-muted-foreground">Manter originais da construtora</td>
+                    <td className="py-2 text-right font-medium text-primary">R$ 5.200</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 text-foreground">Integrar sacada</td>
+                    <td className="py-2 text-right text-muted-foreground">R$ 8.000+</td>
+                    <td className="py-2 pl-4 text-muted-foreground">Decorar sacada como espaço funcional</td>
+                    <td className="py-2 text-right font-medium text-primary">R$ 7.000+</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 text-foreground">Remover revestimento banheiro</td>
+                    <td className="py-2 text-right text-muted-foreground">R$ 6.000+</td>
+                    <td className="py-2 pl-4 text-muted-foreground">Pintura epóxi ou adesivos sobre o existente</td>
+                    <td className="py-2 text-right font-medium text-primary">R$ 5.000+</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 text-foreground">Mover pontos hidráulicos</td>
+                    <td className="py-2 text-right text-muted-foreground">R$ 4.000+</td>
+                    <td className="py-2 pl-4 text-muted-foreground">Trabalhar com a planta existente</td>
+                    <td className="py-2 text-right font-medium text-primary">R$ 4.000+</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="quando-demolir">
+          <AccordionTrigger className="text-primary font-semibold">Quando SIM faz sentido demolir</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">Apenas quando o layout atual impede a funcionalidade básica do studio (ex: cozinha inacessível, banheiro sem ventilação mínima) <strong className="text-foreground">E</strong> o ROI projetado compensa o custo adicional. Antes de demolir, faça a conta: se a demolição custa R$ 10.000 e o ganho mensal projetado é R$ 300, o payback será de +33 meses — provavelmente não compensa. Consulte um arquiteto com experiência em short stay antes de tomar essa decisão.</p>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </SectionBlock>
   );
 }
@@ -1178,7 +1278,45 @@ function DecoracaoSection() {
         <Badge variant="secondary" className="font-body">Reputação orgânica</Badge>
       </div>
 
-      <PlaceholderAccordion label="Decoração estratégica" />
+      <Accordion type="multiple" className="mt-4 font-body">
+        <AccordionItem value="budget">
+          <AccordionTrigger className="text-primary font-semibold">Budget breakdown por nível</AccordionTrigger>
+          <AccordionContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="border-b border-border">
+                  <th className="text-left py-2 text-muted-foreground font-medium">Nível</th>
+                  <th className="text-right py-2 text-muted-foreground font-medium">Investimento</th>
+                  <th className="text-left py-2 pl-4 text-muted-foreground font-medium">O que inclui</th>
+                </tr></thead>
+                <tbody>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 text-foreground font-medium">Básico</td>
+                    <td className="py-2 text-right text-muted-foreground">R$ 15–25k</td>
+                    <td className="py-2 pl-4 text-muted-foreground">Pintura, iluminação LED, mobília essencial, enxoval padrão, fotos com celular profissional</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 text-foreground font-medium">Premium</td>
+                    <td className="py-2 text-right text-muted-foreground">R$ 25–40k</td>
+                    <td className="py-2 pl-4 text-muted-foreground">Marcenaria planejada, iluminação cênica, mobília curada, enxoval premium, fotos profissionais, smart lock</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-2 text-foreground font-medium">Alto padrão</td>
+                    <td className="py-2 text-right text-muted-foreground">R$ 40–60k</td>
+                    <td className="py-2 pl-4 text-muted-foreground">Design autoral, marcenaria premium, piso vinílico/porcelanato, automação, arte original, styling completo, fotos + vídeo</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="roi-decoracao">
+          <AccordionTrigger className="text-primary font-semibold">ROI por nível de decoração</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed"><strong className="text-foreground">Básico:</strong> payback de 10–14 meses. Melhora marginal na diária (+10-15%), mas custo baixo. <strong className="text-foreground">Premium:</strong> payback de 8–12 meses. Melhor custo-benefício — o aumento de diária (+20-30%) compensa o investimento adicional com folga. <strong className="text-foreground">Alto padrão:</strong> payback de 6–10 meses. Diária +30-45%, mas exige público-alvo compatível e bairro premium (Itaim, Pinheiros, Vila Olímpia). O nível Premium geralmente oferece o melhor retorno ajustado ao risco.</p>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </SectionBlock>
   );
 }
@@ -1255,7 +1393,37 @@ function ProjetoSection() {
           <p className="text-sm text-muted-foreground">O método Bwild trabalha com orçamento fechado e cronograma definido desde o início. Sem surpresas — você sabe exatamente quanto vai investir e quando o studio estará pronto para operar.</p>
         </div>
       </div>
-      <PlaceholderAccordion label="Projeto arquitetônico" />
+      <Accordion type="multiple" className="mt-4 font-body">
+        <AccordionItem value="etapas">
+          <AccordionTrigger className="text-primary font-semibold">O que acontece em cada etapa</AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-4 text-sm">
+              <div>
+                <p className="font-semibold text-foreground">1. Projeto (2–3 semanas)</p>
+                <p className="text-muted-foreground">Entregáveis: planta humanizada, layout 3D renderizado, detalhamento técnico para execução, lista de materiais e orçamento fechado. O investidor precisa fornecer a planta do imóvel, fotos e briefing de estilo. Aprovação do projeto antes de iniciar a obra.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">2. Execução (3–5 semanas)</p>
+                <p className="text-muted-foreground">Entregáveis: obra completa (pintura, elétrica, iluminação, piso se necessário). Fornecedores homologados pela Bwild executam com acompanhamento semanal. Relatório de progresso por milestone. O investidor recebe atualizações semanais com fotos.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">3. Marcenaria (2–3 semanas)</p>
+                <p className="text-muted-foreground">Entregáveis: armários, bancadas e nichos sob medida. Produção em paralelo com a obra. Instalação coordenada para evitar retrabalho. O investidor aprova amostras de acabamento antes da produção.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">4. Decoração (1 semana)</p>
+                <p className="text-muted-foreground">Entregáveis: montagem completa (mobília, enxoval, objetos decorativos), fotos profissionais para o anúncio, guia de reposição. O investidor recebe o studio pronto para operar com todas as fotos otimizadas para as plataformas.</p>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="diferencial">
+          <AccordionTrigger className="text-primary font-semibold">Diferencial do método Bwild</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">Orçamento fechado desde o projeto — sem surpresas. Cronograma com milestone por semana e penalidades para atrasos. Fornecedores homologados com histórico comprovado em short stay. Garantia de 1 ano em todos os serviços. A experiência de +200 studios permite antecipar problemas comuns e evitar desperdícios que investidores de primeira viagem não conseguem prever.</p>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </SectionBlock>
   );
 }
@@ -1658,7 +1826,37 @@ function CaseStudySection() {
           </Button>
         </CardContent>
       </Card>
-      <PlaceholderAccordion label="Case study" />
+      <Accordion type="multiple" className="mt-4 font-body">
+        <AccordionItem value="transformacao">
+          <AccordionTrigger className="text-primary font-semibold">Detalhes da transformação</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">O studio na Vila Mariana (28m²) passou por: <strong className="text-foreground">marcenaria planejada</strong> (armário com nichos iluminados, bancada otimizada), <strong className="text-foreground">iluminação cênica completa</strong> (fitas LED na marcenaria + spots direcionais + pendente na sala), <strong className="text-foreground">fotos profissionais</strong> (20 fotos com styling e iluminação natural) e <strong className="text-foreground">otimização do anúncio</strong> (título, descrição e tags reescritos com foco em conversão). Investimento total em decoração: R$ 32.000.</p>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="timeline">
+          <AccordionTrigger className="text-primary font-semibold">Linha do tempo</AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center gap-3">
+                <Badge variant="secondary" className="font-body shrink-0">Semana 1–2</Badge>
+                <span className="text-muted-foreground">Projeto: levantamento, layout 3D, aprovação e orçamento fechado</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge variant="secondary" className="font-body shrink-0">Semana 3–6</Badge>
+                <span className="text-muted-foreground">Execução: pintura, iluminação, piso vinílico, instalação de marcenaria</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge variant="secondary" className="font-body shrink-0">Semana 7</Badge>
+                <span className="text-muted-foreground">Decoração, styling, fotos profissionais e publicação do anúncio otimizado</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge className="bg-primary text-primary-foreground border-0 font-body shrink-0">Dia 3</Badge>
+                <span className="text-muted-foreground">Primeira reserva recebida após publicação</span>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </SectionBlock>
   );
 }
@@ -1733,7 +1931,55 @@ function ChecklistSection() {
           </div>
         </CardContent>
       </Card>
-      <PlaceholderAccordion label="Checklist do investidor" />
+      <Accordion type="multiple" className="mt-4 font-body">
+        <AccordionItem value="detalhes-checklist">
+          <AccordionTrigger className="text-primary font-semibold">Detalhamento de cada item</AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-3 text-sm">
+              <div>
+                <p className="font-semibold text-foreground">1. Localização com demanda comprovada</p>
+                <p className="text-muted-foreground">Verifique a taxa de ocupação média do bairro (acima de 70% é bom sinal). Consulte o mapa de bairros e a tabela de mercado neste guia. Bairros próximos a metrô, centros comerciais e hospitais tendem a ter demanda mais constante.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">2. Condomínio permite short stay</p>
+                <p className="text-muted-foreground">Leia a convenção do condomínio e o regimento interno. Verifique se há restrição explícita a locações por temporada. Converse com o síndico. Prédios com restrição podem multar e até proibir a operação.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">3. Análise de concorrência feita</p>
+                <p className="text-muted-foreground">Pesquise 10-20 anúncios similares no mesmo bairro. Compare diárias, fotos, avaliações e amenidades. Identifique onde você pode se diferenciar (design, check-in, localização).</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">4. Orçamento de reforma definido</p>
+                <p className="text-muted-foreground">Tenha um orçamento fechado antes de iniciar. Inclua margem de 10-15% para imprevistos. Priorize os itens com maior impacto visual: iluminação, marcenaria e pintura.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">5. Projeção financeira validada</p>
+                <p className="text-muted-foreground">Use o simulador deste guia para validar cenários. Compare receita projetada com custos totais (reforma + operação mensal). O yield bruto deve ser superior a 6% ao ano para justificar o investimento.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">6. Fotos profissionais planejadas</p>
+                <p className="text-muted-foreground">Fotos são o principal fator de conversão em cliques. Reserve orçamento para fotógrafo profissional com experiência em interiores. Mínimo 15-20 fotos com luz natural. Considere vídeo walkthrough.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">7. Mobília funcional selecionada</p>
+                <p className="text-muted-foreground">Priorize durabilidade e praticidade. Sofá-cama de qualidade, mesa que serve para trabalho e refeições, armazenamento inteligente. Evite peças frágeis ou difíceis de limpar.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">8. Plano de precificação dinâmica</p>
+                <p className="text-muted-foreground">Defina preço base e ajuste por sazonalidade (alta temporada +20-30%, baixa -10-15%). Use ferramentas de precificação automática ou acompanhe manualmente a concorrência semanalmente.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">9. Gestão operacional definida</p>
+                <p className="text-muted-foreground">Decida: autogestão ou empresa especializada? Autogestão exige disponibilidade 24/7 para mensagens. Operadoras cobram 15-25% da receita mas resolvem limpeza, check-in, manutenção e atendimento.</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">10. Documentação fiscal em ordem</p>
+                <p className="text-muted-foreground">Registre-se como MEI ou no Simples Nacional. Declare os rendimentos de aluguel por temporada. Verifique a legislação municipal sobre ISS e taxa de turismo. Consulte um contador com experiência em locação por temporada.</p>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </SectionBlock>
   );
 }
