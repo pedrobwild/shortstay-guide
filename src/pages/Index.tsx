@@ -1766,7 +1766,10 @@ function TendenciasSection() {
       <AnimatePresence mode="popLayout">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {filtered.map((t, i) => (
-            <TrendCardInline key={t.id} trend={t} index={i} onOpen={() => setSelectedTrend(t)} />
+      <TrendCardInline key={t.id} trend={t} index={i} onOpen={() => {
+        setSelectedTrend(t);
+        trackGlobal("trend_opened", { trend_title: t.title });
+      }} />
           ))}
         </div>
       </AnimatePresence>
