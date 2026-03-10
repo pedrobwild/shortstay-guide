@@ -20,7 +20,7 @@ export default function ReservasSection() {
           {PERSONAS.map((p) => (
             <Button key={p.key} size="sm" variant={persona === p.key ? "default" : "outline"}
               onClick={() => { setPersona(p.key); trackGlobal("persona_toggle", { persona: p.key }); }}
-              className={persona === p.key ? "bg-primary text-primary-foreground" : ""}>
+              className={`min-h-[44px] px-4 ${persona === p.key ? "bg-primary text-primary-foreground" : ""}`}>
               <p.icon size={14} className="mr-1.5" />{p.label}
             </Button>
           ))}
