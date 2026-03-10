@@ -12,7 +12,7 @@ import {
   Building2, TrendingUp, BarChart3, Target, Scale, Crown, Rocket, Activity,
   Zap, BookOpen, Lightbulb, ChevronRight, ArrowRight, Shield, CalendarCheck,
   ArrowUpRight, Sprout, Gauge, AlertTriangle, CheckCircle, Banknote, Sparkles,
-  Info, Star, ChevronDown, ChevronUp,
+  Info, Star, ChevronDown, ChevronUp, FlaskConical, Eye, EyeOff,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
