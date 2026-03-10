@@ -168,23 +168,6 @@ function SectionBlock({
   );
 }
 
-function PlaceholderAccordion({ label }: { label: string }) {
-  return (
-    <Accordion type="single" collapsible className="mt-4">
-      <AccordionItem value="details">
-        <AccordionTrigger className="text-primary font-semibold">
-          Ver detalhes
-        </AccordionTrigger>
-        <AccordionContent>
-          <p className="text-muted-foreground">
-            {/* TODO: Fill with real content for "{label}" */}
-            Conteúdo detalhado de "{label}" será adicionado nas próximas etapas.
-          </p>
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
-  );
-}
 
 /* ─── TOC (desktop sticky) — slim icon rail, expands on hover ─── */
 function TableOfContents({ activeId }: { activeId: string }) {
