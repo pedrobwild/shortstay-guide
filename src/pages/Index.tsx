@@ -197,7 +197,9 @@ function IndexInner() {
         {/* Tendências — white */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <TendenciasSection />
+            <Suspense fallback={<div className="py-16"><div className="h-4 w-4 border-2 border-primary/40 border-t-primary rounded-full animate-spin mx-auto" /></div>}>
+              <TendenciasSection />
+            </Suspense>
           </div>
         </div>
 
