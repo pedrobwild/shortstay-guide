@@ -186,7 +186,7 @@ function InteractiveMap({
   const [hoveredN, setHoveredN] = useState<Neighborhood | null>(null);
   const [hoveredPoly, setHoveredPoly] = useState<{ name: string; roi: number; rate: number; occ: number; rev: number; lng: number; lat: number } | null>(null);
   const [hoveredStation, setHoveredStation] = useState<{ name: string; line: string; lng: number; lat: number } | null>(null);
-  const [poisData, setPoisData] = useState<Array<{ name: string; category: string; neighborhood: string; lng: number; lat: number }>>([]);
+  const [poisGeoJSON, setPoisGeoJSON] = useState<GeoJSON.FeatureCollection | null>(null);
   const [hoveredPOI, setHoveredPOI] = useState<{ name: string; category: string; neighborhood: string; lng: number; lat: number } | null>(null);
 
   useEffect(() => {
