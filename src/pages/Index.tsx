@@ -93,6 +93,8 @@ import {
   BadgeCheck,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 /* ─── Shared dataset ─── */
 const BAIRRO_DATA = [
