@@ -1,7 +1,27 @@
 import {
   MapPin, Train, Calendar, Briefcase, Stethoscope, Zap, Music, Trophy, Theater, Ticket,
   Utensils, Wifi, Palette, ShoppingBag, Star, Building2, Plane, Trees, GraduationCap, Heart,
+  Camera, Landmark,
 } from "lucide-react";
+
+/* ─── POI Categories ─── */
+export const POI_CATEGORIES = [
+  { key: "restaurant", label: "Restaurantes", icon: Utensils, color: "#f97316" },
+  { key: "corporate", label: "Corporativo", icon: Briefcase, color: "#3b82f6" },
+  { key: "tourist", label: "Pontos turísticos", icon: Camera, color: "#a855f7" },
+  { key: "events", label: "Eventos / Shows", icon: Music, color: "#ef4444" },
+  { key: "metro", label: "Metrô", icon: Train, color: "#10b981" },
+] as const;
+
+export type POICategoryKey = typeof POI_CATEGORIES[number]["key"];
+
+export const POI_COLORS: Record<string, string> = {
+  restaurant: "#f97316",
+  corporate: "#3b82f6",
+  tourist: "#a855f7",
+  events: "#ef4444",
+  metro: "#10b981",
+};
 import { DISTRICTS_MOCK, type DistrictRow } from "@/data/districtMetrics";
 
 /* ─── Types ─── */
