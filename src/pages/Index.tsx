@@ -955,7 +955,7 @@ function SimuladorSection() {
               <Select value={simBairro} onValueChange={setSimBairro}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {BAIRRO_DATA.map((b) => (
+                  {bairros.map((b) => (
                     <SelectItem key={b.name} value={b.name}>{b.name}</SelectItem>
                   ))}
                 </SelectContent>
