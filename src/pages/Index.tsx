@@ -864,7 +864,20 @@ function SimuladorSection() {
           </Dialog>
         </CardContent>
       </Card>
-      <PlaceholderAccordion label="Simulador de receita" />
+      <Accordion type="multiple" className="mt-4 font-body">
+        <AccordionItem value="rateboost">
+          <AccordionTrigger className="text-primary font-semibold">Como funciona o rate boost</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">O cenário Base usa a diária média do bairro (ou sua diária atual, se informada). <strong className="text-foreground">+10%</strong> = decoração básica melhorada (pintura, iluminação, enxoval novo). <strong className="text-foreground">+20%</strong> = decoração premium com fotos profissionais e mobília planejada. <strong className="text-foreground">+30%</strong> = studio de alto padrão com design autoral, fotos de catálogo e operação otimizada. Cada nível é cumulativo ao anterior.</p>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="payback">
+          <AccordionTrigger className="text-primary font-semibold">O que o payback considera</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">O cálculo de payback é simplificado: <strong className="text-foreground">Payback = Orçamento de reforma ÷ Receita incremental mensal</strong> (diferença entre cenário boosted e cenário base). Não inclui custos operacionais como limpeza (~R$ 80-120/virada), taxa da plataforma (~15%), condomínio, IPTU ou imposto de renda. Para uma projeção completa, solicite um diagnóstico personalizado.</p>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </SectionBlock>
   );
 }
