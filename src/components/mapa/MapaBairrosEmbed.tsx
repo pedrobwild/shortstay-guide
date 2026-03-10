@@ -593,7 +593,7 @@ export default function MapaBairrosEmbed() {
         </div>
 
         {/* POI filters */}
-        <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-thin">
           <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap flex items-center gap-1">
             <Layers size={12} /> Pontos de interesse:
           </span>
