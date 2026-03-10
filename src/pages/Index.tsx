@@ -2187,10 +2187,10 @@ function MidPageCTA({ variant = "default" }: { variant?: "default" | "slim" }) {
             <p className="text-sm text-primary-foreground/70 font-body mt-1">Use nosso simulador gratuito ou solicite um diagnóstico personalizado.</p>
           </div>
           <div className="flex gap-2 flex-shrink-0">
-            <Button asChild size="sm" className="bg-accent text-accent-foreground font-body">
+            <Button asChild size="sm" className="bg-accent text-accent-foreground font-body" onClick={() => trackGlobal("cta_clicked", { cta_id: "simular_agora", section: `midpage_${variant}` })}>
               <a href="#simulador">Simular agora</a>
             </Button>
-            <Button asChild size="sm" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-body">
+            <Button asChild size="sm" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-body" onClick={() => trackGlobal("cta_clicked", { cta_id: "diagnostico", section: `midpage_${variant}` })}>
               <a href="#cta-final">Diagnóstico grátis</a>
             </Button>
           </div>
