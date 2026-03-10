@@ -1843,7 +1843,37 @@ function CaseStudySection() {
           </Button>
         </CardContent>
       </Card>
-      <PlaceholderAccordion label="Case study" />
+      <Accordion type="multiple" className="mt-4 font-body">
+        <AccordionItem value="transformacao">
+          <AccordionTrigger className="text-primary font-semibold">Detalhes da transformação</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">O studio na Vila Mariana (28m²) passou por: <strong className="text-foreground">marcenaria planejada</strong> (armário com nichos iluminados, bancada otimizada), <strong className="text-foreground">iluminação cênica completa</strong> (fitas LED na marcenaria + spots direcionais + pendente na sala), <strong className="text-foreground">fotos profissionais</strong> (20 fotos com styling e iluminação natural) e <strong className="text-foreground">otimização do anúncio</strong> (título, descrição e tags reescritos com foco em conversão). Investimento total em decoração: R$ 32.000.</p>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="timeline">
+          <AccordionTrigger className="text-primary font-semibold">Linha do tempo</AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center gap-3">
+                <Badge variant="secondary" className="font-body shrink-0">Semana 1–2</Badge>
+                <span className="text-muted-foreground">Projeto: levantamento, layout 3D, aprovação e orçamento fechado</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge variant="secondary" className="font-body shrink-0">Semana 3–6</Badge>
+                <span className="text-muted-foreground">Execução: pintura, iluminação, piso vinílico, instalação de marcenaria</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge variant="secondary" className="font-body shrink-0">Semana 7</Badge>
+                <span className="text-muted-foreground">Decoração, styling, fotos profissionais e publicação do anúncio otimizado</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge className="bg-primary text-primary-foreground border-0 font-body shrink-0">Dia 3</Badge>
+                <span className="text-muted-foreground">Primeira reserva recebida após publicação</span>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </SectionBlock>
   );
 }
