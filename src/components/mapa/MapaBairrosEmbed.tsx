@@ -377,6 +377,49 @@ function InteractiveMap({
             <Layer id="unclustered-point" type="circle" filter={["!", ["has", "point_count"]]} paint={{ "circle-color": "rgba(34,197,94,0.6)", "circle-radius": 5, "circle-stroke-width": 1, "circle-stroke-color": "#fff" }} />
           </Source>
         )}
+
+        {/* POIs */}
+        {showPOIs.length > 0 && (
+          <Source id="pois-source" type="geojson" data="/geo/pois.geojson">
+            {showPOIs.map((cat) => (
+              <Layer
+                key={`poi-${cat}`}
+                id={`poi-${cat}`}
+                type="circle"
+                filter={["==", ["get", "category"], cat]}
+                paint={{
+                  "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 4, 14, 8, 16, 12],
+                  "circle-color": POI_COLORS[cat] || "#888",
+                  "circle-opacity": 0.85,
+                  "circle-stroke-color": "#fff",
+                  "circle-stroke-width": 1.5,
+                }}
+              />
+            ))}
+            {showPOIs.map((cat) => (
+              <Layer
+                key={`poi-label-${cat}`}
+                id={`poi-label-${cat}`}
+                type="symbol"
+                filter={["==", ["get", "category"], cat]}
+                minzoom={13}
+                layout={{
+                  "text-field": ["get", "name"],
+                  "text-size": 10,
+                  "text-offset": [0, 1.4],
+                  "text-anchor": "top",
+                  "text-optional": true,
+                  "text-max-width": 12,
+                }}
+                paint={{
+                  "text-color": POI_COLORS[cat] || "#555",
+                  "text-halo-color": "#fff",
+                  "text-halo-width": 1.5,
+                }}
+              />
+            ))}
+          </Source>
+        )}
       </ReactMap>
 
       {/* Legend */}
