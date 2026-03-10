@@ -463,12 +463,12 @@ function InteractiveMap({
 }
 
 /* ─── Events Timeline ─── */
-function EventsTimeline({ events, onEventClick, activeEventId }: { events: CityEvent[]; onEventClick: (e: CityEvent) => void; activeEventId: string | null }) {
+function EventsTimeline({ events, onEventClick, activeEventId }: { events: CityEvent[]; onEventClick: (e: CityEvent) => void; activeEventId: number | null }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
       {events.map((event, i) => {
-        const Icon = EVENT_ICONS[event.icon as keyof typeof EVENT_ICONS] || Calendar;
-        const style = IMPACT_STYLES[event.impact] || IMPACT_STYLES.low;
+        const Icon = EVENT_ICONS[event.category as keyof typeof EVENT_ICONS] || Calendar;
+        const style = IMPACT_STYLES[event.impactLevel] || IMPACT_STYLES.low;
         const isActive = activeEventId === event.id;
         return (
           <motion.div key={event.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
@@ -482,15 +482,15 @@ function EventsTimeline({ events, onEventClick, activeEventId }: { events: CityE
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 mb-0.5">
                       <h4 className="text-xs font-bold font-display text-foreground truncate">{event.name}</h4>
-                      <Badge className={`text-[9px] px-1 py-0 ${style.bg} ${style.text} border-0`}>{event.impact}</Badge>
+                      <Badge className={`text-[9px] px-1 py-0 ${style.bg} ${style.text} border-0`}>{style.label}</Badge>
                     </div>
-                    <p className="text-[10px] text-muted-foreground font-body">{event.date}</p>
-                    <p className="text-[10px] text-muted-foreground font-body mt-0.5 line-clamp-2">{event.description}</p>
+                    <p className="text-[10px] text-muted-foreground font-body">{event.startDate} — {event.endDate}</p>
+                    <p className="text-[10px] text-muted-foreground font-body mt-0.5 line-clamp-2">{event.location}</p>
                     <div className="flex flex-wrap gap-1 mt-1.5">
-                      {event.neighborhoods.slice(0, 3).map((name) => (
+                      {event.nearbyNeighborhoods.slice(0, 3).map((name) => (
                         <span key={name} className="text-[9px] px-1.5 py-0.5 rounded bg-secondary text-secondary-foreground">{name}</span>
                       ))}
-                      {event.neighborhoods.length > 3 && <span className="text-[9px] text-muted-foreground">+{event.neighborhoods.length - 3}</span>}
+                      {event.nearbyNeighborhoods.length > 3 && <span className="text-[9px] text-muted-foreground">+{event.nearbyNeighborhoods.length - 3}</span>}
                     </div>
                   </div>
                 </div>
