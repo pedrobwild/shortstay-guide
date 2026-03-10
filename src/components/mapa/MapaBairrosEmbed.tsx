@@ -444,6 +444,19 @@ function InteractiveMap({
           </span>
         </div>
         <p className="text-[9px] text-muted-foreground mt-2 font-body">Clique nos pontos para ver detalhes</p>
+        {showPOIs.length > 0 && (
+          <div className="mt-2 pt-2 border-t border-border/50">
+            <p className="text-[11px] font-semibold text-foreground font-display mb-1.5">Pontos de Interesse</p>
+            <div className="flex flex-col gap-1">
+              {POI_CATEGORIES.filter((c) => showPOIs.includes(c.key)).map((c) => (
+                <span key={c.key} className="flex items-center gap-2 text-xs font-body">
+                  <span className="w-2.5 h-2.5 rounded-full ring-2 ring-opacity-20" style={{ backgroundColor: c.color, ringColor: c.color }} />
+                  <span className="text-foreground/80">{c.label}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </motion.div>
     </motion.div>
   );
