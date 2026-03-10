@@ -782,123 +782,204 @@ export const Step4Learnings = ({ bairros, onNext }: { bairros: BairroAirbnb[]; o
 };
 
 // ═══════════════════════════════════════════════════════════════════
-// STEP 5: COMPARAR (Ranking table)
+// STEP 5: RANKING GUIADO
 // ═══════════════════════════════════════════════════════════════════
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { COLUMN_TOOLTIPS } from "@/lib/intelligenceInsights";
+
+const RANKING_COLUMNS = [
+  { key: "score", label: "Score", tooltip: COLUMN_TOOLTIPS.investment_score, width: "w-[60px]" },
+  { key: "grade", label: "Nota", tooltip: { friendly: "Classificação", tip: "Nota de A+ (excelente) a D (arriscado) baseada no Investment Score." }, width: "w-[44px]" },
+  { key: "adr", label: "Diária", tooltip: COLUMN_TOOLTIPS.adr, width: "w-[72px]" },
+  { key: "occ", label: "Ocup.", tooltip: COLUMN_TOOLTIPS.ocupacao, width: "w-[52px]" },
+  { key: "yield", label: "Yield", tooltip: COLUMN_TOOLTIPS.yield_airbnb, width: "w-[52px]" },
+  { key: "delta", label: "Δ Yield", tooltip: COLUMN_TOOLTIPS.delta_yield, width: "w-[56px]" },
+  { key: "liq", label: "Liq.", tooltip: COLUMN_TOOLTIPS.liquidez, width: "w-[44px]" },
+  { key: "cresc", label: "Cresc.", tooltip: COLUMN_TOOLTIPS.crescimento, width: "w-[48px]" },
+  { key: "conf", label: "Conf.", tooltip: COLUMN_TOOLTIPS.confianca, width: "w-[44px]" },
+];
+
+const CONFIDENCE_BADGE: Record<string, string> = {
+  alto: "bg-emerald-100 text-emerald-700",
+  médio: "bg-amber-100 text-amber-700",
+  medio: "bg-amber-100 text-amber-700",
+  baixo: "bg-red-100 text-red-700",
+};
 
 export const Step5Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onNext: () => void }) => {
   const ranked = useMemo(() => calculateAllScores(bairros), [bairros]);
   const [showTrueYield, setShowTrueYield] = useState(false);
 
   return (
-    <div className="space-y-6">
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-2 mb-3">
-              <BarChart3 className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-bold font-[var(--font-display)]">Compare os bairros</h2>
-            </div>
-            <p className="text-sm text-foreground/70 leading-relaxed">
-              Agora que você sabe ler os indicadores, veja como os {bairros.length} bairros se posicionam 
-              no ranking geral. Clique em qualquer bairro para ver a análise completa.
-            </p>
-          </CardContent>
-        </Card>
-      </motion.div>
+    <TooltipProvider delayDuration={200}>
+      <div className="space-y-6">
+        {/* Intro */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+          <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.03] to-transparent">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-2 mb-3">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                <h2 className="text-lg font-bold font-[var(--font-display)]">Ranking guiado dos bairros</h2>
+              </div>
+              <p className="text-sm text-foreground/80 leading-relaxed mb-2">
+                Nem sempre o bairro com a diária mais alta é o melhor investimento. Este ranking prioriza 
+                o <strong>equilíbrio entre retorno, demanda, operação e potencial futuro</strong>.
+              </p>
+              <p className="text-xs text-foreground/60">
+                Passe o mouse sobre os cabeçalhos para entender cada coluna. Clique em qualquer bairro para a análise completa.
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-      {/* True Yield toggle */}
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={stagger(1)}>
-        <button
-          onClick={() => setShowTrueYield(!showTrueYield)}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-primary/30 bg-primary/[0.02] hover:bg-primary/[0.05] transition-colors text-xs"
-        >
-          <FlaskConical className="h-3.5 w-3.5 text-primary" />
-          <span className="text-muted-foreground font-medium">
-            {showTrueYield ? "Ocultar" : "Mostrar"} True Yield
-          </span>
-          {showTrueYield ? <EyeOff className="h-3 w-3 text-muted-foreground" /> : <Eye className="h-3 w-3 text-muted-foreground" />}
-        </button>
-      </motion.div>
+        {/* True Yield toggle */}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={stagger(1)}>
+          <button
+            onClick={() => setShowTrueYield(!showTrueYield)}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-primary/30 bg-primary/[0.02] hover:bg-primary/[0.05] transition-colors text-xs"
+          >
+            <FlaskConical className="h-3.5 w-3.5 text-primary" />
+            <span className="text-muted-foreground font-medium">
+              {showTrueYield ? "Ocultar" : "Mostrar"} True Yield
+            </span>
+            {showTrueYield ? <EyeOff className="h-3 w-3 text-muted-foreground" /> : <Eye className="h-3 w-3 text-muted-foreground" />}
+          </button>
+        </motion.div>
 
-      {/* Ranking cards */}
-      <div className="space-y-2">
-        {ranked.map((item, i) => {
-          const b = item.bairro;
-          const s = item.investmentScore;
-          const profile = getBairroProfile(b, bairros);
-          const badgeStyle = getGradeStyle(s.gradeColor);
-          const trueYield = showTrueYield ? calculateTrueYield(b) : null;
-          return (
-            <motion.div
-              key={b.bairro}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={stagger(i)}
-            >
-              <Link to={`/intelligence/bairro/${encodeURIComponent(b.bairro)}`}>
-                <Card className="hover:shadow-md transition-all group">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <span className="text-lg font-bold text-muted-foreground w-8">#{i + 1}</span>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <p className="font-semibold group-hover:text-primary transition-colors">{b.bairro}</p>
-                            <Badge className={`${profile.color} ${profile.textColor} text-[9px]`}>{profile.label}</Badge>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            Diária {fmtBRL(b.adr_medio_studio)} · Ocupação {fmtPct(b.ocupacao_media_studio)} · Yield {fmtPct(b.yield_bruto_airbnb)}
+        {/* Ranking table */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(2)}>
+          <div className="overflow-x-auto rounded-lg border border-border/50">
+            <table className="w-full text-xs">
+              {/* Header */}
+              <thead>
+                <tr className="bg-muted/40 border-b border-border/50">
+                  <th className="text-left p-3 font-semibold text-muted-foreground w-[36px]">#</th>
+                  <th className="text-left p-3 font-semibold text-muted-foreground min-w-[120px]">Bairro</th>
+                  {RANKING_COLUMNS.map(col => (
+                    <th key={col.key} className={`text-center p-3 font-semibold text-muted-foreground ${col.width}`}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="cursor-help border-b border-dashed border-muted-foreground/40">
+                            {col.label}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-[220px]">
+                          <p className="font-semibold text-xs mb-0.5">{col.tooltip.friendly}</p>
+                          <p className="text-[11px] text-muted-foreground">{col.tooltip.tip}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </th>
+                  ))}
+                  {showTrueYield && (
+                    <th className="text-center p-3 font-semibold text-primary/80 w-[56px]">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="cursor-help border-b border-dashed border-primary/40 flex items-center justify-center gap-0.5">
+                            <FlaskConical className="h-3 w-3" /> TY
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-[220px]">
+                          <p className="font-semibold text-xs mb-0.5">{COLUMN_TOOLTIPS.true_yield.friendly}</p>
+                          <p className="text-[11px] text-muted-foreground">{COLUMN_TOOLTIPS.true_yield.tip}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </th>
+                  )}
+                  <th className="text-left p-3 font-semibold text-muted-foreground min-w-[140px]">Leitura rápida</th>
+                </tr>
+              </thead>
+              {/* Body */}
+              <tbody>
+                {ranked.map((item, i) => {
+                  const b = item.bairro;
+                  const s = item.investmentScore;
+                  const profile = getBairroProfile(b, bairros);
+                  const badgeStyle = getGradeStyle(s.gradeColor);
+                  const trueYield = showTrueYield ? calculateTrueYield(b) : null;
+                  const confKey = b.nivel_confianca_dados?.toLowerCase() || "medio";
+                  const confBadge = CONFIDENCE_BADGE[confKey] || CONFIDENCE_BADGE.medio;
+
+                  return (
+                    <motion.tr
+                      key={b.bairro}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={stagger(i, 0.03)}
+                      className="border-b border-border/30 hover:bg-muted/20 transition-colors group"
+                    >
+                      <td className="p-3 font-bold text-muted-foreground">{i + 1}</td>
+                      <td className="p-3">
+                        <Link to={`/intelligence/bairro/${encodeURIComponent(b.bairro)}`} className="block">
+                          <p className="font-semibold text-foreground group-hover:text-primary transition-colors text-[13px]">
+                            {b.bairro}
                           </p>
-                          {trueYield && (
-                            <div className="flex items-center gap-1.5 mt-1">
-                              <FlaskConical className="h-3 w-3 text-primary/60" />
-                              <span className="text-[11px] text-primary/80 font-medium">
-                                True Yield {fmtPct(trueYield.trueYield)}
-                              </span>
-                              <span className={`text-[10px] font-medium ${trueYield.delta > 0 ? "text-emerald-600" : trueYield.delta < -0.005 ? "text-amber-600" : "text-muted-foreground"}`}>
-                                ({trueYield.delta > 0 ? "+" : ""}{(trueYield.delta * 100).toFixed(1)}pp)
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0 ml-2">
-                        <div className="text-right">
-                          <p className="text-lg font-bold">{s.score.toFixed(1)}</p>
-                          <Badge className={`${badgeStyle} text-[10px]`}>{s.grade}</Badge>
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            </motion.div>
-          );
-        })}
-      </div>
+                          <Badge className={`${profile.color} ${profile.textColor} text-[8px] mt-0.5`}>{profile.label}</Badge>
+                        </Link>
+                      </td>
+                      <td className="p-3 text-center font-bold text-[13px]">{s.score.toFixed(1)}</td>
+                      <td className="p-3 text-center">
+                        <Badge className={`${badgeStyle} text-[9px]`}>{s.grade}</Badge>
+                      </td>
+                      <td className="p-3 text-center font-medium">{fmtBRL(b.adr_medio_studio)}</td>
+                      <td className="p-3 text-center font-medium">{fmtPct(b.ocupacao_media_studio)}</td>
+                      <td className="p-3 text-center font-medium">{fmtPct(b.yield_bruto_airbnb)}</td>
+                      <td className="p-3 text-center">
+                        <span className={Number(b.delta_yield) > 0 ? "text-emerald-600 font-medium" : "text-muted-foreground"}>
+                          {Number(b.delta_yield) > 0 ? "+" : ""}{fmtPct(b.delta_yield)}
+                        </span>
+                      </td>
+                      <td className="p-3 text-center font-medium">{fmtScore(b.score_liquidez)}</td>
+                      <td className="p-3 text-center font-medium">{fmtScore(b.score_crescimento_potencial)}</td>
+                      <td className="p-3 text-center">
+                        <span className={`inline-block px-1.5 py-0.5 rounded text-[8px] font-semibold uppercase ${confBadge}`}>
+                          {b.nivel_confianca_dados}
+                        </span>
+                      </td>
+                      {trueYield && (
+                        <td className="p-3 text-center">
+                          <span className="font-medium text-primary">{fmtPct(trueYield.trueYield)}</span>
+                        </td>
+                      )}
+                      <td className="p-3">
+                        <p className="text-[11px] text-foreground/70 leading-snug italic">{profile.quickRead}</p>
+                      </td>
+                    </motion.tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={stagger(ranked.length)}>
-        <Card className="bg-muted/30 border-dashed">
-          <CardContent className="p-4">
-            <p className="text-xs text-center text-muted-foreground italic">
-              "O melhor investimento não é o bairro mais famoso — é aquele que melhor equilibra retorno, demanda e estabilidade para o seu perfil."
-            </p>
-          </CardContent>
-        </Card>
-      </motion.div>
+        {/* Closing insight */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={stagger(3)}>
+          <Card className="bg-muted/30 border-dashed">
+            <CardContent className="p-4">
+              <p className="text-xs text-center text-muted-foreground italic">
+                "O melhor investimento não é o bairro mais famoso — é aquele que melhor equilibra retorno, demanda e estabilidade para o seu perfil."
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-      <div className="flex items-center justify-between">
-        <Link to="/intelligence/ranking">
-          <Button variant="outline" size="sm" className="text-xs gap-1">
-            Ranking completo com tabela <ArrowRight className="h-3 w-3" />
+        <div className="flex items-center justify-between">
+          <Link to="/intelligence/ranking">
+            <Button variant="outline" size="sm" className="text-xs gap-1">
+              Ver ranking detalhado <ArrowRight className="h-3 w-3" />
+            </Button>
+          </Link>
+          <Button onClick={onNext} className="gap-2">
+            Personalizar por perfil <ArrowRight className="h-4 w-4" />
           </Button>
-        </Link>
-        <Button onClick={onNext} className="gap-2">
-          Personalizar por perfil <ArrowRight className="h-4 w-4" />
-        </Button>
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 };
 
