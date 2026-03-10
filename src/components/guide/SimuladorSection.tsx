@@ -116,7 +116,7 @@ export default function SimuladorSection() {
           </div>
           {rateBoost > 0 && sim.delta > 0 && (
             <div className="bg-gold-light/50 border border-gold/20 rounded-xl p-4 flex items-start gap-3">
-              <ArrowUpRight className="text-accent mt-0.5 flex-shrink-0" size={20} />
+              <ArrowUpRight className="text-gold mt-0.5 flex-shrink-0" size={20} />
               <p className="text-sm text-muted-foreground">Com +{rateBoost}% na diária, você ganha <span className="font-bold text-foreground">R$ {fmt(sim.delta)}/mês</span> a mais em relação ao cenário base.</p>
             </div>
           )}

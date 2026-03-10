@@ -78,8 +78,8 @@ export default function MercadoSection() {
             <div><p className="text-2xl font-display font-bold text-primary">R$ {fmt(result.receitaMensal)}</p><p className="text-xs text-muted-foreground">Receita / mês</p></div>
             <div><p className="text-2xl font-display font-bold text-primary">R$ {fmt(result.receitaAnual)}</p><p className="text-xs text-muted-foreground">Receita / ano</p></div>
           </div>
-          <div className="bg-gold-subtle rounded-lg p-4 flex items-start gap-3">
-            <Lightbulb className="text-accent mt-0.5 flex-shrink-0" size={20} />
+          <div className="bg-gold-light/50 border border-gold/20 rounded-xl p-4 flex items-start gap-3">
+            <Lightbulb className="text-gold mt-0.5 flex-shrink-0" size={20} />
             <div>
               <p className="font-semibold text-foreground text-sm mb-1">Para alcançar o topo da faixa, priorize:</p>
               <p className="text-sm text-muted-foreground">Marcenaria planejada + iluminação cênica + fotos profissionais. Esses 3 fatores combinados podem elevar sua diária em até 40%.</p>
