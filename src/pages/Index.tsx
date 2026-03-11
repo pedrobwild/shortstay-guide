@@ -19,7 +19,7 @@ import MobileMenu from "@/components/guide/MobileMenu";
 import MobileStickyBar from "@/components/guide/MobileStickyBar";
 import SectionIntro from "@/components/guide/SectionIntro";
 import ReservasSection from "@/components/guide/ReservasSection";
-import MercadoSection from "@/components/guide/MercadoSection";
+
 
 import MidPageCTA from "@/components/guide/MidPageCTA";
 import ReformaSection from "@/components/guide/ReformaSection";
