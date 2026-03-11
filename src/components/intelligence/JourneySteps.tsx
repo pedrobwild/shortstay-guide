@@ -332,7 +332,7 @@ export const Step1Context = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
         </Card>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={stagger(5)} className="flex justify-end">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={stagger(6)} className="flex justify-end">
         <Button onClick={onNext} size="lg" className="gap-2">
           Entendi, vamos começar <ArrowRight className="h-4 w-4" />
         </Button>
