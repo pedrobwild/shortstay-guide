@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { motion } from "framer-motion";
 import { Building2, Home, MapPin, ShieldCheck, ArrowRight, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import SectionBlock from "./SectionBlock";
+import { useGuideDecision } from "@/hooks/useGuideDecision";
 
 /* ── Scoring checklist data ── */
 const EVAL_CATEGORIES = [
