@@ -50,24 +50,29 @@ export const DECORATION_LEVELS = [
 export const SECTIONS = [
   // Fase 1 — Entender o jogo
   { id: "hero", label: "Início", icon: Home, phase: 1 },
-  // Fase 2 — Escolher o mercado
+  // Fase 2 — Escolher onde investir
   { id: "mapa-bairros", label: "Mapa de Bairros", icon: MapPin, phase: 2 },
   { id: "mercado", label: "Mercado e Precificação", icon: DollarSign, phase: 2 },
   { id: "intelligence", label: "Short Stay Intelligence", icon: BarChart3, href: "/intelligence", phase: 2 },
-  // Fase 3 — Validar a conta
-  { id: "simulador", label: "Simulador de Receita", icon: Calculator, phase: 3 },
-  // Fase 4 — Entender o produto que performa
-  { id: "reservas", label: "O que move reservas", icon: TrendingUp, phase: 4 },
-  { id: "projeto", label: "Projeto arquitetônico", icon: Ruler, phase: 4 },
-  { id: "reforma", label: "Reforma inteligente", icon: Paintbrush, phase: 4 },
-  { id: "antichecklist", label: "Anti-checklist", icon: ShieldCheck, phase: 4 },
-  { id: "decoracao", label: "Decoração estratégica", icon: Palette, phase: 4 },
-  { id: "tendencias", label: "Tendências 2026", icon: Sparkles, phase: 4 },
-  // Fase 5 — Ganhar confiança para agir
-  { id: "casestudy", label: "Case study", icon: BookOpen, phase: 5 },
-  { id: "checklist", label: "Checklist investidor", icon: CheckSquare, phase: 5 },
-  { id: "faq", label: "FAQ", icon: HelpCircle, phase: 5 },
-  { id: "cta-final", label: "Solicitar diagnóstico", icon: Send, phase: 5 },
+  // Fase 3 — Avaliar o ativo
+  { id: "escolha-ativo", label: "Escolha do Ativo", icon: Building2, phase: 3 },
+  // Fase 4 — Validar a conta
+  { id: "rentabilidade", label: "Matemática do Investimento", icon: PieChart, phase: 4 },
+  { id: "simulador", label: "Simulador de Receita", icon: Calculator, phase: 4 },
+  // Fase 5 — Construir o produto
+  { id: "reservas", label: "O que move reservas", icon: TrendingUp, phase: 5 },
+  { id: "projeto", label: "Projeto arquitetônico", icon: Ruler, phase: 5 },
+  { id: "reforma", label: "Reforma inteligente", icon: Paintbrush, phase: 5 },
+  { id: "antichecklist", label: "Anti-checklist", icon: ShieldCheck, phase: 5 },
+  { id: "decoracao", label: "Decoração estratégica", icon: Palette, phase: 5 },
+  { id: "tendencias", label: "Tendências 2026", icon: Sparkles, phase: 5 },
+  // Fase 6 — Capturar receita
+  { id: "anuncio-pricing", label: "Anúncio e Precificação", icon: Megaphone, phase: 6 },
+  // Fase 7 — Agir com confiança
+  { id: "casestudy", label: "Case study", icon: BookOpen, phase: 7 },
+  { id: "checklist", label: "Checklist investidor", icon: CheckSquare, phase: 7 },
+  { id: "faq", label: "FAQ", icon: HelpCircle, phase: 7 },
+  { id: "cta-final", label: "Solicitar diagnóstico", icon: Send, phase: 7 },
 ] as const;
 
 export type SectionItem = {
