@@ -1,7 +1,7 @@
 import { useEffect, useRef, lazy, Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { BarChart3, Calculator, CheckSquare } from "lucide-react";
+import { BarChart3, CheckSquare } from "lucide-react";
 import LazyMapaBairrosEmbed from "@/components/mapa/LazyMapaBairrosEmbed";
 import bwildLogo from "@/assets/bwild-logo.png";
 import { useGuideAnalytics, setGlobalTrack } from "@/hooks/useGuideAnalytics";
@@ -20,7 +20,7 @@ import MobileStickyBar from "@/components/guide/MobileStickyBar";
 import SectionIntro from "@/components/guide/SectionIntro";
 import ReservasSection from "@/components/guide/ReservasSection";
 import MercadoSection from "@/components/guide/MercadoSection";
-import SimuladorSection from "@/components/guide/SimuladorSection";
+
 import MidPageCTA from "@/components/guide/MidPageCTA";
 import ReformaSection from "@/components/guide/ReformaSection";
 import AntiChecklistSection from "@/components/guide/AntiChecklistSection";
@@ -144,13 +144,6 @@ function IndexInner() {
           </div>
         </div>
 
-        {/* Simulador — muted zone */}
-        <div className="w-full bg-muted/20">
-          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <SectionIntro icon={Calculator} text="Monte cenários e compare rentabilidade em minutos" />
-            <SimuladorSection />
-          </div>
-        </div>
 
         {/* MidPageCTA */}
         <div className="w-full">
