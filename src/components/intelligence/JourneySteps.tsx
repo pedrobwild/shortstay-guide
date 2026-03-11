@@ -1622,6 +1622,155 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
         </Card>
       </motion.div>
 
+      {/* ── "E se?" — Ranking comparison under different profiles ── */}
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+        {(() => {
+          const ALTERNATIVE_PROFILES: { key: string; name: string; shortName: string; icon: React.ElementType; weights: InvestorProfile["weights"] }[] = [
+            { key: "conservador", name: "Conservador (liquidez)", shortName: "Conservador", icon: Shield, weights: { retorno: 0.20, demanda: 0.35, operacao: 0.30, futuro: 0.15 } },
+            { key: "equilibrado", name: "Equilibrado", shortName: "Equilibrado", icon: Scale, weights: { retorno: 0.35, demanda: 0.25, operacao: 0.20, futuro: 0.20 } },
+            { key: "agressivo", name: "Agressivo (yield)", shortName: "Agressivo", icon: Rocket, weights: { retorno: 0.50, demanda: 0.15, operacao: 0.20, futuro: 0.15 } },
+            { key: "crescimento", name: "Crescimento (futuro)", shortName: "Crescimento", icon: Sprout, weights: { retorno: 0.15, demanda: 0.25, operacao: 0.20, futuro: 0.40 } },
+          ];
+
+          // Rank bairros under each profile
+          const rankUnder = (weights: InvestorProfile["weights"]) => {
+            const yields = bairros.map(b => Number(b.yield_bruto_airbnb));
+            const liquidities = bairros.map(b => Number(b.score_liquidez));
+            const occupancies = bairros.map(b => Number(b.ocupacao_media_studio));
+            const growths = bairros.map(b => Number(b.score_crescimento_potencial));
+            const mm = (arr: number[]) => ({ min: Math.min(...arr), max: Math.max(...arr) });
+            const yB = mm(yields), lB = mm(liquidities), oB = mm(occupancies), gB = mm(growths);
+            const norm = (v: number, mn: number, mx: number) => mx === mn ? 50 : Math.max(0, Math.min(100, ((v - mn) / (mx - mn)) * 100));
+
+            return bairros
+              .map(b => ({
+                bairro: b.bairro,
+                score: norm(Number(b.yield_bruto_airbnb), yB.min, yB.max) * weights.retorno +
+                       norm(Number(b.score_liquidez), lB.min, lB.max) * weights.demanda +
+                       norm(Number(b.ocupacao_media_studio), oB.min, oB.max) * weights.operacao +
+                       norm(Number(b.score_crescimento_potencial), gB.min, gB.max) * weights.futuro,
+              }))
+              .sort((a, b) => b.score - a.score)
+              .map((item, i) => ({ ...item, rank: i + 1 }));
+          };
+
+          const currentRanking = rankUnder(finalProfile.weights);
+          const altRankings = ALTERNATIVE_PROFILES.map(p => ({
+            ...p,
+            ranking: rankUnder(p.weights),
+            isCurrent: JSON.stringify(p.weights) === JSON.stringify(finalProfile.weights),
+          }));
+
+          // Top 5 from current profile
+          const top5 = currentRanking.slice(0, 5);
+
+          return (
+            <Card>
+              <CardContent className="p-5 space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <BarChart3 className="h-4 w-4 text-primary" />
+                  <p className="text-sm font-bold">E se o seu perfil fosse diferente?</p>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Veja como os mesmos bairros mudam de posição dependendo dos pesos aplicados. 
+                  Isso mostra por que a escolha do perfil importa na leitura dos dados.
+                </p>
+
+                {/* Comparison table */}
+                <div className="overflow-x-auto -mx-1">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-border/50">
+                        <th className="text-left py-2 px-2 font-semibold text-muted-foreground w-28">Bairro</th>
+                        {altRankings.map(p => {
+                          const PIcon = p.icon;
+                          return (
+                            <th key={p.key} className={`text-center py-2 px-1.5 font-medium ${p.isCurrent ? "text-primary" : "text-muted-foreground"}`}>
+                              <div className="flex flex-col items-center gap-0.5">
+                                <PIcon className="h-3.5 w-3.5" />
+                                <span className="text-[9px] leading-tight">{p.shortName}</span>
+                                {p.isCurrent && <span className="text-[8px] text-primary font-bold">(você)</span>}
+                              </div>
+                            </th>
+                          );
+                        })}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {top5.map((item) => (
+                        <tr key={item.bairro} className="border-b border-border/20 hover:bg-muted/30 transition-colors">
+                          <td className="py-2 px-2 font-semibold text-foreground whitespace-nowrap">{item.bairro}</td>
+                          {altRankings.map(p => {
+                            const altItem = p.ranking.find(r => r.bairro === item.bairro);
+                            const altRank = altItem?.rank ?? 0;
+                            const currentRank = item.rank;
+                            const diff = currentRank - altRank; // positive = moved up in alt
+
+                            return (
+                              <td key={p.key} className={`text-center py-2 px-1.5 ${p.isCurrent ? "bg-primary/[0.03]" : ""}`}>
+                                <span className="font-bold">#{altRank}</span>
+                                {!p.isCurrent && diff !== 0 && (
+                                  <span className={`ml-1 text-[10px] font-medium ${diff > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500"}`}>
+                                    {diff > 0 ? `↑${diff}` : `↓${Math.abs(diff)}`}
+                                  </span>
+                                )}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Insight callout */}
+                {(() => {
+                  // Find the bairro with biggest position swing
+                  let maxSwing = 0;
+                  let swingBairro = "";
+                  let swingFrom = "";
+                  let swingTo = "";
+                  let swingDiff = 0;
+
+                  top5.forEach(item => {
+                    altRankings.forEach(p => {
+                      if (p.isCurrent) return;
+                      const altItem = p.ranking.find(r => r.bairro === item.bairro);
+                      if (!altItem) return;
+                      const diff = Math.abs(item.rank - altItem.rank);
+                      if (diff > maxSwing) {
+                        maxSwing = diff;
+                        swingBairro = item.bairro;
+                        swingFrom = `#${item.rank}`;
+                        swingTo = `#${altItem.rank}`;
+                        swingDiff = item.rank - altItem.rank;
+                        swingFrom = p.shortName;
+                      }
+                    });
+                  });
+
+                  if (maxSwing >= 2) {
+                    return (
+                      <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/[0.04] border border-primary/10">
+                        <Lightbulb className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                        <p className="text-[11px] text-foreground/70 leading-relaxed">
+                          <strong>{swingBairro}</strong> é o bairro que mais muda de posição entre os perfis — 
+                          variação de até <strong>{maxSwing} posições</strong>. Isso indica que ele performa muito bem 
+                          em alguns critérios mas não em outros. {swingDiff > 0 
+                            ? "Um perfil mais focado em seus pontos fortes o beneficiaria."
+                            : "Seu perfil atual já captura bem o potencial desse bairro."}
+                        </p>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+              </CardContent>
+            </Card>
+          );
+        })()}
+      </motion.div>
+
       {/* ── Investment Simulator ── */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
         <Suspense fallback={
