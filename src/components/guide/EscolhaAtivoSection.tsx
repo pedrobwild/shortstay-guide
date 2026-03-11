@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { motion } from "framer-motion";
 import { Building2, Home, MapPin, ShieldCheck, ArrowRight, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import SectionBlock from "./SectionBlock";
+import { useGuideDecision } from "@/hooks/useGuideDecision";
 
 /* ── Scoring checklist data ── */
 const EVAL_CATEGORIES = [
@@ -89,6 +90,7 @@ const COMPARISON = [
 
 export default function EscolhaAtivoSection() {
   const [checked, setChecked] = useState<Set<string>>(new Set());
+  const { setUnitScore } = useGuideDecision();
 
   const toggle = (id: string) => {
     setChecked((prev) => {
@@ -103,6 +105,24 @@ export default function EscolhaAtivoSection() {
   const total = allItems.length;
   const tier = SCORE_TIERS.find((t) => score >= t.min && score <= t.max) ?? SCORE_TIERS[0];
   const pct = Math.round((score / total) * 100);
+
+  // Report score to decision context
+  useEffect(() => {
+    if (score > 0) {
+      setUnitScore({
+        total: score,
+        max: total,
+        pct,
+        tier: tier.label,
+        categoryScores: EVAL_CATEGORIES.map((c) => ({
+          key: c.key,
+          label: c.label,
+          checked: c.items.filter((i) => checked.has(i.id)).length,
+          total: c.items.length,
+        })),
+      });
+    }
+  }, [score, total, pct, tier.label, checked, setUnitScore]);
 
   return (
     <SectionBlock
