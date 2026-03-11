@@ -4,7 +4,7 @@ import {
   SprayCan, DoorOpen, Target, Lock, Wifi, Star, Briefcase, Heart,
   GraduationCap, Camera, DollarSign, FileText, Zap, MousePointerClick,
   CalendarCheck, MessageSquare, Trophy, Package, BadgeCheck, Users, Clock, Phone,
-  Calculator,
+  Calculator, Building2, PieChart, Megaphone,
 } from "lucide-react";
 
 /* ─── Phases ─── */
