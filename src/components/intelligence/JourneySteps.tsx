@@ -39,6 +39,7 @@ import {
   type Recommendation,
 } from "@/lib/investorQuiz";
 import { fmtBRL, fmtPct, fmtScore } from "@/hooks/useIntelligenceData";
+const InvestmentSimulator = lazy(() => import("@/components/intelligence/InvestmentSimulator"));
 
 const ICON_MAP: Record<string, React.ElementType> = {
   Scale, Crown, Rocket, Activity, TrendingUp, AlertTriangle, Shield,
