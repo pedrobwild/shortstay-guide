@@ -19,7 +19,7 @@ import MobileMenu from "@/components/guide/MobileMenu";
 import MobileStickyBar from "@/components/guide/MobileStickyBar";
 import SectionIntro from "@/components/guide/SectionIntro";
 import ReservasSection from "@/components/guide/ReservasSection";
-import MercadoSection from "@/components/guide/MercadoSection";
+
 
 import MidPageCTA from "@/components/guide/MidPageCTA";
 import ReformaSection from "@/components/guide/ReformaSection";
@@ -136,13 +136,6 @@ function IndexInner() {
           </div>
         </div>
 
-        {/* Mercado — white */}
-        <div className="w-full">
-          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <SectionIntro icon={BarChart3} text="Analise dados de mercado e simule diárias por bairro" />
-            <MercadoSection />
-          </div>
-        </div>
 
 
         {/* MidPageCTA */}
