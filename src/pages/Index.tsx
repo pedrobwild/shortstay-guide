@@ -25,7 +25,7 @@ import MidPageCTA from "@/components/guide/MidPageCTA";
 import ReformaSection from "@/components/guide/ReformaSection";
 import AntiChecklistSection from "@/components/guide/AntiChecklistSection";
 import DecoracaoSection from "@/components/guide/DecoracaoSection";
-import ProjetoSection from "@/components/guide/ProjetoSection";
+
 import CaseStudySection from "@/components/guide/CaseStudySection";
 import ChecklistSection from "@/components/guide/ChecklistSection";
 import TrustSignals from "@/components/guide/TrustSignals";
