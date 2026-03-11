@@ -23,6 +23,9 @@ import ReservasSection from "@/components/guide/ReservasSection";
 import MercadoSection from "@/components/guide/MercadoSection";
 import SimuladorSection from "@/components/guide/SimuladorSection";
 import ProjetoSection from "@/components/guide/ProjetoSection";
+import EscolhaAtivoSection from "@/components/guide/EscolhaAtivoSection";
+import RentabilidadeSection from "@/components/guide/RentabilidadeSection";
+import AnuncioPrecificacaoSection from "@/components/guide/AnuncioPrecificacaoSection";
 import MidPageCTA from "@/components/guide/MidPageCTA";
 import ReformaSection from "@/components/guide/ReformaSection";
 import AntiChecklistSection from "@/components/guide/AntiChecklistSection";
@@ -96,7 +99,7 @@ function IndexInner() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════
-            FASE 2 — Escolher o mercado
+            FASE 2 — Escolher onde investir
         ═══════════════════════════════════════════════════════ */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
@@ -159,11 +162,33 @@ function IndexInner() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════
-            FASE 3 — Validar a conta
+            FASE 3 — Avaliar o ativo
         ═══════════════════════════════════════════════════════ */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <PhaseHeader {...phase(3)} />
+          </div>
+        </div>
+
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <EscolhaAtivoSection />
+          </div>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════
+            FASE 4 — Validar a conta
+        ═══════════════════════════════════════════════════════ */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <PhaseHeader {...phase(4)} />
+          </div>
+        </div>
+
+        {/* Rentabilidade didática */}
+        <div className="w-full bg-muted/20">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <RentabilidadeSection />
           </div>
         </div>
 
@@ -175,11 +200,11 @@ function IndexInner() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════
-            FASE 4 — Entender o produto que performa
+            FASE 5 — Construir o produto
         ═══════════════════════════════════════════════════════ */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <PhaseHeader {...phase(4)} />
+            <PhaseHeader {...phase(5)} />
           </div>
         </div>
 
@@ -227,7 +252,22 @@ function IndexInner() {
           </div>
         </div>
 
-        {/* MidPageCTA between Fase 4 and 5 */}
+        {/* ═══════════════════════════════════════════════════════
+            FASE 6 — Capturar receita
+        ═══════════════════════════════════════════════════════ */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <PhaseHeader {...phase(6)} />
+          </div>
+        </div>
+
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <AnuncioPrecificacaoSection />
+          </div>
+        </div>
+
+        {/* MidPageCTA between Fase 6 and 7 */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <MidPageCTA variant="slim" />
@@ -235,11 +275,11 @@ function IndexInner() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════
-            FASE 5 — Ganhar confiança para agir
+            FASE 7 — Agir com confiança
         ═══════════════════════════════════════════════════════ */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <PhaseHeader {...phase(5)} />
+            <PhaseHeader {...phase(7)} />
           </div>
         </div>
 
