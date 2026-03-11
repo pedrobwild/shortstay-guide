@@ -10,6 +10,7 @@ import { useReadingProgress } from "@/hooks/useReadingProgress";
 import ScrollProgressBar from "@/components/guide/ScrollProgressBar";
 import ResumeToast from "@/components/guide/ResumeToast";
 import { BairroProvider, useBairroData } from "@/hooks/useBairroData";
+import { GuideDecisionProvider } from "@/hooks/useGuideDecision";
 import { SECTIONS, PHASES, fmt } from "@/data/guide-data";
 
 // Guide section components
@@ -26,6 +27,9 @@ import ProjetoSection from "@/components/guide/ProjetoSection";
 import EscolhaAtivoSection from "@/components/guide/EscolhaAtivoSection";
 import RentabilidadeSection from "@/components/guide/RentabilidadeSection";
 import AnuncioPrecificacaoSection from "@/components/guide/AnuncioPrecificacaoSection";
+import DiagnosticoInvestidorSection from "@/components/guide/DiagnosticoInvestidorSection";
+import RecomendacaoSection from "@/components/guide/RecomendacaoSection";
+import PlanoAcaoSection from "@/components/guide/PlanoAcaoSection";
 import MidPageCTA from "@/components/guide/MidPageCTA";
 import ReformaSection from "@/components/guide/ReformaSection";
 import AntiChecklistSection from "@/components/guide/AntiChecklistSection";
@@ -41,7 +45,9 @@ const TendenciasSection = lazy(() => import("@/components/guide/TendenciasSectio
 export default function Index() {
   return (
     <BairroProvider>
-      <IndexInner />
+      <GuideDecisionProvider>
+        <IndexInner />
+      </GuideDecisionProvider>
     </BairroProvider>
   );
 }
@@ -154,6 +160,13 @@ function IndexInner() {
           </div>
         </div>
 
+        {/* Diagnóstico do Investidor */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <DiagnosticoInvestidorSection />
+          </div>
+        </div>
+
         {/* Intelligence CTA */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
@@ -196,6 +209,13 @@ function IndexInner() {
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <SimuladorSection />
+          </div>
+        </div>
+
+        {/* Recomendação Personalizada */}
+        <div className="w-full bg-muted/20">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <RecomendacaoSection />
           </div>
         </div>
 
@@ -280,6 +300,13 @@ function IndexInner() {
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <PhaseHeader {...phase(7)} />
+          </div>
+        </div>
+
+        {/* Plano de Ação */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <PlanoAcaoSection />
           </div>
         </div>
 
