@@ -180,12 +180,6 @@ function IndexInner() {
           </div>
         </div>
 
-        {/* Projeto — muted zone */}
-        <div className="w-full bg-muted/20">
-          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <ProjetoSection />
-          </div>
-        </div>
 
         {/* Tendências — white */}
         <div className="w-full">
