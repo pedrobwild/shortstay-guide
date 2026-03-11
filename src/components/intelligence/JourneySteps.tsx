@@ -171,8 +171,125 @@ export const Step1Context = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
         </Card>
       </motion.div>
 
-      {/* Market pulse */}
+      {/* DRE — Demonstrativo de resultado */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={stagger(3)}>
+        <Card className="overflow-hidden">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Banknote className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-base">De receita bruta a lucro real</CardTitle>
+                <p className="text-xs text-muted-foreground">Exemplo: studio em Pinheiros · ADR R$350 · 75% ocupação</p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 pt-2">
+            <p className="text-xs text-foreground/70 mb-4 leading-relaxed">
+              Muitos investidores olham apenas a receita bruta. Na prática, há pelo menos <strong>6 deduções</strong> antes de chegar ao lucro real. Veja um exemplo realista:
+            </p>
+            {(() => {
+              const adr = 350;
+              const occ = 0.75;
+              const nights = 365 * occ;
+              const gross = adr * nights;
+              const lines: { label: string; pct: number | null; isGross?: boolean; isNet?: boolean; note?: string }[] = [
+                { label: "Receita bruta anual", pct: null, isGross: true },
+                { label: "Taxa Airbnb (host)", pct: -3, note: "Comissão da plataforma" },
+                { label: "Gestão / administração", pct: -20, note: "Operadora ou autogestão" },
+                { label: "Impostos (ISS + Simples)", pct: -6, note: "Varia por regime fiscal" },
+                { label: "Manutenção e reposição", pct: -5, note: "Limpeza, reparos, enxoval" },
+                { label: "Condomínio + IPTU", pct: -8, note: "Custos fixos do imóvel" },
+                { label: "Energia + internet", pct: -3, note: "Custos operacionais" },
+                { label: "Lucro líquido estimado", pct: null, isNet: true },
+              ];
+              const totalDeduction = lines.reduce((s, l) => s + (l.pct ?? 0), 0);
+              const netPct = 100 + totalDeduction;
+              let running = gross;
+
+              return (
+                <div className="space-y-0">
+                  {lines.map((line, i) => {
+                    let value: number;
+                    let displayPct: string;
+                    
+                    if (line.isGross) {
+                      value = gross;
+                      displayPct = "100%";
+                    } else if (line.isNet) {
+                      value = gross * (netPct / 100);
+                      displayPct = `${netPct}%`;
+                    } else {
+                      value = gross * (Math.abs(line.pct!) / 100);
+                      displayPct = `${line.pct}%`;
+                    }
+
+                    const isDeduction = !line.isGross && !line.isNet;
+                    
+                    return (
+                      <div key={i}>
+                        {line.isNet && (
+                          <div className="border-t-2 border-dashed border-primary/30 my-2" />
+                        )}
+                        <div className={`flex items-center justify-between py-2 px-3 rounded-md text-sm ${
+                          line.isGross ? "bg-primary/5 font-semibold text-foreground" :
+                          line.isNet ? "bg-emerald-500/10 font-bold text-emerald-700 dark:text-emerald-400" :
+                          "text-foreground/80"
+                        }`}>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className={`font-mono text-xs w-12 text-right shrink-0 ${
+                              isDeduction ? "text-red-500" : line.isNet ? "text-emerald-600 dark:text-emerald-400" : "text-foreground"
+                            }`}>
+                              {displayPct}
+                            </span>
+                            <span className="truncate">{line.label}</span>
+                            {line.note && (
+                              <span className="text-[10px] text-muted-foreground hidden sm:inline">· {line.note}</span>
+                            )}
+                          </div>
+                          <span className={`font-mono text-xs shrink-0 ${
+                            isDeduction ? "text-red-500" : line.isNet ? "text-emerald-600 dark:text-emerald-400 text-sm" : ""
+                          }`}>
+                            {isDeduction ? "−" : ""} R$ {Math.round(value).toLocaleString("pt-BR")}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  
+                  {/* Visual bar */}
+                  <div className="mt-4 space-y-2">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span>Receita</span>
+                      <div className="flex-1 h-5 bg-muted rounded-full overflow-hidden relative">
+                        <div className="absolute inset-y-0 left-0 bg-primary/20 rounded-full" style={{ width: "100%" }} />
+                        <div className="absolute inset-y-0 left-0 bg-emerald-500/60 rounded-full transition-all" style={{ width: `${netPct}%` }} />
+                        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-foreground">
+                          {netPct}% fica com você
+                        </span>
+                      </div>
+                      <span>Lucro</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex items-start gap-2 p-3 rounded-lg border border-amber-500/20 bg-amber-500/[0.03]">
+                    <AlertTriangle className="h-3.5 w-3.5 text-amber-500 mt-0.5 shrink-0" />
+                    <p className="text-[11px] text-foreground/70 leading-relaxed">
+                      Este é um exemplo ilustrativo. Os percentuais reais variam conforme o regime tributário, 
+                      modelo de gestão (própria vs terceirizada) e perfil do imóvel. Use como referência para 
+                      entender a <strong>estrutura de custos</strong>, não como projeção.
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Market pulse */}
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={stagger(4)}>
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
           📊 Pulso do mercado — São Paulo
         </p>
