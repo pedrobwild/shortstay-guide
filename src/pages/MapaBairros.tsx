@@ -44,7 +44,7 @@ export default function MapaBairros() {
           <p className="text-white/80 max-w-xl mx-auto mb-6 font-body">Combine a análise de bairro com as tendências premium para maximizar sua rentabilidade.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button size="lg" asChild className="bg-white text-primary hover:bg-white/90 font-body">
-              <Link to="/#simulador"><Calculator size={18} className="mr-2" />Simulador completo</Link>
+              <Link to="/intelligence"><Calculator size={18} className="mr-2" />Análise inteligente</Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="border-white/30 text-white hover:bg-white/10 font-body">
               <Link to="/#tendencias"><TrendingUp size={18} className="mr-2" />Ver tendências 2026</Link>
