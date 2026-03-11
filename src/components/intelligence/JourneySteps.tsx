@@ -1541,19 +1541,82 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
               </div>
             </div>
 
+            {/* Why this profile — based on quiz answers */}
+            {answers && (
+              <div className="mt-4 p-4 rounded-lg bg-muted/30 border border-border/40 space-y-3">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  <Info className="h-3.5 w-3.5" /> Por que este perfil?
+                </p>
+                <div className="space-y-2">
+                  {(() => {
+                    const answerExplanations: { question: string; answer: string; impact: string }[] = [];
+                    
+                    const objLabels: Record<string, { answer: string; impact: string }> = {
+                      renda: { answer: "Renda passiva", impact: "Priorizamos bairros com yield alto e ocupação constante para gerar fluxo de caixa mensal." },
+                      valorizacao: { answer: "Valorização do patrimônio", impact: "Priorizamos bairros com maior potencial de crescimento e valorização imobiliária a longo prazo." },
+                      equilibrio: { answer: "Equilíbrio entre renda e valorização", impact: "Balanceamos retorno atual com potencial futuro, buscando bairros que performam bem nos dois eixos." },
+                    };
+                    const riskLabels: Record<string, { answer: string; impact: string }> = {
+                      conservador: { answer: "Conservador", impact: "Aumentamos o peso de liquidez e demanda estável, reduzindo exposição a bairros com maior volatilidade." },
+                      moderado: { answer: "Moderado", impact: "Mantemos um equilíbrio saudável entre retorno e segurança, sem extremos." },
+                      arrojado: { answer: "Arrojado", impact: "Maximizamos o peso de retorno, aceitando bairros com maior risco em troca de yield potencialmente superior." },
+                    };
+                    const prioLabels: Record<string, { answer: string; impact: string }> = {
+                      fluxo: { answer: "Fluxo constante de receita", impact: "Reforçamos ocupação e demanda — bairros que ficam vazios por muito tempo são penalizados." },
+                      retorno: { answer: "Maior retorno percentual", impact: "O yield bruto ganha peso extra — buscamos o maior retorno sobre cada real investido." },
+                      facilidade: { answer: "Facilidade de operação", impact: "Valorizamos bairros com demanda orgânica forte e menor necessidade de gestão ativa." },
+                    };
+
+                    if (objLabels[answers.objective]) {
+                      answerExplanations.push({ question: "Objetivo", ...objLabels[answers.objective] });
+                    }
+                    if (riskLabels[answers.risk]) {
+                      answerExplanations.push({ question: "Risco", ...riskLabels[answers.risk] });
+                    }
+                    if (prioLabels[answers.priority]) {
+                      answerExplanations.push({ question: "Prioridade", ...prioLabels[answers.priority] });
+                    }
+
+                    return answerExplanations.map((exp, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <div className="shrink-0 mt-0.5">
+                          <Badge variant="outline" className="text-[9px] font-semibold px-1.5 py-0">{exp.question}</Badge>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-foreground">{exp.answer}</p>
+                          <p className="text-[11px] text-muted-foreground leading-relaxed">{exp.impact}</p>
+                        </div>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              </div>
+            )}
+
             {/* Weight visualization */}
-            <div className="mt-5 grid grid-cols-4 gap-2">
-              {PILLARS.map(p => {
-                const w = finalProfile.weights[p.key as keyof typeof finalProfile.weights];
-                const Icon = ICON_MAP[p.icon] || TrendingUp;
-                return (
-                  <div key={p.key} className="text-center">
-                    <Icon className={`h-4 w-4 ${p.color} mx-auto mb-1`} />
-                    <p className="text-sm font-bold">{(w * 100).toFixed(0)}%</p>
-                    <p className="text-[10px] text-muted-foreground">{p.label}</p>
-                  </div>
-                );
-              })}
+            <div className="mt-5">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-3">
+                Pesos aplicados no seu ranking personalizado
+              </p>
+              <div className="grid grid-cols-4 gap-2">
+                {PILLARS.map(p => {
+                  const w = finalProfile.weights[p.key as keyof typeof finalProfile.weights];
+                  const Icon = ICON_MAP[p.icon] || TrendingUp;
+                  const pctValue = (w * 100).toFixed(0);
+                  const dominant = Math.max(...Object.values(finalProfile.weights)) === w;
+                  return (
+                    <div key={p.key} className={`text-center p-2.5 rounded-lg transition-colors ${dominant ? "bg-primary/[0.06] ring-1 ring-primary/20" : "bg-muted/30"}`}>
+                      <Icon className={`h-4 w-4 ${p.color} mx-auto mb-1`} />
+                      <p className={`text-sm font-bold ${dominant ? "text-primary" : ""}`}>{pctValue}%</p>
+                      <p className="text-[10px] text-muted-foreground">{p.label}</p>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">
+                Esses pesos determinam como os bairros são ranqueados para você. O pilar com maior peso tem mais influência 
+                no score personalizado — bairros fortes nesse critério sobem no ranking.
+              </p>
             </div>
           </CardContent>
         </Card>
