@@ -45,7 +45,7 @@ export const SECTIONS = [
   { id: "reforma", label: "Reforma inteligente", icon: Paintbrush },
   { id: "antichecklist", label: "Anti-checklist", icon: ShieldCheck },
   { id: "decoracao", label: "Decoração", icon: Palette },
-  { id: "projeto", label: "Projeto arquitetônico", icon: Ruler },
+  
   { id: "tendencias", label: "Tendências 2026", icon: Sparkles },
   { id: "casestudy", label: "Case study", icon: BookOpen },
   { id: "checklist", label: "Checklist investidor", icon: CheckSquare },

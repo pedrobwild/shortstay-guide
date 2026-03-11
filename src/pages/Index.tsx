@@ -25,7 +25,7 @@ import MidPageCTA from "@/components/guide/MidPageCTA";
 import ReformaSection from "@/components/guide/ReformaSection";
 import AntiChecklistSection from "@/components/guide/AntiChecklistSection";
 import DecoracaoSection from "@/components/guide/DecoracaoSection";
-import ProjetoSection from "@/components/guide/ProjetoSection";
+
 import CaseStudySection from "@/components/guide/CaseStudySection";
 import ChecklistSection from "@/components/guide/ChecklistSection";
 import TrustSignals from "@/components/guide/TrustSignals";
@@ -180,12 +180,6 @@ function IndexInner() {
           </div>
         </div>
 
-        {/* Projeto — muted zone */}
-        <div className="w-full bg-muted/20">
-          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <ProjetoSection />
-          </div>
-        </div>
 
         {/* Tendências — white */}
         <div className="w-full">
