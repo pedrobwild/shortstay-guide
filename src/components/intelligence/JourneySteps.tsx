@@ -3,7 +3,7 @@
  * Each step is a self-contained component that builds on the previous one.
  */
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, lazy, Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +39,7 @@ import {
   type Recommendation,
 } from "@/lib/investorQuiz";
 import { fmtBRL, fmtPct, fmtScore } from "@/hooks/useIntelligenceData";
+const InvestmentSimulator = lazy(() => import("@/components/intelligence/InvestmentSimulator"));
 
 const ICON_MAP: Record<string, React.ElementType> = {
   Scale, Crown, Rocket, Activity, TrendingUp, AlertTriangle, Shield,
@@ -1556,6 +1557,18 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
             </div>
           </CardContent>
         </Card>
+      </motion.div>
+
+      {/* ── Investment Simulator ── */}
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+        <Suspense fallback={
+          <Card><CardContent className="p-6 text-center text-sm text-muted-foreground">Carregando simulador...</CardContent></Card>
+        }>
+          <InvestmentSimulator
+            bairros={bairros}
+            selectedBairro={recommendations[0]?.bairro}
+          />
+        </Suspense>
       </motion.div>
 
       {/* True Yield toggle */}
