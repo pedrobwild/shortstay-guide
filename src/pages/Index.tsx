@@ -20,7 +20,7 @@ import MobileStickyBar from "@/components/guide/MobileStickyBar";
 import SectionIntro from "@/components/guide/SectionIntro";
 import ReservasSection from "@/components/guide/ReservasSection";
 import MercadoSection from "@/components/guide/MercadoSection";
-import SimuladorSection from "@/components/guide/SimuladorSection";
+
 import MidPageCTA from "@/components/guide/MidPageCTA";
 import ReformaSection from "@/components/guide/ReformaSection";
 import AntiChecklistSection from "@/components/guide/AntiChecklistSection";
