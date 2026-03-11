@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Calculator, MapPin, Sparkles, BookOpen, BarChart3, Target, Lightbulb } from "lucide-react";
+import { Link } from "react-router-dom";
 import sectionHeroStudio from "@/assets/section-hero-studio.jpg";
 
 export default function HeroSection() {
