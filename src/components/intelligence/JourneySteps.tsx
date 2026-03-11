@@ -1559,6 +1559,18 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
         </Card>
       </motion.div>
 
+      {/* ── Investment Simulator ── */}
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+        <Suspense fallback={
+          <Card><CardContent className="p-6 text-center text-sm text-muted-foreground">Carregando simulador...</CardContent></Card>
+        }>
+          <InvestmentSimulator
+            bairros={bairros}
+            selectedBairro={recommendations[0]?.bairro}
+          />
+        </Suspense>
+      </motion.div>
+
       {/* True Yield toggle */}
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
