@@ -144,13 +144,6 @@ function IndexInner() {
           </div>
         </div>
 
-        {/* Simulador — muted zone */}
-        <div className="w-full bg-muted/20">
-          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <SectionIntro icon={Calculator} text="Monte cenários e compare rentabilidade em minutos" />
-            <SimuladorSection />
-          </div>
-        </div>
 
         {/* MidPageCTA */}
         <div className="w-full">

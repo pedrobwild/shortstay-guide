@@ -41,7 +41,7 @@ export const SECTIONS = [
   { id: "intelligence", label: "Short Stay Intelligence", icon: BarChart3, href: "/intelligence" },
   { id: "reservas", label: "O que move reservas", icon: TrendingUp },
   { id: "mercado", label: "Mercado SP", icon: BarChart3 },
-  { id: "simulador", label: "Simulador", icon: Calculator },
+  
   { id: "reforma", label: "Reforma inteligente", icon: Paintbrush },
   { id: "antichecklist", label: "Anti-checklist", icon: ShieldCheck },
   { id: "decoracao", label: "Decoração", icon: Palette },

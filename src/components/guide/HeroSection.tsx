@@ -87,7 +87,7 @@ export default function HeroSection() {
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-4">
             <Button size="lg" className="bg-primary text-primary-foreground font-body w-full sm:w-auto min-h-[44px]" asChild>
-              <a href="#simulador"><Calculator size={18} className="mr-2" />Simular rentabilidade</a>
+              <Link to="/intelligence"><Calculator size={18} className="mr-2" />Simular rentabilidade</Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="font-body w-full sm:w-auto min-h-[44px]">
               <a href="#mapa-bairros"><MapPin size={18} className="mr-2" />Ver mapa de bairros</a>
