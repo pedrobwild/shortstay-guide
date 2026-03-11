@@ -10,10 +10,12 @@ import {
 /* ─── Phases ─── */
 export const PHASES = [
   { number: 1, label: "Entender o jogo", description: "O que é short stay e como gera retorno" },
-  { number: 2, label: "Escolher o mercado", description: "Bairros, indicadores e inteligência de dados" },
-  { number: 3, label: "Validar a conta", description: "Simulação, cenários e drivers de retorno" },
-  { number: 4, label: "Entender o produto", description: "O studio que performa: projeto, reforma e operação" },
-  { number: 5, label: "Agir com confiança", description: "Evidências, checklist e próximo passo" },
+  { number: 2, label: "Escolher onde investir", description: "Bairros, indicadores e inteligência de dados" },
+  { number: 3, label: "Avaliar o ativo", description: "Como escolher a unidade certa para short stay" },
+  { number: 4, label: "Validar a conta", description: "A matemática do investimento e simulação de cenários" },
+  { number: 5, label: "Construir o produto", description: "O studio que performa: projeto, reforma e operação" },
+  { number: 6, label: "Capturar receita", description: "Anúncio, precificação e posicionamento" },
+  { number: 7, label: "Agir com confiança", description: "Evidências, checklist e próximo passo" },
 ] as const;
 
 /* ─── Bairro fallback data ─── */
