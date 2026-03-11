@@ -4,7 +4,17 @@ import {
   SprayCan, DoorOpen, Target, Lock, Wifi, Star, Briefcase, Heart,
   GraduationCap, Camera, DollarSign, FileText, Zap, MousePointerClick,
   CalendarCheck, MessageSquare, Trophy, Package, BadgeCheck, Users, Clock, Phone,
+  Calculator,
 } from "lucide-react";
+
+/* ─── Phases ─── */
+export const PHASES = [
+  { number: 1, label: "Entender o jogo", description: "O que é short stay e como gera retorno" },
+  { number: 2, label: "Escolher o mercado", description: "Bairros, indicadores e inteligência de dados" },
+  { number: 3, label: "Validar a conta", description: "Simulação, cenários e drivers de retorno" },
+  { number: 4, label: "Entender o produto", description: "O studio que performa: projeto, reforma e operação" },
+  { number: 5, label: "Agir com confiança", description: "Evidências, checklist e próximo passo" },
+] as const;
 
 /* ─── Bairro fallback data ─── */
 export const BAIRRO_DATA = [
@@ -36,22 +46,35 @@ export const DECORATION_LEVELS = [
 ] as const;
 
 export const SECTIONS = [
-  { id: "hero", label: "Início", icon: Home },
-  { id: "mapa-bairros", label: "Mapa de Bairros", icon: MapPin },
-  { id: "intelligence", label: "Short Stay Intelligence", icon: BarChart3, href: "/intelligence" },
-  { id: "reservas", label: "O que move reservas", icon: TrendingUp },
-  
-  
-  { id: "reforma", label: "Reforma inteligente", icon: Paintbrush },
-  { id: "antichecklist", label: "Anti-checklist", icon: ShieldCheck },
-  { id: "decoracao", label: "Decoração", icon: Palette },
-  
-  { id: "tendencias", label: "Tendências 2026", icon: Sparkles },
-  { id: "casestudy", label: "Case study", icon: BookOpen },
-  { id: "checklist", label: "Checklist investidor", icon: CheckSquare },
-  { id: "faq", label: "FAQ", icon: HelpCircle },
-  { id: "cta-final", label: "Solicitar diagnóstico", icon: Send },
+  // Fase 1 — Entender o jogo
+  { id: "hero", label: "Início", icon: Home, phase: 1 },
+  // Fase 2 — Escolher o mercado
+  { id: "mapa-bairros", label: "Mapa de Bairros", icon: MapPin, phase: 2 },
+  { id: "mercado", label: "Mercado e Precificação", icon: DollarSign, phase: 2 },
+  { id: "intelligence", label: "Short Stay Intelligence", icon: BarChart3, href: "/intelligence", phase: 2 },
+  // Fase 3 — Validar a conta
+  { id: "simulador", label: "Simulador de Receita", icon: Calculator, phase: 3 },
+  // Fase 4 — Entender o produto que performa
+  { id: "reservas", label: "O que move reservas", icon: TrendingUp, phase: 4 },
+  { id: "projeto", label: "Projeto arquitetônico", icon: Ruler, phase: 4 },
+  { id: "reforma", label: "Reforma inteligente", icon: Paintbrush, phase: 4 },
+  { id: "antichecklist", label: "Anti-checklist", icon: ShieldCheck, phase: 4 },
+  { id: "decoracao", label: "Decoração estratégica", icon: Palette, phase: 4 },
+  { id: "tendencias", label: "Tendências 2026", icon: Sparkles, phase: 4 },
+  // Fase 5 — Ganhar confiança para agir
+  { id: "casestudy", label: "Case study", icon: BookOpen, phase: 5 },
+  { id: "checklist", label: "Checklist investidor", icon: CheckSquare, phase: 5 },
+  { id: "faq", label: "FAQ", icon: HelpCircle, phase: 5 },
+  { id: "cta-final", label: "Solicitar diagnóstico", icon: Send, phase: 5 },
 ] as const;
+
+export type SectionItem = {
+  id: string;
+  label: string;
+  icon: any;
+  phase: number;
+  href?: string;
+};
 
 export const DECISION_DRIVERS = [
   { id: "limpeza", title: "Limpeza", desc: "Fator #1 global: 90% dos hóspedes consideram limpeza o critério mais importante na escolha. Limpeza impecável = reviews 5 estrelas.", icon: SprayCan, priority: { executivo: 1, turista: 2, estudante: 3, casal: 2 } },
@@ -200,10 +223,17 @@ export function persistScenarios(scenarios: SavedScenario[]) {
 export const fmt = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
 
 export const TRUST_SIGNALS_DATA = [
-  { icon: BadgeCheck, text: "Dados reais de mercado atualizados" },
-  { icon: Users, text: "+200 studios projetados em São Paulo" },
-  { icon: Star, text: "Nota média 4.9 nos projetos entregues" },
-  { icon: Clock, text: "Prazo e orçamento fechados" },
-  { icon: ShieldCheck, text: "Fornecedores homologados e garantia" },
-  { icon: Phone, text: "Suporte direto via WhatsApp" },
+  { label: "+200 studios", icon: Package },
+  { label: "4.9 nota média", icon: Star },
+  { label: "Operação própria", icon: BadgeCheck },
+  { label: "+5 anos no mercado", icon: Clock },
+];
+
+export const FAQ_DATA = [
+  { q: "Quanto custa começar um studio para short stay?", a: "Depende do estado do imóvel e do padrão desejado. Reformas leves começam em R$ 35.000 e projetos premium podem chegar a R$ 120.000. O simulador neste guia ajuda a estimar o retorno sobre cada faixa de investimento." },
+  { q: "Qual o retorno médio de um studio em São Paulo?", a: "Studios bem posicionados e operados geram entre R$ 5.000 e R$ 12.000 de receita bruta mensal, dependendo do bairro, metragem e qualidade do anúncio. Descontando custos operacionais (limpeza, taxa de plataforma, condomínio, IPTU), o yield líquido fica entre 6% e 12% ao ano." },
+  { q: "Preciso de CNPJ para operar no Airbnb?", a: "Não é obrigatório, mas altamente recomendado. Com CNPJ (MEI ou Simples), você pode emitir notas fiscais, ter conta PJ dedicada e otimizar a tributação. Sem CNPJ, a renda deve ser declarada como pessoa física e pode ter alíquota mais alta de IR." },
+  { q: "E se o condomínio não permitir short stay?", a: "Verifique a convenção do condomínio antes de comprar. Se já possui o imóvel, consulte um advogado especializado. Muitos condomínios ainda não têm regras claras — nesse caso, é possível operar dentro da legalidade até que haja deliberação formal em assembleia." },
+  { q: "A Bwild faz a gestão operacional do studio?", a: "Sim. A Bwild oferece gestão completa: precificação dinâmica, atendimento ao hóspede, limpeza profissional, manutenção e relatórios mensais. O investidor recebe o rendimento líquido sem se envolver na operação diária." },
+  { q: "Qual a diferença entre short stay e aluguel tradicional?", a: "Short stay (menos de 90 dias) geralmente rende 40-80% mais que aluguel tradicional, mas envolve custos operacionais maiores e gestão ativa. Aluguel tradicional é mais previsível e passivo. A decisão depende do perfil do investidor e da localização." },
 ];
