@@ -1,7 +1,7 @@
 import { useEffect, useRef, lazy, Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { BarChart3, CheckSquare } from "lucide-react";
+import { CheckSquare } from "lucide-react";
 import LazyMapaBairrosEmbed from "@/components/mapa/LazyMapaBairrosEmbed";
 import bwildLogo from "@/assets/bwild-logo.png";
 import { useGuideAnalytics, setGlobalTrack } from "@/hooks/useGuideAnalytics";
@@ -10,7 +10,7 @@ import { useReadingProgress } from "@/hooks/useReadingProgress";
 import ScrollProgressBar from "@/components/guide/ScrollProgressBar";
 import ResumeToast from "@/components/guide/ResumeToast";
 import { BairroProvider, useBairroData } from "@/hooks/useBairroData";
-import { SECTIONS, fmt } from "@/data/guide-data";
+import { SECTIONS, PHASES, fmt } from "@/data/guide-data";
 
 // Guide section components
 import HeroSection from "@/components/guide/HeroSection";
@@ -18,14 +18,15 @@ import TableOfContents from "@/components/guide/TableOfContents";
 import MobileMenu from "@/components/guide/MobileMenu";
 import MobileStickyBar from "@/components/guide/MobileStickyBar";
 import SectionIntro from "@/components/guide/SectionIntro";
+import PhaseHeader from "@/components/guide/PhaseHeader";
 import ReservasSection from "@/components/guide/ReservasSection";
-
-
+import MercadoSection from "@/components/guide/MercadoSection";
+import SimuladorSection from "@/components/guide/SimuladorSection";
+import ProjetoSection from "@/components/guide/ProjetoSection";
 import MidPageCTA from "@/components/guide/MidPageCTA";
 import ReformaSection from "@/components/guide/ReformaSection";
 import AntiChecklistSection from "@/components/guide/AntiChecklistSection";
 import DecoracaoSection from "@/components/guide/DecoracaoSection";
-
 import CaseStudySection from "@/components/guide/CaseStudySection";
 import ChecklistSection from "@/components/guide/ChecklistSection";
 import TrustSignals from "@/components/guide/TrustSignals";
@@ -73,6 +74,8 @@ function IndexInner() {
     return () => window.removeEventListener("scroll", handler);
   }, [trackEvent]);
 
+  const phase = (n: number) => PHASES[n - 1];
+
   return (
     <>
       <ScrollProgressBar percent={scrollPercent} />
@@ -82,14 +85,26 @@ function IndexInner() {
       <MobileStickyBar />
 
       <main className="lg:ml-[60px] w-full flex flex-col items-center pb-24 lg:pb-8 pt-16 lg:pt-0">
-        {/* Hero — white */}
+
+        {/* ═══════════════════════════════════════════════════════
+            FASE 1 — Entender o jogo
+        ═══════════════════════════════════════════════════════ */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10 py-0 lg:py-10">
             <HeroSection />
           </div>
         </div>
 
-        {/* Mapa — white */}
+        {/* ═══════════════════════════════════════════════════════
+            FASE 2 — Escolher o mercado
+        ═══════════════════════════════════════════════════════ */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <PhaseHeader {...phase(2)} />
+          </div>
+        </div>
+
+        {/* Mapa de Bairros */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <section id="mapa-bairros" className="scroll-mt-24 py-16 md:py-20">
@@ -129,52 +144,81 @@ function IndexInner() {
           </div>
         </div>
 
-        {/* Reservas — muted zone */}
+        {/* Mercado e Precificação */}
+        <div className="w-full bg-muted/20">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <MercadoSection />
+          </div>
+        </div>
+
+        {/* Intelligence CTA */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <MidPageCTA variant="slim" />
+          </div>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════
+            FASE 3 — Validar a conta
+        ═══════════════════════════════════════════════════════ */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <PhaseHeader {...phase(3)} />
+          </div>
+        </div>
+
+        {/* Simulador de Receita */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <SimuladorSection />
+          </div>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════
+            FASE 4 — Entender o produto que performa
+        ═══════════════════════════════════════════════════════ */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <PhaseHeader {...phase(4)} />
+          </div>
+        </div>
+
+        {/* Reservas — o que move reservas */}
         <div className="w-full bg-muted/20">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <ReservasSection />
           </div>
         </div>
 
-
-
-        {/* MidPageCTA */}
+        {/* Projeto Arquitetônico */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <MidPageCTA variant="slim" />
+            <ProjetoSection />
           </div>
         </div>
 
-        {/* Reforma — white */}
+        {/* Reforma inteligente */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <ReformaSection />
           </div>
         </div>
 
-        {/* Anti-checklist — destructive subtle zone */}
+        {/* Anti-checklist */}
         <div className="w-full bg-destructive/[0.02]">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <AntiChecklistSection />
           </div>
         </div>
 
-        {/* Decoração — white */}
+        {/* Decoração estratégica */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <DecoracaoSection />
           </div>
         </div>
 
-        {/* MidPageCTA */}
-        <div className="w-full">
-          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <MidPageCTA variant="slim" />
-          </div>
-        </div>
-
-
-        {/* Tendências — white */}
+        {/* Tendências */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <Suspense fallback={<div className="py-16"><div className="h-4 w-4 border-2 border-primary/40 border-t-primary rounded-full animate-spin mx-auto" /></div>}>
@@ -183,14 +227,30 @@ function IndexInner() {
           </div>
         </div>
 
-        {/* Case Study — muted zone */}
+        {/* MidPageCTA between Fase 4 and 5 */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <MidPageCTA variant="slim" />
+          </div>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════
+            FASE 5 — Ganhar confiança para agir
+        ═══════════════════════════════════════════════════════ */}
+        <div className="w-full">
+          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+            <PhaseHeader {...phase(5)} />
+          </div>
+        </div>
+
+        {/* Case Study */}
         <div className="w-full bg-muted/20">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <CaseStudySection />
           </div>
         </div>
 
-        {/* Checklist — white */}
+        {/* Checklist */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <SectionIntro icon={CheckSquare} text="Avalie se você está pronto para dar o próximo passo" />
@@ -198,7 +258,7 @@ function IndexInner() {
           </div>
         </div>
 
-        {/* Trust + FAQ + Final CTA — white */}
+        {/* Trust + FAQ */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <TrustSignals />
@@ -206,7 +266,7 @@ function IndexInner() {
           </div>
         </div>
 
-        {/* Final CTA — gradient zone */}
+        {/* Final CTA */}
         <div className="w-full bg-hero-gradient">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <FinalCTASection />
