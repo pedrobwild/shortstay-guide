@@ -1,5 +1,5 @@
 import {
-  Home, MapPin, TrendingUp, BarChart3, Calculator, Paintbrush, ShieldCheck,
+  Home, MapPin, TrendingUp, BarChart3, Paintbrush, ShieldCheck,
   Palette, Ruler, Sparkles, BookOpen, CheckSquare, HelpCircle, Send,
   SprayCan, DoorOpen, Target, Lock, Wifi, Star, Briefcase, Heart,
   GraduationCap, Camera, DollarSign, FileText, Zap, MousePointerClick,
