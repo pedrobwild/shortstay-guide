@@ -40,7 +40,7 @@ export const SECTIONS = [
   { id: "mapa-bairros", label: "Mapa de Bairros", icon: MapPin },
   { id: "intelligence", label: "Short Stay Intelligence", icon: BarChart3, href: "/intelligence" },
   { id: "reservas", label: "O que move reservas", icon: TrendingUp },
-  { id: "mercado", label: "Mercado SP", icon: BarChart3 },
+  
   
   { id: "reforma", label: "Reforma inteligente", icon: Paintbrush },
   { id: "antichecklist", label: "Anti-checklist", icon: ShieldCheck },
