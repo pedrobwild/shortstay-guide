@@ -314,7 +314,7 @@ export const Step1Context = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
       </motion.div>
 
       {/* Key narrative */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(4)}>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(5)}>
         <Card className="bg-muted/30 border-dashed">
           <CardContent className="p-5">
             <div className="flex items-start gap-3">
