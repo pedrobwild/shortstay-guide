@@ -271,6 +271,33 @@ export const DISTRICTS_MOCK: DistrictRow[] = [
     },
   },
   {
+    districtName: "Brooklin",
+    score: 80,
+    chips: ["Corporativo", "Misto"],
+    roiPercent: 12.1,
+    nightlyRateBRL: 290,
+    occupancyPercent: 60,
+    revenueMonthBRL: 5292,
+    adrRangeLabel: "R$240–R$350",
+    listingsCount: 2800,
+    competition: "Média",
+    sourceLabel: "Bwild/AirDNA 2025",
+    recommendation: {
+      bestStudioType: "Business premium + estadias médias",
+      whyItWorks:
+        "Região corporativa em crescimento com baixa saturação e bom potencial de valorização.",
+      tips: [
+        "Setup executivo: mesa ampla, cadeira ergonômica, internet dedicada.",
+        "Amenities de hotel: café, toalhas extras, blackout total.",
+        "Perfil para estadias de 5+ noites (desconto semanal).",
+      ],
+      risks: [
+        "Ocupação mais baixa exige gestão ativa de preço dinâmico.",
+        "Algumas micro-regiões ainda carecem de oferta gastronômica.",
+      ],
+    },
+  },
+  {
     districtName: "Itaquera",
     score: 78,
     chips: ["Eventos", "Próximo ao metrô"],
