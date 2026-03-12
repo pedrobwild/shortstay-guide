@@ -3,12 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, RefreshCw, Trash2, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, RefreshCw, Trash2, ExternalLink, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react";
 import AirbnbEventsList from "./AirbnbEventsList";
 
 /**
  * Lista as conexões Airbnb iCal de um projeto.
- * Permite sincronizar e remover conexões.
+ * Melhorias: confirmação de exclusão, proteção contra duplo clique,
+ * disable de sync durante operações, expand de eventos após sync.
  */
 interface OtaConnection {
   id: string;
@@ -22,11 +23,9 @@ interface OtaConnection {
 
 interface AirbnbConnectionsListProps {
   projectId: string;
-  /** Incrementado externamente para forçar reload */
   refreshKey?: number;
 }
 
-/** Mapeia status para variante do Badge */
 function statusVariant(status: string) {
   switch (status) {
     case "active": return "default" as const;
@@ -53,8 +52,9 @@ export default function AirbnbConnectionsList({
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  // Incrementado após sync para forçar reload de eventos no AirbnbEventsList
+  const [eventsRefreshKey, setEventsRefreshKey] = useState(0);
 
-  // Busca conexões do projeto
   const fetchConnections = useCallback(async () => {
     setLoading(true);
     try {
@@ -77,8 +77,9 @@ export default function AirbnbConnectionsList({
     fetchConnections();
   }, [fetchConnections, refreshKey]);
 
-  // Sincronizar uma conexão via Edge Function
+  // Sincronizar — protegido contra duplo clique
   const handleSync = async (connectionId: string) => {
+    if (syncingId) return; // Já sincronizando outra
     setSyncingId(connectionId);
     try {
       const { data, error } = await supabase.functions.invoke("sync-airbnb-ical", {
@@ -92,11 +93,13 @@ export default function AirbnbConnectionsList({
           title: "Sincronização concluída!",
           description: `${data.eventsImported} evento(s) importado(s).`,
         });
+        // Expande eventos automaticamente após sync bem-sucedido
+        setExpandedId(connectionId);
+        setEventsRefreshKey((k) => k + 1);
       } else {
         throw new Error(data?.error || "Erro desconhecido");
       }
 
-      // Recarrega lista para atualizar status e last_synced_at
       await fetchConnections();
     } catch (err: any) {
       toast({ title: "Erro na sincronização", description: err.message, variant: "destructive" });
@@ -106,8 +109,15 @@ export default function AirbnbConnectionsList({
     }
   };
 
-  // Remover conexão
+  // Remover — com confirmação
   const handleDelete = async (connectionId: string) => {
+    if (deletingId) return;
+
+    const confirmed = window.confirm(
+      "Tem certeza que deseja remover esta conexão? Todos os eventos importados serão apagados."
+    );
+    if (!confirmed) return;
+
     setDeletingId(connectionId);
     try {
       const { error } = await supabase
@@ -118,6 +128,8 @@ export default function AirbnbConnectionsList({
       if (error) throw error;
 
       toast({ title: "Conexão removida" });
+      // Limpa expand se era esta conexão
+      if (expandedId === connectionId) setExpandedId(null);
       await fetchConnections();
     } catch (err: any) {
       toast({ title: "Erro ao remover", description: err.message, variant: "destructive" });
@@ -125,6 +137,9 @@ export default function AirbnbConnectionsList({
       setDeletingId(null);
     }
   };
+
+  // Qualquer operação em andamento desabilita ações
+  const isBusy = !!syncingId || !!deletingId;
 
   if (loading) {
     return (
@@ -147,17 +162,19 @@ export default function AirbnbConnectionsList({
     <div className="space-y-3">
       {connections.map((conn) => {
         const isExpanded = expandedId === conn.id;
+        const isSyncing = syncingId === conn.id;
+        const isDeleting = deletingId === conn.id;
         return (
         <div
           key={conn.id}
           className="rounded-lg border border-border bg-card overflow-hidden"
         >
           <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-            {/* Info */}
             <div className="flex-1 min-w-0 space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-sm font-medium text-foreground capitalize">{conn.provider}</span>
                 <Badge variant={statusVariant(conn.status)} className="text-xs">
+                  {conn.status === "error" && <AlertTriangle className="h-3 w-3 mr-1" />}
                   {statusLabel(conn.status)}
                 </Badge>
               </div>
@@ -176,12 +193,12 @@ export default function AirbnbConnectionsList({
               </p>
             </div>
 
-            {/* Ações */}
             <div className="flex gap-2 shrink-0">
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setExpandedId(isExpanded ? null : conn.id)}
+                disabled={isBusy}
               >
                 {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 <span className="ml-1 text-xs hidden sm:inline">Eventos</span>
@@ -191,15 +208,15 @@ export default function AirbnbConnectionsList({
                 size="sm"
                 variant="outline"
                 onClick={() => handleSync(conn.id)}
-                disabled={syncingId === conn.id}
+                disabled={isBusy}
               >
-                {syncingId === conn.id ? (
+                {isSyncing ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <RefreshCw className="h-4 w-4" />
                 )}
                 <span className="ml-1 hidden sm:inline">
-                  {syncingId === conn.id ? "Sincronizando..." : "Sincronizar"}
+                  {isSyncing ? "Sincronizando..." : "Sincronizar"}
                 </span>
               </Button>
 
@@ -207,10 +224,10 @@ export default function AirbnbConnectionsList({
                 size="sm"
                 variant="ghost"
                 onClick={() => handleDelete(conn.id)}
-                disabled={deletingId === conn.id}
+                disabled={isBusy}
                 className="text-destructive hover:text-destructive"
               >
-                {deletingId === conn.id ? (
+                {isDeleting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <Trash2 className="h-4 w-4" />
@@ -219,10 +236,9 @@ export default function AirbnbConnectionsList({
             </div>
           </div>
 
-          {/* Eventos expandidos */}
           {isExpanded && (
             <div className="border-t border-border px-4 py-3 bg-muted/30">
-              <AirbnbEventsList connectionId={conn.id} />
+              <AirbnbEventsList connectionId={conn.id} key={`${conn.id}-${eventsRefreshKey}`} />
             </div>
           )}
         </div>
