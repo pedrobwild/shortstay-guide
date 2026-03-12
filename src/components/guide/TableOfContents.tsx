@@ -48,7 +48,7 @@ export default function TableOfContents({ activeId, visitedSections }: Props) {
   }));
 
   // Count visited sections per phase
-  const phaseProgress = (sections: typeof SECTIONS) => {
+  const phaseProgress = (sections: readonly { id: string }[]) => {
     const visited = sections.filter((s) => visitedSections.has(s.id)).length;
     return { visited, total: sections.length };
   };
