@@ -3,10 +3,6 @@ import AirbnbConnectionForm from "./AirbnbConnectionForm";
 import AirbnbConnectionsList from "./AirbnbConnectionsList";
 import AirbnbCalendarGrid from "./AirbnbCalendarGrid";
 
-/**
- * Painel completo de integração Airbnb iCal para um projeto.
- * Junta o formulário de cadastro + lista de conexões + calendário visual.
- */
 interface AirbnbICalPanelProps {
   projectId: string;
 }
@@ -25,13 +21,10 @@ export default function AirbnbICalPanel({ projectId }: AirbnbICalPanelProps) {
         </p>
       </div>
 
-      {/* Formulário para adicionar nova conexão */}
       <AirbnbConnectionForm projectId={projectId} onConnectionCreated={handleChange} />
 
-      {/* Lista de conexões existentes */}
-      <AirbnbConnectionsList projectId={projectId} refreshKey={refreshKey} />
+      <AirbnbConnectionsList projectId={projectId} refreshKey={refreshKey} onDataChanged={handleChange} />
 
-      {/* Calendário visual mensal */}
       <AirbnbCalendarGrid projectId={projectId} refreshKey={refreshKey} />
     </div>
   );
