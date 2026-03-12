@@ -13,6 +13,7 @@ export default function TableOfContents({ activeId, visitedSections }: Props) {
   const [expanded, setExpanded] = useState(false);
 
   // Group sections by phase
+  const heroSections = SECTIONS.filter((s) => s.phase === 0);
   const sectionsByPhase = PHASES.map((p) => ({
     ...p,
     sections: SECTIONS.filter((s) => s.phase === p.number),

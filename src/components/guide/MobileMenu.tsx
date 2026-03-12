@@ -15,6 +15,7 @@ interface Props {
 export default function MobileMenu({ activeId, sectionIndex, sectionCount }: Props) {
   const [open, setOpen] = useState(false);
 
+  const heroSections = SECTIONS.filter((s) => s.phase === 0);
   const sectionsByPhase = PHASES.map((p) => ({
     ...p,
     sections: SECTIONS.filter((s) => s.phase === p.number),
