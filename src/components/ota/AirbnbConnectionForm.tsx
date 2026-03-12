@@ -8,11 +8,31 @@ import { Loader2, Plus } from "lucide-react";
 
 /**
  * Formulário para cadastrar uma conexão Airbnb via iCal.
- * Salva a URL do calendário iCal na tabela ota_connections.
+ * Validações:
+ *  - URL obrigatória
+ *  - URL deve ser HTTPS válida
+ *  - Proteção contra duplo clique
  */
 interface AirbnbConnectionFormProps {
   projectId: string;
   onConnectionCreated: () => void;
+}
+
+/** Valida se a URL parece uma URL iCal válida */
+function isValidIcalUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    // Deve ser HTTPS
+    if (parsed.protocol !== "https:") return false;
+    // Deve ter extensão .ics ou conter "ical" no path
+    const lowerPath = parsed.pathname.toLowerCase();
+    if (lowerPath.includes(".ics") || lowerPath.includes("ical") || parsed.href.includes("ical")) {
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
 }
 
 export default function AirbnbConnectionForm({
@@ -21,13 +41,31 @@ export default function AirbnbConnectionForm({
 }: AirbnbConnectionFormProps) {
   const [icalUrl, setIcalUrl] = useState("");
   const [saving, setSaving] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+  const handleChange = (value: string) => {
+    setIcalUrl(value);
+    // Limpa erro de validação ao digitar
+    if (validationError) setValidationError(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Previne duplo clique
+    if (saving) return;
+
     const trimmedUrl = icalUrl.trim();
+
+    // Validação: campo vazio
     if (!trimmedUrl) {
-      toast({ title: "URL obrigatória", description: "Cole a URL do calendário iCal do Airbnb.", variant: "destructive" });
+      setValidationError("Cole a URL do calendário iCal do Airbnb.");
+      return;
+    }
+
+    // Validação: formato da URL
+    if (!isValidIcalUrl(trimmedUrl)) {
+      setValidationError("A URL deve ser HTTPS e conter um link iCal válido (ex: .ics).");
       return;
     }
 
@@ -45,6 +83,7 @@ export default function AirbnbConnectionForm({
 
       toast({ title: "Conexão salva!", description: "A URL iCal do Airbnb foi cadastrada com sucesso." });
       setIcalUrl("");
+      setValidationError(null);
       onConnectionCreated();
     } catch (err: any) {
       toast({ title: "Erro ao salvar", description: err.message, variant: "destructive" });
@@ -64,15 +103,20 @@ export default function AirbnbConnectionForm({
           type="url"
           placeholder="https://www.airbnb.com/calendar/ical/..."
           value={icalUrl}
-          onChange={(e) => setIcalUrl(e.target.value)}
+          onChange={(e) => handleChange(e.target.value)}
           disabled={saving}
-          className="flex-1"
+          className={`flex-1 ${validationError ? "border-destructive" : ""}`}
+          aria-invalid={!!validationError}
         />
-        <Button type="submit" disabled={saving} size="sm">
+        <Button type="submit" disabled={saving || !icalUrl.trim()} size="sm">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
           <span className="ml-1">{saving ? "Salvando..." : "Adicionar"}</span>
         </Button>
       </div>
+      {/* Erro de validação inline */}
+      {validationError && (
+        <p className="text-xs text-destructive">{validationError}</p>
+      )}
       <p className="text-xs text-muted-foreground">
         No Airbnb, vá em Calendário → Exportar calendário → copie o link iCal.
       </p>
