@@ -132,6 +132,7 @@ export default function AirbnbConnectionsList({
       toast({ title: "Conexão removida" });
       if (expandedId === connectionId) setExpandedId(null);
       await fetchConnections();
+      onDataChanged?.();
     } catch (err: any) {
       toast({ title: "Erro ao remover", description: err.message, variant: "destructive" });
     } finally {
