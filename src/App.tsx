@@ -20,6 +20,7 @@ const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Ferramentas = lazy(() => import("./pages/Ferramentas"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ChatBot = lazy(() => import("./components/ChatBot"));
 
