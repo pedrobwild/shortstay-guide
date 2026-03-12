@@ -1,4 +1,5 @@
 import { useEffect, useRef, lazy, Suspense } from "react";
+import { Link } from "react-router-dom";
 import AppNavbar from "@/components/AppNavbar";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
@@ -290,7 +291,8 @@ function IndexInner() {
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <footer className="text-center py-8 text-sm text-muted-foreground font-body">
               <img src={bwildLogo} alt="Bwild" className="h-6 w-auto mx-auto mb-3 opacity-60" />
-              © 2026 Bwild · Guia do Investidor em Studios para Short Stay
+              <Link to="/ferramentas" className="text-primary hover:underline mb-2 inline-block">Ferramentas do Investidor →</Link>
+              <p>© 2026 Bwild · Guia do Investidor em Studios para Short Stay</p>
             </footer>
           </div>
         </div>

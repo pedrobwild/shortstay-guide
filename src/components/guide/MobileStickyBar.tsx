@@ -8,8 +8,8 @@ export default function MobileStickyBar() {
       <Button asChild className="flex-1 bg-primary text-primary-foreground min-h-[44px]" onClick={() => trackGlobal("cta_clicked", { cta_id: "simular_agora", section: "sticky_bar" })}>
         <Link to="/intelligence">Simular agora</Link>
       </Button>
-      <Button asChild variant="outline" className="flex-1 min-h-[44px]" onClick={() => trackGlobal("cta_clicked", { cta_id: "diagnostico", section: "sticky_bar" })}>
-        <a href="#cta-final">Diagnóstico grátis</a>
+      <Button asChild variant="outline" className="flex-1 min-h-[44px]" onClick={() => trackGlobal("cta_clicked", { cta_id: "ferramentas", section: "sticky_bar" })}>
+        <Link to="/ferramentas">Ferramentas</Link>
       </Button>
     </div>
   );
