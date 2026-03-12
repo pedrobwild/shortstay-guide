@@ -45,34 +45,28 @@ export const DECORATION_LEVELS = [
 ] as const;
 
 export const SECTIONS = [
-  // Fase 1 — Entender o jogo
-  { id: "hero", label: "Início", icon: Home, phase: 1 },
-  // Fase 2 — Escolher onde investir
-  { id: "mapa-bairros", label: "Mapa de Bairros", icon: MapPin, phase: 2 },
-  { id: "mercado", label: "Mercado e Precificação", icon: DollarSign, phase: 2 },
-  { id: "diagnostico", label: "Perfil do Investidor", icon: Target, phase: 2 },
-  { id: "intelligence", label: "Short Stay Intelligence", icon: BarChart3, href: "/intelligence", phase: 2 },
-  // Fase 3 — Avaliar o ativo
-  { id: "escolha-ativo", label: "Escolha do Ativo", icon: Building2, phase: 3 },
-  // Fase 4 — Validar a conta
-  { id: "rentabilidade", label: "Matemática do Investimento", icon: PieChart, phase: 4 },
-  { id: "simulador", label: "Simulador de Receita", icon: Calculator, phase: 4 },
-  { id: "recomendacao", label: "Recomendação", icon: Trophy, phase: 4 },
-  // Fase 5 — Construir o produto
-  { id: "reservas", label: "O que move reservas", icon: TrendingUp, phase: 5 },
-  { id: "projeto", label: "Projeto arquitetônico", icon: Ruler, phase: 5 },
-  { id: "reforma", label: "Reforma inteligente", icon: Paintbrush, phase: 5 },
-  { id: "antichecklist", label: "Anti-checklist", icon: ShieldCheck, phase: 5 },
-  { id: "decoracao", label: "Decoração estratégica", icon: Palette, phase: 5 },
-  { id: "tendencias", label: "Tendências 2026", icon: Sparkles, phase: 5 },
-  // Fase 6 — Capturar receita
-  { id: "anuncio-pricing", label: "Anúncio e Precificação", icon: Megaphone, phase: 6 },
-  // Fase 7 — Agir com confiança
-  { id: "plano-acao", label: "Plano de Ação", icon: Target, phase: 7 },
-  { id: "casestudy", label: "Case study", icon: BookOpen, phase: 7 },
-  { id: "checklist", label: "Checklist investidor", icon: CheckSquare, phase: 7 },
-  { id: "faq", label: "FAQ", icon: HelpCircle, phase: 7 },
-  { id: "cta-final", label: "Solicitar diagnóstico", icon: Send, phase: 7 },
+  // Início
+  { id: "hero", label: "Início", icon: Home, phase: 0 },
+  // Bloco 1 — Onde investir
+  { id: "mapa-bairros", label: "Mapa de Bairros", icon: MapPin, phase: 1 },
+  { id: "mercado", label: "Mercado e Precificação", icon: DollarSign, phase: 1 },
+  { id: "intelligence", label: "Short Stay Intelligence", icon: BarChart3, href: "/intelligence", phase: 1 },
+  // Bloco 2 — Como validar a conta
+  { id: "escolha-ativo", label: "Escolha do Ativo", icon: Building2, phase: 2 },
+  { id: "rentabilidade", label: "Matemática do Investimento", icon: PieChart, phase: 2 },
+  { id: "simulador", label: "Simulador de Receita", icon: Calculator, phase: 2 },
+  // Bloco 3 — O que faz um studio performar
+  { id: "reservas", label: "O que move reservas", icon: TrendingUp, phase: 3 },
+  { id: "reforma", label: "Reforma inteligente", icon: Paintbrush, phase: 3 },
+  { id: "antichecklist", label: "Anti-checklist", icon: ShieldCheck, phase: 3 },
+  { id: "decoracao", label: "Decoração estratégica", icon: Palette, phase: 3 },
+  { id: "tendencias", label: "Tendências 2026", icon: Sparkles, phase: 3 },
+  // Bloco 4 — Como agir com confiança
+  { id: "anuncio-pricing", label: "Anúncio e Precificação", icon: Megaphone, phase: 4 },
+  { id: "casestudy", label: "Case study", icon: BookOpen, phase: 4 },
+  { id: "checklist", label: "Checklist investidor", icon: CheckSquare, phase: 4 },
+  { id: "faq", label: "FAQ", icon: HelpCircle, phase: 4 },
+  { id: "cta-final", label: "Solicitar diagnóstico", icon: Send, phase: 4 },
 ] as const;
 
 export type SectionItem = {
