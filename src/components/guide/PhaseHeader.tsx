@@ -22,7 +22,7 @@ export default function PhaseHeader({ number, label, description }: PhaseHeaderP
         <div className="h-px flex-1 bg-border" />
       </div>
       <p className="text-xs font-body font-bold uppercase tracking-[0.15em] text-primary/70 mb-1">
-        Fase {number} de 5
+        Fase {number} de 4
       </p>
       <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-1">
         {label}
