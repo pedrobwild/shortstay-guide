@@ -52,6 +52,7 @@ export default function AirbnbConnectionsList({
   const [loading, setLoading] = useState(true);
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Busca conexões do projeto
   const fetchConnections = useCallback(async () => {
