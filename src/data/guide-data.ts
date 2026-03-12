@@ -7,15 +7,12 @@ import {
   Calculator, Building2, PieChart, Megaphone,
 } from "lucide-react";
 
-/* ─── Phases ─── */
+/* ─── Phases (4 macro-blocks) ─── */
 export const PHASES = [
-  { number: 1, label: "Entender o jogo", description: "O que é short stay e como gera retorno" },
-  { number: 2, label: "Escolher onde investir", description: "Bairros, indicadores e inteligência de dados" },
-  { number: 3, label: "Avaliar o ativo", description: "Como escolher a unidade certa para short stay" },
-  { number: 4, label: "Validar a conta", description: "A matemática do investimento e simulação de cenários" },
-  { number: 5, label: "Construir o produto", description: "O studio que performa: projeto, reforma e operação" },
-  { number: 6, label: "Capturar receita", description: "Anúncio, precificação e posicionamento" },
-  { number: 7, label: "Agir com confiança", description: "Evidências, checklist e próximo passo" },
+  { number: 1, label: "Onde investir", description: "Bairros, indicadores e inteligência de dados" },
+  { number: 2, label: "Como validar a conta", description: "Escolha do ativo, matemática do investimento e simulação" },
+  { number: 3, label: "O que faz um studio performar", description: "Produto, reforma, decoração e operação" },
+  { number: 4, label: "Como agir com confiança", description: "Anúncio, precificação, evidências e próximo passo" },
 ] as const;
 
 /* ─── Bairro fallback data ─── */
