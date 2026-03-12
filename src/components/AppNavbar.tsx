@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, FolderOpen } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import bwildLogo from "@/assets/bwild-logo.png";
 
@@ -34,6 +34,12 @@ export default function AppNavbar() {
           <div className="flex items-center gap-3">
             {user ? (
               <>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/projetos" className="gap-1.5">
+                    <FolderOpen className="h-4 w-4" />
+                    <span className="hidden sm:inline">Meus Projetos</span>
+                  </Link>
+                </Button>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <User className="h-4 w-4" />
                   <span className="hidden sm:inline">{displayName}</span>
