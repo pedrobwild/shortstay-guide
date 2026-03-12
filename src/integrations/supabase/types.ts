@@ -197,6 +197,112 @@ export type Database = {
         }
         Relationships: []
       }
+      ota_calendar_events: {
+        Row: {
+          connection_id: string
+          end_date: string
+          external_event_uid: string | null
+          id: string
+          raw_payload: Json | null
+          start_date: string
+          summary: string | null
+          synced_at: string
+        }
+        Insert: {
+          connection_id: string
+          end_date: string
+          external_event_uid?: string | null
+          id?: string
+          raw_payload?: Json | null
+          start_date: string
+          summary?: string | null
+          synced_at?: string
+        }
+        Update: {
+          connection_id?: string
+          end_date?: string
+          external_event_uid?: string | null
+          id?: string
+          raw_payload?: Json | null
+          start_date?: string
+          summary?: string | null
+          synced_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ota_calendar_events_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "ota_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ota_connections: {
+        Row: {
+          connection_type: string
+          created_at: string
+          external_listing_id: string | null
+          ical_url: string | null
+          id: string
+          last_synced_at: string | null
+          project_id: string
+          provider: string
+          status: string
+        }
+        Insert: {
+          connection_type?: string
+          created_at?: string
+          external_listing_id?: string | null
+          ical_url?: string | null
+          id?: string
+          last_synced_at?: string | null
+          project_id: string
+          provider?: string
+          status?: string
+        }
+        Update: {
+          connection_type?: string
+          created_at?: string
+          external_listing_id?: string | null
+          ical_url?: string | null
+          id?: string
+          last_synced_at?: string | null
+          project_id?: string
+          provider?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ota_connections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       raw_listings: {
         Row: {
           adr_estimado: number | null
@@ -313,7 +419,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      user_owns_ota_connection: {
+        Args: { _connection_id: string; _user_id: string }
+        Returns: boolean
+      }
+      user_owns_project: {
+        Args: { _project_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
