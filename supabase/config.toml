@@ -2,3 +2,6 @@ project_id = "zxdjgifncmkvjbjmrjss"
 
 [functions.chat]
 verify_jwt = false
+
+[functions.sync-airbnb-ical]
+verify_jwt = false
