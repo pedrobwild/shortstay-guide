@@ -3,14 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, RefreshCw, Trash2, ExternalLink, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react";
+import { Loader2, RefreshCw, Trash2, ExternalLink, ChevronDown, ChevronUp, AlertTriangle, FlaskConical } from "lucide-react";
 import AirbnbEventsList from "./AirbnbEventsList";
 
-/**
- * Lista as conexões Airbnb iCal de um projeto.
- * Melhorias: confirmação de exclusão, proteção contra duplo clique,
- * disable de sync durante operações, expand de eventos após sync.
- */
 interface OtaConnection {
   id: string;
   provider: string;
@@ -19,6 +14,7 @@ interface OtaConnection {
   status: string;
   last_synced_at: string | null;
   created_at: string;
+  is_test: boolean;
 }
 
 interface AirbnbConnectionsListProps {
@@ -52,7 +48,6 @@ export default function AirbnbConnectionsList({
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  // Incrementado após sync para forçar reload de eventos no AirbnbEventsList
   const [eventsRefreshKey, setEventsRefreshKey] = useState(0);
 
   const fetchConnections = useCallback(async () => {
@@ -77,9 +72,8 @@ export default function AirbnbConnectionsList({
     fetchConnections();
   }, [fetchConnections, refreshKey]);
 
-  // Sincronizar — protegido contra duplo clique
   const handleSync = async (connectionId: string) => {
-    if (syncingId) return; // Já sincronizando outra
+    if (syncingId) return;
     setSyncingId(connectionId);
     try {
       const { data, error } = await supabase.functions.invoke("sync-airbnb-ical", {
@@ -89,11 +83,11 @@ export default function AirbnbConnectionsList({
       if (error) throw error;
 
       if (data?.success) {
+        const testLabel = data.isTest ? " (dados de teste)" : "";
         toast({
           title: "Sincronização concluída!",
-          description: `${data.eventsImported} evento(s) importado(s).`,
+          description: `${data.eventsImported} evento(s) importado(s)${testLabel}.`,
         });
-        // Expande eventos automaticamente após sync bem-sucedido
         setExpandedId(connectionId);
         setEventsRefreshKey((k) => k + 1);
       } else {
@@ -109,7 +103,6 @@ export default function AirbnbConnectionsList({
     }
   };
 
-  // Remover — com confirmação
   const handleDelete = async (connectionId: string) => {
     if (deletingId) return;
 
@@ -120,6 +113,12 @@ export default function AirbnbConnectionsList({
 
     setDeletingId(connectionId);
     try {
+      // Apagar eventos antes (cascade pode não estar ativo via RLS)
+      await supabase
+        .from("ota_calendar_events")
+        .delete()
+        .eq("connection_id", connectionId);
+
       const { error } = await supabase
         .from("ota_connections")
         .delete()
@@ -128,7 +127,6 @@ export default function AirbnbConnectionsList({
       if (error) throw error;
 
       toast({ title: "Conexão removida" });
-      // Limpa expand se era esta conexão
       if (expandedId === connectionId) setExpandedId(null);
       await fetchConnections();
     } catch (err: any) {
@@ -138,7 +136,6 @@ export default function AirbnbConnectionsList({
     }
   };
 
-  // Qualquer operação em andamento desabilita ações
   const isBusy = !!syncingId || !!deletingId;
 
   if (loading) {
@@ -165,83 +162,100 @@ export default function AirbnbConnectionsList({
         const isSyncing = syncingId === conn.id;
         const isDeleting = deletingId === conn.id;
         return (
-        <div
-          key={conn.id}
-          className="rounded-lg border border-border bg-card overflow-hidden"
-        >
-          <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-            <div className="flex-1 min-w-0 space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm font-medium text-foreground capitalize">{conn.provider}</span>
-                <Badge variant={statusVariant(conn.status)} className="text-xs">
-                  {conn.status === "error" && <AlertTriangle className="h-3 w-3 mr-1" />}
-                  {statusLabel(conn.status)}
-                </Badge>
+          <div
+            key={conn.id}
+            className={`rounded-lg border bg-card overflow-hidden ${
+              conn.is_test ? "border-dashed border-muted-foreground/30" : "border-border"
+            }`}
+          >
+            <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex-1 min-w-0 space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-medium text-foreground capitalize">{conn.provider}</span>
+                  <Badge variant={statusVariant(conn.status)} className="text-xs">
+                    {conn.status === "error" && <AlertTriangle className="h-3 w-3 mr-1" />}
+                    {statusLabel(conn.status)}
+                  </Badge>
+                  {/* Badge visual para conexões de teste */}
+                  {conn.is_test && (
+                    <Badge variant="outline" className="text-xs gap-1">
+                      <FlaskConical className="h-3 w-3" />
+                      Teste
+                    </Badge>
+                  )}
+                </div>
+
+                {/* URL (só para conexões reais) */}
+                {!conn.is_test && conn.ical_url && (
+                  <p className="text-xs text-muted-foreground truncate max-w-md" title={conn.ical_url}>
+                    <ExternalLink className="inline h-3 w-3 mr-1 -mt-0.5" />
+                    {conn.ical_url}
+                  </p>
+                )}
+
+                {/* Mensagem explicativa para teste */}
+                {conn.is_test && (
+                  <p className="text-xs text-muted-foreground italic">
+                    Conexão de teste — gera eventos fictícios ao sincronizar.
+                  </p>
+                )}
+
+                <p className="text-xs text-muted-foreground">
+                  {conn.last_synced_at
+                    ? `Última sync: ${new Date(conn.last_synced_at).toLocaleString("pt-BR")}`
+                    : "Nunca sincronizado"}
+                </p>
               </div>
 
-              {conn.ical_url && (
-                <p className="text-xs text-muted-foreground truncate max-w-md" title={conn.ical_url}>
-                  <ExternalLink className="inline h-3 w-3 mr-1 -mt-0.5" />
-                  {conn.ical_url}
-                </p>
-              )}
+              <div className="flex gap-2 shrink-0">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setExpandedId(isExpanded ? null : conn.id)}
+                  disabled={isBusy}
+                >
+                  {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  <span className="ml-1 text-xs hidden sm:inline">Eventos</span>
+                </Button>
 
-              <p className="text-xs text-muted-foreground">
-                {conn.last_synced_at
-                  ? `Última sync: ${new Date(conn.last_synced_at).toLocaleString("pt-BR")}`
-                  : "Nunca sincronizado"}
-              </p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleSync(conn.id)}
+                  disabled={isBusy}
+                >
+                  {isSyncing ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-4 w-4" />
+                  )}
+                  <span className="ml-1 hidden sm:inline">
+                    {isSyncing ? "Sincronizando..." : "Sincronizar"}
+                  </span>
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleDelete(conn.id)}
+                  disabled={isBusy}
+                  className="text-destructive hover:text-destructive"
+                >
+                  {isDeleting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
             </div>
 
-            <div className="flex gap-2 shrink-0">
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setExpandedId(isExpanded ? null : conn.id)}
-                disabled={isBusy}
-              >
-                {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                <span className="ml-1 text-xs hidden sm:inline">Eventos</span>
-              </Button>
-
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleSync(conn.id)}
-                disabled={isBusy}
-              >
-                {isSyncing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-4 w-4" />
-                )}
-                <span className="ml-1 hidden sm:inline">
-                  {isSyncing ? "Sincronizando..." : "Sincronizar"}
-                </span>
-              </Button>
-
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleDelete(conn.id)}
-                disabled={isBusy}
-                className="text-destructive hover:text-destructive"
-              >
-                {isDeleting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Trash2 className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
+            {isExpanded && (
+              <div className="border-t border-border px-4 py-3 bg-muted/30">
+                <AirbnbEventsList connectionId={conn.id} key={`${conn.id}-${eventsRefreshKey}`} />
+              </div>
+            )}
           </div>
-
-          {isExpanded && (
-            <div className="border-t border-border px-4 py-3 bg-muted/30">
-              <AirbnbEventsList connectionId={conn.id} key={`${conn.id}-${eventsRefreshKey}`} />
-            </div>
-          )}
-        </div>
         );
       })}
     </div>
