@@ -14,6 +14,7 @@ const IntelligenceDashboard = lazy(() => import("./pages/IntelligenceDashboard")
 const IntelligenceRanking = lazy(() => import("./pages/IntelligenceRanking"));
 const IntelligenceBairroDetail = lazy(() => import("./pages/IntelligenceBairroDetail"));
 const IntelligenceListings = lazy(() => import("./pages/IntelligenceListings"));
+const Projects = lazy(() => import("./pages/Projects"));
 const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
