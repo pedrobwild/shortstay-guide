@@ -20,6 +20,7 @@ interface OtaConnection {
 interface AirbnbConnectionsListProps {
   projectId: string;
   refreshKey?: number;
+  onDataChanged?: () => void;
 }
 
 function statusVariant(status: string) {
