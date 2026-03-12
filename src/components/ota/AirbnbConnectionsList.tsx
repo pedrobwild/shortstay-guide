@@ -20,6 +20,7 @@ interface OtaConnection {
 interface AirbnbConnectionsListProps {
   projectId: string;
   refreshKey?: number;
+  onDataChanged?: () => void;
 }
 
 function statusVariant(status: string) {
@@ -42,6 +43,7 @@ function statusLabel(status: string) {
 export default function AirbnbConnectionsList({
   projectId,
   refreshKey = 0,
+  onDataChanged,
 }: AirbnbConnectionsListProps) {
   const [connections, setConnections] = useState<OtaConnection[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,6 +97,7 @@ export default function AirbnbConnectionsList({
       }
 
       await fetchConnections();
+      onDataChanged?.();
     } catch (err: any) {
       toast({ title: "Erro na sincronização", description: err.message, variant: "destructive" });
       await fetchConnections();
@@ -129,6 +132,7 @@ export default function AirbnbConnectionsList({
       toast({ title: "Conexão removida" });
       if (expandedId === connectionId) setExpandedId(null);
       await fetchConnections();
+      onDataChanged?.();
     } catch (err: any) {
       toast({ title: "Erro ao remover", description: err.message, variant: "destructive" });
     } finally {
