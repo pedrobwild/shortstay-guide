@@ -2,12 +2,16 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
+import {
+  Loader2, ChevronLeft, ChevronRight, CalendarDays,
+  LayoutGrid, List, Calendar, Moon,
+} from "lucide-react";
 
 // ============================================================
-// Calendário visual mensal para eventos importados via iCal.
-// Mostra reservas e bloqueios como barras coloridas no grid.
+// Calendário visual + lista para eventos importados via iCal.
+// Suporta toggle entre grid mensal e lista, e popover de detalhes.
 // ============================================================
 
 interface CalendarEvent {
@@ -19,56 +23,144 @@ interface CalendarEvent {
 }
 
 interface AirbnbCalendarGridProps {
-  /** ID do projeto — busca eventos de TODAS as conexões desse projeto */
   projectId: string;
-  /** Incrementar para forçar reload */
   refreshKey?: number;
 }
 
-// ---------- Helpers de data ----------
+// ---------- Helpers ----------
 
-/** Retorna o primeiro dia do mês (Date local) */
-function firstOfMonth(year: number, month: number): Date {
-  return new Date(year, month, 1);
-}
-
-/** Retorna quantos dias tem o mês */
 function daysInMonth(year: number, month: number): number {
   return new Date(year, month + 1, 0).getDate();
 }
 
-/** Converte "YYYY-MM-DD" para Date local (sem timezone) */
 function parseLocalDate(str: string): Date {
   const [y, m, d] = str.split("-").map(Number);
   return new Date(y, m - 1, d);
 }
 
-/** Formata nome do mês em pt-BR */
-function monthName(month: number): string {
-  const names = [
-    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
-  ];
-  return names[month];
+function formatDateBR(str: string): string {
+  const [y, m, d] = str.split("-");
+  return `${d}/${m}/${y}`;
 }
 
-/** Nomes dos dias da semana abreviados */
+function calcNights(start: string, end: string): number {
+  const ms = parseLocalDate(end).getTime() - parseLocalDate(start).getTime();
+  return Math.max(0, Math.round(ms / (1000 * 60 * 60 * 24)));
+}
+
+function monthName(month: number): string {
+  return [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
+  ][month];
+}
+
 const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
-/** Checa se uma data (dia) está dentro do range [start, end) */
 function isDayInRange(day: Date, startStr: string, endStr: string): boolean {
   const start = parseLocalDate(startStr);
   const end = parseLocalDate(endStr);
   return day >= start && day < end;
 }
 
-/** Cores para diferenciar eventos (ciclam se houver muitos) */
 const EVENT_COLORS = [
   "bg-primary/20 text-primary border-primary/30",
   "bg-accent/20 text-accent-foreground border-accent/30",
   "bg-destructive/15 text-destructive border-destructive/30",
   "bg-secondary text-secondary-foreground border-border",
 ];
+
+// ---------- Subcomponente: Popover de detalhes do evento ----------
+
+function EventPopover({
+  event,
+  colorClass,
+  label,
+}: {
+  event: CalendarEvent;
+  colorClass: string;
+  label: string;
+}) {
+  const nights = calcNights(event.start_date, event.end_date);
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          className={`text-[10px] leading-tight px-1 py-0.5 rounded border truncate w-full text-left cursor-pointer hover:opacity-80 transition-opacity ${colorClass}`}
+        >
+          {label}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-64 p-3 space-y-2" side="top" align="start">
+        <p className="text-sm font-medium text-foreground">
+          {event.summary || "Evento sem título"}
+        </p>
+        <div className="space-y-1 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <Calendar className="h-3.5 w-3.5 shrink-0" />
+            <span>{formatDateBR(event.start_date)} → {formatDateBR(event.end_date)}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Moon className="h-3.5 w-3.5 shrink-0" />
+            <span>{nights} noite{nights !== 1 ? "s" : ""}</span>
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+// ---------- Subcomponente: Vista em lista ----------
+
+function EventsListView({
+  events,
+  colorMap,
+}: {
+  events: CalendarEvent[];
+  colorMap: Map<string, number>;
+}) {
+  if (events.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground text-sm space-y-1">
+        <CalendarDays className="h-8 w-8 mx-auto opacity-40" />
+        <p>Nenhum evento importado.</p>
+        <p className="text-xs">Sincronize uma conexão para ver reservas e bloqueios.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {events.map((ev) => {
+        const nights = calcNights(ev.start_date, ev.end_date);
+        const colorIdx = colorMap.get(ev.connection_id) ?? 0;
+        const colorClass = EVENT_COLORS[colorIdx];
+        return (
+          <div
+            key={ev.id}
+            className="rounded-md border border-border bg-card px-4 py-3 flex items-start gap-3"
+          >
+            <div className={`w-1 self-stretch rounded-full shrink-0 ${colorClass.split(" ")[0]}`} />
+            <div className="flex-1 min-w-0 space-y-0.5">
+              <p className="text-sm font-medium text-foreground">
+                {formatDateBR(ev.start_date)} → {formatDateBR(ev.end_date)}
+                <span className="ml-2 text-xs text-muted-foreground font-normal">
+                  ({nights} noite{nights !== 1 ? "s" : ""})
+                </span>
+              </p>
+              {ev.summary && (
+                <p className="text-xs text-muted-foreground">{ev.summary}</p>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ---------- Componente principal ----------
 
 export default function AirbnbCalendarGrid({
   projectId,
@@ -79,8 +171,9 @@ export default function AirbnbCalendarGrid({
   const [month, setMonth] = useState(today.getMonth());
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<"calendar" | "list">("calendar");
 
-  // ---------- Navegação de meses ----------
+  // Navegação
   const goToPrev = () => {
     if (month === 0) { setMonth(11); setYear((y) => y - 1); }
     else setMonth((m) => m - 1);
@@ -94,11 +187,10 @@ export default function AirbnbCalendarGrid({
     setMonth(today.getMonth());
   };
 
-  // ---------- Fetch de eventos ----------
+  // Fetch
   const fetchEvents = useCallback(async () => {
     setLoading(true);
     try {
-      // Buscar IDs das conexões deste projeto
       const { data: conns, error: connErr } = await supabase
         .from("ota_connections")
         .select("id")
@@ -131,11 +223,7 @@ export default function AirbnbCalendarGrid({
     fetchEvents();
   }, [fetchEvents, refreshKey]);
 
-  // ---------- Grid do mês ----------
-  const totalDays = daysInMonth(year, month);
-  const startWeekday = firstOfMonth(year, month).getDay(); // 0=Dom
-
-  // Mapa: connectionId → índice de cor
+  // Color map
   const colorMap = useMemo(() => {
     const map = new Map<string, number>();
     let idx = 0;
@@ -148,7 +236,10 @@ export default function AirbnbCalendarGrid({
     return map;
   }, [events]);
 
-  // Para cada dia do mês, quais eventos estão ativos
+  // Grid data
+  const totalDays = daysInMonth(year, month);
+  const startWeekday = new Date(year, month, 1).getDay();
+
   const daysGrid = useMemo(() => {
     const grid: Array<{ day: number; date: Date; events: CalendarEvent[] }> = [];
     for (let d = 1; d <= totalDays; d++) {
@@ -159,11 +250,9 @@ export default function AirbnbCalendarGrid({
     return grid;
   }, [year, month, totalDays, events]);
 
-  // ---------- Hoje ----------
   const isToday = (d: number) =>
     year === today.getFullYear() && month === today.getMonth() && d === today.getDate();
 
-  // ---------- Render ----------
   if (loading) {
     return (
       <div className="flex items-center justify-center py-10 text-muted-foreground text-sm">
@@ -175,7 +264,7 @@ export default function AirbnbCalendarGrid({
 
   return (
     <div className="space-y-4">
-      {/* Header: navegação do mês */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <CalendarDays className="h-5 w-5 text-primary" />
@@ -184,104 +273,123 @@ export default function AirbnbCalendarGrid({
           </h3>
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" onClick={goToPrev} aria-label="Mês anterior">
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={goToToday} className="text-xs px-2">
-            Hoje
-          </Button>
-          <Button variant="ghost" size="sm" onClick={goToNext} aria-label="Próximo mês">
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+          {/* Toggle de visualização */}
+          <div className="flex border border-border rounded-md mr-2">
+            <Button
+              variant={view === "calendar" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setView("calendar")}
+              className="rounded-r-none h-8 px-2"
+              aria-label="Visualização calendário"
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant={view === "list" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setView("list")}
+              className="rounded-l-none h-8 px-2"
+              aria-label="Visualização lista"
+            >
+              <List className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+
+          {/* Navegação de mês (só no modo calendário) */}
+          {view === "calendar" && (
+            <>
+              <Button variant="ghost" size="sm" onClick={goToPrev} aria-label="Mês anterior">
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" onClick={goToToday} className="text-xs px-2">
+                Hoje
+              </Button>
+              <Button variant="ghost" size="sm" onClick={goToNext} aria-label="Próximo mês">
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Grid do calendário */}
-      <div className="rounded-lg border border-border bg-card overflow-hidden">
-        {/* Dias da semana */}
-        <div className="grid grid-cols-7 border-b border-border bg-muted/50">
-          {WEEKDAYS.map((wd) => (
-            <div key={wd} className="text-center text-xs font-medium text-muted-foreground py-2">
-              {wd}
-            </div>
-          ))}
-        </div>
-
-        {/* Células dos dias */}
-        <div className="grid grid-cols-7">
-          {/* Espaços vazios antes do primeiro dia */}
-          {Array.from({ length: startWeekday }).map((_, i) => (
-            <div key={`empty-${i}`} className="border-b border-r border-border bg-muted/20 min-h-[72px]" />
-          ))}
-
-          {/* Dias do mês */}
-          {daysGrid.map(({ day, events: dayEvents }) => {
-            const todayHighlight = isToday(day);
-            return (
-              <div
-                key={day}
-                className={`border-b border-r border-border min-h-[72px] p-1 transition-colors ${
-                  todayHighlight ? "bg-primary/5" : "hover:bg-muted/30"
-                }`}
-              >
-                {/* Número do dia */}
-                <div className="flex items-center justify-between mb-0.5">
-                  <span
-                    className={`text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full ${
-                      todayHighlight
-                        ? "bg-primary text-primary-foreground"
-                        : "text-foreground"
-                    }`}
-                  >
-                    {day}
-                  </span>
-                </div>
-
-                {/* Eventos desse dia (máximo 2 visíveis + badge "+N") */}
-                <div className="space-y-0.5">
-                  {dayEvents.slice(0, 2).map((ev) => {
-                    const colorIdx = colorMap.get(ev.connection_id) ?? 0;
-                    const colorClass = EVENT_COLORS[colorIdx];
-                    return (
-                      <div
-                        key={ev.id}
-                        className={`text-[10px] leading-tight px-1 py-0.5 rounded border truncate ${colorClass}`}
-                        title={ev.summary || "Evento"}
-                      >
-                        {ev.summary
-                          ? ev.summary.length > 16
-                            ? ev.summary.substring(0, 14) + "…"
-                            : ev.summary
-                          : "Evento"}
-                      </div>
-                    );
-                  })}
-                  {dayEvents.length > 2 && (
-                    <span className="text-[10px] text-muted-foreground pl-1">
-                      +{dayEvents.length - 2}
-                    </span>
-                  )}
-                </div>
+      {/* Conteúdo: calendário ou lista */}
+      {view === "calendar" ? (
+        <div className="rounded-lg border border-border bg-card overflow-hidden">
+          {/* Dias da semana */}
+          <div className="grid grid-cols-7 border-b border-border bg-muted/50">
+            {WEEKDAYS.map((wd) => (
+              <div key={wd} className="text-center text-xs font-medium text-muted-foreground py-2">
+                {wd}
               </div>
-            );
-          })}
-        </div>
-      </div>
+            ))}
+          </div>
 
-      {/* Legenda / resumo */}
-      {events.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-2">
-          Nenhum evento importado. Sincronize uma conexão para ver reservas e bloqueios aqui.
-        </p>
+          {/* Células */}
+          <div className="grid grid-cols-7">
+            {Array.from({ length: startWeekday }).map((_, i) => (
+              <div key={`empty-${i}`} className="border-b border-r border-border bg-muted/20 min-h-[72px]" />
+            ))}
+
+            {daysGrid.map(({ day, events: dayEvents }) => {
+              const todayHighlight = isToday(day);
+              return (
+                <div
+                  key={day}
+                  className={`border-b border-r border-border min-h-[72px] p-1 transition-colors ${
+                    todayHighlight ? "bg-primary/5" : "hover:bg-muted/30"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span
+                      className={`text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full ${
+                        todayHighlight ? "bg-primary text-primary-foreground" : "text-foreground"
+                      }`}
+                    >
+                      {day}
+                    </span>
+                  </div>
+
+                  <div className="space-y-0.5">
+                    {dayEvents.slice(0, 2).map((ev) => {
+                      const colorIdx = colorMap.get(ev.connection_id) ?? 0;
+                      const colorClass = EVENT_COLORS[colorIdx];
+                      const label = ev.summary
+                        ? ev.summary.length > 14 ? ev.summary.substring(0, 12) + "…" : ev.summary
+                        : "Evento";
+                      return (
+                        <EventPopover
+                          key={ev.id}
+                          event={ev}
+                          colorClass={colorClass}
+                          label={label}
+                        />
+                      );
+                    })}
+                    {dayEvents.length > 2 && (
+                      <span className="text-[10px] text-muted-foreground pl-1">
+                        +{dayEvents.length - 2}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       ) : (
+        <EventsListView events={events} colorMap={colorMap} />
+      )}
+
+      {/* Rodapé */}
+      {events.length > 0 && (
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>
             <Badge variant="secondary" className="text-xs mr-1">{events.length}</Badge>
             evento{events.length !== 1 ? "s" : ""} no total
           </span>
-          <span>
-            Eventos com datas neste mês são destacados no grid.
-          </span>
+          {view === "calendar" && (
+            <span>Clique em um evento para ver detalhes.</span>
+          )}
         </div>
       )}
     </div>
