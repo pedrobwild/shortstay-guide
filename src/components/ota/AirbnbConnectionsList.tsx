@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, RefreshCw, Trash2, ExternalLink } from "lucide-react";
+import { Loader2, RefreshCw, Trash2, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
+import AirbnbEventsList from "./AirbnbEventsList";
 
 /**
  * Lista as conexões Airbnb iCal de um projeto.
@@ -51,6 +52,7 @@ export default function AirbnbConnectionsList({
   const [loading, setLoading] = useState(true);
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Busca conexões do projeto
   const fetchConnections = useCallback(async () => {
@@ -143,68 +145,89 @@ export default function AirbnbConnectionsList({
 
   return (
     <div className="space-y-3">
-      {connections.map((conn) => (
+      {connections.map((conn) => {
+        const isExpanded = expandedId === conn.id;
+        return (
         <div
           key={conn.id}
-          className="rounded-lg border border-border bg-card p-4 flex flex-col sm:flex-row sm:items-center gap-3"
+          className="rounded-lg border border-border bg-card overflow-hidden"
         >
-          {/* Info */}
-          <div className="flex-1 min-w-0 space-y-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm font-medium text-foreground capitalize">{conn.provider}</span>
-              <Badge variant={statusVariant(conn.status)} className="text-xs">
-                {statusLabel(conn.status)}
-              </Badge>
+          <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+            {/* Info */}
+            <div className="flex-1 min-w-0 space-y-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm font-medium text-foreground capitalize">{conn.provider}</span>
+                <Badge variant={statusVariant(conn.status)} className="text-xs">
+                  {statusLabel(conn.status)}
+                </Badge>
+              </div>
+
+              {conn.ical_url && (
+                <p className="text-xs text-muted-foreground truncate max-w-md" title={conn.ical_url}>
+                  <ExternalLink className="inline h-3 w-3 mr-1 -mt-0.5" />
+                  {conn.ical_url}
+                </p>
+              )}
+
+              <p className="text-xs text-muted-foreground">
+                {conn.last_synced_at
+                  ? `Última sync: ${new Date(conn.last_synced_at).toLocaleString("pt-BR")}`
+                  : "Nunca sincronizado"}
+              </p>
             </div>
 
-            {conn.ical_url && (
-              <p className="text-xs text-muted-foreground truncate max-w-md" title={conn.ical_url}>
-                <ExternalLink className="inline h-3 w-3 mr-1 -mt-0.5" />
-                {conn.ical_url}
-              </p>
-            )}
+            {/* Ações */}
+            <div className="flex gap-2 shrink-0">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setExpandedId(isExpanded ? null : conn.id)}
+              >
+                {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                <span className="ml-1 text-xs hidden sm:inline">Eventos</span>
+              </Button>
 
-            <p className="text-xs text-muted-foreground">
-              {conn.last_synced_at
-                ? `Última sync: ${new Date(conn.last_synced_at).toLocaleString("pt-BR")}`
-                : "Nunca sincronizado"}
-            </p>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleSync(conn.id)}
+                disabled={syncingId === conn.id}
+              >
+                {syncingId === conn.id ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+                <span className="ml-1 hidden sm:inline">
+                  {syncingId === conn.id ? "Sincronizando..." : "Sincronizar"}
+                </span>
+              </Button>
+
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => handleDelete(conn.id)}
+                disabled={deletingId === conn.id}
+                className="text-destructive hover:text-destructive"
+              >
+                {deletingId === conn.id ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
           </div>
 
-          {/* Ações */}
-          <div className="flex gap-2 shrink-0">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handleSync(conn.id)}
-              disabled={syncingId === conn.id}
-            >
-              {syncingId === conn.id ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4" />
-              )}
-              <span className="ml-1 hidden sm:inline">
-                {syncingId === conn.id ? "Sincronizando..." : "Sincronizar"}
-              </span>
-            </Button>
-
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => handleDelete(conn.id)}
-              disabled={deletingId === conn.id}
-              className="text-destructive hover:text-destructive"
-            >
-              {deletingId === conn.id ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Trash2 className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
+          {/* Eventos expandidos */}
+          {isExpanded && (
+            <div className="border-t border-border px-4 py-3 bg-muted/30">
+              <AirbnbEventsList connectionId={conn.id} />
+            </div>
+          )}
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
