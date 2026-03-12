@@ -24,13 +24,9 @@ import PhaseHeader from "@/components/guide/PhaseHeader";
 import ReservasSection from "@/components/guide/ReservasSection";
 import MercadoSection from "@/components/guide/MercadoSection";
 import SimuladorSection from "@/components/guide/SimuladorSection";
-import ProjetoSection from "@/components/guide/ProjetoSection";
 import EscolhaAtivoSection from "@/components/guide/EscolhaAtivoSection";
 import RentabilidadeSection from "@/components/guide/RentabilidadeSection";
 import AnuncioPrecificacaoSection from "@/components/guide/AnuncioPrecificacaoSection";
-import DiagnosticoInvestidorSection from "@/components/guide/DiagnosticoInvestidorSection";
-import RecomendacaoSection from "@/components/guide/RecomendacaoSection";
-import PlanoAcaoSection from "@/components/guide/PlanoAcaoSection";
 import MidPageCTA from "@/components/guide/MidPageCTA";
 import ReformaSection from "@/components/guide/ReformaSection";
 import AntiChecklistSection from "@/components/guide/AntiChecklistSection";
@@ -97,9 +93,7 @@ function IndexInner() {
 
       <main className="lg:ml-[60px] w-full flex flex-col items-center pb-24 lg:pb-8 pt-16 lg:pt-0">
 
-        {/* ═══════════════════════════════════════════════════════
-            FASE 1 — Entender o jogo
-        ═══════════════════════════════════════════════════════ */}
+        {/* ═══ HERO ═══ */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10 py-0 lg:py-10">
             <HeroSection />
@@ -107,11 +101,11 @@ function IndexInner() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════
-            FASE 2 — Escolher onde investir
+            BLOCO 1 — Onde investir
         ═══════════════════════════════════════════════════════ */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <PhaseHeader {...phase(2)} />
+            <PhaseHeader {...phase(1)} />
           </div>
         </div>
 
@@ -162,41 +156,19 @@ function IndexInner() {
           </div>
         </div>
 
-        {/* Diagnóstico do Investidor */}
-        <div className="w-full">
-          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <DiagnosticoInvestidorSection />
-          </div>
-        </div>
-
-        {/* Intelligence CTA */}
-        <div className="w-full">
-          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <MidPageCTA variant="slim" />
-          </div>
-        </div>
-
         {/* ═══════════════════════════════════════════════════════
-            FASE 3 — Avaliar o ativo
+            BLOCO 2 — Como validar a conta
         ═══════════════════════════════════════════════════════ */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <PhaseHeader {...phase(3)} />
+            <PhaseHeader {...phase(2)} />
           </div>
         </div>
 
+        {/* Escolha do Ativo */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <EscolhaAtivoSection />
-          </div>
-        </div>
-
-        {/* ═══════════════════════════════════════════════════════
-            FASE 4 — Validar a conta
-        ═══════════════════════════════════════════════════════ */}
-        <div className="w-full">
-          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <PhaseHeader {...phase(4)} />
           </div>
         </div>
 
@@ -214,33 +186,26 @@ function IndexInner() {
           </div>
         </div>
 
-        {/* Recomendação Personalizada */}
-        <div className="w-full bg-muted/20">
+        {/* CTA intermediário */}
+        <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <RecomendacaoSection />
+            <MidPageCTA variant="slim" />
           </div>
         </div>
 
         {/* ═══════════════════════════════════════════════════════
-            FASE 5 — Construir o produto
+            BLOCO 3 — O que faz um studio performar
         ═══════════════════════════════════════════════════════ */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <PhaseHeader {...phase(5)} />
+            <PhaseHeader {...phase(3)} />
           </div>
         </div>
 
-        {/* Reservas — o que move reservas */}
+        {/* O que move reservas */}
         <div className="w-full bg-muted/20">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <ReservasSection />
-          </div>
-        </div>
-
-        {/* Projeto Arquitetônico */}
-        <div className="w-full">
-          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <ProjetoSection />
           </div>
         </div>
 
@@ -275,40 +240,18 @@ function IndexInner() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════
-            FASE 6 — Capturar receita
+            BLOCO 4 — Como agir com confiança
         ═══════════════════════════════════════════════════════ */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <PhaseHeader {...phase(6)} />
+            <PhaseHeader {...phase(4)} />
           </div>
         </div>
 
+        {/* Anúncio e Precificação */}
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <AnuncioPrecificacaoSection />
-          </div>
-        </div>
-
-        {/* MidPageCTA between Fase 6 and 7 */}
-        <div className="w-full">
-          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <MidPageCTA variant="slim" />
-          </div>
-        </div>
-
-        {/* ═══════════════════════════════════════════════════════
-            FASE 7 — Agir com confiança
-        ═══════════════════════════════════════════════════════ */}
-        <div className="w-full">
-          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <PhaseHeader {...phase(7)} />
-          </div>
-        </div>
-
-        {/* Plano de Ação */}
-        <div className="w-full">
-          <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
-            <PlanoAcaoSection />
           </div>
         </div>
 
