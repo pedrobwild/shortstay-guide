@@ -87,6 +87,7 @@ function IndexInner() {
 
   return (
     <>
+      <AppNavbar />
       <ScrollProgressBar percent={scrollPercent} />
       <ResumeToast data={resumeData} onDismiss={dismissResume} />
       <TableOfContents activeId={activeId} visitedSections={visitedSections} />
