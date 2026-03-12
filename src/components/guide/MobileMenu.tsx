@@ -36,8 +36,21 @@ export default function MobileMenu({ activeId, sectionIndex, sectionCount }: Pro
             <SheetTitle className="flex items-center gap-2"><img src={bwildLogo} alt="Bwild" className="h-7 w-auto" /></SheetTitle>
           </SheetHeader>
           <nav className="px-3 py-4 overflow-y-auto max-h-[calc(100vh-120px)] scrollbar-thin">
+            {/* Hero items */}
+            <ul className="space-y-0.5 mb-2">
+              {heroSections.map((s) => {
+                const Icon = s.icon;
+                const isActive = activeId === s.id;
+                return (
+                  <li key={s.id}>
+                    <a href={`#${s.id}`} onClick={() => setOpen(false)} className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-body transition-all duration-200 ${isActive ? "bg-primary text-primary-foreground font-semibold shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-muted/60"}`}>
+                      <Icon size={14} className="shrink-0" /><span className="truncate">{s.label}</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
             {sectionsByPhase.map((phase) => (
-              <div key={phase.number}>
                 <p className="text-[10px] font-body font-bold uppercase tracking-[0.15em] text-primary/50 mt-4 mb-2 px-2 first:mt-0">
                   {phase.number}. {phase.label}
                 </p>
