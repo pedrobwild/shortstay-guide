@@ -43,6 +43,7 @@ function statusLabel(status: string) {
 export default function AirbnbConnectionsList({
   projectId,
   refreshKey = 0,
+  onDataChanged,
 }: AirbnbConnectionsListProps) {
   const [connections, setConnections] = useState<OtaConnection[]>([]);
   const [loading, setLoading] = useState(true);
