@@ -245,6 +245,7 @@ export type Database = {
           external_listing_id: string | null
           ical_url: string | null
           id: string
+          is_test: boolean
           last_synced_at: string | null
           project_id: string
           provider: string
@@ -256,6 +257,7 @@ export type Database = {
           external_listing_id?: string | null
           ical_url?: string | null
           id?: string
+          is_test?: boolean
           last_synced_at?: string | null
           project_id: string
           provider?: string
@@ -267,6 +269,7 @@ export type Database = {
           external_listing_id?: string | null
           ical_url?: string | null
           id?: string
+          is_test?: boolean
           last_synced_at?: string | null
           project_id?: string
           provider?: string
