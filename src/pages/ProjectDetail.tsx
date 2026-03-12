@@ -1,4 +1,5 @@
 import AirbnbICalPanel from "@/components/ota/AirbnbICalPanel";
+import AppNavbar from "@/components/AppNavbar";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
