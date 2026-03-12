@@ -5,34 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, Plus } from "lucide-react";
+import { isValidIcalUrl } from "@/lib/icalUtils";
 
-/**
- * Formulário para cadastrar uma conexão Airbnb via iCal.
- * Validações:
- *  - URL obrigatória
- *  - URL deve ser HTTPS válida
- *  - Proteção contra duplo clique
- */
 interface AirbnbConnectionFormProps {
   projectId: string;
   onConnectionCreated: () => void;
-}
-
-/** Valida se a URL parece uma URL iCal válida */
-function isValidIcalUrl(url: string): boolean {
-  try {
-    const parsed = new URL(url);
-    // Deve ser HTTPS
-    if (parsed.protocol !== "https:") return false;
-    // Deve ter extensão .ics ou conter "ical" no path
-    const lowerPath = parsed.pathname.toLowerCase();
-    if (lowerPath.includes(".ics") || lowerPath.includes("ical") || parsed.href.includes("ical")) {
-      return true;
-    }
-    return false;
-  } catch {
-    return false;
-  }
 }
 
 export default function AirbnbConnectionForm({
