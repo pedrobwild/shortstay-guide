@@ -97,6 +97,7 @@ export default function AirbnbConnectionsList({
       }
 
       await fetchConnections();
+      onDataChanged?.();
     } catch (err: any) {
       toast({ title: "Erro na sincronização", description: err.message, variant: "destructive" });
       await fetchConnections();
