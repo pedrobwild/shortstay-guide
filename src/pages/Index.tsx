@@ -1,4 +1,5 @@
 import { useEffect, useRef, lazy, Suspense } from "react";
+import AppNavbar from "@/components/AppNavbar";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { CheckSquare } from "lucide-react";
