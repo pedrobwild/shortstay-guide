@@ -51,6 +51,7 @@ export default function MobileMenu({ activeId, sectionIndex, sectionCount }: Pro
               })}
             </ul>
             {sectionsByPhase.map((phase) => (
+              <div key={phase.number}>
                 <p className="text-[10px] font-body font-bold uppercase tracking-[0.15em] text-primary/50 mt-4 mb-2 px-2 first:mt-0">
                   {phase.number}. {phase.label}
                 </p>
