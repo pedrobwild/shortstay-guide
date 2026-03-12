@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
+import { AuthProvider } from "@/hooks/useAuth";
 import bwildLogo from "@/assets/bwild-logo.png";
 
 const Index = lazy(() => import("./pages/Index"));
@@ -13,6 +14,10 @@ const IntelligenceRanking = lazy(() => import("./pages/IntelligenceRanking"));
 const IntelligenceBairroDetail = lazy(() => import("./pages/IntelligenceBairroDetail"));
 const IntelligenceListings = lazy(() => import("./pages/IntelligenceListings"));
 const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
+const Login = lazy(() => import("./pages/Login"));
+const Signup = lazy(() => import("./pages/Signup"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ChatBot = lazy(() => import("./components/ChatBot"));
 
@@ -32,27 +37,33 @@ function PageFallback() {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Suspense fallback={<PageFallback />}>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/intelligence" element={<IntelligenceDashboard />} />
-            <Route path="/intelligence/ranking" element={<IntelligenceRanking />} />
-            <Route path="/intelligence/bairro/:bairro" element={<IntelligenceBairroDetail />} />
-            <Route path="/intelligence/listings" element={<IntelligenceListings />} />
-            <Route path="/mapa-bairros" element={<MapaBairros />} />
-            <Route path="/projeto/:projectId" element={<ProjectDetail />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <Suspense fallback={null}>
-            <ChatBot />
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Suspense fallback={<PageFallback />}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/intelligence" element={<IntelligenceDashboard />} />
+              <Route path="/intelligence/ranking" element={<IntelligenceRanking />} />
+              <Route path="/intelligence/bairro/:bairro" element={<IntelligenceBairroDetail />} />
+              <Route path="/intelligence/listings" element={<IntelligenceListings />} />
+              <Route path="/mapa-bairros" element={<MapaBairros />} />
+              <Route path="/projeto/:projectId" element={<ProjectDetail />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <Suspense fallback={null}>
+              <ChatBot />
+            </Suspense>
           </Suspense>
-        </Suspense>
-      </BrowserRouter>
-    </TooltipProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
