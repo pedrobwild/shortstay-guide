@@ -1,4 +1,5 @@
 import AirbnbICalPanel from "@/components/ota/AirbnbICalPanel";
+import AppNavbar from "@/components/AppNavbar";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
@@ -19,6 +20,7 @@ export default function ProjectDetail() {
 
   return (
     <div className="min-h-screen bg-background">
+      <AppNavbar />
       <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
         {/* Header */}
         <div>
