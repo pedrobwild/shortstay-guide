@@ -4,9 +4,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import {
   Percent, DollarSign, Moon, Hash, TrendingUp,
   CalendarClock, CalendarOff, Sparkles, BarChart3, Loader2,
+  Wallet, Settings2, RotateCcw,
 } from "lucide-react";
 import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line,
@@ -41,10 +43,50 @@ function occupancyColor(pct: number) {
   return "hsl(var(--primary) / 0.3)";
 }
 
+interface CostSettings {
+  adr: number;
+  cleaningPerStay: number;   // BRL por reserva
+  managementPct: number;     // 0-100
+  condoMonthly: number;      // BRL por mês
+  taxesPct: number;          // 0-100 sobre receita bruta
+}
+
+const DEFAULT_COSTS: CostSettings = {
+  adr: DEFAULT_ADR_BRL,
+  cleaningPerStay: 120,
+  managementPct: 18,
+  condoMonthly: 500,
+  taxesPct: 6,
+};
+
+const storageKey = (projectId: string) => `bwild:project-costs:${projectId}`;
+
+function loadCosts(projectId: string): CostSettings {
+  if (typeof window === "undefined") return DEFAULT_COSTS;
+  try {
+    const raw = window.localStorage.getItem(storageKey(projectId));
+    if (!raw) return DEFAULT_COSTS;
+    const parsed = JSON.parse(raw);
+    return { ...DEFAULT_COSTS, ...parsed };
+  } catch {
+    return DEFAULT_COSTS;
+  }
+}
+
 export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectAnalyticsProps) {
   const [events, setEvents] = useState<NormalizedEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [adr, setAdr] = useState<number>(DEFAULT_ADR_BRL);
+  const [costs, setCosts] = useState<CostSettings>(() => loadCosts(projectId));
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(storageKey(projectId), JSON.stringify(costs));
+    } catch { /* ignore */ }
+  }, [projectId, costs]);
+
+  useEffect(() => {
+    setCosts(loadCosts(projectId));
+  }, [projectId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -78,12 +120,43 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
     return () => { cancelled = true; };
   }, [projectId, refreshKey]);
 
+  const { adr } = costs;
   const kpis = useMemo(() => computeKpis(events, adr), [events, adr]);
-  const monthly = useMemo(() => occupancyByMonth(events, adr), [events, adr]);
+  const monthlyGross = useMemo(() => occupancyByMonth(events, adr), [events, adr]);
+
+  // Receita líquida agregada
+  const monthsCount = monthlyGross.length || 1;
+  const grossRevenue = kpis.estimatedRevenueBrl;
+  const cleaningTotal = costs.cleaningPerStay * kpis.reservationsCount;
+  const managementTotal = grossRevenue * (costs.managementPct / 100);
+  const taxesTotal = grossRevenue * (costs.taxesPct / 100);
+  const condoTotal = costs.condoMonthly * monthsCount;
+  const totalCosts = cleaningTotal + managementTotal + taxesTotal + condoTotal;
+  const netRevenue = grossRevenue - totalCosts;
+  const netMarginPct = grossRevenue > 0 ? (netRevenue / grossRevenue) * 100 : 0;
+
+  // Receita líquida mês a mês
+  const monthly = useMemo(() => {
+    return monthlyGross.map((m) => {
+      const monthReservations = kpis.bookedNights > 0
+        ? (m.bookedNights / kpis.bookedNights) * kpis.reservationsCount
+        : 0;
+      const monthCleaning = costs.cleaningPerStay * monthReservations;
+      const monthMgmt = m.estimatedRevenueBrl * (costs.managementPct / 100);
+      const monthTaxes = m.estimatedRevenueBrl * (costs.taxesPct / 100);
+      const net = m.estimatedRevenueBrl - monthCleaning - monthMgmt - monthTaxes - costs.condoMonthly;
+      return { ...m, netRevenueBrl: net };
+    });
+  }, [monthlyGross, costs, kpis.bookedNights, kpis.reservationsCount]);
+
   const stays = useMemo(() => stayLengthDistribution(events), [events]);
   const weekday = useMemo(() => occupancyByWeekday(events), [events]);
   const upcoming = useMemo(() => upcomingStays(events, 60).slice(0, 10), [events]);
   const gaps = useMemo(() => longestGaps(events, 3), [events]);
+
+  const updateCost = <K extends keyof CostSettings>(key: K, value: number) => {
+    setCosts((prev) => ({ ...prev, [key]: Math.max(0, value || 0) }));
+  };
 
   if (loading) {
     return (
@@ -125,37 +198,77 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
               {formatRange(kpis.windowStart, kpis.windowEnd)}
             </Badge>
             <span className="text-xs text-muted-foreground">
-              {events.length} eventos · {kpis.totalNights} noites
+              {events.length} eventos · {kpis.totalNights} noites · {monthsCount} {monthsCount === 1 ? "mês" : "meses"}
             </span>
-          </div>
-        </div>
-        <div className="flex items-end gap-2">
-          <div>
-            <Label htmlFor="adr-input" className="text-xs text-muted-foreground">Diária (ADR)</Label>
-            <Input
-              id="adr-input"
-              type="number"
-              min={0}
-              step={10}
-              value={adr}
-              onChange={(e) => setAdr(Math.max(0, Number(e.target.value) || 0))}
-              className="w-32 h-9"
-            />
           </div>
         </div>
       </div>
 
+      {/* Painel de custos editáveis */}
+      <Card className="border-primary/20 bg-primary/[0.02]">
+        <CardContent className="p-4 space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Settings2 className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-medium text-foreground">Premissas financeiras</h3>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs text-muted-foreground hover:text-foreground"
+              onClick={() => setCosts(DEFAULT_COSTS)}
+            >
+              <RotateCcw className="h-3 w-3 mr-1" />
+              Resetar
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <CostInput id="adr-input" label="Diária (ADR)" prefix="R$" step={10}
+              value={costs.adr} onChange={(v) => updateCost("adr", v)} />
+            <CostInput id="cleaning-input" label="Limpeza / reserva" prefix="R$" step={10}
+              value={costs.cleaningPerStay} onChange={(v) => updateCost("cleaningPerStay", v)} />
+            <CostInput id="management-input" label="Gestão" suffix="%" step={1}
+              value={costs.managementPct} onChange={(v) => updateCost("managementPct", v)} />
+            <CostInput id="taxes-input" label="Impostos" suffix="%" step={0.5}
+              value={costs.taxesPct} onChange={(v) => updateCost("taxesPct", v)} />
+            <CostInput id="condo-input" label="Condomínio / mês" prefix="R$" step={50}
+              value={costs.condoMonthly} onChange={(v) => updateCost("condoMonthly", v)} />
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Valores salvos localmente por projeto. Ajuste para simular cenários reais de operação.
+          </p>
+        </CardContent>
+      </Card>
+
       {/* KPI cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <KpiCard icon={<Percent className="h-4 w-4" />} label="Ocupação" value={`${kpis.occupancyPct.toFixed(1)}%`} />
-        <KpiCard icon={<DollarSign className="h-4 w-4" />} label="Receita estimada" value={brl(kpis.estimatedRevenueBrl)} />
-        <KpiCard icon={<Moon className="h-4 w-4" />} label="Estadia média" value={`${kpis.averageStayNights.toFixed(1)} noites`} />
+        <KpiCard icon={<DollarSign className="h-4 w-4" />} label="Receita bruta" value={brl(grossRevenue)} />
         <KpiCard
-          icon={<Hash className="h-4 w-4" />}
-          label="Reservas / Bloqueios"
-          value={`${kpis.reservationsCount} / ${kpis.blockedCount}`}
+          icon={<Wallet className="h-4 w-4" />}
+          label="Receita líquida"
+          value={brl(netRevenue)}
+          accent
+          hint={`Margem ${netMarginPct.toFixed(1)}% · Custos ${brl(totalCosts)}`}
         />
+        <KpiCard icon={<Moon className="h-4 w-4" />} label="Estadia média" value={`${kpis.averageStayNights.toFixed(1)} noites`} />
       </div>
+
+      {/* Breakdown de custos */}
+      <Card>
+        <CardContent className="p-4 space-y-3">
+          <h3 className="text-sm font-medium text-foreground">Composição da receita</h3>
+          <div className="space-y-2 text-xs">
+            <CostRow label="Receita bruta" value={grossRevenue} positive />
+            <CostRow label={`Limpeza (${kpis.reservationsCount} reservas × ${brl(costs.cleaningPerStay)})`} value={-cleaningTotal} />
+            <CostRow label={`Gestão (${costs.managementPct}%)`} value={-managementTotal} />
+            <CostRow label={`Impostos (${costs.taxesPct}%)`} value={-taxesTotal} />
+            <CostRow label={`Condomínio (${monthsCount} × ${brl(costs.condoMonthly)})`} value={-condoTotal} />
+            <div className="h-px bg-border my-1" />
+            <CostRow label="Receita líquida" value={netRevenue} bold />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Ocupação por mês */}
       <Card>
@@ -185,9 +298,19 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
       {/* Receita estimada por mês */}
       <Card>
         <CardContent className="p-4 space-y-3">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            <h3 className="text-sm font-medium text-foreground">Receita estimada por mês</h3>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-medium text-foreground">Receita por mês</h3>
+            </div>
+            <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <span className="h-2 w-2 rounded-full bg-primary" /> Bruta
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="h-2 w-2 rounded-full bg-accent" /> Líquida
+              </span>
+            </div>
           </div>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
@@ -200,7 +323,7 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
                   tickFormatter={(v) => `R$${Math.round(v / 1000)}k`}
                 />
                 <Tooltip
-                  formatter={(value: number) => [brl(value), "Receita"]}
+                  formatter={(value: number, name: string) => [brl(value), name === "estimatedRevenueBrl" ? "Bruta" : "Líquida"]}
                   labelStyle={{ color: "hsl(var(--foreground))" }}
                   contentStyle={{
                     background: "hsl(var(--background))",
@@ -215,6 +338,14 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
                   stroke="hsl(var(--primary))"
                   strokeWidth={2}
                   dot={{ r: 3, fill: "hsl(var(--primary))" }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="netRevenueBrl"
+                  stroke="hsl(var(--accent))"
+                  strokeWidth={2}
+                  strokeDasharray="4 3"
+                  dot={{ r: 3, fill: "hsl(var(--accent))" }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -338,17 +469,92 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
   );
 }
 
-function KpiCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function KpiCard({
+  icon, label, value, accent, hint,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  accent?: boolean;
+  hint?: string;
+}) {
   return (
-    <Card>
+    <Card className={accent ? "border-primary/40 bg-primary/[0.04]" : ""}>
       <CardContent className="p-4 space-y-1.5">
         <div className="flex items-center gap-1.5 text-muted-foreground">
           {icon}
           <span className="text-xs">{label}</span>
         </div>
-        <p className="text-xl font-semibold text-foreground">{value}</p>
+        <p className={`text-xl font-semibold ${accent ? "text-primary" : "text-foreground"}`}>{value}</p>
+        {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
       </CardContent>
     </Card>
+  );
+}
+
+function CostInput({
+  id, label, value, onChange, prefix, suffix, step = 1,
+}: {
+  id: string;
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  prefix?: string;
+  suffix?: string;
+  step?: number;
+}) {
+  return (
+    <div className="space-y-1">
+      <Label htmlFor={id} className="text-[11px] text-muted-foreground">{label}</Label>
+      <div className="relative">
+        {prefix && (
+          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
+            {prefix}
+          </span>
+        )}
+        <Input
+          id={id}
+          type="number"
+          inputMode="decimal"
+          min={0}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          className={`h-9 text-sm ${prefix ? "pl-8" : ""} ${suffix ? "pr-7" : ""}`}
+        />
+        {suffix && (
+          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
+            {suffix}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CostRow({
+  label, value, positive, bold,
+}: {
+  label: string;
+  value: number;
+  positive?: boolean;
+  bold?: boolean;
+}) {
+  const isNegative = value < 0;
+  const color = bold
+    ? value >= 0 ? "text-primary" : "text-destructive"
+    : positive
+      ? "text-foreground"
+      : isNegative
+        ? "text-muted-foreground"
+        : "text-foreground";
+  return (
+    <div className={`flex items-center justify-between gap-3 ${bold ? "font-semibold text-sm" : ""}`}>
+      <span className="text-muted-foreground">{label}</span>
+      <span className={color}>
+        {isNegative ? "− " : ""}{brl(Math.abs(value))}
+      </span>
+    </div>
   );
 }
 
@@ -360,7 +566,10 @@ function MonthlyTooltip({ active, payload }: any) {
       <p className="font-medium text-foreground mb-1">{m.monthLabel}</p>
       <p className="text-muted-foreground">Ocupação: <span className="text-foreground font-medium">{m.occupancyPct.toFixed(1)}%</span></p>
       <p className="text-muted-foreground">Reservas: <span className="text-foreground font-medium">{m.bookedNights}n</span> · Bloq: {m.blockedNights}n</p>
-      <p className="text-muted-foreground">Receita: <span className="text-foreground font-medium">{brl(m.estimatedRevenueBrl)}</span></p>
+      <p className="text-muted-foreground">Bruta: <span className="text-foreground font-medium">{brl(m.estimatedRevenueBrl)}</span></p>
+      {typeof m.netRevenueBrl === "number" && (
+        <p className="text-muted-foreground">Líquida: <span className="text-foreground font-medium">{brl(m.netRevenueBrl)}</span></p>
+      )}
     </div>
   );
 }
