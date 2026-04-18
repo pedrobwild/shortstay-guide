@@ -43,10 +43,50 @@ function occupancyColor(pct: number) {
   return "hsl(var(--primary) / 0.3)";
 }
 
+interface CostSettings {
+  adr: number;
+  cleaningPerStay: number;   // BRL por reserva
+  managementPct: number;     // 0-100
+  condoMonthly: number;      // BRL por mês
+  taxesPct: number;          // 0-100 sobre receita bruta
+}
+
+const DEFAULT_COSTS: CostSettings = {
+  adr: DEFAULT_ADR_BRL,
+  cleaningPerStay: 120,
+  managementPct: 18,
+  condoMonthly: 500,
+  taxesPct: 6,
+};
+
+const storageKey = (projectId: string) => `bwild:project-costs:${projectId}`;
+
+function loadCosts(projectId: string): CostSettings {
+  if (typeof window === "undefined") return DEFAULT_COSTS;
+  try {
+    const raw = window.localStorage.getItem(storageKey(projectId));
+    if (!raw) return DEFAULT_COSTS;
+    const parsed = JSON.parse(raw);
+    return { ...DEFAULT_COSTS, ...parsed };
+  } catch {
+    return DEFAULT_COSTS;
+  }
+}
+
 export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectAnalyticsProps) {
   const [events, setEvents] = useState<NormalizedEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [adr, setAdr] = useState<number>(DEFAULT_ADR_BRL);
+  const [costs, setCosts] = useState<CostSettings>(() => loadCosts(projectId));
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(storageKey(projectId), JSON.stringify(costs));
+    } catch { /* ignore */ }
+  }, [projectId, costs]);
+
+  useEffect(() => {
+    setCosts(loadCosts(projectId));
+  }, [projectId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -80,12 +120,43 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
     return () => { cancelled = true; };
   }, [projectId, refreshKey]);
 
+  const { adr } = costs;
   const kpis = useMemo(() => computeKpis(events, adr), [events, adr]);
-  const monthly = useMemo(() => occupancyByMonth(events, adr), [events, adr]);
+  const monthlyGross = useMemo(() => occupancyByMonth(events, adr), [events, adr]);
+
+  // Receita líquida agregada
+  const monthsCount = monthlyGross.length || 1;
+  const grossRevenue = kpis.estimatedRevenueBrl;
+  const cleaningTotal = costs.cleaningPerStay * kpis.reservationsCount;
+  const managementTotal = grossRevenue * (costs.managementPct / 100);
+  const taxesTotal = grossRevenue * (costs.taxesPct / 100);
+  const condoTotal = costs.condoMonthly * monthsCount;
+  const totalCosts = cleaningTotal + managementTotal + taxesTotal + condoTotal;
+  const netRevenue = grossRevenue - totalCosts;
+  const netMarginPct = grossRevenue > 0 ? (netRevenue / grossRevenue) * 100 : 0;
+
+  // Receita líquida mês a mês
+  const monthly = useMemo(() => {
+    return monthlyGross.map((m) => {
+      const monthReservations = kpis.bookedNights > 0
+        ? (m.bookedNights / kpis.bookedNights) * kpis.reservationsCount
+        : 0;
+      const monthCleaning = costs.cleaningPerStay * monthReservations;
+      const monthMgmt = m.estimatedRevenueBrl * (costs.managementPct / 100);
+      const monthTaxes = m.estimatedRevenueBrl * (costs.taxesPct / 100);
+      const net = m.estimatedRevenueBrl - monthCleaning - monthMgmt - monthTaxes - costs.condoMonthly;
+      return { ...m, netRevenueBrl: net };
+    });
+  }, [monthlyGross, costs, kpis.bookedNights, kpis.reservationsCount]);
+
   const stays = useMemo(() => stayLengthDistribution(events), [events]);
   const weekday = useMemo(() => occupancyByWeekday(events), [events]);
   const upcoming = useMemo(() => upcomingStays(events, 60).slice(0, 10), [events]);
   const gaps = useMemo(() => longestGaps(events, 3), [events]);
+
+  const updateCost = <K extends keyof CostSettings>(key: K, value: number) => {
+    setCosts((prev) => ({ ...prev, [key]: Math.max(0, value || 0) }));
+  };
 
   if (loading) {
     return (
