@@ -4,9 +4,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import {
   Percent, DollarSign, Moon, Hash, TrendingUp,
   CalendarClock, CalendarOff, Sparkles, BarChart3, Loader2,
+  Wallet, Settings2, RotateCcw,
 } from "lucide-react";
 import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line,
