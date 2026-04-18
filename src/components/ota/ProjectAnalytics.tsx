@@ -469,17 +469,92 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
   );
 }
 
-function KpiCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function KpiCard({
+  icon, label, value, accent, hint,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  accent?: boolean;
+  hint?: string;
+}) {
   return (
-    <Card>
+    <Card className={accent ? "border-primary/40 bg-primary/[0.04]" : ""}>
       <CardContent className="p-4 space-y-1.5">
         <div className="flex items-center gap-1.5 text-muted-foreground">
           {icon}
           <span className="text-xs">{label}</span>
         </div>
-        <p className="text-xl font-semibold text-foreground">{value}</p>
+        <p className={`text-xl font-semibold ${accent ? "text-primary" : "text-foreground"}`}>{value}</p>
+        {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
       </CardContent>
     </Card>
+  );
+}
+
+function CostInput({
+  id, label, value, onChange, prefix, suffix, step = 1,
+}: {
+  id: string;
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  prefix?: string;
+  suffix?: string;
+  step?: number;
+}) {
+  return (
+    <div className="space-y-1">
+      <Label htmlFor={id} className="text-[11px] text-muted-foreground">{label}</Label>
+      <div className="relative">
+        {prefix && (
+          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
+            {prefix}
+          </span>
+        )}
+        <Input
+          id={id}
+          type="number"
+          inputMode="decimal"
+          min={0}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          className={`h-9 text-sm ${prefix ? "pl-8" : ""} ${suffix ? "pr-7" : ""}`}
+        />
+        {suffix && (
+          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
+            {suffix}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CostRow({
+  label, value, positive, bold,
+}: {
+  label: string;
+  value: number;
+  positive?: boolean;
+  bold?: boolean;
+}) {
+  const isNegative = value < 0;
+  const color = bold
+    ? value >= 0 ? "text-primary" : "text-destructive"
+    : positive
+      ? "text-foreground"
+      : isNegative
+        ? "text-muted-foreground"
+        : "text-foreground";
+  return (
+    <div className={`flex items-center justify-between gap-3 ${bold ? "font-semibold text-sm" : ""}`}>
+      <span className="text-muted-foreground">{label}</span>
+      <span className={color}>
+        {isNegative ? "− " : ""}{brl(Math.abs(value))}
+      </span>
+    </div>
   );
 }
 
@@ -491,7 +566,10 @@ function MonthlyTooltip({ active, payload }: any) {
       <p className="font-medium text-foreground mb-1">{m.monthLabel}</p>
       <p className="text-muted-foreground">Ocupação: <span className="text-foreground font-medium">{m.occupancyPct.toFixed(1)}%</span></p>
       <p className="text-muted-foreground">Reservas: <span className="text-foreground font-medium">{m.bookedNights}n</span> · Bloq: {m.blockedNights}n</p>
-      <p className="text-muted-foreground">Receita: <span className="text-foreground font-medium">{brl(m.estimatedRevenueBrl)}</span></p>
+      <p className="text-muted-foreground">Bruta: <span className="text-foreground font-medium">{brl(m.estimatedRevenueBrl)}</span></p>
+      {typeof m.netRevenueBrl === "number" && (
+        <p className="text-muted-foreground">Líquida: <span className="text-foreground font-medium">{brl(m.netRevenueBrl)}</span></p>
+      )}
     </div>
   );
 }
