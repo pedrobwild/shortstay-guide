@@ -198,37 +198,77 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
               {formatRange(kpis.windowStart, kpis.windowEnd)}
             </Badge>
             <span className="text-xs text-muted-foreground">
-              {events.length} eventos · {kpis.totalNights} noites
+              {events.length} eventos · {kpis.totalNights} noites · {monthsCount} {monthsCount === 1 ? "mês" : "meses"}
             </span>
-          </div>
-        </div>
-        <div className="flex items-end gap-2">
-          <div>
-            <Label htmlFor="adr-input" className="text-xs text-muted-foreground">Diária (ADR)</Label>
-            <Input
-              id="adr-input"
-              type="number"
-              min={0}
-              step={10}
-              value={adr}
-              onChange={(e) => setAdr(Math.max(0, Number(e.target.value) || 0))}
-              className="w-32 h-9"
-            />
           </div>
         </div>
       </div>
 
+      {/* Painel de custos editáveis */}
+      <Card className="border-primary/20 bg-primary/[0.02]">
+        <CardContent className="p-4 space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Settings2 className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-medium text-foreground">Premissas financeiras</h3>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs text-muted-foreground hover:text-foreground"
+              onClick={() => setCosts(DEFAULT_COSTS)}
+            >
+              <RotateCcw className="h-3 w-3 mr-1" />
+              Resetar
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <CostInput id="adr-input" label="Diária (ADR)" prefix="R$" step={10}
+              value={costs.adr} onChange={(v) => updateCost("adr", v)} />
+            <CostInput id="cleaning-input" label="Limpeza / reserva" prefix="R$" step={10}
+              value={costs.cleaningPerStay} onChange={(v) => updateCost("cleaningPerStay", v)} />
+            <CostInput id="management-input" label="Gestão" suffix="%" step={1}
+              value={costs.managementPct} onChange={(v) => updateCost("managementPct", v)} />
+            <CostInput id="taxes-input" label="Impostos" suffix="%" step={0.5}
+              value={costs.taxesPct} onChange={(v) => updateCost("taxesPct", v)} />
+            <CostInput id="condo-input" label="Condomínio / mês" prefix="R$" step={50}
+              value={costs.condoMonthly} onChange={(v) => updateCost("condoMonthly", v)} />
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Valores salvos localmente por projeto. Ajuste para simular cenários reais de operação.
+          </p>
+        </CardContent>
+      </Card>
+
       {/* KPI cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <KpiCard icon={<Percent className="h-4 w-4" />} label="Ocupação" value={`${kpis.occupancyPct.toFixed(1)}%`} />
-        <KpiCard icon={<DollarSign className="h-4 w-4" />} label="Receita estimada" value={brl(kpis.estimatedRevenueBrl)} />
-        <KpiCard icon={<Moon className="h-4 w-4" />} label="Estadia média" value={`${kpis.averageStayNights.toFixed(1)} noites`} />
+        <KpiCard icon={<DollarSign className="h-4 w-4" />} label="Receita bruta" value={brl(grossRevenue)} />
         <KpiCard
-          icon={<Hash className="h-4 w-4" />}
-          label="Reservas / Bloqueios"
-          value={`${kpis.reservationsCount} / ${kpis.blockedCount}`}
+          icon={<Wallet className="h-4 w-4" />}
+          label="Receita líquida"
+          value={brl(netRevenue)}
+          accent
+          hint={`Margem ${netMarginPct.toFixed(1)}% · Custos ${brl(totalCosts)}`}
         />
+        <KpiCard icon={<Moon className="h-4 w-4" />} label="Estadia média" value={`${kpis.averageStayNights.toFixed(1)} noites`} />
       </div>
+
+      {/* Breakdown de custos */}
+      <Card>
+        <CardContent className="p-4 space-y-3">
+          <h3 className="text-sm font-medium text-foreground">Composição da receita</h3>
+          <div className="space-y-2 text-xs">
+            <CostRow label="Receita bruta" value={grossRevenue} positive />
+            <CostRow label={`Limpeza (${kpis.reservationsCount} reservas × ${brl(costs.cleaningPerStay)})`} value={-cleaningTotal} />
+            <CostRow label={`Gestão (${costs.managementPct}%)`} value={-managementTotal} />
+            <CostRow label={`Impostos (${costs.taxesPct}%)`} value={-taxesTotal} />
+            <CostRow label={`Condomínio (${monthsCount} × ${brl(costs.condoMonthly)})`} value={-condoTotal} />
+            <div className="h-px bg-border my-1" />
+            <CostRow label="Receita líquida" value={netRevenue} bold />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Ocupação por mês */}
       <Card>
