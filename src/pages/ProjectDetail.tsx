@@ -1,14 +1,17 @@
+import { useState } from "react";
 import AirbnbICalPanel from "@/components/ota/AirbnbICalPanel";
+import ProjectAnalytics from "@/components/ota/ProjectAnalytics";
 import AppNavbar from "@/components/AppNavbar";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 /**
  * Página de gerenciamento de um projeto.
- * Inclui o painel de integração Airbnb iCal.
+ * Inclui o painel de integração Airbnb iCal e o dashboard de análises.
  */
 export default function ProjectDetail() {
   const { projectId } = useParams<{ projectId: string }>();
+  const [analyticsKey, setAnalyticsKey] = useState(0);
 
   if (!projectId) {
     return (
@@ -21,10 +24,10 @@ export default function ProjectDetail() {
   return (
     <div className="min-h-screen bg-background">
       <AppNavbar />
-      <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
+      <div className="max-w-4xl mx-auto px-4 py-8 space-y-10">
         {/* Header */}
         <div>
-          <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4">
+          <Link to="/projetos" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4">
             <ArrowLeft className="h-4 w-4" />
             Voltar
           </Link>
@@ -32,7 +35,13 @@ export default function ProjectDetail() {
         </div>
 
         {/* Painel de integração Airbnb */}
-        <AirbnbICalPanel projectId={projectId} />
+        <AirbnbICalPanel
+          projectId={projectId}
+          onDataChanged={() => setAnalyticsKey((k) => k + 1)}
+        />
+
+        {/* Dashboard de análises */}
+        <ProjectAnalytics projectId={projectId} refreshKey={analyticsKey} />
       </div>
     </div>
   );
