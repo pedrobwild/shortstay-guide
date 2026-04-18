@@ -131,7 +131,7 @@ describe("upcomingStays", () => {
     const today = new Date(Date.UTC(2026, 0, 1));
     const evs = normalizeEvents([
       raw("2026-01-05", "2026-01-08"),
-      raw("2026-03-01", "2026-03-05"), // out of 60d window
+      raw("2026-04-15", "2026-04-20"), // well out of 60d window
     ]);
     const u = upcomingStays(evs, 60, today);
     expect(u).toHaveLength(1);
