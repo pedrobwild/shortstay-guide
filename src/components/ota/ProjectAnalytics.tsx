@@ -298,9 +298,19 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
       {/* Receita estimada por mês */}
       <Card>
         <CardContent className="p-4 space-y-3">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            <h3 className="text-sm font-medium text-foreground">Receita estimada por mês</h3>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-medium text-foreground">Receita por mês</h3>
+            </div>
+            <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <span className="h-2 w-2 rounded-full bg-primary" /> Bruta
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="h-2 w-2 rounded-full bg-accent" /> Líquida
+              </span>
+            </div>
           </div>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
@@ -313,7 +323,7 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
                   tickFormatter={(v) => `R$${Math.round(v / 1000)}k`}
                 />
                 <Tooltip
-                  formatter={(value: number) => [brl(value), "Receita"]}
+                  formatter={(value: number, name: string) => [brl(value), name === "estimatedRevenueBrl" ? "Bruta" : "Líquida"]}
                   labelStyle={{ color: "hsl(var(--foreground))" }}
                   contentStyle={{
                     background: "hsl(var(--background))",
@@ -328,6 +338,14 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
                   stroke="hsl(var(--primary))"
                   strokeWidth={2}
                   dot={{ r: 3, fill: "hsl(var(--primary))" }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="netRevenueBrl"
+                  stroke="hsl(var(--accent))"
+                  strokeWidth={2}
+                  strokeDasharray="4 3"
+                  dot={{ r: 3, fill: "hsl(var(--accent))" }}
                 />
               </LineChart>
             </ResponsiveContainer>
