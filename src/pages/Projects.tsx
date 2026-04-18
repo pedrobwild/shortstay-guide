@@ -5,8 +5,8 @@ import AppNavbar from "@/components/AppNavbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
-import { Plus, Loader2, FolderOpen, ArrowRight } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Plus, Loader2, FolderOpen, ArrowRight, Sparkles } from "lucide-react";
 
 interface Project {
   id: string;
@@ -16,11 +16,13 @@ interface Project {
 
 export default function Projects() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState("");
   const [creating, setCreating] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [creatingDemo, setCreatingDemo] = useState(false);
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);
@@ -64,17 +66,78 @@ export default function Projects() {
     }
   };
 
+  const handleCreateDemo = async () => {
+    if (creatingDemo || !user) return;
+    setCreatingDemo(true);
+    try {
+      const { data: project, error: projErr } = await supabase
+        .from("projects")
+        .insert({ name: "Demo — Studio Pinheiros", user_id: user.id })
+        .select("id")
+        .single();
+      if (projErr || !project) throw projErr || new Error("Falha ao criar projeto");
+
+      const { data: conn, error: connErr } = await supabase
+        .from("ota_connections")
+        .insert({
+          project_id: project.id,
+          provider: "airbnb",
+          connection_type: "ical",
+          ical_url: null,
+          status: "active",
+          is_test: true,
+        })
+        .select("id")
+        .single();
+      if (connErr || !conn) throw connErr || new Error("Falha ao criar conexão demo");
+
+      const { data: syncData, error: syncErr } = await supabase.functions.invoke(
+        "sync-airbnb-ical",
+        { body: { connectionId: conn.id } },
+      );
+      if (syncErr) throw syncErr;
+      if (!syncData?.success) throw new Error(syncData?.error || "Erro na sincronização");
+
+      toast({
+        title: "Projeto demo pronto!",
+        description: `${syncData.eventsImported} eventos fictícios gerados.`,
+      });
+
+      navigate(`/projeto/${project.id}`);
+    } catch (err: any) {
+      toast({ title: "Erro ao criar projeto demo", description: err.message, variant: "destructive" });
+    } finally {
+      setCreatingDemo(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <AppNavbar />
       <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
           <h1 className="text-2xl font-bold text-foreground">Meus Projetos</h1>
-          <Button size="sm" onClick={() => setShowForm(!showForm)}>
-            <Plus className="h-4 w-4 mr-1" />
-            Novo projeto
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="default"
+              onClick={handleCreateDemo}
+              disabled={creatingDemo || creating}
+              className="bg-primary text-primary-foreground"
+            >
+              {creatingDemo ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4 mr-1" />
+              )}
+              {creatingDemo ? "Gerando..." : "Criar projeto demo"}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setShowForm(!showForm)}>
+              <Plus className="h-4 w-4 mr-1" />
+              Novo projeto
+            </Button>
+          </div>
         </div>
 
         {/* Formulário inline */}
@@ -101,10 +164,22 @@ export default function Projects() {
             Carregando...
           </div>
         ) : projects.length === 0 ? (
-          <div className="text-center py-12 space-y-2 text-muted-foreground">
-            <FolderOpen className="h-10 w-10 mx-auto opacity-40" />
-            <p className="text-sm">Nenhum projeto ainda.</p>
-            <p className="text-xs">Clique em "Novo projeto" para começar.</p>
+          <div className="space-y-4">
+            <div className="text-center py-8 space-y-2 text-muted-foreground">
+              <FolderOpen className="h-10 w-10 mx-auto opacity-40" />
+              <p className="text-sm">Nenhum projeto ainda.</p>
+              <p className="text-xs">Clique em "Novo projeto" para começar.</p>
+            </div>
+            <div className="rounded-lg border border-dashed border-primary/40 bg-primary/5 p-4 space-y-2">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <p className="text-sm font-medium text-foreground">Quer ver como fica com o iCal conectado?</p>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                O botão <strong>Criar projeto demo</strong> gera um projeto com ~18 meses de reservas fictícias e
+                todas as análises já populadas — sem precisar conectar uma conta real do Airbnb.
+              </p>
+            </div>
           </div>
         ) : (
           <div className="space-y-2">
