@@ -5,12 +5,16 @@ import AirbnbCalendarGrid from "./AirbnbCalendarGrid";
 
 interface AirbnbICalPanelProps {
   projectId: string;
+  onDataChanged?: () => void;
 }
 
-export default function AirbnbICalPanel({ projectId }: AirbnbICalPanelProps) {
+export default function AirbnbICalPanel({ projectId, onDataChanged }: AirbnbICalPanelProps) {
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const handleChange = () => setRefreshKey((k) => k + 1);
+  const handleChange = () => {
+    setRefreshKey((k) => k + 1);
+    onDataChanged?.();
+  };
 
   return (
     <div className="space-y-8">

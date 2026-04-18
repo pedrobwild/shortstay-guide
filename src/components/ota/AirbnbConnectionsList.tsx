@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, RefreshCw, Trash2, ExternalLink, ChevronDown, ChevronUp, AlertTriangle, FlaskConical } from "lucide-react";
+import { Loader2, RefreshCw, Trash2, ExternalLink, ChevronDown, ChevronUp, AlertTriangle, FlaskConical, Sparkles } from "lucide-react";
 import AirbnbEventsList from "./AirbnbEventsList";
 
 interface OtaConnection {
@@ -51,6 +51,7 @@ export default function AirbnbConnectionsList({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [eventsRefreshKey, setEventsRefreshKey] = useState(0);
+  const [creatingDemo, setCreatingDemo] = useState(false);
 
   const fetchConnections = useCallback(async () => {
     setLoading(true);
@@ -116,7 +117,6 @@ export default function AirbnbConnectionsList({
 
     setDeletingId(connectionId);
     try {
-      // Apagar eventos antes (cascade pode não estar ativo via RLS)
       await supabase
         .from("ota_calendar_events")
         .delete()
@@ -140,6 +140,45 @@ export default function AirbnbConnectionsList({
     }
   };
 
+  const handleCreateDemoConnection = async () => {
+    if (creatingDemo) return;
+    setCreatingDemo(true);
+    try {
+      const { data: conn, error: connErr } = await supabase
+        .from("ota_connections")
+        .insert({
+          project_id: projectId,
+          provider: "airbnb",
+          connection_type: "ical",
+          ical_url: null,
+          status: "active",
+          is_test: true,
+        })
+        .select("id")
+        .single();
+      if (connErr || !conn) throw connErr || new Error("Falha ao criar conexão demo");
+
+      const { data: syncData, error: syncErr } = await supabase.functions.invoke(
+        "sync-airbnb-ical",
+        { body: { connectionId: conn.id } },
+      );
+      if (syncErr) throw syncErr;
+      if (!syncData?.success) throw new Error(syncData?.error || "Erro na sincronização");
+
+      toast({
+        title: "Dados demo gerados!",
+        description: `${syncData.eventsImported} eventos fictícios importados.`,
+      });
+
+      await fetchConnections();
+      onDataChanged?.();
+    } catch (err: any) {
+      toast({ title: "Erro ao gerar demo", description: err.message, variant: "destructive" });
+    } finally {
+      setCreatingDemo(false);
+    }
+  };
+
   const isBusy = !!syncingId || !!deletingId;
 
   if (loading) {
@@ -153,9 +192,30 @@ export default function AirbnbConnectionsList({
 
   if (connections.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground py-4 text-center">
-        Nenhuma conexão Airbnb cadastrada neste projeto.
-      </p>
+      <div className="rounded-lg border border-dashed border-primary/40 bg-primary/5 p-5 space-y-3 text-center">
+        <Sparkles className="h-8 w-8 mx-auto text-primary" />
+        <div>
+          <p className="text-sm font-medium text-foreground">Nenhuma conexão Airbnb ainda</p>
+          <p className="text-xs text-muted-foreground mt-1 max-w-md mx-auto">
+            Conecte um calendário iCal acima ou gere ~18 meses de dados fictícios para explorar
+            todas as análises antes de conectar uma conta real.
+          </p>
+        </div>
+        <Button
+          type="button"
+          size="sm"
+          onClick={handleCreateDemoConnection}
+          disabled={creatingDemo}
+          className="bg-primary text-primary-foreground"
+        >
+          {creatingDemo ? (
+            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+          ) : (
+            <Sparkles className="h-4 w-4 mr-1" />
+          )}
+          {creatingDemo ? "Gerando dados..." : "Gerar dados de demonstração"}
+        </Button>
+      </div>
     );
   }
 
@@ -180,7 +240,6 @@ export default function AirbnbConnectionsList({
                     {conn.status === "error" && <AlertTriangle className="h-3 w-3 mr-1" />}
                     {statusLabel(conn.status)}
                   </Badge>
-                  {/* Badge visual para conexões de teste */}
                   {conn.is_test && (
                     <Badge variant="outline" className="text-xs gap-1">
                       <FlaskConical className="h-3 w-3" />
@@ -189,7 +248,6 @@ export default function AirbnbConnectionsList({
                   )}
                 </div>
 
-                {/* URL (só para conexões reais) */}
                 {!conn.is_test && conn.ical_url && (
                   <p className="text-xs text-muted-foreground truncate max-w-md" title={conn.ical_url}>
                     <ExternalLink className="inline h-3 w-3 mr-1 -mt-0.5" />
@@ -197,7 +255,6 @@ export default function AirbnbConnectionsList({
                   </p>
                 )}
 
-                {/* Mensagem explicativa para teste */}
                 {conn.is_test && (
                   <p className="text-xs text-muted-foreground italic">
                     Conexão de teste — gera eventos fictícios ao sincronizar.

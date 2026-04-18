@@ -86,68 +86,123 @@ function parseVEvents(icalContent: string) {
   return events;
 }
 
-// ---------- Gerador de eventos mockados ----------
+// ---------- Gerador de eventos mockados (demo realista) ----------
+
+/** PRNG determinística (FNV-1a hash + mulberry32) por connectionId */
+function seededRng(seed: string): () => number {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  let a = h || 1;
+  return function () {
+    a |= 0;
+    a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function addDaysUtc(date: Date, days: number): Date {
+  const d = new Date(date);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d;
+}
+function isoDate(d: Date): string { return d.toISOString().split("T")[0]; }
+
+// Sazonalidade por mês (0=Jan). Pico dez/jan e jul, baixa fev/mar/mai/set.
+const SEASONALITY = [
+  1.25, 0.85, 0.80, 0.95, 0.80, 0.95,
+  1.20, 0.95, 0.80, 0.95, 1.00, 1.30,
+];
+
+const FIRST_NAMES = [
+  "Ana","Bruno","Camila","Daniel","Eduardo","Fernanda","Gabriel","Helena",
+  "Igor","Julia","Lucas","Mariana","Nicolas","Olivia","Pedro","Raquel",
+  "Sofia","Thiago","Vitor","Yasmin","Arthur","Beatriz","Caio","Diana",
+];
+
+const BLOCK_REASONS = [
+  "Blocked — Manutenção",
+  "Blocked — Limpeza profunda",
+  "Blocked — Uso pessoal",
+  "Not available",
+];
 
 /**
- * Gera eventos de teste com datas futuras.
- * Usado quando a conexão é de teste (is_test = true).
+ * Gera ~18 meses de eventos demo (12 passados + 6 futuros) com sazonalidade,
+ * ~75% de ocupação e mistura de reservas e bloqueios. Determinístico por connectionId.
  */
 function generateMockEvents(connectionId: string, now: string) {
-  // Cria datas baseadas em "hoje + X dias" para sempre serem futuras
+  const rng = seededRng(connectionId);
   const today = new Date();
-  const addDays = (days: number) => {
-    const d = new Date(today);
-    d.setDate(d.getDate() + days);
-    return d.toISOString().split("T")[0]; // YYYY-MM-DD
+  today.setUTCHours(0, 0, 0, 0);
+  const windowStart = addDaysUtc(today, -365);
+  const windowEnd = addDaysUtc(today, 180);
+
+  type Row = {
+    connection_id: string;
+    external_event_uid: string;
+    start_date: string;
+    end_date: string;
+    summary: string;
+    raw_payload: Record<string, unknown>;
+    synced_at: string;
   };
 
-  return [
-    {
-      connection_id: connectionId,
-      external_event_uid: "mock-reserva-001",
-      start_date: addDays(5),
-      end_date: addDays(8),
-      summary: "Reserva Teste 1 — Hóspede fictício",
-      raw_payload: { source: "mock", type: "reservation" },
-      synced_at: now,
-    },
-    {
-      connection_id: connectionId,
-      external_event_uid: "mock-reserva-002",
-      start_date: addDays(15),
-      end_date: addDays(17),
-      summary: "Reserva Teste 2 — Estadia curta",
-      raw_payload: { source: "mock", type: "reservation" },
-      synced_at: now,
-    },
-    {
-      connection_id: connectionId,
-      external_event_uid: "mock-bloqueio-001",
-      start_date: addDays(25),
-      end_date: addDays(27),
-      summary: "Bloqueio Teste — Manutenção",
-      raw_payload: { source: "mock", type: "blocked" },
-      synced_at: now,
-    },
-    {
-      connection_id: connectionId,
-      external_event_uid: "mock-reserva-003",
-      start_date: addDays(35),
-      end_date: addDays(40),
-      summary: "Reserva Teste 3 — Estadia longa",
-      raw_payload: { source: "mock", type: "reservation" },
-      synced_at: now,
-    },
-    {
-      connection_id: connectionId,
-      external_event_uid: "mock-bloqueio-002",
-      start_date: addDays(50),
-      end_date: addDays(52),
-      summary: "Bloqueio Teste — Uso pessoal",
-      raw_payload: { source: "mock", type: "blocked" },
-      synced_at: now,
-    },
+  const stayBuckets: { nights: number; w: number }[] = [
+    { nights: 1,  w: 0.05 },
+    { nights: 2,  w: 0.22 },
+    { nights: 3,  w: 0.28 },
+    { nights: 4,  w: 0.18 },
+    { nights: 5,  w: 0.10 },
+    { nights: 6,  w: 0.05 },
+    { nights: 7,  w: 0.06 },
+    { nights: 10, w: 0.03 },
+    { nights: 14, w: 0.02 },
+    { nights: 21, w: 0.01 },
   ];
+  const totalW = stayBuckets.reduce((s, b) => s + b.w, 0);
+  const pickStay = () => {
+    let r = rng() * totalW;
+    for (const b of stayBuckets) { r -= b.w; if (r <= 0) return b.nights; }
+    return 3;
+  };
+
+  const rows: Row[] = [];
+  let cursor = new Date(windowStart);
+  let idx = 0;
+  while (cursor < windowEnd) {
+    const bias = SEASONALITY[cursor.getUTCMonth()];
+    const startProb = 0.55 * bias;
+
+    if (rng() < startProb) {
+      const nights = pickStay();
+      const endDate = addDaysUtc(cursor, nights);
+      if (endDate > windowEnd) break;
+      const isBlock = rng() < 0.08;
+      const summary = isBlock
+        ? BLOCK_REASONS[Math.floor(rng() * BLOCK_REASONS.length)]
+        : `Reserved — ${FIRST_NAMES[Math.floor(rng() * FIRST_NAMES.length)]}`;
+      idx++;
+      rows.push({
+        connection_id: connectionId,
+        external_event_uid: `demo-${idx.toString().padStart(4, "0")}`,
+        start_date: isoDate(cursor),
+        end_date: isoDate(endDate),
+        summary,
+        raw_payload: { source: "mock", type: isBlock ? "blocked" : "reservation", nights },
+        synced_at: now,
+      });
+      const gap = Math.floor(rng() * 2);
+      cursor = addDaysUtc(endDate, gap);
+    } else {
+      cursor = addDaysUtc(cursor, 1);
+    }
+  }
+  return rows;
 }
 
 // ---------- Handler ----------
