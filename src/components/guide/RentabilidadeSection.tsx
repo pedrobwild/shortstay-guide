@@ -11,13 +11,12 @@ import SectionBlock from "./SectionBlock";
 const WATERFALL = [
   { label: "Receita Bruta", desc: "ADR × noites ocupadas/mês", example: "R$ 9.000", type: "revenue" as const },
   { label: "Comissão plataforma", desc: "~15% (Airbnb + processamento)", example: "- R$ 1.350", type: "cost" as const },
-  { label: "Gestão operacional", desc: "~20% (se terceirizada)", example: "- R$ 1.800", type: "cost" as const },
+  { label: "Gestão operacional", desc: "~18% (se terceirizada)", example: "- R$ 1.620", type: "cost" as const },
   { label: "Limpeza por virada", desc: "~R$ 100/virada × ~8 viradas/mês", example: "- R$ 800", type: "cost" as const },
-  { label: "Condomínio", desc: "Custo fixo mensal", example: "- R$ 1.000", type: "fixed" as const },
+  { label: "Condomínio", desc: "Custo fixo mensal", example: "- R$ 500", type: "fixed" as const },
   { label: "IPTU + Utilidades", desc: "Luz, água, internet, gás", example: "- R$ 500", type: "fixed" as const },
-  { label: "Manutenção", desc: "~5% da receita bruta", example: "- R$ 450", type: "cost" as const },
   { label: "Impostos", desc: "~6% (Simples/MEI)", example: "- R$ 540", type: "cost" as const },
-  { label: "Receita Líquida", desc: "O que sobra no bolso", example: "R$ 2.560", type: "result" as const },
+  { label: "Receita Líquida", desc: "O que sobra no bolso", example: "R$ 3.690", type: "result" as const },
 ];
 
 /* ── Scenarios ── */
