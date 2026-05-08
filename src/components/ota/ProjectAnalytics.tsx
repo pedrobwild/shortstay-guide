@@ -6,17 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
-  Percent, DollarSign, Moon, Hash, TrendingUp,
+  Percent, DollarSign, Moon, TrendingUp, TrendingDown,
   CalendarClock, CalendarOff, Sparkles, BarChart3, Loader2,
-  Wallet, Settings2, RotateCcw,
+  Wallet, Settings2, RotateCcw, Target, Repeat, Building2,
+  CalendarRange, Activity, Gauge, ArrowUpRight, ArrowDownRight,
+  Hash, Ticket, Sun, Snowflake,
 } from "lucide-react";
 import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line,
-  XAxis, YAxis, Tooltip, CartesianGrid, Cell,
+  XAxis, YAxis, Tooltip, CartesianGrid, Cell, ReferenceLine,
 } from "recharts";
 import {
   normalizeEvents, computeKpis, occupancyByMonth, stayLengthDistribution,
   occupancyByWeekday, upcomingStays, longestGaps,
+  forwardOccupancy, seasonalityIndex, weekendVsWeekday, yearOverYear,
+  bookingPatterns, breakEvenAnalysis, investmentReturn,
   DEFAULT_ADR_BRL, type NormalizedEvent, type RawEvent,
 } from "@/lib/projectAnalytics";
 
@@ -49,6 +53,7 @@ interface CostSettings {
   managementPct: number;     // 0-100
   condoMonthly: number;      // BRL por mês
   taxesPct: number;          // 0-100 sobre receita bruta
+  propertyValue: number;     // valor de aquisição do imóvel (para cap rate / payback)
 }
 
 const DEFAULT_COSTS: CostSettings = {
@@ -57,6 +62,7 @@ const DEFAULT_COSTS: CostSettings = {
   managementPct: 18,
   condoMonthly: 500,
   taxesPct: 6,
+  propertyValue: 0,
 };
 
 const storageKey = (projectId: string) => `bwild:project-costs:${projectId}`;
@@ -154,6 +160,52 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
   const upcoming = useMemo(() => upcomingStays(events, 60).slice(0, 10), [events]);
   const gaps = useMemo(() => longestGaps(events, 3), [events]);
 
+  // OTB — Ocupação futura (próximos 30 / 60 / 90 dias)
+  const otb30 = useMemo(() => forwardOccupancy(events, 30, adr), [events, adr]);
+  const otb60 = useMemo(() => forwardOccupancy(events, 60, adr), [events, adr]);
+  const otb90 = useMemo(() => forwardOccupancy(events, 90, adr), [events, adr]);
+
+  // Sazonalidade
+  const seasonality = useMemo(() => seasonalityIndex(events), [events]);
+
+  // Weekend vs weekday
+  const weekendSplit = useMemo(
+    () => weekendVsWeekday(events, kpis.windowStart, kpis.windowEnd, adr),
+    [events, kpis.windowStart, kpis.windowEnd, adr],
+  );
+
+  // Year-over-Year
+  const yoy = useMemo(() => yearOverYear(events, adr), [events, adr]);
+
+  // Padrões de reserva
+  const patterns = useMemo(() => bookingPatterns(events), [events]);
+
+  // KPIs derivados
+  const revPar = kpis.totalNights > 0 ? grossRevenue / kpis.totalNights : 0;
+  const effectiveAdr = kpis.bookedNights > 0 ? grossRevenue / kpis.bookedNights : 0;
+  const avgBookingValue = kpis.reservationsCount > 0 ? grossRevenue / kpis.reservationsCount : 0;
+  const avgMonthlyOccupancy = monthly.length > 0
+    ? monthly.reduce((acc, m) => acc + m.occupancyPct, 0) / monthly.length
+    : 0;
+
+  // Break-even (custos fixos mensais e variáveis sobre a receita)
+  const breakEven = useMemo(() => breakEvenAnalysis({
+    adr: costs.adr,
+    variableRatio: (costs.managementPct + costs.taxesPct) / 100,
+    cleaningPerStay: costs.cleaningPerStay,
+    monthlyFixedCosts: costs.condoMonthly,
+    averageStayNights: kpis.averageStayNights,
+    currentMonthlyOccupancyPct: avgMonthlyOccupancy,
+  }), [costs, kpis.averageStayNights, avgMonthlyOccupancy]);
+
+  // Análise de retorno do investimento
+  const returns = useMemo(() => investmentReturn({
+    propertyValueBrl: costs.propertyValue,
+    observedGrossBrl: grossRevenue,
+    observedNetBrl: netRevenue,
+    monthsObserved: monthsCount,
+  }), [costs.propertyValue, grossRevenue, netRevenue, monthsCount]);
+
   const updateCost = <K extends keyof CostSettings>(key: K, value: number) => {
     setCosts((prev) => ({ ...prev, [key]: Math.max(0, value || 0) }));
   };
@@ -222,7 +274,7 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
               Resetar
             </Button>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             <CostInput id="adr-input" label="Diária (ADR)" prefix="R$" step={10}
               value={costs.adr} onChange={(v) => updateCost("adr", v)} />
             <CostInput id="cleaning-input" label="Limpeza / reserva" prefix="R$" step={10}
@@ -233,25 +285,65 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
               value={costs.taxesPct} onChange={(v) => updateCost("taxesPct", v)} />
             <CostInput id="condo-input" label="Condomínio / mês" prefix="R$" step={50}
               value={costs.condoMonthly} onChange={(v) => updateCost("condoMonthly", v)} />
+            <CostInput id="property-input" label="Valor do imóvel" prefix="R$" step={10000}
+              value={costs.propertyValue} onChange={(v) => updateCost("propertyValue", v)} />
           </div>
           <p className="text-[11px] text-muted-foreground">
-            Valores salvos localmente por projeto. Ajuste para simular cenários reais de operação.
+            Valores salvos localmente por projeto. Valor do imóvel destrava cap rate, yield e payback.
           </p>
         </CardContent>
       </Card>
 
-      {/* KPI cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <KpiCard icon={<Percent className="h-4 w-4" />} label="Ocupação" value={`${kpis.occupancyPct.toFixed(1)}%`} />
-        <KpiCard icon={<DollarSign className="h-4 w-4" />} label="Receita bruta" value={brl(grossRevenue)} />
-        <KpiCard
-          icon={<Wallet className="h-4 w-4" />}
-          label="Receita líquida"
-          value={brl(netRevenue)}
-          accent
-          hint={`Margem ${netMarginPct.toFixed(1)}% · Custos ${brl(totalCosts)}`}
-        />
-        <KpiCard icon={<Moon className="h-4 w-4" />} label="Estadia média" value={`${kpis.averageStayNights.toFixed(1)} noites`} />
+      {/* KPIs principais */}
+      <div>
+        <h3 className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Visão geral</h3>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <KpiCard icon={<Percent className="h-4 w-4" />} label="Ocupação"
+            value={`${kpis.occupancyPct.toFixed(1)}%`}
+            hint={`${kpis.bookedNights}n reservadas · ${kpis.blockedNights}n bloqueadas`} />
+          <KpiCard icon={<DollarSign className="h-4 w-4" />} label="Receita bruta"
+            value={brl(grossRevenue)}
+            hint={`${kpis.bookedNights} noites × ${brl(adr)}`} />
+          <KpiCard
+            icon={<Wallet className="h-4 w-4" />}
+            label="Receita líquida"
+            value={brl(netRevenue)}
+            accent
+            hint={`Margem ${netMarginPct.toFixed(1)}% · Custos ${brl(totalCosts)}`}
+          />
+          <KpiCard icon={<Moon className="h-4 w-4" />} label="Estadia média"
+            value={`${kpis.averageStayNights.toFixed(1)} noites`}
+            hint={`${kpis.reservationsCount} reservas no período`} />
+        </div>
+      </div>
+
+      {/* KPIs de performance — métricas hoteleiras */}
+      <div>
+        <h3 className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Performance</h3>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <KpiCard icon={<Gauge className="h-4 w-4" />} label="RevPAR"
+            value={brl(revPar)}
+            hint="Receita por noite disponível" />
+          <KpiCard icon={<DollarSign className="h-4 w-4" />} label="ADR efetivo"
+            value={brl(effectiveAdr)}
+            hint="Receita / noites reservadas" />
+          <KpiCard icon={<Ticket className="h-4 w-4" />} label="Ticket médio"
+            value={brl(avgBookingValue)}
+            hint="Receita / nº de reservas" />
+          <KpiCard icon={<Hash className="h-4 w-4" />} label="Reservas"
+            value={`${kpis.reservationsCount}`}
+            hint={`${patterns.backToBackCount} back-to-back · ${patterns.weekendArrivalsPct.toFixed(0)}% chegam fim de semana`} />
+        </div>
+      </div>
+
+      {/* KPIs de demanda futura — OTB */}
+      <div>
+        <h3 className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Demanda futura (OTB)</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+          <OtbCard label="Próximos 30 dias" otb={otb30} />
+          <OtbCard label="Próximos 60 dias" otb={otb60} />
+          <OtbCard label="Próximos 90 dias" otb={otb90} />
+        </div>
       </div>
 
       {/* Breakdown de custos */}
@@ -400,6 +492,245 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
                 </BarChart>
               </ResponsiveContainer>
             </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Sazonalidade */}
+      {seasonality.length >= 2 && (
+        <Card>
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <CalendarRange className="h-4 w-4 text-muted-foreground" />
+                <h3 className="text-sm font-medium text-foreground">Sazonalidade</h3>
+              </div>
+              <span className="text-[11px] text-muted-foreground">
+                Índice 1.0 = média do período observado
+              </span>
+            </div>
+            <div className="h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={seasonality} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                  <XAxis dataKey="monthLabel" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))"
+                    tickFormatter={(v) => v.toFixed(1)} />
+                  <Tooltip
+                    contentStyle={{
+                      background: "hsl(var(--background))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: 8, fontSize: 12,
+                    }}
+                    formatter={(value: number, name: string) => {
+                      if (name === "index") return [`${value.toFixed(2)}x`, "Índice"];
+                      return [`${value.toFixed(1)}%`, "Ocupação"];
+                    }}
+                  />
+                  <ReferenceLine y={1} stroke="hsl(var(--muted-foreground))" strokeDasharray="3 3" />
+                  <Bar dataKey="index" radius={[4, 4, 0, 0]}>
+                    {seasonality.map((m) => (
+                      <Cell
+                        key={m.month}
+                        fill={m.index >= 1 ? "hsl(var(--primary))" : "hsl(var(--muted-foreground) / 0.5)"}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Meses acima da linha tracejada performam acima da média; abaixo são oportunidades para campanhas e ajustes de preço.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Year-over-Year */}
+      {yoy.length > 0 && (
+        <Card>
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Activity className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-medium text-foreground">Comparação ano sobre ano (YoY)</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead className="text-muted-foreground">
+                  <tr className="border-b border-border">
+                    <th className="text-left font-medium py-2">Mês</th>
+                    <th className="text-right font-medium py-2">Ocup. anterior</th>
+                    <th className="text-right font-medium py-2">Ocup. atual</th>
+                    <th className="text-right font-medium py-2">Δ</th>
+                    <th className="text-right font-medium py-2">Receita anterior</th>
+                    <th className="text-right font-medium py-2">Receita atual</th>
+                    <th className="text-right font-medium py-2">Δ %</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {yoy.map((m) => (
+                    <tr key={m.monthKey} className="border-b border-border/50">
+                      <td className="py-2 font-medium text-foreground">{m.monthLabel}</td>
+                      <td className="py-2 text-right text-muted-foreground">{m.previousOccupancyPct.toFixed(1)}%</td>
+                      <td className="py-2 text-right">{m.currentOccupancyPct.toFixed(1)}%</td>
+                      <td className={`py-2 text-right font-medium ${m.occupancyDeltaPct >= 0 ? "text-primary" : "text-destructive"}`}>
+                        {m.occupancyDeltaPct >= 0 ? "+" : ""}{m.occupancyDeltaPct.toFixed(1)}pp
+                      </td>
+                      <td className="py-2 text-right text-muted-foreground">{brl(m.previousRevenueBrl)}</td>
+                      <td className="py-2 text-right">{brl(m.currentRevenueBrl)}</td>
+                      <td className={`py-2 text-right font-medium ${m.revenueDeltaPct >= 0 ? "text-primary" : "text-destructive"}`}>
+                        {m.revenueDeltaPct >= 0 ? "+" : ""}{m.revenueDeltaPct.toFixed(1)}%
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Padrões de reserva + Weekend split */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Repeat className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-medium text-foreground">Padrões de reserva</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <PatternStat label="Back-to-back" value={`${patterns.backToBackCount}`}
+                hint={`${patterns.backToBackRatePct.toFixed(0)}% das transições sem gap`} />
+              <PatternStat label="Gap médio" value={`${patterns.averageGapNights.toFixed(1)}n`}
+                hint={`Mediana ${patterns.medianGapNights.toFixed(1)}n`} />
+              <PatternStat label="Taxa de bloqueio" value={`${patterns.blockRatePct.toFixed(1)}%`}
+                hint={`${patterns.blockedCount} bloqueios`} />
+              <PatternStat label="Chegada fim de semana" value={`${patterns.weekendArrivalsPct.toFixed(0)}%`}
+                hint={`Sex/Sáb`} />
+              <PatternStat label="Estadia mais longa" value={`${patterns.longestStayNights}n`} />
+              <PatternStat label="Estadia mais curta" value={`${patterns.shortestStayNights}n`} />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Sun className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-medium text-foreground">Fim de semana × Semana</h3>
+            </div>
+            <div className="space-y-3 text-xs">
+              <SplitBar
+                leftLabel="Fim de semana (Sex/Sáb)"
+                rightLabel="Semana (Dom-Qui)"
+                leftValue={weekendSplit.weekendNights}
+                rightValue={weekendSplit.weekdayNights}
+                leftColor="hsl(var(--primary))"
+                rightColor="hsl(var(--muted-foreground) / 0.5)"
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-md border border-border p-2 space-y-0.5">
+                  <p className="text-[11px] text-muted-foreground">Ocupação fim de semana</p>
+                  <p className="text-sm font-medium text-foreground">{weekendSplit.weekendOccupancyPct.toFixed(1)}%</p>
+                  <p className="text-[10px] text-muted-foreground">{brl(weekendSplit.weekendRevenueBrl)}</p>
+                </div>
+                <div className="rounded-md border border-border p-2 space-y-0.5">
+                  <p className="text-[11px] text-muted-foreground">Ocupação dia de semana</p>
+                  <p className="text-sm font-medium text-foreground">{weekendSplit.weekdayOccupancyPct.toFixed(1)}%</p>
+                  <p className="text-[10px] text-muted-foreground">{brl(weekendSplit.weekdayRevenueBrl)}</p>
+                </div>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Compare a ocupação efetiva de cada categoria — útil para decidir descontos em dias de semana ou prêmio em finais de semana.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Break-even + ROI */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Target className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-medium text-foreground">Break-even operacional</h3>
+            </div>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Contribuição por noite</span>
+                <span className="font-medium text-foreground">{brl(breakEven.contributionPerNight)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Noites/mês para zerar custos fixos</span>
+                <span className="font-medium text-foreground">{breakEven.breakEvenNightsPerMonth.toFixed(1)}n</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Ocupação mínima necessária</span>
+                <span className="font-medium text-foreground">{breakEven.breakEvenOccupancyPct.toFixed(1)}%</span>
+              </div>
+              <div className="h-px bg-border my-1" />
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Ocupação média atual</span>
+                <span className="font-medium text-foreground">{breakEven.currentMonthlyOccupancyPct.toFixed(1)}%</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Margem vs break-even</span>
+                <Badge
+                  variant={breakEven.marginVsBreakEvenPct >= 0 ? "default" : "destructive"}
+                  className="text-[10px]"
+                >
+                  {breakEven.marginVsBreakEvenPct >= 0 ? "+" : ""}{breakEven.marginVsBreakEvenPct.toFixed(1)}pp
+                </Badge>
+              </div>
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Considera contribuição por noite após gestão, impostos e limpeza, contra custo fixo mensal informado.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className={costs.propertyValue > 0 ? "border-primary/30 bg-primary/[0.03]" : ""}>
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-medium text-foreground">Retorno do investimento</h3>
+            </div>
+            {costs.propertyValue <= 0 ? (
+              <p className="text-xs text-muted-foreground py-4 text-center">
+                Informe o <span className="font-medium text-foreground">Valor do imóvel</span> nas premissas
+                para calcular cap rate, yield e payback.
+              </p>
+            ) : (
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Receita bruta anualizada</span>
+                  <span className="font-medium text-foreground">{brl(returns.annualizedGrossRevenueBrl)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Receita líquida anualizada</span>
+                  <span className="font-medium text-foreground">{brl(returns.annualizedNetRevenueBrl)}</span>
+                </div>
+                <div className="h-px bg-border my-1" />
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Yield bruto</span>
+                  <span className="font-medium text-foreground">{returns.grossYieldPct.toFixed(2)}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Cap rate (yield líquido)</span>
+                  <span className="font-medium text-primary">{returns.capRatePct.toFixed(2)}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Payback estimado</span>
+                  <span className="font-medium text-foreground">
+                    {returns.paybackYears !== null ? `${returns.paybackYears.toFixed(1)} anos` : "—"}
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Anualizado a partir de {monthsCount} {monthsCount === 1 ? "mês observado" : "meses observados"}.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -554,6 +885,76 @@ function CostRow({
       <span className={color}>
         {isNegative ? "− " : ""}{brl(Math.abs(value))}
       </span>
+    </div>
+  );
+}
+
+function OtbCard({ label, otb }: { label: string; otb: ReturnType<typeof forwardOccupancy> }) {
+  const pct = otb.bookedPct;
+  const tone =
+    pct >= 60 ? "border-primary/40 bg-primary/[0.05]" :
+    pct >= 30 ? "border-border" :
+    "border-dashed border-muted-foreground/30";
+  return (
+    <Card className={tone}>
+      <CardContent className="p-4 space-y-2">
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-muted-foreground">{label}</p>
+          <Badge variant="secondary" className="text-[10px]">{otb.bookedNights}n</Badge>
+        </div>
+        <p className="text-xl font-semibold text-foreground">{pct.toFixed(1)}%</p>
+        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+          <div
+            className="h-full bg-primary transition-all"
+            style={{ width: `${Math.min(100, pct)}%` }}
+          />
+        </div>
+        <div className="flex justify-between text-[11px] text-muted-foreground">
+          <span>Disponível: {otb.availableNights}n</span>
+          <span>Receita: {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(otb.estimatedRevenueBrl)}</span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function PatternStat({ label, value, hint }: { label: string; value: string; hint?: string }) {
+  return (
+    <div className="rounded-md border border-border p-2.5 space-y-0.5">
+      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <p className="text-sm font-medium text-foreground">{value}</p>
+      {hint && <p className="text-[10px] text-muted-foreground">{hint}</p>}
+    </div>
+  );
+}
+
+function SplitBar({
+  leftLabel, rightLabel, leftValue, rightValue, leftColor, rightColor,
+}: {
+  leftLabel: string;
+  rightLabel: string;
+  leftValue: number;
+  rightValue: number;
+  leftColor: string;
+  rightColor: string;
+}) {
+  const total = leftValue + rightValue;
+  const leftPct = total > 0 ? (leftValue / total) * 100 : 0;
+  const rightPct = total > 0 ? (rightValue / total) * 100 : 0;
+  return (
+    <div className="space-y-1.5">
+      <div className="flex justify-between text-[11px]">
+        <span className="text-muted-foreground">{leftLabel}</span>
+        <span className="text-muted-foreground">{rightLabel}</span>
+      </div>
+      <div className="h-3 rounded-full overflow-hidden flex bg-muted">
+        <div style={{ width: `${leftPct}%`, background: leftColor }} className="transition-all" />
+        <div style={{ width: `${rightPct}%`, background: rightColor }} className="transition-all" />
+      </div>
+      <div className="flex justify-between text-[11px] text-foreground font-medium">
+        <span>{leftValue}n · {leftPct.toFixed(0)}%</span>
+        <span>{rightValue}n · {rightPct.toFixed(0)}%</span>
+      </div>
     </div>
   );
 }

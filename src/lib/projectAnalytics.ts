@@ -72,6 +72,87 @@ export interface VacancyGap {
   nights: number;
 }
 
+export interface ForwardWindowOccupancy {
+  windowDays: number;          // 30 / 60 / 90 ...
+  bookedNights: number;
+  blockedNights: number;
+  availableNights: number;     // window - booked - blocked (>=0)
+  occupancyPct: number;        // (booked+blocked) / window * 100
+  bookedPct: number;           // booked / window * 100
+  estimatedRevenueBrl: number; // booked * adr
+}
+
+export interface SeasonalityMonth {
+  month: number;               // 1..12
+  monthLabel: string;          // "Jan" .. "Dez"
+  avgOccupancyPct: number;     // média histórica do mês (entre os anos disponíveis)
+  index: number;               // avgOccupancyPct / avgOccupancyAnual (1 = média)
+  bookedNights: number;        // total booked across all years for this calendar month
+  yearsObserved: number;       // quantos anos contribuíram
+}
+
+export interface WeekendSplit {
+  weekendNights: number;       // sex (5) + sáb (6)
+  weekdayNights: number;       // dom..qui
+  weekendPct: number;          // weekendNights / total
+  weekdayPct: number;
+  weekendOccupancyPct: number; // weekendNights / weekendNightsAvailable
+  weekdayOccupancyPct: number;
+  weekendRevenueBrl: number;
+  weekdayRevenueBrl: number;
+}
+
+export interface YoYMonth {
+  monthKey: string;            // "YYYY-MM" do período atual
+  monthLabel: string;          // "Jan/26"
+  currentBookedNights: number;
+  previousBookedNights: number;
+  currentOccupancyPct: number;
+  previousOccupancyPct: number;
+  occupancyDeltaPct: number;   // current - previous (em pontos percentuais)
+  currentRevenueBrl: number;
+  previousRevenueBrl: number;
+  revenueDeltaPct: number;     // % growth (current - previous) / previous * 100
+}
+
+export interface BookingPatterns {
+  reservationsCount: number;
+  blockedCount: number;
+  blockRatePct: number;        // blockedNights / totalNights
+  backToBackCount: number;     // reservas com gap=0 entre uma e a próxima
+  backToBackRatePct: number;   // backToBackCount / (reservations-1)
+  averageGapNights: number;    // média de gap entre reservas consecutivas
+  medianGapNights: number;
+  longestStayNights: number;
+  shortestStayNights: number;
+  weekendArrivalsPct: number;  // % de check-ins em sex/sáb
+}
+
+export interface BreakEvenAnalysis {
+  monthlyFixedCosts: number;          // condomínio + taxas fixas
+  monthlyVariableRatio: number;       // 0..1 (gestão + impostos como fração da receita bruta)
+  cleaningPerStay: number;
+  averageStayNights: number;
+  effectiveAdr: number;               // adr − (cleaning/avgStay) (contribuição por noite, antes de var%)
+  contributionPerNight: number;       // adr * (1-var%) − cleaning/avgStay
+  breakEvenNightsPerMonth: number;    // monthlyFixed / contributionPerNight
+  breakEvenOccupancyPct: number;      // breakEvenNightsPerMonth / 30
+  currentMonthlyOccupancyPct: number; // média atual observada
+  marginVsBreakEvenPct: number;       // current - breakeven (pp)
+}
+
+export interface InvestmentReturn {
+  propertyValueBrl: number;
+  monthsObserved: number;
+  annualizedGrossRevenueBrl: number;  // (gross / monthsObserved) * 12
+  annualizedNetRevenueBrl: number;    // (net / monthsObserved) * 12
+  grossYieldPct: number;              // annualGross / propertyValue * 100
+  capRatePct: number;                 // annualNet / propertyValue * 100
+  paybackYears: number | null;        // propertyValue / annualNet (null se net <= 0)
+  monthlyAvgGrossBrl: number;
+  monthlyAvgNetBrl: number;
+}
+
 export const DEFAULT_ADR_BRL = 350;
 
 const WEEKDAY_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
@@ -319,6 +400,276 @@ export function upcomingStays(
   }
   out.sort((a, b) => a.start.getTime() - b.start.getTime());
   return out;
+}
+
+/**
+ * Ocupação numa janela futura a partir de `today`.
+ * Conta noites de eventos que sobrepõem [today, today+windowDays).
+ */
+export function forwardOccupancy(
+  events: NormalizedEvent[],
+  windowDays: number,
+  adr = DEFAULT_ADR_BRL,
+  today: Date = new Date(),
+): ForwardWindowOccupancy {
+  const start = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  const end = addDaysUtc(start, windowDays);
+  let booked = 0;
+  let blocked = 0;
+  for (const e of events) {
+    const overlapStart = e.start.getTime() > start.getTime() ? e.start : start;
+    const overlapEnd = e.end.getTime() < end.getTime() ? e.end : end;
+    const overlap = diffDaysUtc(overlapStart, overlapEnd);
+    if (overlap <= 0) continue;
+    if (e.type === "reservation") booked += overlap;
+    else blocked += overlap;
+  }
+  const occupied = booked + blocked;
+  const available = Math.max(0, windowDays - occupied);
+  return {
+    windowDays,
+    bookedNights: booked,
+    blockedNights: blocked,
+    availableNights: available,
+    occupancyPct: (occupied / windowDays) * 100,
+    bookedPct: (booked / windowDays) * 100,
+    estimatedRevenueBrl: booked * adr,
+  };
+}
+
+/**
+ * Índice de sazonalidade por mês calendário.
+ * Agrega ocupação média de cada mês (Jan..Dez) através de todos os anos disponíveis,
+ * e devolve um índice relativo à média anual.
+ */
+export function seasonalityIndex(events: NormalizedEvent[]): SeasonalityMonth[] {
+  if (events.length === 0) return [];
+  // Agregação por mês calendário
+  const perMonth = new Map<number, { booked: number; days: number; years: Set<number> }>();
+  // Para cada (ano, mês) que aparece na janela, acumula booked + daysInMonth
+  const monthly = occupancyByMonth(events);
+  for (const m of monthly) {
+    const [yy, mm] = m.monthKey.split("-").map(Number);
+    const key = mm; // 1..12
+    if (!perMonth.has(key)) perMonth.set(key, { booked: 0, days: 0, years: new Set() });
+    const ref = perMonth.get(key)!;
+    ref.booked += m.bookedNights;
+    ref.days += m.daysInMonth;
+    ref.years.add(yy);
+  }
+  // Média anual ponderada
+  const totalBooked = monthly.reduce((acc, m) => acc + m.bookedNights, 0);
+  const totalDays = monthly.reduce((acc, m) => acc + m.daysInMonth, 0);
+  const avgAnnualPct = totalDays > 0 ? (totalBooked / totalDays) * 100 : 0;
+  const out: SeasonalityMonth[] = [];
+  for (let mm = 1; mm <= 12; mm++) {
+    const ref = perMonth.get(mm);
+    if (!ref || ref.days === 0) continue;
+    const pct = (ref.booked / ref.days) * 100;
+    out.push({
+      month: mm,
+      monthLabel: MONTH_LABELS[mm - 1],
+      avgOccupancyPct: pct,
+      index: avgAnnualPct > 0 ? pct / avgAnnualPct : 0,
+      bookedNights: ref.booked,
+      yearsObserved: ref.years.size,
+    });
+  }
+  return out;
+}
+
+/**
+ * Distribui noites entre fim de semana (Sex/Sáb) e dias de semana.
+ * `windowNights` é o total de noites na janela observada (para cálculo de % ocupação).
+ */
+export function weekendVsWeekday(
+  events: NormalizedEvent[],
+  windowStart: Date | null,
+  windowEnd: Date | null,
+  adr = DEFAULT_ADR_BRL,
+): WeekendSplit {
+  let weekendBooked = 0;
+  let weekdayBooked = 0;
+  for (const e of events) {
+    if (e.type !== "reservation") continue;
+    let d = new Date(e.start);
+    while (d.getTime() < e.end.getTime()) {
+      const wd = d.getUTCDay();
+      if (wd === 5 || wd === 6) weekendBooked++;
+      else weekdayBooked++;
+      d = addDaysUtc(d, 1);
+    }
+  }
+  // Calcula nights disponíveis na janela por categoria
+  let weekendAvailable = 0;
+  let weekdayAvailable = 0;
+  if (windowStart && windowEnd) {
+    let d = new Date(windowStart);
+    while (d.getTime() < windowEnd.getTime()) {
+      const wd = d.getUTCDay();
+      if (wd === 5 || wd === 6) weekendAvailable++;
+      else weekdayAvailable++;
+      d = addDaysUtc(d, 1);
+    }
+  }
+  const total = weekendBooked + weekdayBooked;
+  return {
+    weekendNights: weekendBooked,
+    weekdayNights: weekdayBooked,
+    weekendPct: total > 0 ? (weekendBooked / total) * 100 : 0,
+    weekdayPct: total > 0 ? (weekdayBooked / total) * 100 : 0,
+    weekendOccupancyPct: weekendAvailable > 0 ? (weekendBooked / weekendAvailable) * 100 : 0,
+    weekdayOccupancyPct: weekdayAvailable > 0 ? (weekdayBooked / weekdayAvailable) * 100 : 0,
+    weekendRevenueBrl: weekendBooked * adr,
+    weekdayRevenueBrl: weekdayBooked * adr,
+  };
+}
+
+/**
+ * Comparação Year-over-Year mês a mês: para cada mês com observação no ano atual e no ano anterior,
+ * devolve ocupação e receita comparadas.
+ */
+export function yearOverYear(
+  events: NormalizedEvent[],
+  adr = DEFAULT_ADR_BRL,
+): YoYMonth[] {
+  const monthly = occupancyByMonth(events, adr);
+  const byKey = new Map<string, MonthlyOccupancy>();
+  for (const m of monthly) byKey.set(m.monthKey, m);
+  const out: YoYMonth[] = [];
+  for (const m of monthly) {
+    const [yy, mm] = m.monthKey.split("-").map(Number);
+    const prevKey = `${yy - 1}-${String(mm).padStart(2, "0")}`;
+    const prev = byKey.get(prevKey);
+    if (!prev) continue;
+    const occDelta = m.occupancyPct - prev.occupancyPct;
+    const revDelta =
+      prev.estimatedRevenueBrl > 0
+        ? ((m.estimatedRevenueBrl - prev.estimatedRevenueBrl) / prev.estimatedRevenueBrl) * 100
+        : m.estimatedRevenueBrl > 0
+          ? 100
+          : 0;
+    out.push({
+      monthKey: m.monthKey,
+      monthLabel: m.monthLabel,
+      currentBookedNights: m.bookedNights,
+      previousBookedNights: prev.bookedNights,
+      currentOccupancyPct: m.occupancyPct,
+      previousOccupancyPct: prev.occupancyPct,
+      occupancyDeltaPct: occDelta,
+      currentRevenueBrl: m.estimatedRevenueBrl,
+      previousRevenueBrl: prev.estimatedRevenueBrl,
+      revenueDeltaPct: revDelta,
+    });
+  }
+  return out;
+}
+
+/** Padrões de reserva: back-to-back, gap médio, taxa de bloqueio, etc. */
+export function bookingPatterns(events: NormalizedEvent[]): BookingPatterns {
+  const reservations = events.filter((e) => e.type === "reservation");
+  const blocked = events.filter((e) => e.type === "blocked");
+  const totalNights = reservations.reduce((acc, e) => acc + e.nights, 0)
+    + blocked.reduce((acc, e) => acc + e.nights, 0);
+  const blockedNights = blocked.reduce((acc, e) => acc + e.nights, 0);
+
+  let b2b = 0;
+  const gaps: number[] = [];
+  const sorted = [...reservations].sort((a, b) => a.start.getTime() - b.start.getTime());
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const gap = diffDaysUtc(sorted[i].end, sorted[i + 1].start);
+    gaps.push(gap);
+    if (gap === 0) b2b++;
+  }
+  gaps.sort((a, b) => a - b);
+  const avgGap = gaps.length > 0 ? gaps.reduce((a, b) => a + b, 0) / gaps.length : 0;
+  const medGap = gaps.length > 0
+    ? gaps.length % 2 === 1
+      ? gaps[(gaps.length - 1) / 2]
+      : (gaps[gaps.length / 2 - 1] + gaps[gaps.length / 2]) / 2
+    : 0;
+
+  let weekendArrivals = 0;
+  for (const e of reservations) {
+    const wd = e.start.getUTCDay();
+    if (wd === 5 || wd === 6) weekendArrivals++;
+  }
+
+  const stayLengths = reservations.map((r) => r.nights);
+  return {
+    reservationsCount: reservations.length,
+    blockedCount: blocked.length,
+    blockRatePct: totalNights > 0 ? (blockedNights / totalNights) * 100 : 0,
+    backToBackCount: b2b,
+    backToBackRatePct: sorted.length > 1 ? (b2b / (sorted.length - 1)) * 100 : 0,
+    averageGapNights: avgGap,
+    medianGapNights: medGap,
+    longestStayNights: stayLengths.length > 0 ? Math.max(...stayLengths) : 0,
+    shortestStayNights: stayLengths.length > 0 ? Math.min(...stayLengths) : 0,
+    weekendArrivalsPct: reservations.length > 0 ? (weekendArrivals / reservations.length) * 100 : 0,
+  };
+}
+
+/**
+ * Ocupação mínima necessária para cobrir custos fixos + variáveis.
+ * adr: diária bruta, variableRatio (0..1) sobre receita (gestão+impostos),
+ * cleaningPerStay distribuído sobre avgStay.
+ */
+export function breakEvenAnalysis(params: {
+  adr: number;
+  variableRatio: number;          // 0..1 (gestão+impostos como fração)
+  cleaningPerStay: number;
+  monthlyFixedCosts: number;      // condomínio + outras despesas fixas mensais
+  averageStayNights: number;      // se 0, assume 3
+  currentMonthlyOccupancyPct: number;
+}): BreakEvenAnalysis {
+  const avgStay = params.averageStayNights > 0 ? params.averageStayNights : 3;
+  const cleaningPerNight = params.cleaningPerStay / avgStay;
+  const contribution = params.adr * (1 - params.variableRatio) - cleaningPerNight;
+  const beNights = contribution > 0 ? params.monthlyFixedCosts / contribution : Infinity;
+  const beOccupancyPct = beNights === Infinity ? 100 : Math.min(100, (beNights / 30) * 100);
+  return {
+    monthlyFixedCosts: params.monthlyFixedCosts,
+    monthlyVariableRatio: params.variableRatio,
+    cleaningPerStay: params.cleaningPerStay,
+    averageStayNights: avgStay,
+    effectiveAdr: params.adr - cleaningPerNight,
+    contributionPerNight: contribution,
+    breakEvenNightsPerMonth: beNights === Infinity ? 30 : beNights,
+    breakEvenOccupancyPct: beOccupancyPct,
+    currentMonthlyOccupancyPct: params.currentMonthlyOccupancyPct,
+    marginVsBreakEvenPct: params.currentMonthlyOccupancyPct - beOccupancyPct,
+  };
+}
+
+/**
+ * Retorno do investimento (cap rate, payback) anualizando a receita observada.
+ * Se propertyValueBrl <= 0, devolve cap rate 0 e payback null.
+ */
+export function investmentReturn(params: {
+  propertyValueBrl: number;
+  observedGrossBrl: number;
+  observedNetBrl: number;
+  monthsObserved: number;
+}): InvestmentReturn {
+  const months = Math.max(1, params.monthsObserved);
+  const annualGross = (params.observedGrossBrl / months) * 12;
+  const annualNet = (params.observedNetBrl / months) * 12;
+  const value = params.propertyValueBrl;
+  const grossYieldPct = value > 0 ? (annualGross / value) * 100 : 0;
+  const capRatePct = value > 0 ? (annualNet / value) * 100 : 0;
+  const paybackYears = value > 0 && annualNet > 0 ? value / annualNet : null;
+  return {
+    propertyValueBrl: value,
+    monthsObserved: months,
+    annualizedGrossRevenueBrl: annualGross,
+    annualizedNetRevenueBrl: annualNet,
+    grossYieldPct,
+    capRatePct,
+    paybackYears,
+    monthlyAvgGrossBrl: params.observedGrossBrl / months,
+    monthlyAvgNetBrl: params.observedNetBrl / months,
+  };
 }
 
 /** Maiores períodos de vacância entre eventos consecutivos. */

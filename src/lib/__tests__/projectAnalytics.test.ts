@@ -8,6 +8,13 @@ import {
   occupancyByWeekday,
   upcomingStays,
   longestGaps,
+  forwardOccupancy,
+  seasonalityIndex,
+  weekendVsWeekday,
+  yearOverYear,
+  bookingPatterns,
+  breakEvenAnalysis,
+  investmentReturn,
   DEFAULT_ADR_BRL,
   type RawEvent,
 } from "../projectAnalytics";
@@ -161,5 +168,194 @@ describe("longestGaps", () => {
 describe("DEFAULT_ADR_BRL", () => {
   it("defaults to 350", () => {
     expect(DEFAULT_ADR_BRL).toBe(350);
+  });
+});
+
+describe("forwardOccupancy", () => {
+  const today = new Date(Date.UTC(2026, 0, 1));
+  it("returns zeros when there are no events", () => {
+    const f = forwardOccupancy([], 30, 200, today);
+    expect(f.bookedNights).toBe(0);
+    expect(f.availableNights).toBe(30);
+    expect(f.occupancyPct).toBe(0);
+  });
+  it("counts overlap with the future window", () => {
+    const evs = normalizeEvents([
+      raw("2026-01-05", "2026-01-10"), // 5 nights inside window
+      raw("2026-02-15", "2026-02-20"), // outside 30d window
+    ]);
+    const f = forwardOccupancy(evs, 30, 100, today);
+    expect(f.bookedNights).toBe(5);
+    expect(f.estimatedRevenueBrl).toBe(500);
+    expect(f.bookedPct).toBeCloseTo((5 / 30) * 100, 5);
+  });
+  it("clips overlap to the window edges", () => {
+    const evs = normalizeEvents([raw("2025-12-28", "2026-01-04")]); // 3 nights inside (1-2-3)
+    const f = forwardOccupancy(evs, 30, 100, today);
+    expect(f.bookedNights).toBe(3);
+  });
+  it("separates blocked from booked", () => {
+    const evs = normalizeEvents([raw("2026-01-05", "2026-01-08", "Blocked")]);
+    const f = forwardOccupancy(evs, 30, 100, today);
+    expect(f.blockedNights).toBe(3);
+    expect(f.bookedNights).toBe(0);
+    expect(f.occupancyPct).toBeCloseTo((3 / 30) * 100, 5);
+  });
+});
+
+describe("seasonalityIndex", () => {
+  it("returns empty for no events", () => {
+    expect(seasonalityIndex([])).toEqual([]);
+  });
+  it("computes index per calendar month relative to overall avg", () => {
+    const evs = normalizeEvents([
+      raw("2026-01-01", "2026-01-31"), // Jan: 30/31 noites (alta temporada)
+      raw("2026-07-01", "2026-07-15"), // Jul: 14/31 noites (baixa)
+    ]);
+    const s = seasonalityIndex(evs);
+    const jan = s.find((m) => m.month === 1)!;
+    const jul = s.find((m) => m.month === 7)!;
+    expect(jan).toBeDefined();
+    expect(jul).toBeDefined();
+    // Jan deve ter ocupação maior que Jul (e índice maior)
+    expect(jan.avgOccupancyPct).toBeGreaterThan(jul.avgOccupancyPct);
+    expect(jan.index).toBeGreaterThan(jul.index);
+    // E Jan deve estar acima da média global do período
+    expect(jan.index).toBeGreaterThan(1);
+  });
+  it("aggregates same calendar month across years", () => {
+    const evs = normalizeEvents([
+      raw("2025-03-01", "2025-03-11"), // 10 nights
+      raw("2026-03-05", "2026-03-15"), // 10 nights
+    ]);
+    const s = seasonalityIndex(evs);
+    const mar = s.find((m) => m.month === 3)!;
+    expect(mar.bookedNights).toBe(20);
+    expect(mar.yearsObserved).toBe(2);
+  });
+});
+
+describe("weekendVsWeekday", () => {
+  it("returns zeros when no events", () => {
+    const w = weekendVsWeekday([], null, null);
+    expect(w.weekendNights).toBe(0);
+    expect(w.weekdayNights).toBe(0);
+  });
+  it("splits booked nights by weekday correctly", () => {
+    // 2026-01-01 = Quinta (4) → noites: qui, sex, sab → 1 weekday + 2 weekend
+    const evs = normalizeEvents([raw("2026-01-01", "2026-01-04")]);
+    const k = computeKpis(evs);
+    const w = weekendVsWeekday(evs, k.windowStart, k.windowEnd, 100);
+    expect(w.weekendNights).toBe(2);
+    expect(w.weekdayNights).toBe(1);
+    expect(w.weekendRevenueBrl).toBe(200);
+    expect(w.weekdayRevenueBrl).toBe(100);
+  });
+});
+
+describe("yearOverYear", () => {
+  it("returns empty when no prior-year match", () => {
+    const evs = normalizeEvents([raw("2026-01-01", "2026-01-10")]);
+    expect(yearOverYear(evs)).toEqual([]);
+  });
+  it("matches months with prior year", () => {
+    const evs = normalizeEvents([
+      raw("2025-01-01", "2025-01-11"), // 10 nights
+      raw("2026-01-01", "2026-01-21"), // 20 nights
+    ]);
+    const yoy = yearOverYear(evs, 100);
+    const jan26 = yoy.find((m) => m.monthKey === "2026-01");
+    expect(jan26).toBeDefined();
+    expect(jan26!.previousBookedNights).toBe(10);
+    expect(jan26!.currentBookedNights).toBe(20);
+    expect(jan26!.revenueDeltaPct).toBe(100);
+  });
+});
+
+describe("bookingPatterns", () => {
+  it("counts back-to-back reservations and gaps", () => {
+    const evs = normalizeEvents([
+      raw("2026-01-01", "2026-01-04"),
+      raw("2026-01-04", "2026-01-07"), // back-to-back, gap=0
+      raw("2026-01-10", "2026-01-12"), // gap=3
+    ]);
+    const p = bookingPatterns(evs);
+    expect(p.backToBackCount).toBe(1);
+    expect(p.reservationsCount).toBe(3);
+    expect(p.averageGapNights).toBeCloseTo(1.5, 5);
+  });
+  it("computes block rate", () => {
+    const evs = normalizeEvents([
+      raw("2026-01-01", "2026-01-05"),         // 4 booked
+      raw("2026-01-10", "2026-01-12", "Blocked"), // 2 blocked
+    ]);
+    const p = bookingPatterns(evs);
+    expect(p.blockedCount).toBe(1);
+    expect(p.blockRatePct).toBeCloseTo((2 / 6) * 100, 5);
+  });
+});
+
+describe("breakEvenAnalysis", () => {
+  it("computes break-even nights per month", () => {
+    const be = breakEvenAnalysis({
+      adr: 400,
+      variableRatio: 0.2,           // 20% gestão+impostos
+      cleaningPerStay: 100,
+      monthlyFixedCosts: 1000,
+      averageStayNights: 4,         // cleaning/night = 25
+      currentMonthlyOccupancyPct: 60,
+    });
+    // contribution = 400*0.8 - 25 = 295
+    expect(be.contributionPerNight).toBeCloseTo(295, 1);
+    // beNights ≈ 1000/295 ≈ 3.39
+    expect(be.breakEvenNightsPerMonth).toBeCloseTo(1000 / 295, 3);
+    expect(be.marginVsBreakEvenPct).toBeGreaterThan(0);
+  });
+  it("flags occupancy at 100% if contribution is non-positive", () => {
+    const be = breakEvenAnalysis({
+      adr: 100,
+      variableRatio: 1.0,
+      cleaningPerStay: 200,
+      monthlyFixedCosts: 1000,
+      averageStayNights: 1,
+      currentMonthlyOccupancyPct: 60,
+    });
+    expect(be.breakEvenOccupancyPct).toBe(100);
+  });
+});
+
+describe("investmentReturn", () => {
+  it("annualizes observed revenue and computes cap rate / payback", () => {
+    const r = investmentReturn({
+      propertyValueBrl: 600_000,
+      observedGrossBrl: 30_000,    // em 6 meses → 60k/ano
+      observedNetBrl: 18_000,      // em 6 meses → 36k/ano
+      monthsObserved: 6,
+    });
+    expect(r.annualizedGrossRevenueBrl).toBe(60_000);
+    expect(r.annualizedNetRevenueBrl).toBe(36_000);
+    expect(r.grossYieldPct).toBeCloseTo(10, 5);
+    expect(r.capRatePct).toBeCloseTo(6, 5);
+    expect(r.paybackYears).toBeCloseTo(600_000 / 36_000, 5);
+  });
+  it("returns null payback when net is non-positive", () => {
+    const r = investmentReturn({
+      propertyValueBrl: 600_000,
+      observedGrossBrl: 10_000,
+      observedNetBrl: -1000,
+      monthsObserved: 6,
+    });
+    expect(r.paybackYears).toBeNull();
+  });
+  it("returns zero yield when property value is zero", () => {
+    const r = investmentReturn({
+      propertyValueBrl: 0,
+      observedGrossBrl: 10_000,
+      observedNetBrl: 5_000,
+      monthsObserved: 6,
+    });
+    expect(r.capRatePct).toBe(0);
+    expect(r.grossYieldPct).toBe(0);
+    expect(r.paybackYears).toBeNull();
   });
 });
