@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -81,7 +82,8 @@ const DEFAULT_COSTS: CostSettings = {
 
 const storageKey = (projectId: string) => `bwild:project-costs:${projectId}`;
 
-function loadCosts(projectId: string): CostSettings {
+/** Cache otimista/fallback offline em localStorage (leitura síncrona p/ evitar flicker). */
+function loadCostsCache(projectId: string): CostSettings {
   if (typeof window === "undefined") return DEFAULT_COSTS;
   try {
     const raw = window.localStorage.getItem(storageKey(projectId));
@@ -91,6 +93,41 @@ function loadCosts(projectId: string): CostSettings {
   } catch {
     return DEFAULT_COSTS;
   }
+}
+
+type AssumptionsRow =
+  Database["public"]["Tables"]["project_assumptions"]["Row"];
+
+/** Linha do Supabase → premissas financeiras da UI. */
+function rowToCosts(row: Partial<AssumptionsRow>): CostSettings {
+  return {
+    adr: row.adr ?? DEFAULT_COSTS.adr,
+    cleaningPerStay: row.cleaning_per_stay ?? DEFAULT_COSTS.cleaningPerStay,
+    managementPct: row.management_pct ?? DEFAULT_COSTS.managementPct,
+    condoMonthly: row.condo_monthly ?? DEFAULT_COSTS.condoMonthly,
+    taxesPct: row.taxes_pct ?? DEFAULT_COSTS.taxesPct,
+    propertyValue: row.property_value ?? DEFAULT_COSTS.propertyValue,
+  };
+}
+
+/** Premissas da UI → payload de upsert do Supabase. */
+function costsToRow(
+  projectId: string,
+  costs: CostSettings,
+  neighborhood: string | null,
+  areaSqm: string | null,
+): Database["public"]["Tables"]["project_assumptions"]["Insert"] {
+  return {
+    project_id: projectId,
+    adr: costs.adr,
+    cleaning_per_stay: costs.cleaningPerStay,
+    management_pct: costs.managementPct,
+    taxes_pct: costs.taxesPct,
+    condo_monthly: costs.condoMonthly,
+    property_value: costs.propertyValue,
+    neighborhood,
+    area_sqm: areaSqm,
+  };
 }
 
 /** Indica se há custos previamente salvos para o projeto/projeção. */
@@ -113,13 +150,17 @@ export default function ProjectAnalytics({
 
   const [realEvents, setRealEvents] = useState<NormalizedEvent[]>([]);
   const [loading, setLoading] = useState(!isProjection);
-  const [costs, setCosts] = useState<CostSettings>(() => loadCosts(costsKey));
+  const [costs, setCosts] = useState<CostSettings>(() => loadCostsCache(costsKey));
 
   // --- Inputs do lead (modo projeção) ---
   const { bairros } = useBairroData();
   const [bairroName, setBairroName] = useState<string>("");
   const [sizeKey, setSizeKey] = useState<SizeKey>("26–35 m²");
   const [occupancyPct, setOccupancyPct] = useState<number>(0);
+
+  // --- Dados do imóvel (modo real) — metadados para o painel comercial ---
+  const [propertyNeighborhood, setPropertyNeighborhood] = useState<string>("");
+  const [propertyAreaSqm, setPropertyAreaSqm] = useState<string>("");
 
   const selectedBairro = useMemo<BairroItem | undefined>(
     () => bairros.find((b) => b.name === bairroName) ?? bairros[0],
@@ -159,23 +200,129 @@ export default function ProjectAnalytics({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isProjection, selectedBairro?.name]);
 
+  // --- Persistência das premissas financeiras ---
+  // Estratégia: Supabase é a fonte de verdade (sobrevive a troca de device);
+  // localStorage é cache otimista + fallback offline. Save com debounce de 800ms.
+  type AssumptionsInsert = Database["public"]["Tables"]["project_assumptions"]["Insert"];
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hydratedRef = useRef(false);       // só salva depois de hidratar do servidor
+  const lastPersistedRef = useRef<string | null>(null); // evita writes redundantes
+  const pendingRef = useRef<{ row: AssumptionsInsert; sig: string } | null>(null);
+
+  // Bairro/área alimentam o painel comercial. No modo projeção vêm dos selects
+  // de mercado; no modo real, dos campos "Dados do imóvel".
+  const neighborhood = isProjection ? (bairroName || null) : (propertyNeighborhood || null);
+  const areaSqm = isProjection ? sizeKey : (propertyAreaSqm || null);
+
+  // Envia imediatamente o save pendente (debounce ainda aberto). Idempotente:
+  // usado pelo timer, na troca de projeto e no unmount/pagehide p/ não perder edições.
+  const flushSave = useCallback(async () => {
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = null;
+    }
+    const pending = pendingRef.current;
+    if (!pending) return;
+    pendingRef.current = null;
+    if (pending.sig === lastPersistedRef.current) return;
+    try {
+      const { error } = await supabase
+        .from("project_assumptions")
+        .upsert(pending.row, { onConflict: "project_id" });
+      if (error) throw error;
+      lastPersistedRef.current = pending.sig;
+    } catch (err) {
+      // Rede falhou: o localStorage já tem o valor (fallback). Re-tenta na próxima edição.
+      console.error("project_assumptions save error", err);
+    }
+  }, []);
+
+  // Cache otimista local — escreve a cada mudança (offline-first, sem flicker).
   useEffect(() => {
     try {
       window.localStorage.setItem(storageKey(costsKey), JSON.stringify(costs));
     } catch { /* ignore */ }
   }, [costsKey, costs]);
 
-  // Recarrega custos salvos quando o projeto muda. Pula o mount inicial: o
-  // useState já carregou loadCosts(costsKey) e, em modo projeção, recarregar
-  // aqui sobrescreveria o ADR default do bairro aplicado por applyBairroDefaults.
-  const skipInitialCostsReload = useRef(true);
+  // Hidratação: cache local imediato + leitura autoritativa do Supabase.
   useEffect(() => {
-    if (skipInitialCostsReload.current) {
-      skipInitialCostsReload.current = false;
+    hydratedRef.current = false;
+    flushSave();                           // não perde edição pendente do projeto anterior
+    setCosts(loadCostsCache(costsKey));    // imediato → sem flicker ao trocar de projeto
+    setPropertyNeighborhood("");           // limpa metadados do projeto anterior
+    setPropertyAreaSqm("");
+
+    // Projeção não tem projeto → permanece apenas em localStorage.
+    if (isProjection || !projectId) {
+      hydratedRef.current = true;
       return;
     }
-    setCosts(loadCosts(costsKey));
-  }, [costsKey]);
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from("project_assumptions")
+          .select("adr, cleaning_per_stay, management_pct, taxes_pct, condo_monthly, property_value, neighborhood, area_sqm")
+          .eq("project_id", projectId)
+          .maybeSingle();
+        if (error) throw error;
+        if (!cancelled && data) {
+          const loaded = rowToCosts(data);
+          const loadedNeighborhood = data.neighborhood ?? null;
+          const loadedAreaSqm = data.area_sqm ?? null;
+          lastPersistedRef.current = JSON.stringify(
+            costsToRow(projectId, loaded, loadedNeighborhood, loadedAreaSqm),
+          );
+          setCosts(loaded);
+          setPropertyNeighborhood(loadedNeighborhood ?? "");
+          setPropertyAreaSqm(loadedAreaSqm ?? "");
+        }
+      } catch (err) {
+        // Rede falhou → mantém o que veio do localStorage (fallback offline).
+        console.error("project_assumptions load error", err);
+      } finally {
+        if (!cancelled) hydratedRef.current = true;
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [costsKey, isProjection, projectId]);
+
+  // Persistência debounced no Supabase (800ms) — só para projetos reais.
+  // Guarda a linha "suja" em pendingRef p/ poder dar flush no unmount/pagehide.
+  useEffect(() => {
+    if (isProjection || !projectId || !hydratedRef.current) return;
+    const row = costsToRow(projectId, costs, neighborhood, areaSqm);
+    const sig = JSON.stringify(row);
+    if (sig === lastPersistedRef.current) {
+      pendingRef.current = null; // nada mudou desde a hidratação/último save
+      return;
+    }
+    pendingRef.current = { row, sig };
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => { void flushSave(); }, 800);
+    // NÃO limpamos pendingRef no cleanup: o timer é reagendado a cada tecla e
+    // o flush (unmount/pagehide/troca de projeto) garante o envio do último valor.
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, [costs, neighborhood, areaSqm, isProjection, projectId, flushSave]);
+
+  // Garante o envio de edições pendentes ao sair (fecha aba, troca de rota).
+  useEffect(() => {
+    const onHide = () => { void flushSave(); };
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") void flushSave();
+    };
+    window.addEventListener("pagehide", onHide);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("pagehide", onHide);
+      document.removeEventListener("visibilitychange", onVisibility);
+      void flushSave(); // unmount (ex.: troca de rota sem pagehide)
+    };
+  }, [flushSave]);
 
   useEffect(() => {
     if (isProjection || !projectId) {
@@ -445,6 +592,53 @@ export default function ProjectAnalytics({
         </Card>
       )}
 
+      {/* Dados do imóvel — modo real (metadados p/ painel comercial) */}
+      {!isProjection && (
+        <Card className="border-primary/15 bg-primary/[0.02]">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-medium text-foreground">Dados do imóvel</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-[11px] text-muted-foreground flex items-center gap-1">
+                  <MapPin className="h-3 w-3" /> Bairro
+                </Label>
+                <Select value={propertyNeighborhood} onValueChange={setPropertyNeighborhood}>
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue placeholder="Selecione o bairro" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {bairros.map((b) => (
+                      <SelectItem key={b.name} value={b.name}>{b.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-[11px] text-muted-foreground flex items-center gap-1">
+                  <Ruler className="h-3 w-3" /> Faixa de área
+                </Label>
+                <Select value={propertyAreaSqm} onValueChange={setPropertyAreaSqm}>
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue placeholder="Selecione a faixa" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SIZE_KEYS.map((k) => (
+                      <SelectItem key={k} value={k}>{k}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Bairro e faixa de área qualificam o lead no painel comercial da BWild. Salvos automaticamente.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Painel de custos editáveis */}
       <Card className="border-primary/20 bg-primary/[0.02]">
         <CardContent className="p-4 space-y-3">
@@ -489,7 +683,7 @@ export default function ProjectAnalytics({
           <p className="text-[11px] text-muted-foreground">
             {isProjection
               ? "Premissas de mercado pré-preenchidas pelo bairro. Ajuste a ocupação alvo e a diária para simular cenários — a projeção recalcula automaticamente."
-              : "Valores salvos localmente por projeto. Valor do imóvel destrava cap rate, yield e payback."}
+              : "Premissas salvas automaticamente na nuvem por projeto (com cache offline). Valor do imóvel destrava cap rate, yield e payback."}
           </p>
         </CardContent>
       </Card>
