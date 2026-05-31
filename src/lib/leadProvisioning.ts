@@ -92,14 +92,9 @@ export async function provisionProjectForLead(
     }
   }
 
-  // Vincula o lead capturado à conta (best-effort; depende da policy de update).
-  if (intent.whatsapp) {
-    await supabase
-      .from("guide_leads")
-      .update({ user_id: userId })
-      .eq("whatsapp", intent.whatsapp)
-      .is("user_id", null);
-  }
+  // Obs.: a tabela guide_leads ainda não tem coluna user_id; o vínculo
+  // lead → conta é feito implicitamente via WhatsApp do contato e session_id.
+
 
   return { projectId };
 }
