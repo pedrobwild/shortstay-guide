@@ -16,6 +16,7 @@ const IntelligenceBairroDetail = lazy(() => import("./pages/IntelligenceBairroDe
 const IntelligenceListings = lazy(() => import("./pages/IntelligenceListings"));
 const Projects = lazy(() => import("./pages/Projects"));
 const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
+const StudioProjection = lazy(() => import("./pages/StudioProjection"));
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
@@ -58,6 +59,7 @@ const App = () => (
               <Route path="/intelligence/listings" element={<IntelligenceListings />} />
               <Route path="/mapa-bairros" element={<MapaBairros />} />
               <Route path="/ferramentas" element={<Ferramentas />} />
+              <Route path="/projecao" element={<StudioProjection />} />
               <Route path="/projetos" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
               <Route path="/projeto/:projectId" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />

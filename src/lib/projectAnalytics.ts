@@ -155,6 +155,34 @@ export interface InvestmentReturn {
 
 export const DEFAULT_ADR_BRL = 350;
 
+/**
+ * Índice de sazonalidade padrão para São Paulo (mercado corporativo + turismo).
+ * 12 valores (Jan..Dez), média ≈ 1.0. Meses > 1 performam acima da média.
+ * Usado pelo gerador de projeção quando o lead não tem dados reais.
+ */
+export const DEFAULT_SP_SEASONALITY: number[] = [
+  0.85, // Jan — pós-festas, baixa corporativa
+  0.95, // Fev — carnaval/férias
+  1.10, // Mar — retomada corporativa
+  1.10, // Abr
+  1.05, // Mai
+  0.95, // Jun — férias de inverno
+  0.90, // Jul — férias escolares
+  1.05, // Ago
+  1.15, // Set — pico de eventos/negócios
+  1.15, // Out
+  1.10, // Nov
+  0.80, // Dez — festas de fim de ano
+];
+
+export interface ProjectionParams {
+  occupancyPct: number;        // ocupação média alvo do bairro (0-100)
+  avgStayNights?: number;      // duração média de estadia (default 3)
+  months?: number;             // janela de projeção em meses (default 12)
+  startDate?: Date;            // início (default hoje); usa o 1º dia do mês
+  seasonality?: number[];      // 12 índices mensais (mês 1..12); default plano (1.0)
+}
+
 const WEEKDAY_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const MONTH_LABELS = [
   "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
@@ -693,4 +721,72 @@ export function longestGaps(events: NormalizedEvent[], topN = 3): VacancyGap[] {
   }
   gaps.sort((a, b) => b.nights - a.nights);
   return gaps.slice(0, topN);
+}
+
+/**
+ * Gera eventos sintéticos de calendário a partir de premissas de mercado.
+ *
+ * Distribui, mês a mês ao longo da janela, um total de noites-reserva igual a
+ * `daysInMonth * (occupancyPct/100) * seasonalityIndex(mês)`, repartido em
+ * estadias de ~`avgStayNights` noites separadas por gaps regulares. O resultado
+ * é determinístico (sem aleatoriedade) e usa a mesma estrutura `NormalizedEvent`
+ * consumida pelo dashboard — assim todos os KPIs funcionam sem iCal real.
+ *
+ * Convenção mantida: `end` é exclusivo (checkout / primeiro dia não ocupado).
+ */
+export function generateProjectionEvents(params: ProjectionParams): NormalizedEvent[] {
+  const occ = Math.min(100, Math.max(0, params.occupancyPct)) / 100;
+  const stayLen = Math.max(1, Math.round(params.avgStayNights ?? 3));
+  const months = Math.max(1, Math.round(params.months ?? 12));
+  const seasonality = params.seasonality;
+  const base = params.startDate ?? new Date();
+
+  const events: NormalizedEvent[] = [];
+  let cursorYear = base.getUTCFullYear();
+  let cursorMonth = base.getUTCMonth(); // 0..11
+
+  for (let i = 0; i < months; i++) {
+    const daysInMonth = new Date(Date.UTC(cursorYear, cursorMonth + 1, 0)).getUTCDate();
+    const seasonIdx = seasonality ? (seasonality[cursorMonth] ?? 1) : 1;
+    let target = Math.round(daysInMonth * occ * seasonIdx);
+    target = Math.min(daysInMonth, Math.max(0, target));
+
+    if (target > 0) {
+      const numStays = Math.max(1, Math.round(target / stayLen));
+      const freeNights = daysInMonth - target;
+      const gapLen = Math.floor(freeNights / numStays);
+      const baseLen = Math.floor(target / numStays);
+      const remainder = target - baseLen * numStays;
+
+      let dayOffset = 0; // dias decorridos desde o dia 1 (0-indexed)
+      for (let s = 0; s < numStays; s++) {
+        let len = baseLen + (s < remainder ? 1 : 0);
+        if (len <= 0) continue;
+        // Garante que a estadia não ultrapasse o fim do mês
+        if (dayOffset + len > daysInMonth) len = daysInMonth - dayOffset;
+        if (len <= 0) break;
+        const start = new Date(Date.UTC(cursorYear, cursorMonth, 1 + dayOffset));
+        const end = new Date(Date.UTC(cursorYear, cursorMonth, 1 + dayOffset + len));
+        events.push({
+          id: `proj-${cursorYear}-${String(cursorMonth + 1).padStart(2, "0")}-${s}`,
+          start,
+          end,
+          nights: len,
+          summary: "Projeção de mercado",
+          type: "reservation",
+        });
+        dayOffset += len + gapLen;
+        if (dayOffset >= daysInMonth) break;
+      }
+    }
+
+    cursorMonth++;
+    if (cursorMonth > 11) {
+      cursorMonth = 0;
+      cursorYear++;
+    }
+  }
+
+  events.sort((a, b) => a.start.getTime() - b.start.getTime());
+  return events;
 }
