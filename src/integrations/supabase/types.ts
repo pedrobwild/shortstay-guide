@@ -309,56 +309,6 @@ export type Database = {
         }
         Relationships: []
       }
-      project_assumptions: {
-        Row: {
-          adr: number | null
-          area_sqm: string | null
-          cleaning_per_stay: number | null
-          condo_monthly: number | null
-          id: string
-          management_pct: number | null
-          neighborhood: string | null
-          project_id: string
-          property_value: number | null
-          taxes_pct: number | null
-          updated_at: string
-        }
-        Insert: {
-          adr?: number | null
-          area_sqm?: string | null
-          cleaning_per_stay?: number | null
-          condo_monthly?: number | null
-          id?: string
-          management_pct?: number | null
-          neighborhood?: string | null
-          project_id: string
-          property_value?: number | null
-          taxes_pct?: number | null
-          updated_at?: string
-        }
-        Update: {
-          adr?: number | null
-          area_sqm?: string | null
-          cleaning_per_stay?: number | null
-          condo_monthly?: number | null
-          id?: string
-          management_pct?: number | null
-          neighborhood?: string | null
-          project_id?: string
-          property_value?: number | null
-          taxes_pct?: number | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "project_assumptions_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: true
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       projects: {
         Row: {
           created_at: string
