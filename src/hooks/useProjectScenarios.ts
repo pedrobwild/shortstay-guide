@@ -103,6 +103,41 @@ export function useProjectScenarios(projectId: string | undefined) {
 
   // Timers de save debounced, indexados por id de cenário.
   const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  // Patch pendente acumulado por cenário: junta múltiplos campos editados
+  // dentro da mesma janela de debounce para não perder nenhuma edição.
+  const pendingPatches = useRef<Map<string, Partial<Scenario>>>(new Map());
+
+  const persistPatch = useCallback(async (id: string, patch: Partial<Scenario>) => {
+    const row = patchToRow(patch);
+    if (Object.keys(row).length === 0) return;
+    const { error } = await supabase.from("project_scenarios").update(row).eq("id", id);
+    if (error) console.error("project_scenarios update error", error);
+  }, []);
+
+  /** Persiste imediatamente o patch pendente de um cenário (cancela o timer). */
+  const flushScenario = useCallback(
+    (id: string) => {
+      const timer = saveTimers.current.get(id);
+      if (timer) {
+        clearTimeout(timer);
+        saveTimers.current.delete(id);
+      }
+      const patch = pendingPatches.current.get(id);
+      if (patch && Object.keys(patch).length > 0) {
+        pendingPatches.current.delete(id);
+        void persistPatch(id, patch);
+      }
+    },
+    [persistPatch],
+  );
+
+  /** Persiste todos os patches pendentes (troca de projeto / unmount). */
+  const flushAll = useCallback(() => {
+    const ids = Array.from(pendingPatches.current.keys());
+    ids.forEach((id) => flushScenario(id));
+    saveTimers.current.forEach((t) => clearTimeout(t));
+    saveTimers.current.clear();
+  }, [flushScenario]);
 
   useEffect(() => {
     if (!projectId) {
@@ -129,43 +164,27 @@ export function useProjectScenarios(projectId: string | undefined) {
         if (!cancelled) setLoading(false);
       }
     })();
+    // Ao trocar de projeto ou desmontar, persiste o que estiver pendente
+    // antes de descartar (premissas são anunciadas como salvas automaticamente).
     return () => {
       cancelled = true;
+      flushAll();
     };
-  }, [projectId]);
+  }, [projectId, flushAll]);
 
-  // Flush de todos os timers pendentes ao desmontar.
-  useEffect(() => {
-    const timers = saveTimers.current;
-    return () => {
-      timers.forEach((t) => clearTimeout(t));
-      timers.clear();
-    };
-  }, []);
-
-  const persistPatch = useCallback(async (id: string, patch: Partial<Scenario>) => {
-    const row = patchToRow(patch);
-    if (Object.keys(row).length === 0) return;
-    const { error } = await supabase.from("project_scenarios").update(row).eq("id", id);
-    if (error) console.error("project_scenarios update error", error);
-  }, []);
-
-  /** Atualiza um cenário (otimista + persistência debounced). */
+  /** Atualiza um cenário (otimista + persistência debounced acumulada). */
   const updateScenario = useCallback(
     (id: string, patch: Partial<Scenario>) => {
       setScenarios((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)));
+      // Acumula o patch: junta este campo aos já editados nesta janela de debounce.
+      const merged = { ...(pendingPatches.current.get(id) ?? {}), ...patch };
+      pendingPatches.current.set(id, merged);
       const timers = saveTimers.current;
       const existing = timers.get(id);
       if (existing) clearTimeout(existing);
-      timers.set(
-        id,
-        setTimeout(() => {
-          timers.delete(id);
-          void persistPatch(id, patch);
-        }, SAVE_DEBOUNCE_MS),
-      );
+      timers.set(id, setTimeout(() => flushScenario(id), SAVE_DEBOUNCE_MS));
     },
-    [persistPatch],
+    [flushScenario],
   );
 
   /** Insere um ou mais cenários (ex.: "gerar 3 presets") e devolve os criados. */
@@ -199,14 +218,14 @@ export function useProjectScenarios(projectId: string | undefined) {
     [addScenarios],
   );
 
-  /** Remove um cenário (flush de save pendente antes). */
+  /** Remove um cenário (descarta save pendente: seria sobre uma linha apagada). */
   const removeScenario = useCallback(async (id: string) => {
-    const timers = saveTimers.current;
-    const pending = timers.get(id);
-    if (pending) {
-      clearTimeout(pending);
-      timers.delete(id);
+    const timer = saveTimers.current.get(id);
+    if (timer) {
+      clearTimeout(timer);
+      saveTimers.current.delete(id);
     }
+    pendingPatches.current.delete(id);
     setScenarios((prev) => prev.filter((s) => s.id !== id));
     const { error } = await supabase.from("project_scenarios").delete().eq("id", id);
     if (error) console.error("project_scenarios delete error", error);
