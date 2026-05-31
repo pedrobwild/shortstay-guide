@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -81,7 +82,8 @@ const DEFAULT_COSTS: CostSettings = {
 
 const storageKey = (projectId: string) => `bwild:project-costs:${projectId}`;
 
-function loadCosts(projectId: string): CostSettings {
+/** Cache otimista/fallback offline em localStorage (leitura síncrona p/ evitar flicker). */
+function loadCostsCache(projectId: string): CostSettings {
   if (typeof window === "undefined") return DEFAULT_COSTS;
   try {
     const raw = window.localStorage.getItem(storageKey(projectId));
@@ -91,6 +93,41 @@ function loadCosts(projectId: string): CostSettings {
   } catch {
     return DEFAULT_COSTS;
   }
+}
+
+type AssumptionsRow =
+  Database["public"]["Tables"]["project_assumptions"]["Row"];
+
+/** Linha do Supabase → premissas financeiras da UI. */
+function rowToCosts(row: Partial<AssumptionsRow>): CostSettings {
+  return {
+    adr: row.adr ?? DEFAULT_COSTS.adr,
+    cleaningPerStay: row.cleaning_per_stay ?? DEFAULT_COSTS.cleaningPerStay,
+    managementPct: row.management_pct ?? DEFAULT_COSTS.managementPct,
+    condoMonthly: row.condo_monthly ?? DEFAULT_COSTS.condoMonthly,
+    taxesPct: row.taxes_pct ?? DEFAULT_COSTS.taxesPct,
+    propertyValue: row.property_value ?? DEFAULT_COSTS.propertyValue,
+  };
+}
+
+/** Premissas da UI → payload de upsert do Supabase. */
+function costsToRow(
+  projectId: string,
+  costs: CostSettings,
+  neighborhood: string | null,
+  areaSqm: string | null,
+): Database["public"]["Tables"]["project_assumptions"]["Insert"] {
+  return {
+    project_id: projectId,
+    adr: costs.adr,
+    cleaning_per_stay: costs.cleaningPerStay,
+    management_pct: costs.managementPct,
+    taxes_pct: costs.taxesPct,
+    condo_monthly: costs.condoMonthly,
+    property_value: costs.propertyValue,
+    neighborhood,
+    area_sqm: areaSqm,
+  };
 }
 
 export default function ProjectAnalytics({
@@ -103,7 +140,7 @@ export default function ProjectAnalytics({
 
   const [realEvents, setRealEvents] = useState<NormalizedEvent[]>([]);
   const [loading, setLoading] = useState(!isProjection);
-  const [costs, setCosts] = useState<CostSettings>(() => loadCosts(costsKey));
+  const [costs, setCosts] = useState<CostSettings>(() => loadCostsCache(costsKey));
 
   // --- Inputs do lead (modo projeção) ---
   const { bairros } = useBairroData();
@@ -138,15 +175,86 @@ export default function ProjectAnalytics({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isProjection, selectedBairro?.name]);
 
+  // --- Persistência das premissas financeiras ---
+  // Estratégia: Supabase é a fonte de verdade (sobrevive a troca de device);
+  // localStorage é cache otimista + fallback offline. Save com debounce de 800ms.
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hydratedRef = useRef(false);       // só salva depois de hidratar do servidor
+  const lastPersistedRef = useRef<string | null>(null); // evita writes redundantes
+
+  // Bairro/área só existem no modo projeção; servem ao painel comercial.
+  const neighborhood = isProjection ? (bairroName || null) : null;
+  const areaSqm = isProjection ? sizeKey : null;
+
+  // Cache otimista local — escreve a cada mudança (offline-first, sem flicker).
   useEffect(() => {
     try {
       window.localStorage.setItem(storageKey(costsKey), JSON.stringify(costs));
     } catch { /* ignore */ }
   }, [costsKey, costs]);
 
+  // Hidratação: cache local imediato + leitura autoritativa do Supabase.
   useEffect(() => {
-    setCosts(loadCosts(costsKey));
-  }, [costsKey]);
+    hydratedRef.current = false;
+    setCosts(loadCostsCache(costsKey)); // imediato → sem flicker ao trocar de projeto
+
+    // Projeção não tem projeto → permanece apenas em localStorage.
+    if (isProjection || !projectId) {
+      hydratedRef.current = true;
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from("project_assumptions")
+          .select("adr, cleaning_per_stay, management_pct, taxes_pct, condo_monthly, property_value")
+          .eq("project_id", projectId)
+          .maybeSingle();
+        if (error) throw error;
+        if (!cancelled && data) {
+          const loaded = rowToCosts(data);
+          lastPersistedRef.current = JSON.stringify(
+            costsToRow(projectId, loaded, neighborhood, areaSqm),
+          );
+          setCosts(loaded);
+        }
+      } catch (err) {
+        // Rede falhou → mantém o que veio do localStorage (fallback offline).
+        console.error("project_assumptions load error", err);
+      } finally {
+        if (!cancelled) hydratedRef.current = true;
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [costsKey, isProjection, projectId]);
+
+  // Persistência debounced no Supabase (800ms) — só para projetos reais.
+  useEffect(() => {
+    if (isProjection || !projectId || !hydratedRef.current) return;
+    const row = costsToRow(projectId, costs, neighborhood, areaSqm);
+    const sig = JSON.stringify(row);
+    if (sig === lastPersistedRef.current) return; // nada mudou desde a hidratação/último save
+
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(async () => {
+      try {
+        const { error } = await supabase
+          .from("project_assumptions")
+          .upsert(row, { onConflict: "project_id" });
+        if (error) throw error;
+        lastPersistedRef.current = sig;
+      } catch (err) {
+        // Rede falhou: o localStorage já tem o valor (fallback). Re-tenta na próxima edição.
+        console.error("project_assumptions save error", err);
+      }
+    }, 800);
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, [costs, neighborhood, areaSqm, isProjection, projectId]);
 
   useEffect(() => {
     if (isProjection || !projectId) {
@@ -460,7 +568,7 @@ export default function ProjectAnalytics({
           <p className="text-[11px] text-muted-foreground">
             {isProjection
               ? "Premissas de mercado pré-preenchidas pelo bairro. Ajuste a ocupação alvo e a diária para simular cenários — a projeção recalcula automaticamente."
-              : "Valores salvos localmente por projeto. Valor do imóvel destrava cap rate, yield e payback."}
+              : "Premissas salvas automaticamente na nuvem por projeto (com cache offline). Valor do imóvel destrava cap rate, yield e payback."}
           </p>
         </CardContent>
       </Card>
