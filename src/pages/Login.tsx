@@ -19,7 +19,13 @@ export default function Login() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      navigate("/");
+      // Cai direto na proposta personalizada (projeto mais recente), não na lista vazia.
+      const { data } = await supabase
+        .from("projects")
+        .select("id")
+        .order("created_at", { ascending: false })
+        .limit(1);
+      navigate(data && data.length > 0 ? `/projeto/${data[0].id}` : "/projetos");
     } catch (err: any) {
       toast({ title: "Erro ao entrar", description: err.message, variant: "destructive" });
     } finally {
@@ -31,8 +37,8 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground">Entrar</h1>
-          <p className="text-sm text-muted-foreground mt-1">Acesse sua conta para continuar</p>
+          <h1 className="text-2xl font-bold text-foreground">Seu acesso exclusivo BWild</h1>
+          <p className="text-sm text-muted-foreground mt-1">Entre para ver sua proposta personalizada</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">

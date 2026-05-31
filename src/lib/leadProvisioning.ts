@@ -9,7 +9,7 @@ export interface LeadIntent {
   name?: string;
   whatsapp?: string;
   neighborhood?: string;
-  area_sqm?: number | null;
+  area_sqm?: string;
   objective?: string;
 }
 
@@ -48,6 +48,9 @@ export interface ProvisionResult {
  * Auto-provisiona um projeto pré-populado com bairro/m² do lead e vincula o
  * registro de lead à conta recém-criada. Idempotente: se o usuário já tem um
  * projeto, reutiliza o mais recente em vez de criar duplicatas.
+ *
+ * O bairro/m² ficam em `project_assumptions` (premissas da projeção), já que
+ * `projects` guarda apenas nome/dono.
  */
 export async function provisionProjectForLead(
   userId: string,
@@ -63,7 +66,7 @@ export async function provisionProjectForLead(
     .limit(1);
 
   if (existing && existing.length > 0) {
-    projectId = existing[0].id as string;
+    projectId = existing[0].id;
   } else {
     const projectName = intent.neighborhood
       ? `Meu Studio — ${intent.neighborhood}`
@@ -71,17 +74,21 @@ export async function provisionProjectForLead(
 
     const { data: created, error } = await supabase
       .from("projects")
-      .insert({
-        user_id: userId,
-        name: projectName,
-        neighborhood: intent.neighborhood || null,
-        area_sqm: intent.area_sqm ?? null,
-      })
+      .insert({ user_id: userId, name: projectName })
       .select("id")
       .single();
 
     if (!error && created) {
-      projectId = created.id as string;
+      projectId = created.id;
+
+      // Pré-popula as premissas da projeção (best-effort: depende da policy).
+      if (intent.neighborhood || intent.area_sqm) {
+        await supabase.from("project_assumptions").insert({
+          project_id: projectId,
+          neighborhood: intent.neighborhood || null,
+          area_sqm: intent.area_sqm || null,
+        });
+      }
     }
   }
 
