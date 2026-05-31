@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,11 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
   Percent, DollarSign, Moon, TrendingUp, TrendingDown,
   CalendarClock, CalendarOff, Sparkles, BarChart3, Loader2,
   Wallet, Settings2, RotateCcw, Target, Repeat, Building2,
   CalendarRange, Activity, Gauge, ArrowUpRight, ArrowDownRight,
-  Hash, Ticket, Sun, Snowflake,
+  Hash, Ticket, Sun, Snowflake, MapPin, Ruler, LineChart as LineChartIcon,
 } from "lucide-react";
 import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line,
@@ -21,13 +25,23 @@ import {
   occupancyByWeekday, upcomingStays, longestGaps,
   forwardOccupancy, seasonalityIndex, weekendVsWeekday, yearOverYear,
   bookingPatterns, breakEvenAnalysis, investmentReturn,
-  DEFAULT_ADR_BRL, type NormalizedEvent, type RawEvent,
+  generateProjectionEvents, DEFAULT_ADR_BRL, DEFAULT_SP_SEASONALITY,
+  type NormalizedEvent, type RawEvent,
 } from "@/lib/projectAnalytics";
+import { useBairroData } from "@/hooks/useBairroData";
+import type { BairroItem } from "@/data/guide-data";
+
+export type ProjectAnalyticsMode = "projection" | "real";
 
 interface ProjectAnalyticsProps {
-  projectId: string;
+  projectId?: string;
   refreshKey?: number;
+  /** "real" usa eventos do iCal (Supabase); "projection" gera eventos sintéticos de mercado. */
+  mode?: ProjectAnalyticsMode;
 }
+
+type SizeKey = keyof BairroItem["avgBySize"];
+const SIZE_KEYS: SizeKey[] = ["20–25 m²", "26–35 m²", "36–50 m²"];
 
 const brl = (v: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(v);
@@ -79,22 +93,66 @@ function loadCosts(projectId: string): CostSettings {
   }
 }
 
-export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectAnalyticsProps) {
-  const [events, setEvents] = useState<NormalizedEvent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [costs, setCosts] = useState<CostSettings>(() => loadCosts(projectId));
+export default function ProjectAnalytics({
+  projectId,
+  refreshKey = 0,
+  mode = "real",
+}: ProjectAnalyticsProps) {
+  const isProjection = mode === "projection";
+  const costsKey = projectId ?? "projection";
+
+  const [realEvents, setRealEvents] = useState<NormalizedEvent[]>([]);
+  const [loading, setLoading] = useState(!isProjection);
+  const [costs, setCosts] = useState<CostSettings>(() => loadCosts(costsKey));
+
+  // --- Inputs do lead (modo projeção) ---
+  const { bairros } = useBairroData();
+  const [bairroName, setBairroName] = useState<string>("");
+  const [sizeKey, setSizeKey] = useState<SizeKey>("26–35 m²");
+  const [occupancyPct, setOccupancyPct] = useState<number>(0);
+
+  const selectedBairro = useMemo<BairroItem | undefined>(
+    () => bairros.find((b) => b.name === bairroName) ?? bairros[0],
+    [bairros, bairroName],
+  );
+
+  // Inicializa o bairro selecionado assim que os dados chegam
+  useEffect(() => {
+    if (isProjection && !bairroName && bairros.length > 0) {
+      setBairroName(bairros[0].name);
+    }
+  }, [isProjection, bairroName, bairros]);
+
+  // Aplica defaults de ADR + ocupação do bairro/m² selecionados
+  const applyBairroDefaults = (bairro: BairroItem | undefined, size: SizeKey) => {
+    if (!bairro) return;
+    setCosts((prev) => ({ ...prev, adr: bairro.avgBySize[size] }));
+    setOccupancyPct(bairro.avgOccupancy);
+  };
+
+  // Recalcula defaults sempre que o bairro selecionado muda (inclusive no load inicial)
+  useEffect(() => {
+    if (isProjection && selectedBairro) {
+      applyBairroDefaults(selectedBairro, sizeKey);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isProjection, selectedBairro?.name]);
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(storageKey(projectId), JSON.stringify(costs));
+      window.localStorage.setItem(storageKey(costsKey), JSON.stringify(costs));
     } catch { /* ignore */ }
-  }, [projectId, costs]);
+  }, [costsKey, costs]);
 
   useEffect(() => {
-    setCosts(loadCosts(projectId));
-  }, [projectId]);
+    setCosts(loadCosts(costsKey));
+  }, [costsKey]);
 
   useEffect(() => {
+    if (isProjection || !projectId) {
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     const run = async () => {
       setLoading(true);
@@ -106,7 +164,7 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
         if (cErr) throw cErr;
         const ids = (conns || []).map((c) => c.id);
         if (ids.length === 0) {
-          if (!cancelled) setEvents([]);
+          if (!cancelled) setRealEvents([]);
           return;
         }
         const { data: evs, error: eErr } = await supabase
@@ -114,17 +172,33 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
           .select("id, start_date, end_date, summary, raw_payload")
           .in("connection_id", ids);
         if (eErr) throw eErr;
-        if (!cancelled) setEvents(normalizeEvents((evs || []) as unknown as RawEvent[]));
+        if (!cancelled) setRealEvents(normalizeEvents((evs || []) as unknown as RawEvent[]));
       } catch (err) {
         console.error("ProjectAnalytics load error", err);
-        if (!cancelled) setEvents([]);
+        if (!cancelled) setRealEvents([]);
       } finally {
         if (!cancelled) setLoading(false);
       }
     };
     run();
     return () => { cancelled = true; };
-  }, [projectId, refreshKey]);
+  }, [isProjection, projectId, refreshKey]);
+
+  // Eventos sintéticos de projeção (12 meses) a partir das premissas de mercado
+  const projectionEvents = useMemo(
+    () =>
+      isProjection
+        ? generateProjectionEvents({
+            occupancyPct,
+            avgStayNights: 3,
+            months: 12,
+            seasonality: DEFAULT_SP_SEASONALITY,
+          })
+        : [],
+    [isProjection, occupancyPct],
+  );
+
+  const events = isProjection ? projectionEvents : realEvents;
 
   const { adr } = costs;
   const kpis = useMemo(() => computeKpis(events, adr), [events, adr]);
@@ -219,7 +293,7 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
     );
   }
 
-  if (events.length === 0) {
+  if (!isProjection && events.length === 0) {
     return (
       <Card className="border-dashed border-muted-foreground/30">
         <CardContent className="py-12 text-center space-y-3">
@@ -231,6 +305,12 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
               de ocupação, receita e padrões de reserva.
             </p>
           </div>
+          <Button asChild variant="outline" size="sm" className="gap-1.5">
+            <Link to="/projecao">
+              <LineChartIcon className="h-3.5 w-3.5" />
+              Ver projeção de mercado
+            </Link>
+          </Button>
         </CardContent>
       </Card>
     );
@@ -243,18 +323,98 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
         <div>
           <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" />
-            Análises do projeto
+            {isProjection ? "Projeção do seu studio" : "Análises do projeto"}
           </h2>
           <div className="mt-1 flex items-center gap-2 flex-wrap">
+            {isProjection ? (
+              <Badge className="text-xs gap-1 bg-amber-500/15 text-amber-700 hover:bg-amber-500/15 border-amber-500/30 dark:text-amber-400">
+                <LineChartIcon className="h-3 w-3" />
+                Projeção de mercado
+              </Badge>
+            ) : (
+              <Badge className="text-xs gap-1 bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500/15 border-emerald-500/30 dark:text-emerald-400">
+                <Activity className="h-3 w-3" />
+                Dados reais
+              </Badge>
+            )}
             <Badge variant="secondary" className="text-xs">
               {formatRange(kpis.windowStart, kpis.windowEnd)}
             </Badge>
             <span className="text-xs text-muted-foreground">
-              {events.length} eventos · {kpis.totalNights} noites · {monthsCount} {monthsCount === 1 ? "mês" : "meses"}
+              {isProjection
+                ? `Estimativa · ${kpis.totalNights} noites · ${monthsCount} ${monthsCount === 1 ? "mês" : "meses"}`
+                : `${events.length} eventos · ${kpis.totalNights} noites · ${monthsCount} ${monthsCount === 1 ? "mês" : "meses"}`}
             </span>
           </div>
         </div>
       </div>
+
+      {/* Inputs do lead — modo projeção */}
+      {isProjection && (
+        <Card className="border-amber-500/30 bg-amber-500/[0.03]">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              <h3 className="text-sm font-medium text-foreground">Seu imóvel</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <Label className="text-[11px] text-muted-foreground flex items-center gap-1">
+                  <MapPin className="h-3 w-3" /> Bairro
+                </Label>
+                <Select
+                  value={selectedBairro?.name ?? ""}
+                  onValueChange={(v) => setBairroName(v)}
+                >
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue placeholder="Selecione o bairro" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {bairros.map((b) => (
+                      <SelectItem key={b.name} value={b.name}>{b.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-[11px] text-muted-foreground flex items-center gap-1">
+                  <Ruler className="h-3 w-3" /> Faixa de área
+                </Label>
+                <Select
+                  value={sizeKey}
+                  onValueChange={(v) => {
+                    const next = v as SizeKey;
+                    setSizeKey(next);
+                    applyBairroDefaults(selectedBairro, next);
+                  }}
+                >
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SIZE_KEYS.map((k) => (
+                      <SelectItem key={k} value={k}>{k}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <CostInput
+                id="property-value-input"
+                label="Valor do imóvel"
+                prefix="R$"
+                step={10000}
+                value={costs.propertyValue}
+                onChange={(v) => updateCost("propertyValue", v)}
+              />
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Premissas de ADR e ocupação são preenchidas com a média de mercado do bairro/faixa de área
+              ({selectedBairro?.avgOccupancy ?? 0}% ocupação · {brl(selectedBairro?.avgBySize[sizeKey] ?? 0)}/noite).
+              Ajuste tudo nas premissas abaixo — os números recalculam em tempo real.
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Painel de custos editáveis */}
       <Card className="border-primary/20 bg-primary/[0.02]">
@@ -268,7 +428,10 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
               variant="ghost"
               size="sm"
               className="h-7 text-xs text-muted-foreground hover:text-foreground"
-              onClick={() => setCosts(DEFAULT_COSTS)}
+              onClick={() => {
+                setCosts(DEFAULT_COSTS);
+                if (isProjection) applyBairroDefaults(selectedBairro, sizeKey);
+              }}
             >
               <RotateCcw className="h-3 w-3 mr-1" />
               Resetar
@@ -285,11 +448,19 @@ export default function ProjectAnalytics({ projectId, refreshKey = 0 }: ProjectA
               value={costs.taxesPct} onChange={(v) => updateCost("taxesPct", v)} />
             <CostInput id="condo-input" label="Condomínio / mês" prefix="R$" step={50}
               value={costs.condoMonthly} onChange={(v) => updateCost("condoMonthly", v)} />
-            <CostInput id="property-input" label="Valor do imóvel" prefix="R$" step={10000}
-              value={costs.propertyValue} onChange={(v) => updateCost("propertyValue", v)} />
+            {isProjection ? (
+              <CostInput id="occupancy-input" label="Ocupação alvo" suffix="%" step={1}
+                value={occupancyPct}
+                onChange={(v) => setOccupancyPct(Math.min(100, Math.max(0, v || 0)))} />
+            ) : (
+              <CostInput id="property-input" label="Valor do imóvel" prefix="R$" step={10000}
+                value={costs.propertyValue} onChange={(v) => updateCost("propertyValue", v)} />
+            )}
           </div>
           <p className="text-[11px] text-muted-foreground">
-            Valores salvos localmente por projeto. Valor do imóvel destrava cap rate, yield e payback.
+            {isProjection
+              ? "Premissas de mercado pré-preenchidas pelo bairro. Ajuste a ocupação alvo e a diária para simular cenários — a projeção recalcula automaticamente."
+              : "Valores salvos localmente por projeto. Valor do imóvel destrava cap rate, yield e payback."}
           </p>
         </CardContent>
       </Card>

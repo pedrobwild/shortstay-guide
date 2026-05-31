@@ -15,7 +15,9 @@ import {
   bookingPatterns,
   breakEvenAnalysis,
   investmentReturn,
+  generateProjectionEvents,
   DEFAULT_ADR_BRL,
+  DEFAULT_SP_SEASONALITY,
   type RawEvent,
 } from "../projectAnalytics";
 
@@ -357,5 +359,76 @@ describe("investmentReturn", () => {
     expect(r.capRatePct).toBe(0);
     expect(r.grossYieldPct).toBe(0);
     expect(r.paybackYears).toBeNull();
+  });
+});
+
+describe("generateProjectionEvents", () => {
+  const start = new Date(Date.UTC(2026, 0, 1)); // Jan/2026
+
+  it("generates only reservations across the requested window", () => {
+    const evs = generateProjectionEvents({ occupancyPct: 75, months: 12, startDate: start });
+    expect(evs.length).toBeGreaterThan(0);
+    expect(evs.every((e) => e.type === "reservation")).toBe(true);
+    expect(evs.every((e) => e.nights > 0)).toBe(true);
+    // Janela cobre ~12 meses (de Jan/2026 a Dez/2026)
+    const months = occupancyByMonth(evs);
+    expect(months.length).toBe(12);
+  });
+
+  it("is deterministic for the same params", () => {
+    const a = generateProjectionEvents({ occupancyPct: 70, months: 6, startDate: start });
+    const b = generateProjectionEvents({ occupancyPct: 70, months: 6, startDate: start });
+    expect(a.map((e) => `${e.id}:${e.nights}`)).toEqual(b.map((e) => `${e.id}:${e.nights}`));
+  });
+
+  it("approximates the target occupancy with a flat seasonality", () => {
+    // Sem sazonalidade: cada mês deve ficar próximo do alvo
+    const evs = generateProjectionEvents({ occupancyPct: 60, months: 12, startDate: start });
+    const months = occupancyByMonth(evs);
+    for (const m of months) {
+      // booked/daysInMonth deve estar perto de 60% (tolerância de arredondamento)
+      expect(m.occupancyPct).toBeGreaterThanOrEqual(55);
+      expect(m.occupancyPct).toBeLessThanOrEqual(65);
+    }
+  });
+
+  it("never exceeds 100% occupancy in any month", () => {
+    const evs = generateProjectionEvents({
+      occupancyPct: 100,
+      months: 12,
+      startDate: start,
+      seasonality: DEFAULT_SP_SEASONALITY, // índices > 1 não devem estourar
+    });
+    const months = occupancyByMonth(evs);
+    for (const m of months) {
+      expect(m.bookedNights).toBeLessThanOrEqual(m.daysInMonth);
+      expect(m.occupancyPct).toBeLessThanOrEqual(100);
+    }
+  });
+
+  it("reflects seasonality: high-index months book more than low-index months", () => {
+    const evs = generateProjectionEvents({
+      occupancyPct: 70,
+      months: 12,
+      startDate: start,
+      seasonality: DEFAULT_SP_SEASONALITY,
+    });
+    const months = occupancyByMonth(evs);
+    const sep = months.find((m) => m.monthKey === "2026-09")!; // índice 1.15
+    const dec = months.find((m) => m.monthKey === "2026-12")!; // índice 0.80
+    expect(sep.bookedNights).toBeGreaterThan(dec.bookedNights);
+  });
+
+  it("returns no events for zero occupancy", () => {
+    const evs = generateProjectionEvents({ occupancyPct: 0, months: 6, startDate: start });
+    expect(evs).toHaveLength(0);
+  });
+
+  it("feeds computeKpis without error and yields revenue", () => {
+    const evs = generateProjectionEvents({ occupancyPct: 75, months: 12, startDate: start });
+    const k = computeKpis(evs, DEFAULT_ADR_BRL);
+    expect(k.bookedNights).toBeGreaterThan(0);
+    expect(k.estimatedRevenueBrl).toBe(k.bookedNights * DEFAULT_ADR_BRL);
+    expect(k.reservationsCount).toBeGreaterThan(0);
   });
 });
