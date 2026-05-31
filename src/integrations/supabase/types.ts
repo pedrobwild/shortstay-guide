@@ -172,7 +172,9 @@ export type Database = {
           name: string
           neighborhood: string | null
           objective: string | null
+          session_id: string | null
           source: string | null
+          user_id: string | null
           whatsapp: string
         }
         Insert: {
@@ -182,7 +184,9 @@ export type Database = {
           name: string
           neighborhood?: string | null
           objective?: string | null
+          session_id?: string | null
           source?: string | null
+          user_id?: string | null
           whatsapp: string
         }
         Update: {
@@ -192,7 +196,9 @@ export type Database = {
           name?: string
           neighborhood?: string | null
           objective?: string | null
+          session_id?: string | null
           source?: string | null
+          user_id?: string | null
           whatsapp?: string
         }
         Relationships: []
