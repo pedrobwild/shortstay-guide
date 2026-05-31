@@ -7,6 +7,7 @@ import { lazy, Suspense, useEffect } from "react";
 import { AuthProvider } from "@/hooks/useAuth";
 import bwildLogo from "@/assets/bwild-logo.png";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import PostLoginProvision from "@/components/PostLoginProvision";
 
 const Index = lazy(() => import("./pages/Index"));
 const MapaBairros = lazy(() => import("./pages/MapaBairros"));
@@ -74,6 +75,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToHash />
+          <PostLoginProvision />
           <Suspense fallback={<PageFallback />}>
             <Routes>
               <Route path="/" element={<Index />} />
