@@ -27,7 +27,7 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Ferramentas = lazy(() => import("./pages/Ferramentas"));
 const AdminLeads = lazy(() => import("./pages/AdminLeads"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const ChatBot = lazy(() => import("./components/ChatBot"));
+import ChatBot from "./components/ChatBot";
 
 const queryClient = new QueryClient();
 
@@ -99,9 +99,7 @@ const App = () => (
               <Route path="/admin/leads" element={<AdminRoute><AdminLeads /></AdminRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-            <Suspense fallback={null}>
-              <ChatBot />
-            </Suspense>
+            <ChatBot />
           </Suspense>
         </BrowserRouter>
       </TooltipProvider>
