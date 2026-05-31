@@ -1,9 +1,12 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User, Sparkles, Headphones } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
+import { useProjectSummary } from "@/hooks/useProjectSummary";
+import { buildProjectChatContext } from "@/lib/projectChatContext";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -27,6 +30,23 @@ export default function ChatBot() {
   const inputRef = useRef<HTMLInputElement>(null);
   const showSuggestions = messages.length <= 1 && !loading;
 
+  // Contexto do projeto ativo do cliente (bairro, m², premissas e KPIs
+  // projetados). Construído a partir de dados já filtrados por RLS para o
+  // usuário logado, então a edge function nunca acessa o projeto de outra conta.
+  const summary = useProjectSummary();
+  const hasActiveProject = summary.hasProject && !!summary.neighborhood;
+
+  // Sugestões ancoradas no projeto do cliente quando disponível.
+  const suggestions =
+    hasActiveProject && summary.neighborhood
+      ? [
+          "Qual o ROI esperado do meu studio?",
+          `Quanto rende no meu bairro (${summary.neighborhood})?`,
+          "Como melhorar a rentabilidade do meu projeto?",
+          "Quais os riscos do meu investimento?",
+        ]
+      : QUICK_SUGGESTIONS;
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -34,6 +54,21 @@ export default function ChatBot() {
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 350);
   }, [open]);
+
+  // Personaliza a saudação inicial com o bairro do projeto ativo, enquanto o
+  // usuário ainda não enviou nenhuma mensagem.
+  useEffect(() => {
+    if (!hasActiveProject || !summary.neighborhood) return;
+    setMessages((prev) => {
+      if (prev.length !== 1 || prev[0].role !== "assistant") return prev;
+      return [
+        {
+          role: "assistant",
+          content: `Olá! 👋 Vi que você tem um projeto em **${summary.neighborhood}**. Posso responder com base nos números da sua projeção (ROI, receita, ocupação). Como posso ajudar?`,
+        },
+      ];
+    });
+  }, [hasActiveProject, summary.neighborhood]);
 
   const sendText = async (text: string) => {
     if (!text.trim() || loading) return;
@@ -58,13 +93,23 @@ export default function ChatBot() {
 
     try {
       const allMsgs = [...messages, userMsg].filter((m) => m.role === "user" || m.role === "assistant");
+      const { context: projectContext } = buildProjectChatContext({
+        hasProject: summary.hasProject,
+        projectName: summary.project?.name ?? null,
+        neighborhood: summary.neighborhood,
+        areaSqm: summary.areaSqm,
+        hasPropertyValue: summary.hasPropertyValue,
+        projection: summary.projection,
+        dealLabel: summary.deal?.label ?? null,
+        nextStepLabel: summary.deal?.nextStep.label ?? null,
+      });
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: allMsgs }),
+        body: JSON.stringify({ messages: allMsgs, projectContext }),
       });
 
       if (!resp.ok) {
@@ -220,7 +265,7 @@ export default function ChatBot() {
                   transition={{ delay: 0.3, duration: 0.4 }}
                   className="flex flex-wrap gap-2 pt-2"
                 >
-                  {QUICK_SUGGESTIONS.map((s, i) => (
+                  {suggestions.map((s, i) => (
                     <motion.button
                       key={s}
                       initial={{ opacity: 0, scale: 0.9 }}
@@ -269,6 +314,24 @@ export default function ChatBot() {
               )}
               <div ref={bottomRef} />
             </div>
+
+            {/* Contextual CTA — fala com um humano da BWild */}
+            <Link
+              to="/#cta-final"
+              onClick={() => {
+                setOpen(false);
+                trackGlobal("chatbot_cta_specialist", {
+                  has_active_project: hasActiveProject,
+                  bairro: summary.neighborhood ?? undefined,
+                });
+              }}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 border-t border-border/60 bg-primary/5 text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
+            >
+              <Headphones className="h-3.5 w-3.5" />
+              {hasActiveProject
+                ? "Falar com um especialista BWild sobre meu projeto"
+                : "Falar com um especialista BWild"}
+            </Link>
 
             {/* Input area */}
             <div className="p-3 border-t border-border/60 bg-card">

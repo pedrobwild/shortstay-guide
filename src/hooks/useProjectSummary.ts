@@ -42,6 +42,10 @@ export interface ProjectSummary {
   project: ProjectRow | null;
   /** Projeção do studio (receita líquida anual + ROI). */
   projection: ProjectionSummary | null;
+  /** Bairro do projeto (null se ainda não configurado). */
+  neighborhood: string | null;
+  /** Faixa de área do studio (ex.: "26–35 m²"). */
+  areaSqm: string | null;
   hasNeighborhood: boolean;
   hasPropertyValue: boolean;
   hasConnection: boolean;
@@ -161,6 +165,8 @@ export function useProjectSummary(): ProjectSummary {
         hasProject: false,
         project: null,
         projection: null,
+        neighborhood: null,
+        areaSqm: null,
         hasNeighborhood: false,
         hasPropertyValue: false,
         hasConnection: false,
@@ -202,6 +208,8 @@ export function useProjectSummary(): ProjectSummary {
       hasProject: true,
       project,
       projection,
+      neighborhood,
+      areaSqm: hasNeighborhood ? areaSqm : null,
       hasNeighborhood,
       hasPropertyValue,
       hasConnection: state.hasConnection,
