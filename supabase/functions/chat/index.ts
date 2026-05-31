@@ -68,9 +68,18 @@ serve(async (req) => {
   }
 
   try {
-    const { messages } = await req.json();
+    const { messages, projectContext } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+    // O contexto do projeto é construído no front a partir de dados já filtrados
+    // por RLS para o usuário logado (nunca consultamos o projeto de outra conta
+    // aqui). Tratamos como entrada não confiável: validamos o tipo e limitamos o
+    // tamanho para evitar abuso do prompt.
+    const projectBlock =
+      typeof projectContext === "string" && projectContext.trim().length > 0
+        ? projectContext.slice(0, 4000)
+        : null;
 
     // Load real data from database
     const [bairrosContext, listingsStats] = await Promise.all([
@@ -90,6 +99,14 @@ ${bairrosContext}
 
 ${listingsStats}
 
+# CONTEXTO DO PROJETO DESTE CLIENTE
+
+${
+  projectBlock
+    ? `Estes são os dados REAIS do projeto do usuário com quem você está falando. Quando ele perguntar sobre "meu studio", "meu projeto", "minha projeção", "meu bairro" ou "meu ROI", responda EXCLUSIVAMENTE com os números abaixo — são os números dele, não estime nem invente.\n\n${projectBlock}`
+    : "O usuário não tem um projeto ativo carregado nesta conversa. Responda com base nos dados gerais de mercado dos bairros acima e convide-o a criar um projeto no painel ou a falar com um especialista BWild para uma análise personalizada."
+}
+
 # FÓRMULAS UTILIZADAS
 
 - Preço estimado studio = preço_m2 × área_media_estudio
@@ -104,12 +121,20 @@ ${listingsStats}
 
 - Responda sempre em português brasileiro
 - Use os dados reais acima para fundamentar suas respostas — cite números específicos
+- Quando houver "CONTEXTO DO PROJETO DESTE CLIENTE", ancore as respostas sobre o projeto/studio dele nesses números (ROI, receita líquida anual, ocupação, payback, bairro, área)
 - Quando o usuário perguntar sobre um bairro, use os dados exatos da plataforma
 - Seja direto e prático nas recomendações
 - Considere o perfil do investidor ao dar recomendações
 - Mencione riscos e pontos de atenção (saturação, risco regulatório)
 - Seja conciso mas completo
-- Se perguntarem sobre algo fora dos 15 bairros analisados, informe que não temos dados para aquele bairro`;
+
+# GUARDRAILS (regras invioláveis)
+
+- NUNCA invente, estime ou arredonde números que não estejam nos dados reais dos bairros ou no contexto do projeto do cliente. Não há "achismo".
+- Se um dado não estiver disponível (ex.: ROI sem valor do imóvel informado, ou um bairro fora dos 15 analisados), diga claramente que NÃO tem esse dado e NÃO o invente.
+- Se perguntarem sobre algo fora dos 15 bairros analisados, informe que não temos dados para aquele bairro.
+- Quando faltar dado, quando o usuário quiser avançar/fechar negócio, ou quando a pergunta exigir análise personalizada além do que os dados permitem, encaminhe ao time humano: convide-o a usar o botão "Falar com um especialista BWild" no próprio chat.
+- Use apenas o contexto do projeto fornecido nesta conversa; nunca presuma dados de outros usuários ou projetos.`;
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
