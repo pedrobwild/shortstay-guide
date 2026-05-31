@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -93,6 +93,16 @@ function loadCosts(projectId: string): CostSettings {
   }
 }
 
+/** Indica se há custos previamente salvos para o projeto/projeção. */
+function hasSavedCosts(projectId: string): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(storageKey(projectId)) !== null;
+  } catch {
+    return false;
+  }
+}
+
 export default function ProjectAnalytics({
   projectId,
   refreshKey = 0,
@@ -130,11 +140,22 @@ export default function ProjectAnalytics({
     setOccupancyPct(bairro.avgOccupancy);
   };
 
-  // Recalcula defaults sempre que o bairro selecionado muda (inclusive no load inicial)
+  // Recalcula defaults quando o bairro selecionado muda. No mount inicial,
+  // preserva o ADR salvo pelo usuário (se houver) e só usa o default do bairro
+  // quando não há custos persistidos — a ocupação, que não é persistida, sempre
+  // vem do bairro. Trocas posteriores de bairro/faixa repõem os defaults.
+  const projectionInitDone = useRef(false);
   useEffect(() => {
-    if (isProjection && selectedBairro) {
-      applyBairroDefaults(selectedBairro, sizeKey);
+    if (!isProjection || !selectedBairro) return;
+    if (!projectionInitDone.current) {
+      projectionInitDone.current = true;
+      setOccupancyPct(selectedBairro.avgOccupancy);
+      if (!hasSavedCosts(costsKey)) {
+        setCosts((prev) => ({ ...prev, adr: selectedBairro.avgBySize[sizeKey] }));
+      }
+      return;
     }
+    applyBairroDefaults(selectedBairro, sizeKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isProjection, selectedBairro?.name]);
 
@@ -144,7 +165,15 @@ export default function ProjectAnalytics({
     } catch { /* ignore */ }
   }, [costsKey, costs]);
 
+  // Recarrega custos salvos quando o projeto muda. Pula o mount inicial: o
+  // useState já carregou loadCosts(costsKey) e, em modo projeção, recarregar
+  // aqui sobrescreveria o ADR default do bairro aplicado por applyBairroDefaults.
+  const skipInitialCostsReload = useRef(true);
   useEffect(() => {
+    if (skipInitialCostsReload.current) {
+      skipInitialCostsReload.current = false;
+      return;
+    }
     setCosts(loadCosts(costsKey));
   }, [costsKey]);
 
