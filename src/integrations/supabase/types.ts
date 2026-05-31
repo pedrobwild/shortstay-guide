@@ -360,65 +360,6 @@ export type Database = {
         }
         Relationships: []
       }
-      project_phases: {
-        Row: {
-          actual_end: string | null
-          actual_start: string | null
-          created_at: string
-          description: string | null
-          financial_pct: number
-          id: string
-          name: string
-          physical_pct: number
-          planned_end: string | null
-          planned_start: string | null
-          project_id: string
-          sort_order: number
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          actual_end?: string | null
-          actual_start?: string | null
-          created_at?: string
-          description?: string | null
-          financial_pct?: number
-          id?: string
-          name: string
-          physical_pct?: number
-          planned_end?: string | null
-          planned_start?: string | null
-          project_id: string
-          sort_order?: number
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          actual_end?: string | null
-          actual_start?: string | null
-          created_at?: string
-          description?: string | null
-          financial_pct?: number
-          id?: string
-          name?: string
-          physical_pct?: number
-          planned_end?: string | null
-          planned_start?: string | null
-          project_id?: string
-          sort_order?: number
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "project_phases_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       project_scenarios: {
         Row: {
           adr: number | null
@@ -480,57 +421,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "project_scenarios_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      project_updates: {
-        Row: {
-          body: string | null
-          created_at: string
-          id: string
-          image_url: string | null
-          phase_id: string | null
-          project_id: string
-          title: string | null
-          update_date: string
-          updated_at: string
-        }
-        Insert: {
-          body?: string | null
-          created_at?: string
-          id?: string
-          image_url?: string | null
-          phase_id?: string | null
-          project_id: string
-          title?: string | null
-          update_date?: string
-          updated_at?: string
-        }
-        Update: {
-          body?: string | null
-          created_at?: string
-          id?: string
-          image_url?: string | null
-          phase_id?: string | null
-          project_id?: string
-          title?: string | null
-          update_date?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "project_updates_phase_id_fkey"
-            columns: ["phase_id"]
-            isOneToOne: false
-            referencedRelation: "project_phases"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "project_updates_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
