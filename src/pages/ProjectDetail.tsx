@@ -2,7 +2,6 @@ import { useState } from "react";
 import AirbnbICalPanel from "@/components/ota/AirbnbICalPanel";
 import ProjectAnalytics from "@/components/ota/ProjectAnalytics";
 import ScenarioComparator from "@/components/ota/ScenarioComparator";
-import ProjectTimeline from "@/components/timeline/ProjectTimeline";
 import AppNavbar from "@/components/AppNavbar";
 import { BairroProvider } from "@/hooks/useBairroData";
 import { useParams, Link } from "react-router-dom";
@@ -10,7 +9,11 @@ import { ArrowLeft } from "lucide-react";
 
 /**
  * Página de gerenciamento de um projeto.
- * Inclui o painel de integração Airbnb iCal e o dashboard de análises.
+ *
+ * Foco: ajudar o cliente a entender o potencial de receita do imóvel
+ * (integração de calendários, dashboard de análises e comparador de
+ * cenários). O cronograma da reforma vive em outro contexto e não entra
+ * aqui para não poluir a leitura da projeção.
  */
 export default function ProjectDetail() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -36,10 +39,10 @@ export default function ProjectDetail() {
               Voltar
             </Link>
             <h1 className="text-2xl font-bold text-foreground">Gestão do Projeto</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Potencial de receita, calendários e cenários de investimento do imóvel.
+            </p>
           </div>
-
-          {/* Timeline / acompanhamento da reforma */}
-          <ProjectTimeline projectId={projectId} />
 
           {/* Painel de integração Airbnb */}
           <AirbnbICalPanel
@@ -59,3 +62,4 @@ export default function ProjectDetail() {
     </BairroProvider>
   );
 }
+

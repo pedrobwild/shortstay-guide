@@ -172,9 +172,7 @@ export type Database = {
           name: string
           neighborhood: string | null
           objective: string | null
-          session_id: string | null
           source: string | null
-          user_id: string | null
           whatsapp: string
         }
         Insert: {
@@ -184,9 +182,7 @@ export type Database = {
           name: string
           neighborhood?: string | null
           objective?: string | null
-          session_id?: string | null
           source?: string | null
-          user_id?: string | null
           whatsapp: string
         }
         Update: {
@@ -196,9 +192,7 @@ export type Database = {
           name?: string
           neighborhood?: string | null
           objective?: string | null
-          session_id?: string | null
           source?: string | null
-          user_id?: string | null
           whatsapp?: string
         }
         Relationships: []
@@ -419,6 +413,74 @@ export type Database = {
           },
         ]
       }
+      project_scenarios: {
+        Row: {
+          adr: number | null
+          area_sqm: string | null
+          avg_stay_nights: number | null
+          cleaning_per_stay: number | null
+          condo_monthly: number | null
+          created_at: string
+          id: string
+          kind: string
+          management_pct: number | null
+          name: string
+          neighborhood: string | null
+          occupancy_pct: number | null
+          position: number
+          project_id: string
+          property_value: number | null
+          taxes_pct: number | null
+          updated_at: string
+        }
+        Insert: {
+          adr?: number | null
+          area_sqm?: string | null
+          avg_stay_nights?: number | null
+          cleaning_per_stay?: number | null
+          condo_monthly?: number | null
+          created_at?: string
+          id?: string
+          kind?: string
+          management_pct?: number | null
+          name: string
+          neighborhood?: string | null
+          occupancy_pct?: number | null
+          position?: number
+          project_id: string
+          property_value?: number | null
+          taxes_pct?: number | null
+          updated_at?: string
+        }
+        Update: {
+          adr?: number | null
+          area_sqm?: string | null
+          avg_stay_nights?: number | null
+          cleaning_per_stay?: number | null
+          condo_monthly?: number | null
+          created_at?: string
+          id?: string
+          kind?: string
+          management_pct?: number | null
+          name?: string
+          neighborhood?: string | null
+          occupancy_pct?: number | null
+          position?: number
+          project_id?: string
+          property_value?: number | null
+          taxes_pct?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_scenarios_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_updates: {
         Row: {
           body: string | null
@@ -625,35 +687,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      admin_lead_scores: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          lead_id: string
-          name: string
-          whatsapp: string
-          neighborhood: string | null
-          area_sqm: string | null
-          objective: string | null
-          source: string | null
-          created_at: string
-          user_id: string | null
-          session_id: string | null
-          has_account: boolean
-          project_count: number
-          has_assumptions: boolean
-          property_value: number | null
-          assumption_adr: number | null
-          event_count: number
-          max_scroll: number
-          sections_viewed: number
-          simulator_uses: number
-          exported_simulation: boolean
-          quiz_interactions: number
-          chatbot_interactions: number
-          cta_clicks: number
-          last_event_at: string | null
-        }[]
-      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
