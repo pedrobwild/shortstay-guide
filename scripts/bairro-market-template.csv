@@ -1,0 +1,3 @@
+bairro,cidade,periodo_inicio,periodo_fim,n_listings_total,n_listings_studio_1q,pct_studio_1q,adr_medio_studio,ocupacao_media_studio,estadia_media_noites,rating_medio,percentual_superhost,media_reviews_por_listing,area_media_estudio,nivel_confianca_dados,fonte_primaria
+Brooklin,São Paulo,2025-06-01,2026-05-31,412,168,0.4078,350.00,0.7500,3.4,4.82,0.31,47.0,29.5,media,"Inside Airbnb (2026-05) + coleta direta n=168"
+Vila Olímpia,São Paulo,2025-06-01,2026-05-31,389,142,0.3650,400.00,0.7900,3.1,4.79,0.28,52.0,28.0,media,"Inside Airbnb (2026-05) + coleta direta n=142"
