@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -144,7 +144,15 @@ export default function ProjectAnalytics({
     } catch { /* ignore */ }
   }, [costsKey, costs]);
 
+  // Recarrega custos salvos quando o projeto muda. Pula o mount inicial: o
+  // useState já carregou loadCosts(costsKey) e, em modo projeção, recarregar
+  // aqui sobrescreveria o ADR default do bairro aplicado por applyBairroDefaults.
+  const skipInitialCostsReload = useRef(true);
   useEffect(() => {
+    if (skipInitialCostsReload.current) {
+      skipInitialCostsReload.current = false;
+      return;
+    }
     setCosts(loadCosts(costsKey));
   }, [costsKey]);
 
