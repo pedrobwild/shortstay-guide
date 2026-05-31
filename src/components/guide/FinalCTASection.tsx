@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Send, CheckCircle2, Lock, Mail } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { trackGlobal } from "@/hooks/useGuideAnalytics";
+import { trackGlobal, getGlobalSessionId } from "@/hooks/useGuideAnalytics";
 import { useBairroData } from "@/hooks/useBairroData";
 import { toast } from "sonner";
 import SectionBlock from "./SectionBlock";
@@ -52,6 +52,8 @@ export default function FinalCTASection() {
         area_sqm: form.area_sqm || null,
         objective: form.objective || null,
         source: "guide_cta_final",
+        // Vincula o lead à sessão de telemetria para o score de prontidão.
+        session_id: getGlobalSessionId(),
       });
       if (error) throw error;
       trackGlobal("lead_submitted", { source: "cta_final", bairro: form.neighborhood });

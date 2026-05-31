@@ -172,7 +172,9 @@ export type Database = {
           name: string
           neighborhood: string | null
           objective: string | null
+          session_id: string | null
           source: string | null
+          user_id: string | null
           whatsapp: string
         }
         Insert: {
@@ -182,7 +184,9 @@ export type Database = {
           name: string
           neighborhood?: string | null
           objective?: string | null
+          session_id?: string | null
           source?: string | null
+          user_id?: string | null
           whatsapp: string
         }
         Update: {
@@ -192,7 +196,9 @@ export type Database = {
           name?: string
           neighborhood?: string | null
           objective?: string | null
+          session_id?: string | null
           source?: string | null
+          user_id?: string | null
           whatsapp?: string
         }
         Relationships: []
@@ -619,6 +625,35 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_lead_scores: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          lead_id: string
+          name: string
+          whatsapp: string
+          neighborhood: string | null
+          area_sqm: string | null
+          objective: string | null
+          source: string | null
+          created_at: string
+          user_id: string | null
+          session_id: string | null
+          has_account: boolean
+          project_count: number
+          has_assumptions: boolean
+          property_value: number | null
+          assumption_adr: number | null
+          event_count: number
+          max_scroll: number
+          sections_viewed: number
+          simulator_uses: number
+          exported_simulation: boolean
+          quiz_interactions: number
+          chatbot_interactions: number
+          cta_clicks: number
+          last_event_at: string | null
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
