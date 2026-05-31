@@ -3,18 +3,40 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Send, CheckCircle2 } from "lucide-react";
+import { Send, CheckCircle2, Lock, Mail } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { useBairroData } from "@/hooks/useBairroData";
 import { toast } from "sonner";
 import SectionBlock from "./SectionBlock";
+import {
+  provisionProjectForLead,
+  savePendingProvision,
+  type LeadIntent,
+} from "@/lib/leadProvisioning";
+
+type Phase = "form" | "access" | "done";
 
 export default function FinalCTASection() {
   const { bairros } = useBairroData();
+  const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", whatsapp: "", neighborhood: "", area_sqm: "", objective: "" });
-  const [submitted, setSubmitted] = useState(false);
+  const [phase, setPhase] = useState<Phase>("form");
   const [loading, setLoading] = useState(false);
+
+  // Acesso exclusivo
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
+
+  const leadIntent = (): LeadIntent => ({
+    name: form.name,
+    whatsapp: form.whatsapp,
+    neighborhood: form.neighborhood || undefined,
+    area_sqm: form.area_sqm || undefined,
+    objective: form.objective || undefined,
+  });
 
   const handleSubmit = async () => {
     if (!form.name || !form.whatsapp) {
@@ -33,8 +55,8 @@ export default function FinalCTASection() {
       });
       if (error) throw error;
       trackGlobal("lead_submitted", { source: "cta_final", bairro: form.neighborhood });
-      setSubmitted(true);
-      toast.success("Solicitação enviada! Entraremos em contato em breve.");
+      // Em vez de encerrar, oferece criar o acesso exclusivo no mesmo fluxo.
+      setPhase("access");
     } catch {
       toast.error("Erro ao enviar. Tente novamente.");
     } finally {
@@ -42,14 +64,141 @@ export default function FinalCTASection() {
     }
   };
 
-  if (submitted) {
+  const handleCreateAccess = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: form.name },
+        emailRedirectTo: `${window.location.origin}/`,
+      },
+    });
+
+    if (error) {
+      if (error.message.toLowerCase().includes("already registered")) {
+        toast.error("Este email já tem acesso. Faça login para ver sua proposta.");
+      } else {
+        toast.error(error.message);
+      }
+      setLoading(false);
+      return;
+    }
+
+    const intent = leadIntent();
+    trackGlobal("lead_access_created", { source: "cta_final", bairro: form.neighborhood });
+
+    if (data.session && data.user) {
+      // Confirmação de email desativada: provisiona e entra direto na proposta.
+      const { projectId } = await provisionProjectForLead(data.user.id, intent);
+      setLoading(false);
+      navigate(projectId ? `/projeto/${projectId}` : "/projetos");
+      return;
+    }
+
+    // Confirmação de email exigida: guarda a intenção para concluir no retorno.
+    savePendingProvision(intent);
+    setNeedsConfirmation(true);
+    setPhase("done");
+    setLoading(false);
+  };
+
+  const skipAccess = () => {
+    setNeedsConfirmation(false);
+    setPhase("done");
+  };
+
+  if (phase === "done") {
     return (
-      <SectionBlock id="cta-final" title="Diagnóstico Solicitado" takeaway="Recebemos seus dados." className="[&_h2]:text-primary-foreground [&_>div>p:first-of-type]:text-primary-foreground/80">
+      <SectionBlock
+        id="cta-final"
+        title={needsConfirmation ? "Acesso quase pronto" : "Diagnóstico Solicitado"}
+        takeaway={needsConfirmation ? "Confirme seu email para abrir sua proposta." : "Recebemos seus dados."}
+        className="[&_h2]:text-primary-foreground [&_>div>p:first-of-type]:text-primary-foreground/80"
+      >
         <Card className="border-primary-foreground/20 bg-card/95 backdrop-blur-sm">
           <CardContent className="p-8 text-center">
             <CheckCircle2 size={48} className="text-primary mx-auto mb-4" />
-            <p className="font-display text-2xl font-bold text-foreground mb-2">Obrigado, {form.name}!</p>
-            <p className="text-muted-foreground font-body">Entraremos em contato pelo WhatsApp em até 24h com seu diagnóstico personalizado.</p>
+            {needsConfirmation ? (
+              <>
+                <p className="font-display text-2xl font-bold text-foreground mb-2">
+                  Seu acesso exclusivo está quase pronto
+                </p>
+                <p className="text-muted-foreground font-body">
+                  Enviamos um link de confirmação para <strong>{email}</strong>. Confirme e sua
+                  proposta personalizada já estará montada quando você voltar.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="font-display text-2xl font-bold text-foreground mb-2">Obrigado, {form.name}!</p>
+                <p className="text-muted-foreground font-body">
+                  Entraremos em contato pelo WhatsApp em até 24h com seu diagnóstico personalizado.
+                </p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </SectionBlock>
+    );
+  }
+
+  if (phase === "access") {
+    return (
+      <SectionBlock
+        id="cta-final"
+        title="Seu acesso exclusivo BWild"
+        takeaway="Crie seu acesso e veja agora sua proposta personalizada."
+        className="[&_h2]:text-primary-foreground [&_>div>p:first-of-type]:text-primary-foreground/80"
+      >
+        <Card className="border-border/30 bg-card/95 backdrop-blur-sm">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2 mb-4 text-foreground">
+              <Lock size={18} className="text-primary" />
+              <p className="font-display font-bold">
+                Desbloqueie a projeção{form.neighborhood ? ` para ${form.neighborhood}` : ""}
+              </p>
+            </div>
+            <form onSubmit={handleCreateAccess} className="space-y-4">
+              <Input
+                type="email"
+                placeholder="seu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="font-body min-h-[48px] text-base"
+              />
+              <Input
+                type="password"
+                placeholder="Crie uma senha (mín. 6 caracteres)"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                className="font-body min-h-[48px] text-base"
+              />
+              <Button type="submit" disabled={loading} className="w-full font-body min-h-[48px]" size="lg">
+                <Mail size={16} className="mr-2" />
+                {loading ? "Criando acesso..." : "Criar meu acesso exclusivo"}
+              </Button>
+            </form>
+            <div className="mt-4 text-center space-y-1">
+              <button
+                type="button"
+                onClick={skipAccess}
+                className="text-sm text-muted-foreground hover:underline font-body"
+              >
+                Prefiro só falar com a equipe
+              </button>
+              <p className="text-sm text-muted-foreground font-body">
+                Já tem acesso?{" "}
+                <Link to="/login" className="text-primary hover:underline">
+                  Entrar
+                </Link>
+              </p>
+            </div>
           </CardContent>
         </Card>
       </SectionBlock>
