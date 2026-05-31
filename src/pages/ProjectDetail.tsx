@@ -1,7 +1,9 @@
 import { useState } from "react";
 import AirbnbICalPanel from "@/components/ota/AirbnbICalPanel";
 import ProjectAnalytics from "@/components/ota/ProjectAnalytics";
+import ScenarioComparator from "@/components/ota/ScenarioComparator";
 import AppNavbar from "@/components/AppNavbar";
+import { BairroProvider } from "@/hooks/useBairroData";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
@@ -22,27 +24,34 @@ export default function ProjectDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <AppNavbar />
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-10">
-        {/* Header */}
-        <div>
-          <Link to="/projetos" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4">
-            <ArrowLeft className="h-4 w-4" />
-            Voltar
-          </Link>
-          <h1 className="text-2xl font-bold text-foreground">Gestão do Projeto</h1>
+    <BairroProvider>
+      <div className="min-h-screen bg-background">
+        <AppNavbar />
+        <div className="max-w-4xl mx-auto px-4 py-8 space-y-10">
+          {/* Header */}
+          <div>
+            <Link to="/projetos" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4">
+              <ArrowLeft className="h-4 w-4" />
+              Voltar
+            </Link>
+            <h1 className="text-2xl font-bold text-foreground">Gestão do Projeto</h1>
+          </div>
+
+          {/* Painel de integração Airbnb */}
+          <AirbnbICalPanel
+            projectId={projectId}
+            onDataChanged={() => setAnalyticsKey((k) => k + 1)}
+          />
+
+          {/* Dashboard de análises */}
+          <ProjectAnalytics projectId={projectId} refreshKey={analyticsKey} />
+
+          {/* Comparador multi-cenário de investimento */}
+          <div className="border-t border-border pt-8">
+            <ScenarioComparator projectId={projectId} />
+          </div>
         </div>
-
-        {/* Painel de integração Airbnb */}
-        <AirbnbICalPanel
-          projectId={projectId}
-          onDataChanged={() => setAnalyticsKey((k) => k + 1)}
-        />
-
-        {/* Dashboard de análises */}
-        <ProjectAnalytics projectId={projectId} refreshKey={analyticsKey} />
       </div>
-    </div>
+    </BairroProvider>
   );
 }
