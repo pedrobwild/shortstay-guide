@@ -42,8 +42,8 @@ export function useLeadScores() {
     queryKey: ["admin-lead-scores"],
     queryFn: async (): Promise<ScoredLead[]> => {
       // RPC admin_lead_scores ainda não existe no schema gerado; cast pontual.
-      const { data, error } = await (supabase.rpc as (fn: string) => Promise<{ data: unknown; error: unknown }>)("admin_lead_scores");
-      if (error) throw error as Error;
+      const { data, error } = await (supabase as unknown as { rpc: (fn: string) => Promise<{ data: unknown; error: Error | null }> }).rpc("admin_lead_scores");
+      if (error) throw error;
       if (error) throw error;
       const rows = (data ?? []) as LeadScoreRow[];
       return rows.map((row) => ({
