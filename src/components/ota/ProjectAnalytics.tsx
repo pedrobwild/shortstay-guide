@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
@@ -182,14 +182,39 @@ export default function ProjectAnalytics({
   // --- Persistência das premissas financeiras ---
   // Estratégia: Supabase é a fonte de verdade (sobrevive a troca de device);
   // localStorage é cache otimista + fallback offline. Save com debounce de 800ms.
+  type AssumptionsInsert = Database["public"]["Tables"]["project_assumptions"]["Insert"];
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hydratedRef = useRef(false);       // só salva depois de hidratar do servidor
   const lastPersistedRef = useRef<string | null>(null); // evita writes redundantes
+  const pendingRef = useRef<{ row: AssumptionsInsert; sig: string } | null>(null);
 
   // Bairro/área alimentam o painel comercial. No modo projeção vêm dos selects
   // de mercado; no modo real, dos campos "Dados do imóvel".
   const neighborhood = isProjection ? (bairroName || null) : (propertyNeighborhood || null);
   const areaSqm = isProjection ? sizeKey : (propertyAreaSqm || null);
+
+  // Envia imediatamente o save pendente (debounce ainda aberto). Idempotente:
+  // usado pelo timer, na troca de projeto e no unmount/pagehide p/ não perder edições.
+  const flushSave = useCallback(async () => {
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = null;
+    }
+    const pending = pendingRef.current;
+    if (!pending) return;
+    pendingRef.current = null;
+    if (pending.sig === lastPersistedRef.current) return;
+    try {
+      const { error } = await supabase
+        .from("project_assumptions")
+        .upsert(pending.row, { onConflict: "project_id" });
+      if (error) throw error;
+      lastPersistedRef.current = pending.sig;
+    } catch (err) {
+      // Rede falhou: o localStorage já tem o valor (fallback). Re-tenta na próxima edição.
+      console.error("project_assumptions save error", err);
+    }
+  }, []);
 
   // Cache otimista local — escreve a cada mudança (offline-first, sem flicker).
   useEffect(() => {
@@ -201,7 +226,10 @@ export default function ProjectAnalytics({
   // Hidratação: cache local imediato + leitura autoritativa do Supabase.
   useEffect(() => {
     hydratedRef.current = false;
-    setCosts(loadCostsCache(costsKey)); // imediato → sem flicker ao trocar de projeto
+    flushSave();                           // não perde edição pendente do projeto anterior
+    setCosts(loadCostsCache(costsKey));    // imediato → sem flicker ao trocar de projeto
+    setPropertyNeighborhood("");           // limpa metadados do projeto anterior
+    setPropertyAreaSqm("");
 
     // Projeção não tem projeto → permanece apenas em localStorage.
     if (isProjection || !projectId) {
@@ -226,8 +254,8 @@ export default function ProjectAnalytics({
             costsToRow(projectId, loaded, loadedNeighborhood, loadedAreaSqm),
           );
           setCosts(loaded);
-          if (loadedNeighborhood) setPropertyNeighborhood(loadedNeighborhood);
-          if (loadedAreaSqm) setPropertyAreaSqm(loadedAreaSqm);
+          setPropertyNeighborhood(loadedNeighborhood ?? "");
+          setPropertyAreaSqm(loadedAreaSqm ?? "");
         }
       } catch (err) {
         // Rede falhou → mantém o que veio do localStorage (fallback offline).
@@ -241,29 +269,39 @@ export default function ProjectAnalytics({
   }, [costsKey, isProjection, projectId]);
 
   // Persistência debounced no Supabase (800ms) — só para projetos reais.
+  // Guarda a linha "suja" em pendingRef p/ poder dar flush no unmount/pagehide.
   useEffect(() => {
     if (isProjection || !projectId || !hydratedRef.current) return;
     const row = costsToRow(projectId, costs, neighborhood, areaSqm);
     const sig = JSON.stringify(row);
-    if (sig === lastPersistedRef.current) return; // nada mudou desde a hidratação/último save
-
+    if (sig === lastPersistedRef.current) {
+      pendingRef.current = null; // nada mudou desde a hidratação/último save
+      return;
+    }
+    pendingRef.current = { row, sig };
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(async () => {
-      try {
-        const { error } = await supabase
-          .from("project_assumptions")
-          .upsert(row, { onConflict: "project_id" });
-        if (error) throw error;
-        lastPersistedRef.current = sig;
-      } catch (err) {
-        // Rede falhou: o localStorage já tem o valor (fallback). Re-tenta na próxima edição.
-        console.error("project_assumptions save error", err);
-      }
-    }, 800);
+    saveTimerRef.current = setTimeout(() => { void flushSave(); }, 800);
+    // NÃO limpamos pendingRef no cleanup: o timer é reagendado a cada tecla e
+    // o flush (unmount/pagehide/troca de projeto) garante o envio do último valor.
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
-  }, [costs, neighborhood, areaSqm, isProjection, projectId]);
+  }, [costs, neighborhood, areaSqm, isProjection, projectId, flushSave]);
+
+  // Garante o envio de edições pendentes ao sair (fecha aba, troca de rota).
+  useEffect(() => {
+    const onHide = () => { void flushSave(); };
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") void flushSave();
+    };
+    window.addEventListener("pagehide", onHide);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("pagehide", onHide);
+      document.removeEventListener("visibilitychange", onVisibility);
+      void flushSave(); // unmount (ex.: troca de rota sem pagehide)
+    };
+  }, [flushSave]);
 
   useEffect(() => {
     if (isProjection || !projectId) {
