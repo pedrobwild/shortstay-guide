@@ -1,6 +1,7 @@
 import { useState } from "react";
 import AirbnbICalPanel from "@/components/ota/AirbnbICalPanel";
 import ProjectAnalytics from "@/components/ota/ProjectAnalytics";
+import ProjectTimeline from "@/components/timeline/ProjectTimeline";
 import AppNavbar from "@/components/AppNavbar";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -33,6 +34,9 @@ export default function ProjectDetail() {
           </Link>
           <h1 className="text-2xl font-bold text-foreground">Gestão do Projeto</h1>
         </div>
+
+        {/* Timeline / acompanhamento da reforma */}
+        <ProjectTimeline projectId={projectId} />
 
         {/* Painel de integração Airbnb */}
         <AirbnbICalPanel
