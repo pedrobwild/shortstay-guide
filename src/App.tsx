@@ -99,9 +99,7 @@ const App = () => (
               <Route path="/admin/leads" element={<AdminRoute><AdminLeads /></AdminRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-            <Suspense fallback={null}>
-              <ChatBot />
-            </Suspense>
+            <ChatBot />
           </Suspense>
         </BrowserRouter>
       </TooltipProvider>
