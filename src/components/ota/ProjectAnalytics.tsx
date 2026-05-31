@@ -148,6 +148,10 @@ export default function ProjectAnalytics({
   const [sizeKey, setSizeKey] = useState<SizeKey>("26–35 m²");
   const [occupancyPct, setOccupancyPct] = useState<number>(0);
 
+  // --- Dados do imóvel (modo real) — metadados para o painel comercial ---
+  const [propertyNeighborhood, setPropertyNeighborhood] = useState<string>("");
+  const [propertyAreaSqm, setPropertyAreaSqm] = useState<string>("");
+
   const selectedBairro = useMemo<BairroItem | undefined>(
     () => bairros.find((b) => b.name === bairroName) ?? bairros[0],
     [bairros, bairroName],
@@ -182,9 +186,10 @@ export default function ProjectAnalytics({
   const hydratedRef = useRef(false);       // só salva depois de hidratar do servidor
   const lastPersistedRef = useRef<string | null>(null); // evita writes redundantes
 
-  // Bairro/área só existem no modo projeção; servem ao painel comercial.
-  const neighborhood = isProjection ? (bairroName || null) : null;
-  const areaSqm = isProjection ? sizeKey : null;
+  // Bairro/área alimentam o painel comercial. No modo projeção vêm dos selects
+  // de mercado; no modo real, dos campos "Dados do imóvel".
+  const neighborhood = isProjection ? (bairroName || null) : (propertyNeighborhood || null);
+  const areaSqm = isProjection ? sizeKey : (propertyAreaSqm || null);
 
   // Cache otimista local — escreve a cada mudança (offline-first, sem flicker).
   useEffect(() => {
@@ -209,16 +214,20 @@ export default function ProjectAnalytics({
       try {
         const { data, error } = await supabase
           .from("project_assumptions")
-          .select("adr, cleaning_per_stay, management_pct, taxes_pct, condo_monthly, property_value")
+          .select("adr, cleaning_per_stay, management_pct, taxes_pct, condo_monthly, property_value, neighborhood, area_sqm")
           .eq("project_id", projectId)
           .maybeSingle();
         if (error) throw error;
         if (!cancelled && data) {
           const loaded = rowToCosts(data);
+          const loadedNeighborhood = data.neighborhood ?? null;
+          const loadedAreaSqm = data.area_sqm ?? null;
           lastPersistedRef.current = JSON.stringify(
-            costsToRow(projectId, loaded, neighborhood, areaSqm),
+            costsToRow(projectId, loaded, loadedNeighborhood, loadedAreaSqm),
           );
           setCosts(loaded);
+          if (loadedNeighborhood) setPropertyNeighborhood(loadedNeighborhood);
+          if (loadedAreaSqm) setPropertyAreaSqm(loadedAreaSqm);
         }
       } catch (err) {
         // Rede falhou → mantém o que veio do localStorage (fallback offline).
@@ -519,6 +528,53 @@ export default function ProjectAnalytics({
               Premissas de ADR e ocupação são preenchidas com a média de mercado do bairro/faixa de área
               ({selectedBairro?.avgOccupancy ?? 0}% ocupação · {brl(selectedBairro?.avgBySize[sizeKey] ?? 0)}/noite).
               Ajuste tudo nas premissas abaixo — os números recalculam em tempo real.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Dados do imóvel — modo real (metadados p/ painel comercial) */}
+      {!isProjection && (
+        <Card className="border-primary/15 bg-primary/[0.02]">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-medium text-foreground">Dados do imóvel</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-[11px] text-muted-foreground flex items-center gap-1">
+                  <MapPin className="h-3 w-3" /> Bairro
+                </Label>
+                <Select value={propertyNeighborhood} onValueChange={setPropertyNeighborhood}>
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue placeholder="Selecione o bairro" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {bairros.map((b) => (
+                      <SelectItem key={b.name} value={b.name}>{b.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-[11px] text-muted-foreground flex items-center gap-1">
+                  <Ruler className="h-3 w-3" /> Faixa de área
+                </Label>
+                <Select value={propertyAreaSqm} onValueChange={setPropertyAreaSqm}>
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue placeholder="Selecione a faixa" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SIZE_KEYS.map((k) => (
+                      <SelectItem key={k} value={k}>{k}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Bairro e faixa de área qualificam o lead no painel comercial da BWild. Salvos automaticamente.
             </p>
           </CardContent>
         </Card>
