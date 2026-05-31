@@ -1,6 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Button } from "@/components/ui/button";
-import { LogOut, User, FolderOpen, LayoutDashboard } from "lucide-react";
+import { LogOut, User, FolderOpen, LayoutDashboard, Flame } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import bwildLogo from "@/assets/bwild-logo.png";
 
@@ -10,6 +11,7 @@ import bwildLogo from "@/assets/bwild-logo.png";
  */
 export default function AppNavbar() {
   const { user, loading, signOut } = useAuth();
+  const { isAdmin } = useIsAdmin();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -46,6 +48,14 @@ export default function AppNavbar() {
                     <span className="hidden sm:inline">Meus Projetos</span>
                   </Link>
                 </Button>
+                {isAdmin && (
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/admin/leads" className="gap-1.5">
+                      <Flame className="h-4 w-4" />
+                      <span className="hidden sm:inline">Leads</span>
+                    </Link>
+                  </Button>
+                )}
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <User className="h-4 w-4" />
                   <span className="hidden sm:inline">{displayName}</span>

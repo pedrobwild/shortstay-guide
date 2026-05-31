@@ -7,6 +7,7 @@ import { lazy, Suspense, useEffect } from "react";
 import { AuthProvider } from "@/hooks/useAuth";
 import bwildLogo from "@/assets/bwild-logo.png";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import AdminRoute from "@/components/AdminRoute";
 import PostLoginProvision from "@/components/PostLoginProvision";
 
 const Index = lazy(() => import("./pages/Index"));
@@ -24,6 +25,7 @@ const Signup = lazy(() => import("./pages/Signup"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Ferramentas = lazy(() => import("./pages/Ferramentas"));
+const AdminLeads = lazy(() => import("./pages/AdminLeads"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ChatBot = lazy(() => import("./components/ChatBot"));
 
@@ -94,6 +96,7 @@ const App = () => (
               <Route path="/painel" element={<ProtectedRoute><Painel /></ProtectedRoute>} />
               <Route path="/projetos" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
               <Route path="/projeto/:projectId" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
+              <Route path="/admin/leads" element={<AdminRoute><AdminLeads /></AdminRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Suspense fallback={null}>

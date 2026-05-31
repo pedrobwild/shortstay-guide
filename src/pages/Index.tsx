@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { CheckSquare } from "lucide-react";
 import LazyMapaBairrosEmbed from "@/components/mapa/LazyMapaBairrosEmbed";
 import bwildLogo from "@/assets/bwild-logo.png";
-import { useGuideAnalytics, setGlobalTrack } from "@/hooks/useGuideAnalytics";
+import { useGuideAnalytics, setGlobalTrack, setGlobalSessionId } from "@/hooks/useGuideAnalytics";
 import { useScrollspy } from "@/hooks/useScrollspy";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
 import ScrollProgressBar from "@/components/guide/ScrollProgressBar";
@@ -53,15 +53,19 @@ export default function Index() {
 function IndexInner() {
   const sectionIds = SECTIONS.map((s) => s.id);
   const activeId = useScrollspy(sectionIds);
-  const { trackEvent } = useGuideAnalytics();
+  const { trackEvent, sessionId } = useGuideAnalytics();
   const { bairros } = useBairroData();
   const scrollMilestones = useRef(new Set<string>());
   const { scrollPercent, visitedSections, sectionIndex, sectionCount, resumeData, dismissResume } = useReadingProgress(activeId);
 
   useEffect(() => {
     setGlobalTrack(trackEvent);
-    return () => setGlobalTrack(null);
-  }, [trackEvent]);
+    setGlobalSessionId(sessionId);
+    return () => {
+      setGlobalTrack(null);
+      setGlobalSessionId(null);
+    };
+  }, [trackEvent, sessionId]);
 
   useEffect(() => {
     trackEvent("page_view", { referrer: document.referrer, ua: navigator.userAgent });

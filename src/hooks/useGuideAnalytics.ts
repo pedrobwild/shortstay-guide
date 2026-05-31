@@ -67,3 +67,16 @@ export function setGlobalTrack(fn: typeof globalTrack) {
 export function trackGlobal(type: string, data?: Record<string, unknown>) {
   globalTrack?.(type, data);
 }
+
+// Singleton para a sessão de telemetria atual. Permite que a captura de lead
+// (FinalCTASection) grave o session_id no guide_leads e o painel admin
+// correlacione os eventos anônimos (scroll, simulações) ao lead que os gerou.
+let globalSessionId: string | null = null;
+
+export function setGlobalSessionId(id: string | null) {
+  globalSessionId = id;
+}
+
+export function getGlobalSessionId(): string | null {
+  return globalSessionId;
+}
