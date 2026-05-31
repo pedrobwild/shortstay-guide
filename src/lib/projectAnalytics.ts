@@ -734,6 +734,92 @@ export function longestGaps(events: NormalizedEvent[], topN = 3): VacancyGap[] {
  *
  * Convenção mantida: `end` é exclusivo (checkout / primeiro dia não ocupado).
  */
+/** Premissas financeiras padrão de uma projeção (espelha o painel de custos). */
+export const DEFAULT_PROJECTION_COSTS = {
+  cleaningPerStay: 120,
+  managementPct: 18,
+  taxesPct: 6,
+  condoMonthly: 500,
+};
+
+export interface ProjectionSummaryParams {
+  occupancyPct: number;        // ocupação média alvo (0-100)
+  adr: number;                 // diária bruta
+  cleaningPerStay: number;     // BRL por reserva
+  managementPct: number;       // 0-100
+  taxesPct: number;            // 0-100 sobre receita bruta
+  condoMonthly: number;        // BRL por mês
+  propertyValue: number;       // valor do imóvel (0 = ROI indisponível)
+  avgStayNights?: number;      // default 3
+  months?: number;             // janela de projeção (default 12)
+  seasonality?: number[];      // default DEFAULT_SP_SEASONALITY
+  startDate?: Date;
+}
+
+export interface ProjectionSummary {
+  occupancyPct: number;
+  adr: number;
+  monthsObserved: number;
+  grossRevenueBrl: number;        // total da janela projetada
+  netRevenueBrl: number;          // total da janela projetada
+  netMarginPct: number;
+  annualGrossRevenueBrl: number;
+  annualNetRevenueBrl: number;    // "receita líquida anual" do painel
+  grossYieldPct: number;
+  capRatePct: number;             // ROI líquido anual sobre o valor do imóvel
+  paybackYears: number | null;
+}
+
+/**
+ * Resumo de projeção pronto para o painel: gera os eventos sintéticos de mercado,
+ * aplica as premissas de custo e devolve receita líquida anual + ROI (cap rate).
+ *
+ * Reúne, num único ponto, a mesma cadeia de cálculo usada pelo dashboard
+ * (`generateProjectionEvents` → `computeKpis` → custos → `investmentReturn`),
+ * para que o card de resumo e o dashboard nunca divirjam.
+ */
+export function projectionSummary(p: ProjectionSummaryParams): ProjectionSummary {
+  const months = Math.max(1, Math.round(p.months ?? 12));
+  const events = generateProjectionEvents({
+    occupancyPct: p.occupancyPct,
+    avgStayNights: p.avgStayNights ?? 3,
+    months,
+    seasonality: p.seasonality ?? DEFAULT_SP_SEASONALITY,
+    startDate: p.startDate,
+  });
+  const kpis = computeKpis(events, p.adr);
+  const monthly = occupancyByMonth(events, p.adr);
+  const monthsCount = monthly.length || 1;
+
+  const gross = kpis.estimatedRevenueBrl;
+  const cleaningTotal = p.cleaningPerStay * kpis.reservationsCount;
+  const managementTotal = gross * (p.managementPct / 100);
+  const taxesTotal = gross * (p.taxesPct / 100);
+  const condoTotal = p.condoMonthly * monthsCount;
+  const net = gross - (cleaningTotal + managementTotal + taxesTotal + condoTotal);
+
+  const ret = investmentReturn({
+    propertyValueBrl: p.propertyValue,
+    observedGrossBrl: gross,
+    observedNetBrl: net,
+    monthsObserved: monthsCount,
+  });
+
+  return {
+    occupancyPct: p.occupancyPct,
+    adr: p.adr,
+    monthsObserved: monthsCount,
+    grossRevenueBrl: gross,
+    netRevenueBrl: net,
+    netMarginPct: gross > 0 ? (net / gross) * 100 : 0,
+    annualGrossRevenueBrl: ret.annualizedGrossRevenueBrl,
+    annualNetRevenueBrl: ret.annualizedNetRevenueBrl,
+    grossYieldPct: ret.grossYieldPct,
+    capRatePct: ret.capRatePct,
+    paybackYears: ret.paybackYears,
+  };
+}
+
 export function generateProjectionEvents(params: ProjectionParams): NormalizedEvent[] {
   const occ = Math.min(100, Math.max(0, params.occupancyPct)) / 100;
   const stayLen = Math.max(1, Math.round(params.avgStayNights ?? 3));

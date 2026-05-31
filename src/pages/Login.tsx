@@ -19,13 +19,8 @@ export default function Login() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      // Cai direto na proposta personalizada (projeto mais recente), não na lista vazia.
-      const { data } = await supabase
-        .from("projects")
-        .select("id")
-        .order("created_at", { ascending: false })
-        .limit(1);
-      navigate(data && data.length > 0 ? `/projeto/${data[0].id}` : "/projetos");
+      // Cai no painel unificado: visão única de projeção, status e próximos passos.
+      navigate("/painel");
     } catch (err: any) {
       toast({ title: "Erro ao entrar", description: err.message, variant: "destructive" });
     } finally {

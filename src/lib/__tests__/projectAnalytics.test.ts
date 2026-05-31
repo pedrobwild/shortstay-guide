@@ -16,6 +16,7 @@ import {
   breakEvenAnalysis,
   investmentReturn,
   generateProjectionEvents,
+  projectionSummary,
   DEFAULT_ADR_BRL,
   DEFAULT_SP_SEASONALITY,
   type RawEvent,
@@ -430,5 +431,46 @@ describe("generateProjectionEvents", () => {
     expect(k.bookedNights).toBeGreaterThan(0);
     expect(k.estimatedRevenueBrl).toBe(k.bookedNights * DEFAULT_ADR_BRL);
     expect(k.reservationsCount).toBeGreaterThan(0);
+  });
+});
+
+describe("projectionSummary", () => {
+  const base = {
+    occupancyPct: 75,
+    adr: 350,
+    cleaningPerStay: 120,
+    managementPct: 18,
+    taxesPct: 6,
+    condoMonthly: 500,
+    startDate: new Date(Date.UTC(2026, 0, 1)),
+  };
+
+  it("computes positive gross/net revenue and net below gross", () => {
+    const s = projectionSummary({ ...base, propertyValue: 0 });
+    expect(s.grossRevenueBrl).toBeGreaterThan(0);
+    expect(s.netRevenueBrl).toBeLessThan(s.grossRevenueBrl);
+    expect(s.annualNetRevenueBrl).toBeGreaterThan(0);
+    expect(s.netMarginPct).toBeGreaterThan(0);
+    expect(s.netMarginPct).toBeLessThan(100);
+  });
+
+  it("returns no ROI when property value is zero", () => {
+    const s = projectionSummary({ ...base, propertyValue: 0 });
+    expect(s.capRatePct).toBe(0);
+    expect(s.paybackYears).toBeNull();
+  });
+
+  it("derives cap rate and payback from property value", () => {
+    const s = projectionSummary({ ...base, propertyValue: 800000 });
+    expect(s.capRatePct).toBeGreaterThan(0);
+    expect(s.paybackYears).not.toBeNull();
+    // cap rate = annual net / property value * 100
+    expect(s.capRatePct).toBeCloseTo((s.annualNetRevenueBrl / 800000) * 100, 5);
+  });
+
+  it("scales revenue with occupancy", () => {
+    const low = projectionSummary({ ...base, occupancyPct: 40, propertyValue: 0 });
+    const high = projectionSummary({ ...base, occupancyPct: 90, propertyValue: 0 });
+    expect(high.grossRevenueBrl).toBeGreaterThan(low.grossRevenueBrl);
   });
 });

@@ -28,7 +28,7 @@ export default function Signup() {
       });
       if (error) throw error;
       toast({ title: "Conta criada!", description: "Você já pode acessar a plataforma." });
-      navigate("/");
+      navigate("/painel");
     } catch (err: any) {
       toast({ title: "Erro ao criar conta", description: err.message, variant: "destructive" });
     } finally {
