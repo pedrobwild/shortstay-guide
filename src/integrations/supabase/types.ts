@@ -357,6 +357,66 @@ export type Database = {
         }
         Relationships: []
       }
+      project_scenarios: {
+        Row: {
+          adr: number | null
+          area_sqm: string | null
+          avg_stay_nights: number | null
+          cleaning_per_stay: number | null
+          condo_monthly: number | null
+          created_at: string
+          id: string
+          kind: string
+          management_pct: number | null
+          name: string
+          neighborhood: string | null
+          occupancy_pct: number | null
+          position: number
+          project_id: string
+          property_value: number | null
+          taxes_pct: number | null
+          updated_at: string
+        }
+        Insert: {
+          adr?: number | null
+          area_sqm?: string | null
+          avg_stay_nights?: number | null
+          cleaning_per_stay?: number | null
+          condo_monthly?: number | null
+          created_at?: string
+          id?: string
+          kind?: string
+          management_pct?: number | null
+          name: string
+          neighborhood?: string | null
+          occupancy_pct?: number | null
+          position?: number
+          project_id: string
+          property_value?: number | null
+          taxes_pct?: number | null
+          updated_at?: string
+        }
+        Update: {
+          adr?: number | null
+          area_sqm?: string | null
+          avg_stay_nights?: number | null
+          cleaning_per_stay?: number | null
+          condo_monthly?: number | null
+          created_at?: string
+          id?: string
+          kind?: string
+          management_pct?: number | null
+          name?: string
+          neighborhood?: string | null
+          occupancy_pct?: number | null
+          position?: number
+          project_id?: string
+          property_value?: number | null
+          taxes_pct?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       project_phases: {
         Row: {
           actual_end: string | null
