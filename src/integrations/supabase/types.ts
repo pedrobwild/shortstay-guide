@@ -173,7 +173,6 @@ export type Database = {
           neighborhood: string | null
           objective: string | null
           source: string | null
-          user_id: string | null
           whatsapp: string
         }
         Insert: {
@@ -184,7 +183,6 @@ export type Database = {
           neighborhood?: string | null
           objective?: string | null
           source?: string | null
-          user_id?: string | null
           whatsapp: string
         }
         Update: {
@@ -195,7 +193,6 @@ export type Database = {
           neighborhood?: string | null
           objective?: string | null
           source?: string | null
-          user_id?: string | null
           whatsapp?: string
         }
         Relationships: []
@@ -356,176 +353,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      project_scenarios: {
-        Row: {
-          adr: number | null
-          area_sqm: string | null
-          avg_stay_nights: number | null
-          cleaning_per_stay: number | null
-          condo_monthly: number | null
-          created_at: string
-          id: string
-          kind: string
-          management_pct: number | null
-          name: string
-          neighborhood: string | null
-          occupancy_pct: number | null
-          position: number
-          project_id: string
-          property_value: number | null
-          taxes_pct: number | null
-          updated_at: string
-        }
-        Insert: {
-          adr?: number | null
-          area_sqm?: string | null
-          avg_stay_nights?: number | null
-          cleaning_per_stay?: number | null
-          condo_monthly?: number | null
-          created_at?: string
-          id?: string
-          kind?: string
-          management_pct?: number | null
-          name: string
-          neighborhood?: string | null
-          occupancy_pct?: number | null
-          position?: number
-          project_id: string
-          property_value?: number | null
-          taxes_pct?: number | null
-          updated_at?: string
-        }
-        Update: {
-          adr?: number | null
-          area_sqm?: string | null
-          avg_stay_nights?: number | null
-          cleaning_per_stay?: number | null
-          condo_monthly?: number | null
-          created_at?: string
-          id?: string
-          kind?: string
-          management_pct?: number | null
-          name?: string
-          neighborhood?: string | null
-          occupancy_pct?: number | null
-          position?: number
-          project_id?: string
-          property_value?: number | null
-          taxes_pct?: number | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      project_phases: {
-        Row: {
-          actual_end: string | null
-          actual_start: string | null
-          created_at: string
-          description: string | null
-          financial_pct: number
-          id: string
-          name: string
-          physical_pct: number
-          planned_end: string | null
-          planned_start: string | null
-          project_id: string
-          sort_order: number
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          actual_end?: string | null
-          actual_start?: string | null
-          created_at?: string
-          description?: string | null
-          financial_pct?: number
-          id?: string
-          name: string
-          physical_pct?: number
-          planned_end?: string | null
-          planned_start?: string | null
-          project_id: string
-          sort_order?: number
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          actual_end?: string | null
-          actual_start?: string | null
-          created_at?: string
-          description?: string | null
-          financial_pct?: number
-          id?: string
-          name?: string
-          physical_pct?: number
-          planned_end?: string | null
-          planned_start?: string | null
-          project_id?: string
-          sort_order?: number
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "project_phases_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      project_updates: {
-        Row: {
-          body: string | null
-          created_at: string
-          id: string
-          image_url: string | null
-          phase_id: string | null
-          project_id: string
-          title: string | null
-          update_date: string
-          updated_at: string
-        }
-        Insert: {
-          body?: string | null
-          created_at?: string
-          id?: string
-          image_url?: string | null
-          phase_id?: string | null
-          project_id: string
-          title?: string | null
-          update_date?: string
-          updated_at?: string
-        }
-        Update: {
-          body?: string | null
-          created_at?: string
-          id?: string
-          image_url?: string | null
-          phase_id?: string | null
-          project_id?: string
-          title?: string | null
-          update_date?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "project_updates_phase_id_fkey"
-            columns: ["phase_id"]
-            isOneToOne: false
-            referencedRelation: "project_phases"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "project_updates_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       projects: {
         Row: {
