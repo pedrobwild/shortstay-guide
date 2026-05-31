@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import AppNavbar from "@/components/AppNavbar";
 import ProjectAnalytics from "@/components/ota/ProjectAnalytics";
+import BwildVsDiySection from "@/components/ota/BwildVsDiySection";
 import { BairroProvider } from "@/hooks/useBairroData";
 
 /**
@@ -38,6 +39,11 @@ export default function StudioProjection() {
 
           {/* Dashboard em modo projeção */}
           <ProjectAnalytics mode="projection" />
+
+          {/* Comparativo "fazer sozinho vs. com a BWild" — ancora o ROI da reforma */}
+          <div className="border-t border-border pt-8">
+            <BwildVsDiySection />
+          </div>
         </div>
       </div>
     </BairroProvider>
