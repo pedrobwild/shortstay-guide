@@ -130,6 +130,16 @@ function costsToRow(
   };
 }
 
+/** Indica se há custos previamente salvos para o projeto/projeção. */
+function hasSavedCosts(projectId: string): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(storageKey(projectId)) !== null;
+  } catch {
+    return false;
+  }
+}
+
 export default function ProjectAnalytics({
   projectId,
   refreshKey = 0,
@@ -171,11 +181,22 @@ export default function ProjectAnalytics({
     setOccupancyPct(bairro.avgOccupancy);
   };
 
-  // Recalcula defaults sempre que o bairro selecionado muda (inclusive no load inicial)
+  // Recalcula defaults quando o bairro selecionado muda. No mount inicial,
+  // preserva o ADR salvo pelo usuário (se houver) e só usa o default do bairro
+  // quando não há custos persistidos — a ocupação, que não é persistida, sempre
+  // vem do bairro. Trocas posteriores de bairro/faixa repõem os defaults.
+  const projectionInitDone = useRef(false);
   useEffect(() => {
-    if (isProjection && selectedBairro) {
-      applyBairroDefaults(selectedBairro, sizeKey);
+    if (!isProjection || !selectedBairro) return;
+    if (!projectionInitDone.current) {
+      projectionInitDone.current = true;
+      setOccupancyPct(selectedBairro.avgOccupancy);
+      if (!hasSavedCosts(costsKey)) {
+        setCosts((prev) => ({ ...prev, adr: selectedBairro.avgBySize[sizeKey] }));
+      }
+      return;
     }
+    applyBairroDefaults(selectedBairro, sizeKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isProjection, selectedBairro?.name]);
 

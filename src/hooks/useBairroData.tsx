@@ -6,7 +6,11 @@ import { BAIRRO_DATA, type BairroItem } from "@/data/guide-data";
 
 function mapSupabaseToBairro(row: any): BairroItem {
   const adr = row.adr_medio_studio ?? 300;
-  const occ = row.ocupacao_media_studio ?? 75;
+  // ocupacao_media_studio é NUMERIC(5,4) → fração 0–1 (ex.: 0.75). A UI usa
+  // percentual (0–100), então convertemos. Aceita também valores já em %
+  // (> 1) por robustez, caso alguma linha legada esteja em percentual.
+  const occRaw = row.ocupacao_media_studio ?? 0.75;
+  const occ = occRaw <= 1 ? occRaw * 100 : occRaw;
   const area = row.area_media_estudio ?? 30;
   const perSqm = +(adr / area).toFixed(1);
   const dailyMin = Math.round(adr * 0.8);
