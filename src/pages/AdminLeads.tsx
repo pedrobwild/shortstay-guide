@@ -253,6 +253,21 @@ export default function AdminLeads() {
                       <TableCell className="text-muted-foreground tabular-nums">
                         {fmtDate(lead.created_at)}
                       </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col gap-1">
+                          <Badge variant="outline" className={STAGE_META[lead.stage].className}>
+                            {STAGE_META[lead.stage].label}
+                          </Badge>
+                          <span className="text-[11px] text-muted-foreground tabular-nums">
+                            {(() => {
+                              const d = daysInStage(lead.stage_entered_at);
+                              if (d === null) return "—";
+                              if (d === 0) return "hoje";
+                              return `há ${d} ${d === 1 ? "dia" : "dias"}`;
+                            })()}
+                          </span>
+                        </div>
+                      </TableCell>
                       <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                         <Button asChild size="icon" variant="ghost" className="h-8 w-8">
                           <a
