@@ -308,6 +308,12 @@ function compare(a: ScoredLead, b: ScoredLead, key: SortKey): number {
       return a.event_count - b.event_count;
     case "created_at":
       return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    case "stage_days": {
+      // Quanto mais tempo na etapa, "maior" — leads parados sobem ao ordenar desc.
+      const da = daysInStage(a.stage_entered_at) ?? -1;
+      const db = daysInStage(b.stage_entered_at) ?? -1;
+      return da - db;
+    }
   }
 }
 
