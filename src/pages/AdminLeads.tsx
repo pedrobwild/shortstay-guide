@@ -221,6 +221,7 @@ export default function AdminLeads() {
                       className="text-right"
                     />
                     <SortHead label="Capturado" col="created_at" filters={filters} onSort={setSort} />
+                    <SortHead label="Etapa" col="stage_days" filters={filters} onSort={setSort} />
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
