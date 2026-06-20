@@ -34,7 +34,25 @@ import { TIER_META, type LeadTier } from "@/lib/leadScore";
 import { whatsappHref, fmtBRL, fmtDate } from "@/lib/adminFormat";
 import LeadDetailSheet from "@/components/admin/LeadDetailSheet";
 
-type SortKey = "name" | "neighborhood" | "score" | "property_value" | "event_count" | "created_at";
+type SortKey = "name" | "neighborhood" | "score" | "property_value" | "event_count" | "created_at" | "stage_days";
+
+const STAGE_META: Record<ScoredLead["stage"], { label: string; className: string }> = {
+  lead: { label: "Lead", className: "bg-muted text-muted-foreground border-transparent" },
+  projecao: { label: "Projeção", className: "bg-blue-100 text-blue-800 border-transparent dark:bg-blue-950 dark:text-blue-200" },
+  valor: { label: "Valor do imóvel", className: "bg-amber-100 text-amber-800 border-transparent dark:bg-amber-950 dark:text-amber-200" },
+  conexao: { label: "Conexão", className: "bg-purple-100 text-purple-800 border-transparent dark:bg-purple-950 dark:text-purple-200" },
+  operando: { label: "Operando", className: "bg-emerald-100 text-emerald-800 border-transparent dark:bg-emerald-950 dark:text-emerald-200" },
+};
+
+/** Dias inteiros desde a entrada na etapa atual. Null se não houver timestamp. */
+function daysInStage(stageEnteredAt: string | null): number | null {
+  if (!stageEnteredAt) return null;
+  const entered = new Date(stageEnteredAt).getTime();
+  if (!Number.isFinite(entered)) return null;
+  const diffMs = Date.now() - entered;
+  if (diffMs < 0) return 0;
+  return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+}
 type SortDir = "asc" | "desc";
 
 interface Filters {
@@ -203,6 +221,7 @@ export default function AdminLeads() {
                       className="text-right"
                     />
                     <SortHead label="Capturado" col="created_at" filters={filters} onSort={setSort} />
+                    <SortHead label="Etapa" col="stage_days" filters={filters} onSort={setSort} />
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -233,6 +252,21 @@ export default function AdminLeads() {
                       </TableCell>
                       <TableCell className="text-muted-foreground tabular-nums">
                         {fmtDate(lead.created_at)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col gap-1">
+                          <Badge variant="outline" className={STAGE_META[lead.stage].className}>
+                            {STAGE_META[lead.stage].label}
+                          </Badge>
+                          <span className="text-[11px] text-muted-foreground tabular-nums">
+                            {(() => {
+                              const d = daysInStage(lead.stage_entered_at);
+                              if (d === null) return "—";
+                              if (d === 0) return "hoje";
+                              return `há ${d} ${d === 1 ? "dia" : "dias"}`;
+                            })()}
+                          </span>
+                        </div>
                       </TableCell>
                       <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                         <Button asChild size="icon" variant="ghost" className="h-8 w-8">
@@ -274,6 +308,12 @@ function compare(a: ScoredLead, b: ScoredLead, key: SortKey): number {
       return a.event_count - b.event_count;
     case "created_at":
       return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    case "stage_days": {
+      // Quanto mais tempo na etapa, "maior" — leads parados sobem ao ordenar desc.
+      const da = daysInStage(a.stage_entered_at) ?? -1;
+      const db = daysInStage(b.stage_entered_at) ?? -1;
+      return da - db;
+    }
   }
 }
 

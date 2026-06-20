@@ -583,6 +583,37 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_lead_scores: {
+        Args: never
+        Returns: {
+          area_sqm: string
+          assumption_adr: number
+          chatbot_interactions: number
+          created_at: string
+          cta_clicks: number
+          event_count: number
+          exported_simulation: boolean
+          has_account: boolean
+          has_assumptions: boolean
+          last_event_at: string
+          lead_id: string
+          max_scroll: number
+          name: string
+          neighborhood: string
+          objective: string
+          project_count: number
+          property_value: number
+          quiz_interactions: number
+          sections_viewed: number
+          session_id: string
+          simulator_uses: number
+          source: string
+          stage: string
+          stage_entered_at: string
+          user_id: string
+          whatsapp: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

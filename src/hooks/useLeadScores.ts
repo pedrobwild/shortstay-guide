@@ -28,6 +28,8 @@ export interface LeadScoreRow {
   chatbot_interactions: number;
   cta_clicks: number;
   last_event_at: string | null;
+  stage: "lead" | "projecao" | "valor" | "conexao" | "operando";
+  stage_entered_at: string | null;
 }
 
 /** Lead já enriquecido com o score de prontidão calculado. */
