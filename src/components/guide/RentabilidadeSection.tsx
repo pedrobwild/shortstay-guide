@@ -107,7 +107,7 @@ export default function RentabilidadeSection() {
           <div className="mt-4 bg-muted/50 rounded-lg p-3 flex items-start gap-2.5">
             <AlertCircle size={14} className="text-muted-foreground mt-0.5 shrink-0" />
             <p className="text-xs text-muted-foreground font-body">
-              Exemplo baseado em studio de 30m² em Pinheiros, ADR R$ 350, ocupação 75%. Valores reais variam por unidade e operação.
+              Exemplo baseado em studio de 30m² em Pinheiros, ADR R$ 350, ocupação 75%. A taxa de limpeza não entra na conta porque é paga pelo hóspede. Valores reais variam por unidade e operação.
             </p>
           </div>
         </CardContent>
