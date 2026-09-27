@@ -53,6 +53,11 @@
     },
     {
       "type": "Feature",
+      "properties": { "id": "mooca", "name": "Mooca", "score": 82, "nightlyRate": 320, "occupancy": 70, "estimatedROI": 15.6, "revenueMonth": 6720, "listingsCount": 1600, "adrMin": 260, "adrMax": 390 },
+      "geometry": { "type": "Polygon", "coordinates": [[[-46.6050,-23.5480],[-46.5950,-23.5460],[-46.5880,-23.5520],[-46.5890,-23.5620],[-46.5970,-23.5660],[-46.6060,-23.5600],[-46.6050,-23.5480]]] }
+    },
+    {
+      "type": "Feature",
       "properties": { "id": "brooklin", "name": "Brooklin", "score": 84, "nightlyRate": 370, "occupancy": 70, "estimatedROI": 14.6, "revenueMonth": 7770, "listingsCount": 1600, "adrMin": 300, "adrMax": 440 },
       "geometry": { "type": "Polygon", "coordinates": [[[-46.7050,-23.6050],[-46.6960,-23.6030],[-46.6870,-23.6080],[-46.6860,-23.6180],[-46.6920,-23.6230],[-46.7020,-23.6200],[-46.7070,-23.6130],[-46.7050,-23.6050]]] }
     }
