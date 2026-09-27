@@ -12,11 +12,10 @@ const WATERFALL = [
   { label: "Receita Bruta", desc: "ADR × noites ocupadas/mês", example: "R$ 9.000", type: "revenue" as const },
   { label: "Comissão plataforma", desc: "~15% (Airbnb + processamento)", example: "- R$ 1.350", type: "cost" as const },
   { label: "Gestão operacional", desc: "~18% (se terceirizada)", example: "- R$ 1.620", type: "cost" as const },
-  { label: "Limpeza por virada", desc: "~R$ 100/virada × ~8 viradas/mês", example: "- R$ 800", type: "cost" as const },
   { label: "Condomínio", desc: "Custo fixo mensal", example: "- R$ 500", type: "fixed" as const },
   { label: "IPTU + Utilidades", desc: "Luz, água, internet, gás", example: "- R$ 500", type: "fixed" as const },
   { label: "Impostos", desc: "~6% (Simples/MEI)", example: "- R$ 540", type: "cost" as const },
-  { label: "Receita Líquida", desc: "O que sobra no bolso", example: "R$ 3.690", type: "result" as const },
+  { label: "Receita Líquida", desc: "O que sobra no bolso", example: "R$ 4.490", type: "result" as const },
 ];
 
 /* ── Scenarios ── */
@@ -27,7 +26,7 @@ const SCENARIOS = [
     icon: TrendingDown,
     color: "border-amber-500/30 bg-amber-500/[0.03]",
     badgeColor: "bg-amber-100 text-amber-800",
-    metrics: { ocupacao: "65%", adr: "R$ 280", receitaBruta: "R$ 5.460", receitaLiquida: "R$ 1.200", yield: "~5%", payback: "~14 anos" },
+    metrics: { ocupacao: "65%", adr: "R$ 280", receitaBruta: "R$ 5.460", receitaLiquida: "R$ 2.000", yield: "~6%", payback: "~11 anos" },
     desc: "Primeiros meses, baixa temporada ou bairro menos aquecido.",
   },
   {
@@ -36,7 +35,7 @@ const SCENARIOS = [
     icon: Minus,
     color: "border-primary/30 bg-primary/[0.03]",
     badgeColor: "bg-primary/10 text-primary",
-    metrics: { ocupacao: "75%", adr: "R$ 350", receitaBruta: "R$ 7.875", receitaLiquida: "R$ 2.560", yield: "~8%", payback: "~8 anos" },
+    metrics: { ocupacao: "75%", adr: "R$ 350", receitaBruta: "R$ 7.875", receitaLiquida: "R$ 3.360", yield: "~10%", payback: "~7 anos" },
     desc: "Operação estabilizada com boa gestão e produto adequado.",
   },
   {
@@ -45,7 +44,7 @@ const SCENARIOS = [
     icon: TrendingUp,
     color: "border-emerald-500/30 bg-emerald-500/[0.03]",
     badgeColor: "bg-emerald-100 text-emerald-800",
-    metrics: { ocupacao: "85%", adr: "R$ 420", receitaBruta: "R$ 10.710", receitaLiquida: "R$ 4.100", yield: "~12%", payback: "~5 anos" },
+    metrics: { ocupacao: "85%", adr: "R$ 420", receitaBruta: "R$ 10.710", receitaLiquida: "R$ 4.900", yield: "~15%", payback: "~4 anos" },
     desc: "Studio premium, fotos profissionais, preço dinâmico e localização top.",
   },
 ];
@@ -55,7 +54,7 @@ const SENSITIVITY = [
   { driver: "Ocupação", impact: "Alto", desc: "Cada 5pp de ocupação = ~R$ 500/mês de receita bruta", icon: Percent, color: "text-primary" },
   { driver: "Diária média (ADR)", impact: "Alto", desc: "Cada R$ 50 a mais na diária = ~R$ 1.125/mês bruto a 75% de ocupação", icon: DollarSign, color: "text-primary" },
   { driver: "Condomínio", impact: "Médio", desc: "Custo fixo que não escala — condomínios > R$ 1.200 comprimem margem", icon: Building2, color: "text-amber-600" },
-  { driver: "Gestão + Limpeza", impact: "Médio", desc: "Operação própria economiza ~25%, mas exige tempo e processo", icon: Zap, color: "text-amber-600" },
+  { driver: "Gestão operacional", impact: "Médio", desc: "Operação própria economiza ~18% da receita, mas exige tempo e processo", icon: Zap, color: "text-amber-600" },
 ];
 
 type ActiveScenario = "conservador" | "base" | "agressivo";
@@ -108,7 +107,7 @@ export default function RentabilidadeSection() {
           <div className="mt-4 bg-muted/50 rounded-lg p-3 flex items-start gap-2.5">
             <AlertCircle size={14} className="text-muted-foreground mt-0.5 shrink-0" />
             <p className="text-xs text-muted-foreground font-body">
-              Exemplo baseado em studio de 30m² em Pinheiros, ADR R$ 350, ocupação 75%. Valores reais variam por unidade e operação.
+              Exemplo baseado em studio de 30m² em Pinheiros, ADR R$ 350, ocupação 75%. A taxa de limpeza não entra na conta porque é paga pelo hóspede. Valores reais variam por unidade e operação.
             </p>
           </div>
         </CardContent>
