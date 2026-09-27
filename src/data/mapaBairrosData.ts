@@ -196,7 +196,7 @@ export const HEAT_POINTS: HeatPoint[] = [
   { id: "hp10", lat: -23.54, lng: -46.64, demandScore: 79, occupancyEstimate: 67, adrEstimate: 300, areaName: "República", coordinates: { x: 54, y: 30 } },
   { id: "hp11", lat: -23.51, lng: -46.63, demandScore: 81, occupancyEstimate: 66, adrEstimate: 310, areaName: "Santana", coordinates: { x: 56, y: 10 } },
   { id: "hp12", lat: -23.54, lng: -46.46, demandScore: 78, occupancyEstimate: 62, adrEstimate: 260, areaName: "Itaquera", coordinates: { x: 85, y: 25 } },
-  { id: "hp16", lat: -23.5555, lng: -46.598, demandScore: 80, occupancyEstimate: 70, adrEstimate: 320, areaName: "Mooca", coordinates: { x: 68, y: 30 } },
+  { id: "hp16", lat: -23.5555, lng: -46.598, demandScore: 80, occupancyEstimate: 62, adrEstimate: 220, areaName: "Mooca", coordinates: { x: 68, y: 30 } },
   { id: "hp13", lat: -23.57, lng: -46.70, demandScore: 70, occupancyEstimate: 67, adrEstimate: 360, areaName: "Alto de Pinheiros", coordinates: { x: 18, y: 42 } },
   { id: "hp14", lat: -23.55, lng: -46.66, demandScore: 65, occupancyEstimate: 66, adrEstimate: 290, areaName: "Higienópolis", coordinates: { x: 50, y: 28 } },
   { id: "hp15", lat: -23.58, lng: -46.66, demandScore: 82, occupancyEstimate: 71, adrEstimate: 390, areaName: "Paraíso", coordinates: { x: 52, y: 50 } },
