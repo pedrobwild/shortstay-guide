@@ -161,13 +161,13 @@ export const DISTRICTS_MOCK: DistrictRow[] = [
     score: 82,
     chips: ["Misto", "Próximo ao metrô"],
     roiPercent: 15.6,
-    nightlyRateBRL: 320,
-    occupancyPercent: 70,
-    revenueMonthBRL: 6720,
-    adrRangeLabel: "R$260–R$390",
+    nightlyRateBRL: 220,
+    occupancyPercent: 62,
+    revenueMonthBRL: 4149,
+    adrRangeLabel: "R$133–R$326",
     listingsCount: 1600,
     competition: "Média",
-    sourceLabel: "Estimativa Bwild (comparáveis) — substituir por dados reais",
+    sourceLabel: "Diária: Airbnb público (18 anúncios, set/2026) · Ocupação: estimativa",
     recommendation: {
       bestStudioType: "Funcional residencial + estadias médias",
       whyItWorks:
