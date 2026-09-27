@@ -157,6 +157,33 @@ export const DISTRICTS_MOCK: DistrictRow[] = [
     },
   },
   {
+    districtName: "Mooca",
+    score: 82,
+    chips: ["Misto", "Próximo ao metrô"],
+    roiPercent: 15.6,
+    nightlyRateBRL: 320,
+    occupancyPercent: 70,
+    revenueMonthBRL: 6720,
+    adrRangeLabel: "R$260–R$390",
+    listingsCount: 1600,
+    competition: "Média",
+    sourceLabel: "Estimativa Bwild (comparáveis) — substituir por dados reais",
+    recommendation: {
+      bestStudioType: "Funcional residencial + estadias médias",
+      whyItWorks:
+        "Bairro residencial consolidado na Zona Leste: bom comércio, Anália Franco por perto e acesso fácil ao centro.",
+      tips: [
+        "Cozinha completa + lavanderia — atrai estadias mais longas.",
+        "Check-in autônomo; público da região valoriza praticidade.",
+        "Preço dinâmico em eventos no centro e Expo Center Norte.",
+      ],
+      risks: [
+        "Demanda menos turística: performance vem de ocupação consistente.",
+        "Saturação baixa hoje, mas oferta pode crescer rápido na Zona Leste.",
+      ],
+    },
+  },
+  {
     districtName: "Moema",
     score: 85,
     chips: ["Misto", "Próximo ao metrô"],
