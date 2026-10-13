@@ -11,11 +11,20 @@ export type Confianca = "alta" | "media" | "baixa";
 export type LinhaRadar = {
   indicador: string; bairro: string; valor: number; amostra_n: number | null;
   periodo_inicio: string | null; periodo_fim: string | null; fonte_id: string; fonte_nome: string;
-  fonte_tipo: string; url_origem: string | null; coletado_em: string; confianca: Confianca;
+  fonte_tipo: string; url_origem: string | null; coletado_em: string; confianca: Confianca; idade_dias?: number;
 };
 export type BairroRadar = BairroCurado & {
-  fonteNome: string; coletadoEm: string | null; amostraN: number | null; confianca: Confianca | null; estimativa: boolean;
+  fonteNome: string; fonteTipo: string; coletadoEm: string | null; idadeDias: number | null; amostraN: number | null; confianca: Confianca | null; estimativa: boolean;
 };
+
+/** Qualidade da amostra e idade não mudam o tipo da fonte nem a confiança da view. */
+export function alertasFonteRadar(b: BairroRadar) {
+  return {
+    estimativa: b.fonteTipo === "estimativa",
+    amostraPequena: b.fonteTipo === "publica" && b.confianca === "baixa" && b.amostraN != null && b.amostraN < 200,
+    desatualizado: b.fonteTipo === "publica" && b.idadeDias != null && b.idadeDias > 240,
+  };
+}
 
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 export function rotuloPeriodo(ini: string | null, fim: string | null): string | null {
@@ -34,14 +43,14 @@ export function montarBairros(linhas: LinhaRadar[]): BairroRadar[] {
   const grupos = new Map<string, Map<string, LinhaRadar>>();
   for (const l of linhas) {
     if (!grupos.has(l.bairro)) grupos.set(l.bairro, new Map());
-    grupos.get(l.bairro)!.set(l.indicador, l);
+    grupos.get(l.bairro)?.set(l.indicador, l);
   }
   const out: BairroRadar[] = [];
   for (const [name, g] of grupos) {
     if (name === CIDADE) continue;
     const occ = g.get("ocupacao_media_pct"), adr = g.get("adr_medio_brl");
     if (!occ || !adr) continue;
-    const v = (k: string) => (g.has(k) ? Number(g.get(k)!.valor) : null);
+    const v = (k: string) => { const linha = g.get(k); return linha ? Number(linha.valor) : null; };
     const estimativa = adr.fonte_tipo === "estimativa";
     const p25 = v("adr_p25_brl"), med = v("adr_mediana_brl"), p75 = v("adr_p75_brl");
     const dailyAvg = Number(adr.valor);
@@ -55,8 +64,8 @@ export function montarBairros(linhas: LinhaRadar[]): BairroRadar[] {
       ocupacaoFonte: estimativa ? "bewild" : "guestfavorites",
       period: rotuloPeriodo(adr.periodo_inicio, adr.periodo_fim),
       sourceUrl: adr.url_origem,
-      fonteNome: adr.fonte_nome, coletadoEm: adr.coletado_em, amostraN: adr.amostra_n,
-      confianca, estimativa: estimativa || confianca === "baixa",
+      fonteNome: adr.fonte_nome, fonteTipo: adr.fonte_tipo, coletadoEm: adr.coletado_em, idadeDias: adr.idade_dias ?? null, amostraN: adr.amostra_n,
+      confianca, estimativa,
     });
   }
   return out.sort((a, b) => (ORDEM.get(a.name) ?? 99) - (ORDEM.get(b.name) ?? 99) || a.name.localeCompare(b.name, "pt-BR"));
@@ -66,7 +75,8 @@ export function montarBairros(linhas: LinhaRadar[]): BairroRadar[] {
 export function bairrosReserva(): BairroRadar[] {
   return BAIRROS_CURADOS.map((b) => ({
     ...b, fonteNome: b.ocupacaoFonte === "guestfavorites" ? "GuestFavorites" : "Estimativa Bewild",
-    coletadoEm: "2026-10-13", amostraN: b.activeListings, confianca: null, estimativa: b.ocupacaoFonte === "bewild",
+    fonteTipo: b.ocupacaoFonte === "guestfavorites" ? "publica" : "estimativa",
+    coletadoEm: "2026-10-13", idadeDias: null, amostraN: b.activeListings, confianca: null, estimativa: b.ocupacaoFonte === "bewild",
   }));
 }
 
