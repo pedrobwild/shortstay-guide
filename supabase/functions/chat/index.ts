@@ -7,6 +7,22 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Espelho de src/data/bairrosCurados.ts (edge function não importa src/).
+const BAIRROS_CURADOS: Record<string, { min: number; max: number; media: number; ocupacao: number; gf: boolean }> = {
+  "bela vista": { min: 240, max: 370, media: 305, ocupacao: 64, gf: true },
+  "brooklin": { min: 290, max: 430, media: 360, ocupacao: 75, gf: false },
+  "consolacao": { min: 260, max: 390, media: 325, ocupacao: 63, gf: true },
+  "itaim bibi": { min: 350, max: 520, media: 435, ocupacao: 59, gf: true },
+  "jardim paulista": { min: 360, max: 520, media: 440, ocupacao: 62, gf: true },
+  "liberdade": { min: 220, max: 340, media: 280, ocupacao: 73, gf: false },
+  "moema": { min: 300, max: 450, media: 375, ocupacao: 61, gf: true },
+  "pinheiros": { min: 320, max: 480, media: 400, ocupacao: 62, gf: true },
+  "republica": { min: 200, max: 310, media: 255, ocupacao: 72, gf: false },
+  "vila mariana": { min: 280, max: 420, media: 350, ocupacao: 60, gf: true },
+  "vila olimpia": { min: 330, max: 500, media: 415, ocupacao: 79, gf: false },
+};
+const normNome = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+
 async function loadBairrosContext(): Promise<string> {
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -23,18 +39,32 @@ async function loadBairrosContext(): Promise<string> {
   }
 
   const lines = bairros.map((b) => {
+    const c = BAIRROS_CURADOS[normNome(b.bairro)];
     const precoEstudio = (b.preco_m2_residencial_medio ?? 0) * (b.area_media_estudio ?? 30);
+    const est = `(estimativa de mercado — base 2025, ${b.periodo_inicio} a ${b.periodo_fim}, confiança ${b.nivel_confianca_dados})`;
+    const curadas = c
+      ? [
+          `- Diária (Bewild): R$${c.min}–R$${c.max}, média R$${c.media}`,
+          `- Ocupação: ${c.ocupacao}%${c.gf ? " (mediana GuestFavorites jan–ago/2026)" : " (Bewild)"}`,
+          `- Receita mensal de referência (diária média × 30 × ocupação): R$${Math.round(c.media * 30 * c.ocupacao / 100)}`,
+        ]
+      : [
+          `- ADR médio ${est}: R$${Number(b.adr_medio_studio).toFixed(0)}`,
+          `- Ocupação média ${est}: ${(Number(b.ocupacao_media_studio) * 100).toFixed(1)}%`,
+          `- Receita anual média (studio) ${est}: R$${Number(b.receita_anual_media_studio).toFixed(0)}`,
+        ];
     return [
       `## ${b.bairro}`,
-      `- ADR médio: R$${Number(b.adr_medio_studio).toFixed(0)}`,
-      `- Ocupação média: ${(Number(b.ocupacao_media_studio) * 100).toFixed(1)}%`,
-      `- Receita anual média (studio): R$${Number(b.receita_anual_media_studio).toFixed(0)}`,
+      ...curadas,
+      `- Demais métricas abaixo: ${est}`,
       `- Preço m² residencial: R$${Number(b.preco_m2_residencial_medio).toFixed(0)}`,
       `- Preço estimado studio (${b.area_media_estudio}m²): R$${precoEstudio.toFixed(0)}`,
       `- Aluguel mensal long-term: R$${Number(b.aluguel_mensal_long_term_medio).toFixed(0)}`,
-      `- Yield bruto Airbnb: ${(Number(b.yield_bruto_airbnb) * 100).toFixed(2)}%`,
+      ...(c ? [] : [
+        `- Yield bruto Airbnb: ${(Number(b.yield_bruto_airbnb) * 100).toFixed(2)}%`,
+        `- Delta yield (Airbnb - long-term): ${(Number(b.delta_yield) * 100).toFixed(2)}pp`,
+      ]),
       `- Yield bruto long-term: ${(Number(b.yield_bruto_long_term) * 100).toFixed(2)}%`,
-      `- Delta yield (Airbnb - long-term): ${(Number(b.delta_yield) * 100).toFixed(2)}pp`,
       `- Score Rentabilidade: ${Number(b.score_rentabilidade).toFixed(1)}/100`,
       `- Score Liquidez: ${Number(b.score_liquidez).toFixed(1)}/100`,
       `- Score Crescimento Potencial: ${Number(b.score_crescimento_potencial).toFixed(1)}/100`,
@@ -42,8 +72,6 @@ async function loadBairrosContext(): Promise<string> {
       `- Rating médio: ${Number(b.rating_medio).toFixed(2)} | Superhosts: ${(Number(b.percentual_superhost) * 100).toFixed(1)}%`,
       `- Grau saturação: ${Number(b.grau_saturacao_index).toFixed(2)} | Risco regulatório: ${Number(b.risco_regulatorio).toFixed(2)}`,
       `- Dias médios venda imóvel: ${b.dias_medio_venda_imovel} | Transações/ano: ${b.numero_transacoes_imobiliarias_ano}`,
-      `- Nível confiança: ${b.nivel_confianca_dados}`,
-      `- Período: ${b.periodo_inicio} a ${b.periodo_fim}`,
     ].join("\n");
   });
 
