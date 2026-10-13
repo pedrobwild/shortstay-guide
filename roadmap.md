@@ -18,3 +18,5 @@
 - [x] Recalcular somente exemplos de reforma com o estudo de 188 contratos, preservando simuladores e case.
 
 - [x] Reescrever afirmações restantes em tendências, critérios de reserva, reforma, precificação e metragem com fontes existentes; 173 testes passaram e detalhes da tendência conferidos no navegador. Dados e cálculos preservados; sem publicar.
+
+- [x] Gerar OG 1200×630 com Pinheiros (R$ 300/62%), Bela Vista (R$ 237/64%) e Vila Mariana (R$ 226/60%) e fonte GuestFavorites; atualizar head e pré-render. Imagem e metadados conferidos no navegador; 173 testes passaram, build automático OK; sem publicar.
