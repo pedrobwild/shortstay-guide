@@ -1,5 +1,5 @@
 {
-  "siteUrl": "https://radar.bewild.com.br",
+  "siteUrl": "https://radarbewild.com.br",
   "siteName": "Radar Bewild",
   "routes": [
     { "path": "/", "title": "Radar Bewild: guia do investidor em studios para short stay em SP", "description": "Guia completo para investir em studios compactos para Airbnb em São Paulo: dados de mercado por bairro, simulador de rentabilidade e checklist do investidor.", "h1": "Guia do Investidor em Studios para Short Stay", "priority": "1.0" },

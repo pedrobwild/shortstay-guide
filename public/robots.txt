@@ -19,4 +19,4 @@ Allow: /
 Disallow: /admin
 Disallow: /painel
 
-Sitemap: https://radar.bewild.com.br/sitemap.xml
+Sitemap: https://radarbewild.com.br/sitemap.xml
