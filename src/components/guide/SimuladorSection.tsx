@@ -18,6 +18,7 @@ import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { useBairroData } from "@/hooks/useBairroData";
 import SectionBlock from "./SectionBlock";
 import { fmt, type SavedScenario, loadScenarios, persistScenarios } from "@/data/guide-data";
+import { slugifyBairro } from "@/lib/seo";
 
 type CellValue = string | number | null | undefined;
 
@@ -47,6 +48,20 @@ export default function SimuladorSection() {
     return () => window.removeEventListener("populate-simulator", handler);
   }, []);
 
+  // Pré-seleção vinda de outras telas (ex.: página de bairro → "/?bairro=pinheiros#simulador").
+  // Só lê a URL no navegador; aplica quando a lista de bairros contém o slug pedido.
+  const bairroDaUrlAplicado = useRef(false);
+  useEffect(() => {
+    if (bairroDaUrlAplicado.current || typeof window === "undefined") return;
+    const pedido = new URLSearchParams(window.location.search).get("bairro");
+    if (!pedido) return;
+    const alvo = bairros.find((b) => slugifyBairro(b.name) === slugifyBairro(pedido));
+    if (alvo) {
+      setSimBairro(alvo.name);
+      bairroDaUrlAplicado.current = true;
+    }
+  }, [bairros]);
+
   const selected = bairros.find((b) => b.name === simBairro) ?? bairros[0];
 
   const sim = useMemo(() => {
@@ -71,7 +86,7 @@ export default function SimuladorSection() {
       (rateBoost > 0 ? `Diária c/ boost +${rateBoost}%: R$ ${fmt(sim.boostedDaily)}\n` : "") +
       `\nReceita mensal: R$ ${fmt(sim.receitaMensal)}\nReceita anual: R$ ${fmt(sim.receitaAnual)}\n` +
       (sim.paybackMonths ? `\nPayback da reforma: ~${sim.paybackMonths} meses\n` : "") +
-      `\nGerado em guiadoinvestidor.com.br`;
+      `\nGerado no Radar Bewild · radarbewild.com.br`;
   }, [simBairro, simMetragem, simOcupacao, sim, rateBoost]);
 
   const handleCopy = () => { navigator.clipboard.writeText(summaryText); setCopied(true); trackGlobal("export_simulation", { bairro: simBairro, metragem: simMetragem, ocupacao: simOcupacao[0], resultado: sim.receitaMensal }); setTimeout(() => setCopied(false), 2000); };

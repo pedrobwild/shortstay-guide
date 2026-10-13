@@ -33,7 +33,7 @@ export const SECTIONS = [
   // Bloco 1 — Onde investir
   { id: "mapa-bairros", label: "Mapa de Bairros", icon: MapPin, phase: 1 },
   { id: "mercado", label: "Mercado e Precificação", icon: DollarSign, phase: 1 },
-  { id: "intelligence", label: "Short Stay Intelligence", icon: BarChart3, href: "/mercado", phase: 1 },
+  { id: "intelligence", label: "Inteligência de mercado", icon: BarChart3, href: "/mercado", phase: 1 },
   // Bloco 2 — Como validar a conta
   { id: "escolha-ativo", label: "Escolha do Ativo", icon: Building2, phase: 2 },
   { id: "rentabilidade", label: "Matemática do Investimento", icon: PieChart, phase: 2 },

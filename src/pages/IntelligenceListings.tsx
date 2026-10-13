@@ -1,3 +1,4 @@
+import AppNavbar from "@/components/AppNavbar";
 import { formatDecimal } from "@/lib/numberFormat";
 import { bairroPath } from "@/lib/seo";
 import { useState } from "react";
@@ -22,12 +23,13 @@ const IntelligenceListings = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <AppNavbar fixo={false} />
       <header className="bg-hero-gradient text-primary-foreground">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-1.5 text-primary-foreground/50 text-xs mb-3">
-                <Link to="/mercado" className="hover:text-primary-foreground/80 transition-colors">Intelligence</Link>
+                <Link to="/mercado" className="hover:text-primary-foreground/80 transition-colors">Inteligência de mercado</Link>
                 <ChevronRight className="h-3 w-3" />
                 <span className="text-primary-foreground/80">Listings</span>
               </div>
