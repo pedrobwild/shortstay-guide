@@ -177,7 +177,7 @@ export function resolveProfile(answers: QuizAnswers): InvestorProfile {
   if (PROFILES[key]) return PROFILES[key];
 
   // Dynamic weight calculation based on answers
-  let weights = { retorno: 0.25, demanda: 0.25, operacao: 0.25, futuro: 0.25 };
+  const weights = { retorno: 0.25, demanda: 0.25, operacao: 0.25, futuro: 0.25 };
 
   // Objective adjustments
   if (answers.objective === "renda") {

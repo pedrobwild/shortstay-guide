@@ -6,12 +6,13 @@ import { motion } from "framer-motion";
 import {
   MapPin, Building2, Calculator, Paintbrush, Megaphone, ShieldCheck,
   CheckCircle2, AlertCircle, ArrowRight, Rocket, Target,
+  type LucideIcon,
 } from "lucide-react";
 import SectionBlock from "./SectionBlock";
 import { useGuideDecision } from "@/hooks/useGuideDecision";
 
 interface ActionStep {
-  icon: any;
+  icon: LucideIcon;
   title: string;
   description: string;
   status: "done" | "action" | "warning" | "pending";

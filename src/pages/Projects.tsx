@@ -33,8 +33,8 @@ export default function Projects() {
         .order("created_at", { ascending: false });
       if (error) throw error;
       setProjects((data as Project[]) || []);
-    } catch (err: any) {
-      toast({ title: "Erro ao carregar projetos", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Erro ao carregar projetos", description: (err instanceof Error ? err.message : "Erro inesperado"), variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -59,8 +59,8 @@ export default function Projects() {
       setNewName("");
       setShowForm(false);
       await fetchProjects();
-    } catch (err: any) {
-      toast({ title: "Erro ao criar projeto", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Erro ao criar projeto", description: (err instanceof Error ? err.message : "Erro inesperado"), variant: "destructive" });
     } finally {
       setCreating(false);
     }
@@ -104,8 +104,8 @@ export default function Projects() {
       });
 
       navigate(`/projeto/${project.id}`);
-    } catch (err: any) {
-      toast({ title: "Erro ao criar projeto demo", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Erro ao criar projeto demo", description: (err instanceof Error ? err.message : "Erro inesperado"), variant: "destructive" });
     } finally {
       setCreatingDemo(false);
     }

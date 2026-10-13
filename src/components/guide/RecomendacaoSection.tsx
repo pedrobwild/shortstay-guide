@@ -13,6 +13,7 @@ import { useGuideDecision } from "@/hooks/useGuideDecision";
 import { useBairrosData, fmtBRL, fmtPct } from "@/hooks/useIntelligenceData";
 import { generateRecommendations, type Recommendation } from "@/lib/investorQuiz";
 import { getBairroProfile } from "@/lib/intelligenceInsights";
+import type { BairroAirbnb } from "@/types/intelligence";
 
 export default function RecomendacaoSection() {
   const { investorProfile, quizAnswers, hasProfile, unitScore } = useGuideDecision();
@@ -123,7 +124,7 @@ export default function RecomendacaoSection() {
 
 function RecommendationCard({
   rec, rank, bairros,
-}: { rec: Recommendation; rank: number; bairros: any[] }) {
+}: { rec: Recommendation; rank: number; bairros: BairroAirbnb[] }) {
   const profile = getBairroProfile(rec.bairro, bairros);
   const medalColors = ["bg-amber-500", "bg-gray-400", "bg-amber-700"];
 

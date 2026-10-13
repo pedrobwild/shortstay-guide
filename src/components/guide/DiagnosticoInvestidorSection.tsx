@@ -7,12 +7,13 @@ import {
   Target, ChevronRight, ChevronLeft, CheckCircle2,
   Banknote, TrendingUp, Scale, Shield, Gauge, Rocket,
   CalendarCheck, ArrowUpRight, Sparkles, User,
+  type LucideIcon,
 } from "lucide-react";
 import SectionBlock from "./SectionBlock";
-import { QUIZ_QUESTIONS, resolveProfile, type QuizAnswers } from "@/lib/investorQuiz";
+import { QUIZ_QUESTIONS, resolveProfile, type QuizAnswers, type InvestorProfile } from "@/lib/investorQuiz";
 import { useGuideDecision } from "@/hooks/useGuideDecision";
 
-const ICON_MAP: Record<string, any> = {
+const ICON_MAP: Record<string, LucideIcon> = {
   Banknote, TrendingUp, Scale, Shield, Gauge, Rocket,
   CalendarCheck, ArrowUpRight, Sparkles,
 };
@@ -49,7 +50,7 @@ export default function DiagnosticoInvestidorSection() {
     setAnswers({});
     setInvestorDiagnostic(
       { objective: "", risk: "", priority: "" },
-      null as any
+      null as unknown as InvestorProfile
     );
   };
 

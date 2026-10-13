@@ -59,8 +59,8 @@ export default function AirbnbConnectionForm({
       setIcalUrl("");
       setValidationError(null);
       onConnectionCreated();
-    } catch (err: any) {
-      toast({ title: "Erro ao salvar", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Erro ao salvar", description: (err instanceof Error ? err.message : "Erro inesperado"), variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -87,8 +87,8 @@ export default function AirbnbConnectionForm({
         description: "Clique em Sincronizar para gerar eventos de exemplo.",
       });
       onConnectionCreated();
-    } catch (err: any) {
-      toast({ title: "Erro ao criar teste", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Erro ao criar teste", description: (err instanceof Error ? err.message : "Erro inesperado"), variant: "destructive" });
     } finally {
       setSaving(false);
     }

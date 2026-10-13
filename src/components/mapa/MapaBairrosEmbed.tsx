@@ -24,7 +24,7 @@ import {
 import ROIRanking from "@/components/mapa/ROIRanking";
 import NeighborhoodComparison from "@/components/mapa/NeighborhoodComparison";
 import ReactMap, { Marker, Popup, NavigationControl, Source, Layer, MapRef } from "react-map-gl/maplibre";
-import type { MapLayerMouseEvent, GeoJSONSource } from "maplibre-gl";
+import type { MapLayerMouseEvent, GeoJSONSource, ExpressionSpecification } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 /* ─── ROI Simulator ─── */
@@ -426,13 +426,14 @@ function InteractiveMap({
           const filteredGeoJSON: GeoJSON.FeatureCollection = {
             type: "FeatureCollection",
             features: poisGeoJSON.features.filter(f =>
-              showPOIs.includes((f.properties as any)?.category as POICategoryKey)
+              showPOIs.includes((f.properties as { category?: string } | null)?.category as POICategoryKey)
             ),
           };
           // Build a match expression for colors by category
-          const colorExpr: any = ["match", ["get", "category"]];
+          const colorExpr = ["match", ["get", "category"]] as unknown[];
           POI_CATEGORIES.forEach(c => { colorExpr.push(c.key, c.color); });
           colorExpr.push("#888"); // fallback
+          const colorExpression = colorExpr as ExpressionSpecification;
 
           return (
             <Source id="pois-clustered" type="geojson" data={filteredGeoJSON} cluster={true} clusterRadius={40} clusterMaxZoom={14}>
@@ -451,7 +452,7 @@ function InteractiveMap({
               }} paint={{ "text-color": "#fff" }} />
               {/* Individual POI points */}
               <Layer id="poi-unclustered" type="circle" filter={["!", ["has", "point_count"]]} paint={{
-                "circle-color": colorExpr,
+                "circle-color": colorExpression,
                 "circle-radius": 6,
                 "circle-stroke-width": 2,
                 "circle-stroke-color": "#fff",

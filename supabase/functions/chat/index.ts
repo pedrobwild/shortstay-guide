@@ -22,7 +22,7 @@ async function loadBairrosContext(): Promise<string> {
     return "Dados dos bairros indisponíveis no momento.";
   }
 
-  const lines = bairros.map((b: any) => {
+  const lines = bairros.map((b) => {
     const precoEstudio = (b.preco_m2_residencial_medio ?? 0) * (b.area_media_estudio ?? 30);
     return [
       `## ${b.bairro}`,

@@ -54,9 +54,9 @@ export default function AirbnbEventsList({ connectionId }: AirbnbEventsListProps
 
       if (fetchError) throw fetchError;
       setEvents((data as CalendarEvent[]) || []);
-    } catch (err: any) {
-      setError(err.message);
-      toast({ title: "Erro ao carregar eventos", description: err.message, variant: "destructive" });
+    } catch (err) {
+      setError((err instanceof Error ? err.message : "Erro inesperado"));
+      toast({ title: "Erro ao carregar eventos", description: (err instanceof Error ? err.message : "Erro inesperado"), variant: "destructive" });
     } finally {
       setLoading(false);
     }

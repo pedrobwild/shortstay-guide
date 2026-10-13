@@ -1353,7 +1353,16 @@ function SplitBar({
   );
 }
 
-function MonthlyTooltip({ active, payload }: any) {
+type MonthlyTooltipRow = {
+  monthLabel: string;
+  occupancyPct: number;
+  bookedNights: number;
+  blockedNights: number;
+  estimatedRevenueBrl: number;
+  netRevenueBrl?: number;
+};
+
+function MonthlyTooltip({ active, payload }: { active?: boolean; payload?: ReadonlyArray<{ payload: MonthlyTooltipRow }> }) {
   if (!active || !payload || !payload.length) return null;
   const m = payload[0].payload;
   return (

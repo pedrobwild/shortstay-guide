@@ -64,8 +64,8 @@ export default function AirbnbConnectionsList({
 
       if (error) throw error;
       setConnections((data as OtaConnection[]) || []);
-    } catch (err: any) {
-      toast({ title: "Erro ao carregar conexões", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Erro ao carregar conexões", description: (err instanceof Error ? err.message : "Erro inesperado"), variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -99,8 +99,8 @@ export default function AirbnbConnectionsList({
 
       await fetchConnections();
       onDataChanged?.();
-    } catch (err: any) {
-      toast({ title: "Erro na sincronização", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Erro na sincronização", description: (err instanceof Error ? err.message : "Erro inesperado"), variant: "destructive" });
       await fetchConnections();
     } finally {
       setSyncingId(null);
@@ -133,8 +133,8 @@ export default function AirbnbConnectionsList({
       if (expandedId === connectionId) setExpandedId(null);
       await fetchConnections();
       onDataChanged?.();
-    } catch (err: any) {
-      toast({ title: "Erro ao remover", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Erro ao remover", description: (err instanceof Error ? err.message : "Erro inesperado"), variant: "destructive" });
     } finally {
       setDeletingId(null);
     }
@@ -172,8 +172,8 @@ export default function AirbnbConnectionsList({
 
       await fetchConnections();
       onDataChanged?.();
-    } catch (err: any) {
-      toast({ title: "Erro ao gerar demo", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Erro ao gerar demo", description: (err instanceof Error ? err.message : "Erro inesperado"), variant: "destructive" });
     } finally {
       setCreatingDemo(false);
     }

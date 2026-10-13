@@ -29,8 +29,8 @@ export default function ResetPassword() {
       if (error) throw error;
       toast({ title: "Senha atualizada!", description: "Você já pode fazer login." });
       navigate("/login");
-    } catch (err: any) {
-      toast({ title: "Erro", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Erro", description: (err instanceof Error ? err.message : "Erro inesperado"), variant: "destructive" });
     } finally {
       setLoading(false);
     }

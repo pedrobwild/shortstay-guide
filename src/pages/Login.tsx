@@ -21,8 +21,8 @@ export default function Login() {
       if (error) throw error;
       // Cai no painel unificado: visão única de projeção, status e próximos passos.
       navigate("/painel");
-    } catch (err: any) {
-      toast({ title: "Erro ao entrar", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Erro ao entrar", description: (err instanceof Error ? err.message : "Erro inesperado"), variant: "destructive" });
     } finally {
       setLoading(false);
     }
