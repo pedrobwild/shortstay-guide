@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { motion } from "framer-motion";
-import { Ruler, Wrench, Package, Camera, Clock, ShieldCheck } from "lucide-react";
+import { Ruler, Wrench, Package, Clock, ShieldCheck } from "lucide-react";
 import sectionProjeto from "@/assets/section-projeto.jpg";
 import SectionBlock from "./SectionBlock";
 import { TEXTO_PRAZO_OBRA, TEXTO_PRAZO_MARCENARIA, SELO_REFORMAS } from "@/data/provasBewild";
