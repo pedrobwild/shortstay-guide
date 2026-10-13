@@ -103,7 +103,7 @@ export default function RecomendacaoSection() {
 
       {/* CTA to Intelligence */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <Link to="/intelligence" className="flex-1">
+        <Link to="/mercado" className="flex-1">
           <Button className="w-full" variant="default" size="lg">
             <BarChart3 size={16} className="mr-2" />
             Explorar Intelligence completo

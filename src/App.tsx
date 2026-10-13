@@ -2,7 +2,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate, useParams } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
+import RouteSeo from "@/components/RouteSeo";
+import { slugifyBairro } from "@/lib/seo";
 import { lazy, Suspense, useEffect } from "react";
 import { AuthProvider } from "@/hooks/useAuth";
 import bwildLogo from "@/assets/bwild-logo.png";
@@ -70,7 +73,20 @@ function PageFallback() {
   );
 }
 
+function LegacyRedirect({ to }: { to: string }) {
+  const { search, hash } = useLocation();
+  return <Navigate to={`${to}${search}${hash}`} replace />;
+}
+
+function LegacyBairroRedirect() {
+  const { bairro = "" } = useParams<{ bairro: string }>();
+  let name = bairro;
+  try { name = decodeURIComponent(bairro); } catch { /* mantém o valor bruto */ }
+  return <LegacyRedirect to={`/bairro/${slugifyBairro(name)}`} />;
+}
+
 const App = () => (
+  <HelmetProvider>
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
@@ -80,17 +96,24 @@ const App = () => (
           <ScrollToHash />
           <PostLoginProvision />
           <Suspense fallback={<PageFallback />}>
+            <RouteSeo />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/intelligence" element={<IntelligenceDashboard />} />
-              <Route path="/intelligence/ranking" element={<IntelligenceRanking />} />
-              <Route path="/intelligence/bairro/:bairro" element={<IntelligenceBairroDetail />} />
-              <Route path="/intelligence/listings" element={<IntelligenceListings />} />
-              <Route path="/mapa-bairros" element={<MapaBairros />} />
+              <Route path="/mercado" element={<IntelligenceDashboard />} />
+              <Route path="/ranking" element={<IntelligenceRanking />} />
+              <Route path="/bairro/:bairro" element={<IntelligenceBairroDetail />} />
+              <Route path="/anuncios" element={<IntelligenceListings />} />
+              <Route path="/mapa" element={<MapaBairros />} />
+              {/* Redirecionamentos das rotas antigas (mantêm ?query e #hash) */}
+              <Route path="/intelligence" element={<LegacyRedirect to="/mercado" />} />
+              <Route path="/intelligence/ranking" element={<LegacyRedirect to="/ranking" />} />
+              <Route path="/intelligence/listings" element={<LegacyRedirect to="/anuncios" />} />
+              <Route path="/intelligence/bairro/:bairro" element={<LegacyBairroRedirect />} />
+              <Route path="/mapa-bairros" element={<LegacyRedirect to="/mapa" />} />
               <Route path="/ferramentas" element={<Ferramentas />} />
               <Route path="/projecao" element={<StudioProjection />} />
               <Route path="/painel" element={<ProtectedRoute><Painel /></ProtectedRoute>} />
@@ -105,6 +128,7 @@ const App = () => (
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
+  </HelmetProvider>
 );
 
 export default App;

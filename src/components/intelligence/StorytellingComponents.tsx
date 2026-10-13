@@ -1,3 +1,4 @@
+import { bairroPath } from "@/lib/seo";
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -220,7 +221,7 @@ export const AnalysisSummarySection = ({ bairros }: { bairros: BairroAirbnb[] })
               const Icon = HIGHLIGHT_ICONS[h.icon] || TrendingUp;
               return (
                 <motion.div key={h.category} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                  <Link to={`/intelligence/bairro/${encodeURIComponent(h.bairro)}`}>
+                  <Link to={bairroPath(h.bairro)}>
                     <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/40 hover:bg-muted/70 transition-colors cursor-pointer">
                       <Icon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                       <div className="min-w-0">
@@ -246,7 +247,7 @@ export const AnalysisSummarySection = ({ bairros }: { bairros: BairroAirbnb[] })
               const badgeStyle = getGradeStyle(item.investmentScore.gradeColor);
               return (
                 <motion.div key={item.bairro.bairro} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.06 }}>
-                  <Link to={`/intelligence/bairro/${encodeURIComponent(item.bairro.bairro)}`}>
+                  <Link to={bairroPath(item.bairro.bairro)}>
                     <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/60 transition-colors">
                       <div className="flex items-center gap-3">
                         <span className="text-lg font-bold text-muted-foreground">#{i + 1}</span>

@@ -1,4 +1,6 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation, Navigate } from "react-router-dom";
+import { slugifyBairro, SEO_BAIRROS, bairroTitle, bairroDescription } from "@/lib/seo";
+import { Seo } from "@/components/RouteSeo";
 import { useBairroDetail, useBairrosData, fmtBRL, fmtPct, fmtScore } from "@/hooks/useIntelligenceData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -75,12 +77,26 @@ const PROFILE_ICONS: Record<string, React.ElementType> = {
 };
 
 const IntelligenceBairroDetail = () => {
-  const { bairro } = useParams<{ bairro: string }>();
-  const { data: b, isLoading } = useBairroDetail(decodeURIComponent(bairro || ""));
-  const { data: allBairros } = useBairrosData();
+  const { bairro: rawParam = "" } = useParams<{ bairro: string }>();
+  const { search, hash } = useLocation();
+  let decoded = rawParam;
+  try { decoded = decodeURIComponent(rawParam); } catch { /* valor bruto */ }
+  const slug = slugifyBairro(decoded);
+  const { data: allBairros, isLoading: loadingAll } = useBairrosData();
+  // Resolve o slug para o nome exato do bairro (lista estática primeiro, depois banco).
+  const resolvedName =
+    SEO_BAIRROS.find((n) => slugifyBairro(n) === slug) ??
+    allBairros?.find((x) => slugifyBairro(x.bairro) === slug)?.bairro ??
+    "";
+  const { data: b, isLoading } = useBairroDetail(resolvedName);
+  const seoName = resolvedName || decoded;
+  const seoHead = <Seo title={bairroTitle(seoName)} description={bairroDescription(seoName)} path={`/bairro/${slug}`} />;
 
-  if (isLoading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Carregando…</div></div>;
-  if (!b) return <div className="min-h-screen bg-background flex items-center justify-center"><p>Bairro não encontrado.</p></div>;
+  // Formato antigo (com acento/maiúsculas/espaços) → redireciona para o slug canônico.
+  if (rawParam !== slug) return <Navigate to={`/bairro/${slug}${search}${hash}`} replace />;
+
+  if (isLoading || (!resolvedName && loadingAll)) return <div className="min-h-screen bg-background flex items-center justify-center">{seoHead}<div className="animate-pulse text-muted-foreground">Carregando…</div></div>;
+  if (!b) return <div className="min-h-screen bg-background flex items-center justify-center"><Seo title="Bairro não encontrado | Radar Bewild" description="Bairro não encontrado." path={`/bairro/${slug}`} noindex /><p>Bairro não encontrado.</p></div>;
 
   const all = allBairros ?? [b];
   const profile = getBairroProfile(b, all);
@@ -99,13 +115,14 @@ const IntelligenceBairroDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {seoHead}
       <header className="bg-hero-gradient text-primary-foreground">
         <div className="container mx-auto px-4 py-8">
           {/* Breadcrumb */}
           <div className="flex items-center gap-1.5 text-primary-foreground/50 text-xs mb-3">
-            <Link to="/intelligence" className="hover:text-primary-foreground/80 transition-colors">Intelligence</Link>
+            <Link to="/mercado" className="hover:text-primary-foreground/80 transition-colors">Intelligence</Link>
             <ChevronRight className="h-3 w-3" />
-            <Link to="/intelligence/ranking" className="hover:text-primary-foreground/80 transition-colors">Ranking</Link>
+            <Link to="/ranking" className="hover:text-primary-foreground/80 transition-colors">Ranking</Link>
             <ChevronRight className="h-3 w-3" />
             <span className="text-primary-foreground/80">{b.bairro}</span>
           </div>
@@ -114,7 +131,7 @@ const IntelligenceBairroDetail = () => {
               <h1 className="text-2xl md:text-3xl font-bold font-[var(--font-display)]">{b.bairro}</h1>
               <Badge className={`${profile.color} ${profile.textColor}`}>{profile.label}</Badge>
             </div>
-            <Link to="/intelligence/ranking">
+            <Link to="/ranking">
               <Button variant="secondary" size="sm" className="shadow-lg">
                 <ArrowLeft className="mr-1 h-4 w-4" /> Ranking
               </Button>

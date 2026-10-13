@@ -1,3 +1,4 @@
+import { bairroPath } from "@/lib/seo";
 import { useState } from "react";
 import { useRawListings, fmtBRL, fmtPct } from "@/hooks/useIntelligenceData";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,14 +26,14 @@ const IntelligenceListings = () => {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-1.5 text-primary-foreground/50 text-xs mb-3">
-                <Link to="/intelligence" className="hover:text-primary-foreground/80 transition-colors">Intelligence</Link>
+                <Link to="/mercado" className="hover:text-primary-foreground/80 transition-colors">Intelligence</Link>
                 <ChevronRight className="h-3 w-3" />
                 <span className="text-primary-foreground/80">Listings</span>
               </div>
               <h1 className="text-2xl md:text-3xl font-bold font-[var(--font-display)]">Base de Listings</h1>
               <p className="text-sm text-primary-foreground/70 mt-1">Anúncios brutos coletados por scraping/API</p>
             </div>
-            <Link to="/intelligence">
+            <Link to="/mercado">
               <Button variant="secondary" size="sm" className="shadow-lg">
                 <ArrowLeft className="mr-1 h-4 w-4" /> Voltar
               </Button>
@@ -104,7 +105,7 @@ const IntelligenceListings = () => {
                         <TableCell className="font-mono text-[11px] text-muted-foreground">{l.listing_id}</TableCell>
                         <TableCell className="font-medium">
                           <Link
-                            to={`/intelligence/bairro/${encodeURIComponent(l.bairro)}`}
+                            to={bairroPath(l.bairro)}
                             className="hover:text-primary transition-colors inline-flex items-center gap-1"
                           >
                             {l.bairro}

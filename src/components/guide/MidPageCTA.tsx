@@ -16,7 +16,7 @@ export default function MidPageCTA({ variant = "default" }: { variant?: "default
           </div>
           <div className="flex gap-2 flex-shrink-0">
             <Button asChild size="sm" className="bg-accent text-accent-foreground font-body" onClick={() => trackGlobal("cta_clicked", { cta_id: "simular_agora", section: `midpage_${variant}` })}>
-              <Link to="/intelligence">Simular agora</Link>
+              <Link to="/mercado">Simular agora</Link>
             </Button>
             <Button asChild size="sm" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 font-body" onClick={() => trackGlobal("cta_clicked", { cta_id: "ferramentas", section: `midpage_${variant}` })}>
               <Link to="/ferramentas">Ferramentas</Link>
