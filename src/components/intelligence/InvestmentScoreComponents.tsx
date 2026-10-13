@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 /**
  * Investment Score UI components
  * Phase 4: Visual representation of the central score
@@ -41,7 +42,7 @@ export const InvestmentScoreHero = ({ result, bairro }: { result: InvestmentScor
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-3xl font-bold">{result.score.toFixed(1)}</span>
+                <span className="text-3xl font-bold">{formatDecimal(result.score, 1)}</span>
                 <span className={`text-lg font-bold ${result.gradeColor}`}>{result.grade}</span>
               </div>
             </div>
@@ -83,12 +84,12 @@ export const InvestmentScoreHero = ({ result, bairro }: { result: InvestmentScor
                           <TooltipContent className="max-w-[200px] text-xs">
                             <p className="font-semibold mb-0.5">{pillar.friendlyName}</p>
                             <p className="text-muted-foreground">{pillar.description}</p>
-                            <p className="mt-1 font-medium">Peso: {(pillar.weight * 100).toFixed(0)}%</p>
+                            <p className="mt-1 font-medium">Peso: {formatDecimal((pillar.weight * 100), 0)}%</p>
                           </TooltipContent>
                         </Tooltip>
-                        <Badge variant="outline" className="text-[9px] px-1.5 py-0">{(pillar.weight * 100).toFixed(0)}%</Badge>
+                        <Badge variant="outline" className="text-[9px] px-1.5 py-0">{formatDecimal((pillar.weight * 100), 0)}%</Badge>
                       </div>
-                      <span className="text-xs font-bold">{data.normalized.toFixed(0)}</span>
+                      <span className="text-xs font-bold">{formatDecimal(data.normalized, 0)}</span>
                     </div>
                     <Progress value={data.normalized} className="h-1.5" />
                   </motion.div>
@@ -103,16 +104,16 @@ export const InvestmentScoreHero = ({ result, bairro }: { result: InvestmentScor
               <div className="flex flex-wrap gap-2 pt-1">
                 {result.confidenceFactor < 1 && (
                   <Badge variant="outline" className="text-[9px] text-amber-700 border-amber-300 bg-amber-50">
-                    Confiança: {(result.confidenceFactor * 100).toFixed(0)}%
+                    Confiança: {formatDecimal((result.confidenceFactor * 100), 0)}%
                   </Badge>
                 )}
                 {result.liquidityRiskFactor < 1 && (
                   <Badge variant="outline" className="text-[9px] text-orange-700 border-orange-300 bg-orange-50">
-                    Risco liquidez: −{((1 - result.liquidityRiskFactor) * 100).toFixed(0)}%
+                    Risco liquidez: −{formatDecimal(((1 - result.liquidityRiskFactor) * 100), 0)}%
                   </Badge>
                 )}
                 <Badge variant="outline" className="text-[9px] text-muted-foreground">
-                  Score bruto: {result.rawScore.toFixed(1)}
+                  Score bruto: {formatDecimal(result.rawScore, 1)}
                 </Badge>
               </div>
             )}
@@ -126,7 +127,7 @@ export const InvestmentScoreHero = ({ result, bairro }: { result: InvestmentScor
 // ── Compact Score Badge (for table/ranking) ──────────────────────
 export const InvestmentScoreBadge = ({ score, grade, gradeColor }: { score: number; grade: string; gradeColor: string }) => (
   <div className="flex items-center gap-1.5">
-    <span className="text-sm font-bold">{score.toFixed(1)}</span>
+    <span className="text-sm font-bold">{formatDecimal(score, 1)}</span>
     <Badge className={`${getGradeStyle(gradeColor)} text-xs px-1.5 py-0`}>{grade}</Badge>
   </div>
 );
@@ -136,7 +137,7 @@ export const InvestmentScoreMini = ({ bairro, score, grade, gradeColor }: { bair
   <div className="flex items-center justify-between p-2 rounded-lg bg-muted/30">
     <span className="text-sm font-medium">{bairro}</span>
     <div className="flex items-center gap-2">
-      <span className="text-lg font-bold">{score.toFixed(1)}</span>
+      <span className="text-lg font-bold">{formatDecimal(score, 1)}</span>
       <Badge className={`${gradeColor === "text-emerald-600" ? "bg-emerald-100 text-emerald-800" : gradeColor === "text-blue-600" ? "bg-blue-100 text-blue-800" : gradeColor === "text-amber-600" ? "bg-amber-100 text-amber-800" : "bg-red-100 text-red-800"} text-xs`}>
         {grade}
       </Badge>

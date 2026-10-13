@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 import { diariaPorMetragem, type SizeKey } from "@/data/bairrosCurados";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -174,14 +175,14 @@ export default function BwildVsDiySection() {
               label="Receita líquida incremental"
               value={`+${brl(delta.netRevenueBrl)}`}
               hint={delta.netRevenueUpliftPct > 0
-                ? `+${delta.netRevenueUpliftPct.toFixed(0)}% vs. fazer sozinho`
+                ? `+${formatDecimal(delta.netRevenueUpliftPct, 0)}% vs. fazer sozinho`
                 : "no período de 12 meses"}
               emphasis
             />
             <DeltaCard
               icon={<Percent className="h-4 w-4" />}
               label="Ocupação adicional"
-              value={`+${delta.occupancyPctPoints.toFixed(1)} pp`}
+              value={`+${formatDecimal(delta.occupancyPctPoints, 1)} pp`}
               hint={`+${brl(delta.adrBrl)} na diária média`}
             />
             <DeltaCard
@@ -189,12 +190,12 @@ export default function BwildVsDiySection() {
               label="Payback mais curto"
               value={
                 delta.paybackYearsShorter !== null
-                  ? `−${Math.abs(delta.paybackYearsShorter).toFixed(1)} anos`
+                  ? `−${formatDecimal(Math.abs(delta.paybackYearsShorter), 1)} anos`
                   : "—"
               }
               hint={
                 delta.paybackYearsShorter !== null
-                  ? `${bwild.paybackYears?.toFixed(1)} anos vs. ${diy.paybackYears?.toFixed(1)} anos`
+                  ? `${(bwild.paybackYears == null ? undefined : formatDecimal(bwild.paybackYears, 1))} anos vs. ${(diy.paybackYears == null ? undefined : formatDecimal(diy.paybackYears, 1))} anos`
                   : "Informe o valor do imóvel"
               }
             />
@@ -204,7 +205,7 @@ export default function BwildVsDiySection() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-1">
             <p className="text-xs text-muted-foreground max-w-md">
               Premissas conservadoras baseadas em dados de mercado e cases da BWild
-              (ocupação +{((BWILD_VS_DIY_ASSUMPTIONS.bwild.occupancyMultiplier / BWILD_VS_DIY_ASSUMPTIONS.diy.occupancyMultiplier - 1) * 100).toFixed(0)}% e diária premium por reforma/decoração).
+              (ocupação +{formatDecimal(((BWILD_VS_DIY_ASSUMPTIONS.bwild.occupancyMultiplier / BWILD_VS_DIY_ASSUMPTIONS.diy.occupancyMultiplier - 1) * 100), 0)}% e diária premium por reforma/decoração).
             </p>
             <Button
               asChild
@@ -241,15 +242,15 @@ function ScenarioColumn({
 
   // Métricas alinhadas entre as duas colunas (mesma ordem dos dois lados).
   const rows: { key: string; label: string; value: string; raw: number }[] = [
-    { key: "occ", label: "Ocupação", value: `${scenario.occupancyPct.toFixed(1)}%`, raw: scenario.occupancyPct },
+    { key: "occ", label: "Ocupação", value: `${formatDecimal(scenario.occupancyPct, 1)}%`, raw: scenario.occupancyPct },
     { key: "adr", label: "Diária média", value: brl(scenario.adr), raw: scenario.adr },
     { key: "gross", label: "Receita bruta / ano", value: brl(scenario.grossRevenueBrl), raw: scenario.grossRevenueBrl },
     { key: "net", label: "Receita líquida / ano", value: brl(scenario.netRevenueBrl), raw: scenario.netRevenueBrl },
-    { key: "margin", label: "Margem líquida", value: `${scenario.netMarginPct.toFixed(0)}%`, raw: scenario.netMarginPct },
+    { key: "margin", label: "Margem líquida", value: `${formatDecimal(scenario.netMarginPct, 0)}%`, raw: scenario.netMarginPct },
     {
       key: "payback",
       label: "Payback",
-      value: scenario.paybackYears !== null ? `${scenario.paybackYears.toFixed(1)} anos` : "—",
+      value: scenario.paybackYears !== null ? `${formatDecimal(scenario.paybackYears, 1)} anos` : "—",
       // payback: menor é melhor → invertemos o sinal para o cálculo de "vencedor"
       raw: scenario.paybackYears !== null ? -scenario.paybackYears : -Infinity,
     },

@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 import { bairroPath } from "@/lib/seo";
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -257,7 +258,7 @@ export const AnalysisSummarySection = ({ bairros }: { bairros: BairroAirbnb[] })
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold">{item.investmentScore.score.toFixed(1)}</span>
+                        <span className="text-lg font-bold">{formatDecimal(item.investmentScore.score, 1)}</span>
                         <Badge className={`${badgeStyle} text-[10px]`}>
                           {item.investmentScore.grade}
                         </Badge>

@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 import { diariaPorMetragem, type SizeKey } from "@/data/bairrosCurados";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -71,25 +72,25 @@ const KPI_ROWS: {
   },
   {
     label: "Margem líquida", icon: <Percent className="h-3.5 w-3.5" />,
-    get: (s) => s.netMarginPct, format: (v) => `${v.toFixed(1)}%`, delta: "pp", betterHigher: true,
+    get: (s) => s.netMarginPct, format: (v) => `${formatDecimal(v, 1)}%`, delta: "pp", betterHigher: true,
   },
   {
     label: "Cap rate (ROI)", icon: <Building2 className="h-3.5 w-3.5" />,
     get: (s) => (s.capRatePct > 0 ? s.capRatePct : null),
-    format: (v) => `${v.toFixed(2)}%`, delta: "pp", betterHigher: true,
+    format: (v) => `${formatDecimal(v, 2)}%`, delta: "pp", betterHigher: true,
   },
   {
     label: "Payback", icon: <Building2 className="h-3.5 w-3.5" />,
-    get: (s) => s.paybackYears, format: (v) => `${v.toFixed(1)} anos`, delta: "years", betterHigher: false,
+    get: (s) => s.paybackYears, format: (v) => `${formatDecimal(v, 1)} anos`, delta: "years", betterHigher: false,
   },
 ];
 
 function formatDelta(kind: DeltaKind, value: number): string {
   const sign = value > 0 ? "+" : value < 0 ? "−" : "";
   const abs = Math.abs(value);
-  if (kind === "pct") return `${sign}${abs.toFixed(1)}%`;
-  if (kind === "pp") return `${sign}${abs.toFixed(1)}pp`;
-  return `${sign}${abs.toFixed(1)} ${abs === 1 ? "ano" : "anos"}`;
+  if (kind === "pct") return `${sign}${formatDecimal(abs, 1)}%`;
+  if (kind === "pp") return `${sign}${formatDecimal(abs, 1)}pp`;
+  return `${sign}${formatDecimal(abs, 1)} ${abs === 1 ? "ano" : "anos"}`;
 }
 
 /** Chip de delta: número + sinal + seta + cor. Nunca depende só da cor. */

@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 import { bairroPath } from "@/lib/seo";
 /**
  * Journey Step Components — 7 steps of the guided decision journey
@@ -698,7 +699,7 @@ export const Step3Learn = ({ onNext }: { onNext: () => void }) => {
                   <motion.div key={p.key} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={stagger(i, 0.1)}>
                     <div className="text-center p-3 rounded-lg bg-muted/40">
                       <PillarIcon className={`h-5 w-5 ${p.color} mx-auto mb-1.5`} />
-                      <p className="text-lg font-bold text-primary">{(p.weight * 100).toFixed(0)}%</p>
+                      <p className="text-lg font-bold text-primary">{formatDecimal((p.weight * 100), 0)}%</p>
                       <p className="text-xs font-medium">{p.label}</p>
                       <p className="text-[10px] text-muted-foreground mt-0.5">{p.friendlyName}</p>
                     </div>
@@ -1068,7 +1069,7 @@ export const Step5Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
                           <Badge className={`${profile.color} ${profile.textColor} text-[8px] mt-0.5`}>{profile.label}</Badge>
                         </Link>
                       </td>
-                      <td className="p-3 text-center font-bold text-[13px]">{s.score.toFixed(1)}</td>
+                      <td className="p-3 text-center font-bold text-[13px]">{formatDecimal(s.score, 1)}</td>
                       <td className="p-3 text-center">
                         <Badge className={`${badgeStyle} text-[9px]`}>{s.grade}</Badge>
                       </td>
@@ -1391,7 +1392,7 @@ export const Step6Profile = ({ bairros, onComplete }: Step6Props) => {
                             </div>
                             <div className="flex items-center gap-2 shrink-0 ml-2">
                               <div className="text-right">
-                                <p className="text-lg font-bold">{s.score.toFixed(1)}</p>
+                                <p className="text-lg font-bold">{formatDecimal(s.score, 1)}</p>
                                 <Badge className={`${badgeStyle} text-[10px]`}>{s.grade}</Badge>
                               </div>
                               <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -1472,7 +1473,7 @@ export const Step7Explore = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
                       <Badge className={`${badgeStyle} text-[10px]`}>{s.grade}</Badge>
                     </div>
                     <p className="text-lg font-bold group-hover:text-primary transition-colors">{b.bairro}</p>
-                    <p className="text-2xl font-bold mt-1">{s.score.toFixed(1)}</p>
+                    <p className="text-2xl font-bold mt-1">{formatDecimal(s.score, 1)}</p>
                     <p className="text-xs text-muted-foreground mt-2">
                       Yield {fmtPct(b.yield_bruto_airbnb)} · Ocupação {fmtPct(b.ocupacao_media_studio)}
                     </p>
@@ -1603,7 +1604,7 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
                 {PILLARS.map(p => {
                   const w = finalProfile.weights[p.key as keyof typeof finalProfile.weights];
                   const Icon = ICON_MAP[p.icon] || TrendingUp;
-                  const pctValue = (w * 100).toFixed(0);
+                  const pctValue = formatDecimal((w * 100), 0);
                   const dominant = Math.max(...Object.values(finalProfile.weights)) === w;
                   return (
                     <div key={p.key} className={`text-center p-2.5 rounded-lg transition-colors ${dominant ? "bg-primary/[0.06] ring-1 ring-primary/20" : "bg-muted/30"}`}>
@@ -1822,7 +1823,7 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold">{rec.personalizedScore.toFixed(1)}</p>
+                      <p className="text-2xl font-bold">{formatDecimal(rec.personalizedScore, 1)}</p>
                       <p className="text-[10px] text-muted-foreground">Score personalizado</p>
                     </div>
                   </div>
@@ -1848,7 +1849,7 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
                         </p>
                         <p className="text-sm font-bold text-primary">{fmtPct(trueYield.trueYield)}</p>
                         <p className={`text-[9px] font-medium ${trueYield.delta > 0 ? "text-emerald-600" : trueYield.delta < -0.005 ? "text-amber-600" : "text-muted-foreground"}`}>
-                          {trueYield.delta > 0 ? "+" : ""}{(trueYield.delta * 100).toFixed(1)}pp vs Yield
+                          {trueYield.delta > 0 ? "+" : ""}{formatDecimal((trueYield.delta * 100), 1)}pp vs Yield
                         </p>
                       </div>
                     )}

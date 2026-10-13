@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 import { bairroPath } from "@/lib/seo";
 import { useState, useMemo } from "react";
 import { useBairrosData, fmtBRL, fmtPct, fmtScore, rotuloEstimativa } from "@/hooks/useIntelligenceData";
@@ -215,7 +216,7 @@ const IntelligenceRanking = () => {
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <div className="flex items-center justify-center gap-1 cursor-help">
-                                    <span className="text-sm font-bold">{invScore.score.toFixed(1)}</span>
+                                    <span className="text-sm font-bold">{formatDecimal(invScore.score, 1)}</span>
                                   </div>
                                 </TooltipTrigger>
                                 <TooltipContent side="bottom" className="max-w-[240px] text-xs space-y-1.5 p-3">
@@ -223,11 +224,11 @@ const IntelligenceRanking = () => {
                                   {invScore.pillars.map(p => (
                                     <div key={p.key} className="flex justify-between">
                                       <span className="text-muted-foreground capitalize">{p.key === "operacao" ? "Operação" : p.key === "futuro" ? "Futuro" : p.key.charAt(0).toUpperCase() + p.key.slice(1)}</span>
-                                      <span className="font-medium">{p.normalized.toFixed(0)}/100</span>
+                                      <span className="font-medium">{formatDecimal(p.normalized, 0)}/100</span>
                                     </div>
                                   ))}
-                                  {invScore.confidenceFactor < 1 && <p className="text-amber-600 pt-1">Ajuste confiança: −{((1 - invScore.confidenceFactor) * 100).toFixed(0)}%</p>}
-                                  {invScore.liquidityRiskFactor < 1 && <p className="text-orange-600">Ajuste liquidez: −{((1 - invScore.liquidityRiskFactor) * 100).toFixed(0)}%</p>}
+                                  {invScore.confidenceFactor < 1 && <p className="text-amber-600 pt-1">Ajuste confiança: −{formatDecimal(((1 - invScore.confidenceFactor) * 100), 0)}%</p>}
+                                  {invScore.liquidityRiskFactor < 1 && <p className="text-orange-600">Ajuste liquidez: −{formatDecimal(((1 - invScore.liquidityRiskFactor) * 100), 0)}%</p>}
                                 </TooltipContent>
                               </Tooltip>
                             )}

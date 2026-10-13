@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 /**
  * Monta o bloco de contexto do projeto do cliente que é injetado no prompt da
  * edge function `chat`, para que o consultor responda ancorado nos números do
@@ -37,7 +38,7 @@ const brl = (v: number) =>
     maximumFractionDigits: 0,
   }).format(v);
 
-const pct = (v: number, digits = 1) => `${v.toFixed(digits)}%`;
+const pct = (v: number, digits = 1) => `${formatDecimal(v, digits)}%`;
 
 /**
  * Constrói o contexto textual do projeto ativo do cliente. Sempre devolve uma
@@ -84,7 +85,7 @@ export function buildProjectChatContext(
       lines.push(`- ROI líquido (cap rate): ${pct(p.capRatePct, 2)} ao ano`);
       lines.push(
         p.paybackYears != null
-          ? `- Payback estimado: ${p.paybackYears.toFixed(1)} anos`
+          ? `- Payback estimado: ${formatDecimal(p.paybackYears, 1)} anos`
           : `- Payback estimado: indisponível (receita líquida não positiva)`,
       );
     } else {

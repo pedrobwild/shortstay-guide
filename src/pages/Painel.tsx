@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 import { Link } from "react-router-dom";
 import {
   Sparkles, ArrowRight, Wallet, TrendingUp, Map, BarChart3, Wrench,
@@ -185,7 +186,7 @@ function ProjectionCard({
               <Wallet className="h-3 w-3" /> Receita líquida anual
             </p>
             <p className="text-xl font-semibold text-primary">{brl(projection.annualNetRevenueBrl)}</p>
-            <p className="text-[11px] text-muted-foreground">Margem {projection.netMarginPct.toFixed(0)}%</p>
+            <p className="text-[11px] text-muted-foreground">Margem {formatDecimal(projection.netMarginPct, 0)}%</p>
           </div>
           <div className="rounded-lg border border-border p-3 space-y-0.5">
             <p className="text-[11px] text-muted-foreground flex items-center gap-1">
@@ -193,10 +194,10 @@ function ProjectionCard({
             </p>
             {hasPropertyValue ? (
               <>
-                <p className="text-xl font-semibold text-foreground">{projection.capRatePct.toFixed(1)}%</p>
+                <p className="text-xl font-semibold text-foreground">{formatDecimal(projection.capRatePct, 1)}%</p>
                 <p className="text-[11px] text-muted-foreground">
                   {projection.paybackYears !== null
-                    ? `Payback ~${projection.paybackYears.toFixed(1)} anos`
+                    ? `Payback ~${formatDecimal(projection.paybackYears, 1)} anos`
                     : "ao ano"}
                 </p>
               </>

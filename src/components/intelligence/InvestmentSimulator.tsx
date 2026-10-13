@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 /**
  * Simulador de Investimento — Calcula custos de aquisição, financiamento,
  * receita líquida e payback para um studio de short stay.
@@ -204,7 +205,7 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium text-foreground">Taxa de juros anual</label>
-              <span className="text-sm font-bold font-mono">{interestRate.toFixed(1)}% a.a.</span>
+              <span className="text-sm font-bold font-mono">{formatDecimal(interestRate, 1)}% a.a.</span>
             </div>
             <Slider
               value={[interestRate]}
@@ -293,7 +294,7 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
             />
             <ResultCard
               label="Payback"
-              value={results.paybackYears < 50 ? `${results.paybackYears.toFixed(1)} anos` : "—"}
+              value={results.paybackYears < 50 ? `${formatDecimal(results.paybackYears, 1)} anos` : "—"}
               sub={results.paybackYears < 50 ? `${results.paybackMonths} meses` : "Não calculável"}
               icon={<Clock className="h-4 w-4 text-primary" />}
               highlight
@@ -328,7 +329,7 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
           <div className="grid grid-cols-3 gap-3">
             <div className="text-center p-3 rounded-lg bg-muted/40">
               <p className="text-[10px] text-muted-foreground uppercase">Yield sobre capital</p>
-              <p className="text-lg font-bold text-primary">{(results.yieldOnCapital * 100).toFixed(1)}%</p>
+              <p className="text-lg font-bold text-primary">{formatDecimal((results.yieldOnCapital * 100), 1)}%</p>
               <p className="text-[10px] text-muted-foreground">ao ano</p>
             </div>
             <div className="text-center p-3 rounded-lg bg-muted/40">

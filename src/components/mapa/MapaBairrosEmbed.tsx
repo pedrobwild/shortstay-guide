@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 /**
  * Embeddable version of the Mapa de Bairros dashboard.
  * Can be used standalone (MapaBairros page) or embedded as a section in Index.
@@ -88,8 +89,8 @@ function ROISimulator({ neighborhood, onClose }: { neighborhood: Neighborhood; o
         {[
           { label: "Receita mensal", value: `R$ ${fmt(result.monthlyRevenue)}`, icon: DollarSign, positive: true },
           { label: "Lucro mensal", value: `R$ ${fmt(result.monthlyProfit)}`, icon: Wallet, positive: result.monthlyProfit > 0 },
-          { label: "ROI anual", value: `${result.roi.toFixed(1)}%`, icon: TrendingUp, positive: result.roi > 0 },
-          { label: "Payback estimado", value: result.payback > 0 ? `${result.payback.toFixed(1)} anos` : "—", icon: Clock, positive: result.payback > 0 && result.payback < 5 },
+          { label: "ROI anual", value: `${formatDecimal(result.roi, 1)}%`, icon: TrendingUp, positive: result.roi > 0 },
+          { label: "Payback estimado", value: result.payback > 0 ? `${formatDecimal(result.payback, 1)} anos` : "—", icon: Clock, positive: result.payback > 0 && result.payback < 5 },
         ].map((card, i) => (
           <motion.div
             key={card.label}

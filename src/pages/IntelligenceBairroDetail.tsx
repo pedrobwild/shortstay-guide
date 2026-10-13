@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 import { useParams, Link, useLocation, Navigate } from "react-router-dom";
 import { slugifyBairro, SEO_BAIRROS, bairroTitle, bairroDescription } from "@/lib/seo";
 import { Seo } from "@/components/RouteSeo";
@@ -160,7 +161,7 @@ const IntelligenceBairroDetail = () => {
                 </div>
                 <div className="flex items-center gap-3 sm:border-l sm:border-border/50 sm:pl-5">
                   <div className="text-center">
-                    <p className="text-3xl font-bold">{investmentScore.score.toFixed(1)}</p>
+                    <p className="text-3xl font-bold">{formatDecimal(investmentScore.score, 1)}</p>
                     <p className={`text-sm font-bold ${investmentScore.gradeColor}`}>{investmentScore.grade}</p>
                     <p className={`text-[10px] font-semibold ${investmentScore.gradeColor}`}>{investmentScore.gradeLabel}</p>
                   </div>
@@ -281,7 +282,7 @@ const IntelligenceBairroDetail = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="text-center p-3 rounded-lg bg-primary/[0.04]">
                     <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">True Yield</p>
-                    <p className="text-xl font-bold text-primary">{(trueYield.trueYield * 100).toFixed(2)}%</p>
+                    <p className="text-xl font-bold text-primary">{formatDecimal((trueYield.trueYield * 100), 2)}%</p>
                   </div>
                   <div className="text-center p-3 rounded-lg bg-emerald-50">
                     <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Yield Airbnb</p>
@@ -392,8 +393,8 @@ const IntelligenceBairroDetail = () => {
                   { name: "Delta", value: (b.delta_yield ?? 0) * 100, fill: "hsl(45 93% 47%)" },
                 ]}>
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v.toFixed(1)}%`} />
-                  <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(2)}%`} />} />
+                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${formatDecimal(v, 1)}%`} />
+                  <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${formatDecimal(Number(value), 2)}%`} />} />
                   <Bar dataKey="value" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ChartContainer>
@@ -413,7 +414,7 @@ const IntelligenceBairroDetail = () => {
                 ]}>
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
-                  <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(1)}%`} />} />
+                  <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${formatDecimal(Number(value), 1)}%`} />} />
                   <Bar dataKey="value" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ChartContainer>
@@ -473,7 +474,7 @@ const IntelligenceBairroDetail = () => {
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                     <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} domain={['dataMin - 5', 'dataMax + 5']} />
-                    <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${Number(value).toFixed(1)}%`} />} />
+                    <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${formatDecimal(Number(value), 1)}%`} />} />
                     <Line type="monotone" dataKey="ocupacao" stroke="hsl(142 76% 36%)" strokeWidth={2.5} dot={{ r: 4, fill: "hsl(142 76% 36%)" }} activeDot={{ r: 6 }} />
                   </LineChart>
                 </ChartContainer>
@@ -523,9 +524,9 @@ const IntelligenceBairroDetail = () => {
           <Card>
             <CardHeader><CardTitle className="text-base flex items-center gap-2"><Star className="h-4 w-4" /> Reputação</CardTitle></CardHeader>
             <CardContent>
-              <MetricRow label="Rating Médio" value={Number(b.rating_medio).toFixed(2)} />
+              <MetricRow label="Rating Médio" value={formatDecimal(Number(b.rating_medio), 2)} />
               <MetricRow label="% Superhost" value={fmtPct(b.percentual_superhost)} />
-              <MetricRow label="Reviews/Listing" value={Number(b.media_reviews_por_listing).toFixed(1)} />
+              <MetricRow label="Reviews/Listing" value={formatDecimal(Number(b.media_reviews_por_listing), 1)} />
             </CardContent>
           </Card>
 
@@ -552,7 +553,7 @@ const IntelligenceBairroDetail = () => {
           <Card>
             <CardHeader><CardTitle className="text-base flex items-center gap-2"><AlertTriangle className="h-4 w-4" /> Risco & Saturação</CardTitle></CardHeader>
             <CardContent>
-              <MetricRow label="Criminalidade" value={Number(b.indice_criminalidade).toFixed(2)} />
+              <MetricRow label="Criminalidade" value={formatDecimal(Number(b.indice_criminalidade), 2)} />
               <MetricRow label="Saturação" value={fmtPct(b.grau_saturacao_index)} />
               <MetricRow label="Risco Regulatório" value={fmtPct(b.risco_regulatorio)} />
               <MetricRow label="Risco Condomínio" value={fmtPct(b.risco_condominio)} />
