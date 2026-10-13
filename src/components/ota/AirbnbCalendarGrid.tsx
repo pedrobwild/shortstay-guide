@@ -212,8 +212,8 @@ export default function AirbnbCalendarGrid({
 
       if (error) throw error;
       setEvents((data as CalendarEvent[]) || []);
-    } catch (err: any) {
-      toast({ title: "Erro ao carregar calendário", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Erro ao carregar calendário", description: (err instanceof Error ? err.message : "Erro inesperado"), variant: "destructive" });
     } finally {
       setLoading(false);
     }

@@ -358,7 +358,7 @@ serve(async (req) => {
       if (icalContent.length > 2 * 1024 * 1024) {
         throw new Error("Arquivo iCal muito grande (>2MB)");
       }
-    } catch (downloadError: any) {
+    } catch (downloadError) {
       await supabase
         .from("ota_connections")
         .update({ status: "error" })
@@ -439,7 +439,7 @@ serve(async (req) => {
       connectionId,
       syncedAt: now,
     }, 200);
-  } catch (err: any) {
+  } catch (err) {
     console.error("Erro inesperado:", err);
     return jsonResponse({ success: false, error: "Erro interno do servidor" }, 500);
   }

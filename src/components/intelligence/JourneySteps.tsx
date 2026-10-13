@@ -208,7 +208,7 @@ export const Step1Context = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
               ];
               const totalDeduction = lines.reduce((s, l) => s + (l.pct ?? 0), 0);
               const netPct = 100 + totalDeduction;
-              let running = gross;
+              const running = gross;
 
               return (
                 <div className="space-y-0">

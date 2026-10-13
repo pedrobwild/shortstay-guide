@@ -21,8 +21,8 @@ export default function ForgotPassword() {
       });
       if (error) throw error;
       setSent(true);
-    } catch (err: any) {
-      toast({ title: "Erro", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Erro", description: (err instanceof Error ? err.message : "Erro inesperado"), variant: "destructive" });
     } finally {
       setLoading(false);
     }
