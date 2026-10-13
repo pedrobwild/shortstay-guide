@@ -20,7 +20,6 @@ const make = (over: Partial<CaseStudy>): CaseStudy => ({
   yieldBruto: "28%",
   paybackMeses: 8,
   timeline: [],
-  verified: true,
   ...over,
 });
 

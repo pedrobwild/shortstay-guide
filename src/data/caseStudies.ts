@@ -207,7 +207,7 @@ export function selectCaseStudies(opts: {
   profile?: InvestorProfile | null;
   source?: CaseStudy[];
 }): CaseSelection {
-  const pool = (opts.source ?? CASE_STUDIES).filter((c) => c.verified);
+  const pool = opts.source ?? CASE_STUDIES;
   const leadBairro = opts.bairro?.trim() || null;
   const sortByProfile = makeProfileSorter(opts.profile);
 
