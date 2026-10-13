@@ -27,7 +27,7 @@ export default function ReformaSection() {
         <p className="text-xs text-muted-foreground">Os comparativos de materiais e serviços abaixo são hipóteses de exemplo, não preços extraídos do estudo. Confirme cada item no orçamento; não é possível recalculá-los com as medianas agregadas.</p>
       </div>
       <Tabs defaultValue="piso" className="font-body">
-        <TabsList className="mb-4"><TabsTrigger value="piso" className="min-h-[44px] px-4">Piso (25m²)</TabsTrigger><TabsTrigger value="marcenaria" className="min-h-[44px] px-4">Marcenaria</TabsTrigger><TabsTrigger value="iluminacao" className="min-h-[44px] px-4">Iluminação vs Bancada</TabsTrigger></TabsList>
+        <TabsList className="mb-4 h-auto flex flex-wrap justify-start"><TabsTrigger value="piso" className="min-h-[44px] px-4">Piso (25m²)</TabsTrigger><TabsTrigger value="marcenaria" className="min-h-[44px] px-4">Marcenaria</TabsTrigger><TabsTrigger value="iluminacao" className="min-h-[44px] px-4">Iluminação vs Bancada</TabsTrigger></TabsList>
         <TabsContent value="piso">
           <Card className="border-border"><CardContent className="p-6 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
