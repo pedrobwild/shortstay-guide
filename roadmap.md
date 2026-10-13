@@ -20,3 +20,5 @@
 - [x] Reescrever afirmações restantes em tendências, critérios de reserva, reforma, precificação e metragem com fontes existentes; 173 testes passaram e detalhes da tendência conferidos no navegador. Dados e cálculos preservados; sem publicar.
 
 - [x] Gerar OG 1200×630 com Pinheiros (R$ 300/62%), Bela Vista (R$ 237/64%) e Vila Mariana (R$ 226/60%) e fonte GuestFavorites; atualizar head e pré-render. Imagem e metadados conferidos no navegador; 173 testes passaram, build automático OK; sem publicar.
+- [x] Publicar o site para que banner de cookies, consentimento e links de orçamento apareçam a visitantes reais; publicação solicitada em 13/10/2026 às 09:02 UTC para https://radarbewild.com.br (visibilidade pública, selo oculto). A verificação de segurança não exigiu resolução prévia e registrou 1 pendência crítica: policy permissiva de INSERT/SELECT em guide_leads (e warn equivalente em guide_events, raw_listings, bairro_airbnb_sp).
+
