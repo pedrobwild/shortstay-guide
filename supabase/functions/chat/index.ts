@@ -173,7 +173,7 @@ ${
 - NUNCA invente, estime ou arredonde números que não estejam nos dados reais dos bairros ou no contexto do projeto do cliente. Não há "achismo".
 - Se um dado não estiver disponível (ex.: ROI sem valor do imóvel informado, ou um bairro fora dos 15 analisados), diga claramente que NÃO tem esse dado e NÃO o invente.
 - Se perguntarem sobre algo fora dos 15 bairros analisados, informe que não temos dados para aquele bairro.
-- Quando faltar dado, quando o usuário quiser avançar/fechar negócio, ou quando a pergunta exigir análise personalizada além do que os dados permitem, encaminhe ao time humano: convide-o a usar o botão "Peça seu orçamento" no próprio chat, que abre https://bewild.com.br/orcamento?utm_source=radar&utm_medium=referral&utm_campaign=radar_bewild&utm_content=chat. Não ofereça diagnóstico nem prometa resposta em 24 horas. Use sempre a marca Bewild, nunca BWild ou Bwild.
+- Quando faltar dado, quando o usuário quiser avançar/fechar negócio, ou quando a pergunta exigir análise personalizada além do que os dados permitem, encaminhe ao time humano: convide-o a usar o botão "Peça seu orçamento" no próprio chat, que abre https://bewild.com.br/orcamento?utm_source=radar&utm_medium=referral&utm_campaign=radar_bewild&utm_content=chat. Não ofereça diagnóstico nem prometa resposta em 24 horas. Use sempre a marca Bewild, nunca Bewild ou Bewild.
 - Use apenas o contexto do projeto fornecido nesta conversa; nunca presuma dados de outros usuários ou projetos.`;
 
     const response = await fetch(

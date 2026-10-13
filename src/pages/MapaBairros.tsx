@@ -1,4 +1,4 @@
-import bwildLogo from "@/assets/bwild-logo.png";
+import bwildLogo from "@/assets/bewild-logo.webp";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";

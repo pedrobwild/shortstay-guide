@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Menu, ArrowUpRight, ChevronDown } from "lucide-react";
-import bwildLogo from "@/assets/bwild-logo.png";
+import bwildLogo from "@/assets/bewild-logo.webp";
 import { SECTIONS, PHASES } from "@/data/guide-data";
 
 interface Props {

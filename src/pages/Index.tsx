@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { CheckSquare } from "lucide-react";
 import LazyMapaBairrosEmbed from "@/components/mapa/LazyMapaBairrosEmbed";
-import bwildLogo from "@/assets/bwild-logo.png";
+import bwildLogo from "@/assets/bewild-logo.webp";
 import { useGuideAnalytics, setGlobalTrack, setGlobalSessionId } from "@/hooks/useGuideAnalytics";
 import { useScrollspy } from "@/hooks/useScrollspy";
 import { useReadingProgress } from "@/hooks/useReadingProgress";

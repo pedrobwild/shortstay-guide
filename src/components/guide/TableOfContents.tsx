@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
-import bwildLogo from "@/assets/bwild-logo.png";
+import bwildLogo from "@/assets/bewild-logo.webp";
+import bewildSymbol from "@/assets/bewild-symbol.webp";
 import { SECTIONS, PHASES } from "@/data/guide-data";
 
 interface Props {
@@ -65,7 +66,7 @@ export default function TableOfContents({ activeId, visitedSections }: Props) {
     <nav
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
-      className={`hidden lg:flex flex-col fixed left-0 top-0 h-screen overflow-y-auto overflow-x-hidden border-r border-border/60 bg-card/95 backdrop-blur-md z-30 scrollbar-thin py-5 transition-all duration-300 ease-in-out ${
+      className={`hidden lg:flex flex-col fixed left-0 top-0 h-screen overflow-y-auto overflow-x-hidden border-r border-border/60 bg-card/95 backdrop-blur-md z-50 scrollbar-thin py-5 transition-all duration-300 ease-in-out ${
         expanded ? "w-60 px-3" : "w-[60px] px-2"
       }`}
     >
@@ -74,12 +75,7 @@ export default function TableOfContents({ activeId, visitedSections }: Props) {
         {expanded ? (
           <img src={bwildLogo} alt="Bewild" className="h-7 w-auto" />
         ) : (
-          <img
-            src={bwildLogo}
-            alt="Bewild"
-            className="h-6 w-6 object-contain object-left"
-            style={{ clipPath: "inset(0 60% 0 0)" }}
-          />
+          <img src={bewildSymbol} alt="Bewild" className="h-6 w-6 object-contain" />
         )}
       </div>
 

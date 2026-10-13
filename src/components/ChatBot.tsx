@@ -316,7 +316,7 @@ export default function ChatBot() {
               <div ref={bottomRef} />
             </div>
 
-            {/* Contextual CTA — fala com um humano da BWild */}
+            {/* Contextual CTA — fala com um humano da Bewild */}
             <OrcamentoButton local="chat" variant="ghost" className="min-h-[44px] rounded-none border-t border-border text-primary" />
 
             {/* Input area */}

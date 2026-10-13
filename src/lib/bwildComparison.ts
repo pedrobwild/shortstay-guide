@@ -1,5 +1,5 @@
 /**
- * Comparativo "fazer sozinho (DIY) vs. reformar/operar com a BWild".
+ * Comparativo "fazer sozinho (DIY) vs. reformar/operar com a Bewild".
  *
  * Biblioteca pura (sem React/Supabase) que projeta dois cenários do MESMO studio
  * a partir das premissas de mercado do bairro (`src/data/guide-data.ts` /
@@ -24,7 +24,7 @@ import {
  * ───────────────────────────────────────────────────────────────────────────
  *
  * Premissa central: a base de mercado (`avgBySize` para ADR e `avgOccupancy`
- * por bairro, fonte "Bwild/AirDNA 2025" em `districtMetrics.ts`) representa um
+ * por bairro, fonte "Bewild/AirDNA 2025" em `districtMetrics.ts`) representa um
  * studio mobiliado MEDIANO, anunciado de forma razoável. A partir dela:
  *
  *  • DIY (fazer sozinho, sem reforma/decoração profissional) tende a ficar
@@ -38,7 +38,7 @@ import {
  *        resposta rápida, a ocupação fica ~15% abaixo da média → fator 0.85×.
  *      - Gestão: auto-gestão, sem taxa de gestão (0%).
  *
- *  • BWild (reforma + decoração de alto padrão + operação profissional) tende a
+ *  • Bewild (reforma + decoração de alto padrão + operação profissional) tende a
  *    ficar ACIMA da média de mercado, porque:
  *      - ADR: design profissional sustenta diária premium → fator 1.18×.
  *        (Conservador frente ao multiplicador "alto padrão" de 1.45× de
@@ -48,8 +48,8 @@ import {
  *        prática de short stay; é raro sustentar ocupação anual acima disso).
  *      - Gestão: taxa de gestão profissional de 18% (mesmo default já usado em
  *        DEFAULT_COSTS.managementPct no dashboard). Esse custo é incluído DE
- *        PROPÓSITO no cenário BWild para que o delta de receita LÍQUIDA seja
- *        honesto — já abatida a remuneração da BWild.
+ *        PROPÓSITO no cenário Bewild para que o delta de receita LÍQUIDA seja
+ *        honesto — já abatida a remuneração da Bewild.
  *
  * Ajuste estes números em UM lugar só caso novos cases/dados de mercado mudem
  * as premissas. Não espalhe multiplicadores pela UI.
@@ -106,7 +106,7 @@ export interface ScenarioResult {
 }
 
 export interface ComparisonDelta {
-  occupancyPctPoints: number;     // ocupação adicional (pp) BWild − DIY
+  occupancyPctPoints: number;     // ocupação adicional (pp) Bewild − DIY
   adrBrl: number;                 // diária adicional
   grossRevenueBrl: number;        // receita bruta anual incremental
   netRevenueBrl: number;          // receita LÍQUIDA anual incremental (o número de fechamento)
@@ -159,7 +159,7 @@ function computeScenario(label: string, input: ScenarioInput): ScenarioResult {
 }
 
 /**
- * Constrói os dois cenários (DIY vs BWild) a partir da base de mercado do
+ * Constrói os dois cenários (DIY vs Bewild) a partir da base de mercado do
  * bairro/faixa de área e do valor do imóvel, aplicando os multiplicadores
  * centralizados em `BWILD_VS_DIY_ASSUMPTIONS`.
  */
