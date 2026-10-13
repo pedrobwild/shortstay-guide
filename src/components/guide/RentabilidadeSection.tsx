@@ -1,4 +1,4 @@
-import { formatDecimal } from "@/lib/numberFormat";
+import { formatPercent, formatDecimal } from "@/lib/numberFormat";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,16 +7,21 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { motion } from "framer-motion";
 import { ArrowDown, TrendingUp, TrendingDown, Minus, AlertCircle, Lightbulb, DollarSign, Percent, Building2, Zap } from "lucide-react";
 import SectionBlock from "./SectionBlock";
+import { exemploRentabilidadePinheiros } from "@/lib/rentabilidadeExample";
+import FonteBairro from "@/components/guide/FonteBairro";
+
+const exemplo = exemploRentabilidadePinheiros();
+const brlExemplo = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
 /* ── Waterfall data ── */
 const WATERFALL = [
-  { label: "Receita Bruta", desc: "ADR × noites ocupadas/mês", example: "R$ 9.000", type: "revenue" as const },
-  { label: "Comissão plataforma", desc: "~15% (Airbnb + processamento)", example: "- R$ 1.350", type: "cost" as const },
-  { label: "Gestão operacional", desc: "~18% (se terceirizada)", example: "- R$ 1.620", type: "cost" as const },
-  { label: "Condomínio", desc: "Custo fixo mensal", example: "- R$ 500", type: "fixed" as const },
-  { label: "IPTU + Utilidades", desc: "Luz, água, internet, gás", example: "- R$ 500", type: "fixed" as const },
-  { label: "Impostos", desc: "~6% (Simples/MEI)", example: "- R$ 540", type: "cost" as const },
-  { label: "Receita Líquida", desc: "O que sobra no bolso", example: "R$ 4.490", type: "result" as const },
+  { label: "Receita Bruta", desc: "ADR × noites ocupadas/mês", example: brlExemplo(exemplo.receitaBruta), type: "revenue" as const },
+  { label: "Comissão plataforma", desc: "~15% (Airbnb + processamento)", example: `- ${brlExemplo(exemplo.plataforma)}`, type: "cost" as const },
+  { label: "Gestão operacional", desc: "~18% (se terceirizada)", example: `- ${brlExemplo(exemplo.gestao)}`, type: "cost" as const },
+  { label: "Condomínio", desc: "Custo fixo mensal", example: `- ${brlExemplo(exemplo.condominio)}`, type: "fixed" as const },
+  { label: "IPTU + Utilidades", desc: "Luz, água, internet, gás", example: `- ${brlExemplo(exemplo.utilidades)}`, type: "fixed" as const },
+  { label: "Impostos", desc: "~6% (Simples/MEI)", example: `- ${brlExemplo(exemplo.impostos)}`, type: "cost" as const },
+  { label: "Receita Líquida", desc: "O que sobra no bolso", example: brlExemplo(exemplo.receitaLiquida), type: "result" as const },
 ];
 
 /* ── Scenarios ── */
@@ -52,8 +57,8 @@ const SCENARIOS = [
 
 /* ── Sensitivity drivers ── */
 const SENSITIVITY = [
-  { driver: "Ocupação", impact: "Alto", desc: "Cada 5pp de ocupação = ~R$ 500/mês de receita bruta", icon: Percent, color: "text-primary" },
-  { driver: "Diária média (ADR)", impact: "Alto", desc: "Cada R$ 50 a mais na diária = ~R$ 1.125/mês bruto a 75% de ocupação", icon: DollarSign, color: "text-primary" },
+  { driver: "Ocupação", impact: "Alto", desc: `Cada 5pp de ocupação = ~${brlExemplo(exemplo.impactoOcupacao)}/mês de receita bruta`, icon: Percent, color: "text-primary" },
+  { driver: "Diária média (ADR)", impact: "Alto", desc: `Cada R$ 50 a mais na diária = ~${brlExemplo(exemplo.impactoDiaria)}/mês bruto a ${formatPercent(exemplo.bairro.avgOccupancy, 0)} de ocupação`, icon: DollarSign, color: "text-primary" },
   { driver: "Condomínio", impact: "Médio", desc: "Custo fixo que não escala — condomínios > R$ 1.200 comprimem margem", icon: Building2, color: "text-amber-600" },
   { driver: "Gestão operacional", impact: "Médio", desc: "Operação própria economiza ~18% da receita, mas exige tempo e processo", icon: Zap, color: "text-amber-600" },
 ];
@@ -62,7 +67,7 @@ type ActiveScenario = "conservador" | "base" | "agressivo";
 
 export default function RentabilidadeSection() {
   const [activeScenario, setActiveScenario] = useState<ActiveScenario>("base");
-  const scenario = SCENARIOS.find((s) => s.key === activeScenario)!;
+  const scenario = SCENARIOS.find((s) => s.key === activeScenario) ?? SCENARIOS[1];
 
   return (
     <SectionBlock
@@ -108,9 +113,10 @@ export default function RentabilidadeSection() {
           <div className="mt-4 bg-muted/50 rounded-lg p-3 flex items-start gap-2.5">
             <AlertCircle size={14} className="text-muted-foreground mt-0.5 shrink-0" />
             <p className="text-xs text-muted-foreground font-body">
-              Exemplo baseado em studio de 30m² em Pinheiros, ADR R$ 350, ocupação 75%. A taxa de limpeza não entra na conta porque é paga pelo hóspede. Valores reais variam por unidade e operação.
+              Exemplo baseado em studio de 30m² em {exemplo.bairro.name}, ADR {brlExemplo(exemplo.bairro.dailyAvg)}, ocupação {formatPercent(exemplo.bairro.avgOccupancy, 0)}. A taxa de limpeza não entra na conta porque é paga pelo hóspede. Valores reais variam por unidade e operação.
             </p>
           </div>
+          <FonteBairro nome={exemplo.bairro.name} />
         </CardContent>
       </Card>
 
