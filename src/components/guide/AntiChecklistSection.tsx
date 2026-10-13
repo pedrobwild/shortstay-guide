@@ -13,6 +13,7 @@ export default function AntiChecklistSection() {
 
   return (
     <SectionBlock id="antichecklist" title="Anti-checklist: O que NÃO fazer" takeaway="Erros que destroem rentabilidade — aprenda antes de cometer.">
+      <p className="mb-4 text-sm text-muted-foreground">Custos e economias abaixo são hipóteses de exemplo, não médias do estudo de contratos. Confirme os valores na proposta.</p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {warnings.map((w) => (
           <Card key={w.title} className="border-destructive/20 bg-destructive/5"><CardContent className="p-5"><div className="flex items-start gap-3"><div className="h-9 w-9 rounded-lg bg-destructive/10 flex items-center justify-center flex-shrink-0"><w.icon className="text-destructive" size={18} /></div><div><p className="font-semibold text-foreground text-sm mb-1">{w.title}</p><p className="text-sm text-muted-foreground leading-relaxed">{w.desc}</p></div></div></CardContent></Card>
@@ -24,7 +25,7 @@ export default function AntiChecklistSection() {
       </div>
       <Accordion type="multiple" className="mt-4 font-body">
         <AccordionItem value="custos-evitaveis"><AccordionTrigger className="text-primary font-semibold">Detalhamento dos custos evitáveis</AccordionTrigger><AccordionContent>
-          <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b border-border"><th className="text-left py-2 text-muted-foreground font-medium">Item evitável</th><th className="text-right py-2 text-muted-foreground font-medium">Custo médio</th><th className="text-left py-2 pl-4 text-muted-foreground font-medium">Alternativa inteligente</th><th className="text-right py-2 text-muted-foreground font-medium">Economia</th></tr></thead><tbody>
+          <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b border-border"><th className="text-left py-2 text-muted-foreground font-medium">Item evitável</th><th className="text-right py-2 text-muted-foreground font-medium">Custo (hipótese)</th><th className="text-left py-2 pl-4 text-muted-foreground font-medium">Alternativa inteligente</th><th className="text-right py-2 text-muted-foreground font-medium">Economia (hipótese)</th></tr></thead><tbody>
             <tr className="border-b border-border/50"><td className="py-2 text-foreground">Trocar bancadas novas</td><td className="py-2 text-right text-muted-foreground">R$ 5.200</td><td className="py-2 pl-4 text-muted-foreground">Manter originais da construtora</td><td className="py-2 text-right font-medium text-primary">R$ 5.200</td></tr>
             <tr className="border-b border-border/50"><td className="py-2 text-foreground">Integrar sacada</td><td className="py-2 text-right text-muted-foreground">R$ 8.000+</td><td className="py-2 pl-4 text-muted-foreground">Decorar sacada como espaço funcional</td><td className="py-2 text-right font-medium text-primary">R$ 7.000+</td></tr>
             <tr className="border-b border-border/50"><td className="py-2 text-foreground">Remover revestimento banheiro</td><td className="py-2 text-right text-muted-foreground">R$ 6.000+</td><td className="py-2 pl-4 text-muted-foreground">Pintura epóxi ou adesivos sobre o existente</td><td className="py-2 text-right font-medium text-primary">R$ 5.000+</td></tr>
