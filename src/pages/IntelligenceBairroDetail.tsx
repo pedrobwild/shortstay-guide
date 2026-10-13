@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, TrendingUp, BarChart3, Target, Building2, Shield, AlertTriangle, Star, Users, CheckCircle, Info, Lightbulb, UserCheck, Scale, Crown, Zap, Sprout, CalendarCheck, ChevronRight } from "lucide-react";
+import { ArrowLeft, TrendingUp, BarChart3, Target, Building2, Shield, AlertTriangle, Star, Users, CheckCircle, Info, Lightbulb, UserCheck, Scale, Crown, Zap, Sprout, CalendarCheck, ChevronRight, type LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, Line, LineChart, XAxis, YAxis, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, CartesianGrid } from "recharts";
@@ -38,7 +38,7 @@ function generateMonthlyData(adr: number, occ: number) {
   }));
 }
 
-const ScoreCard = ({ label, friendlyLabel, value, icon: Icon, color }: { label: string; friendlyLabel: string; value: number; icon: any; color: string }) => (
+const ScoreCard = ({ label, friendlyLabel, value, icon: Icon, color }: { label: string; friendlyLabel: string; value: number; icon: LucideIcon; color: string }) => (
   <Card>
     <CardContent className="p-4">
       <div className="flex items-center justify-between mb-1">
@@ -59,7 +59,7 @@ const MetricRow = ({ label, value }: { label: string; value: string }) => (
   </div>
 );
 
-const SectionHeader = ({ number, title, subtitle, icon: Icon }: { number: string; title: string; subtitle: string; icon: any }) => (
+const SectionHeader = ({ number, title, subtitle, icon: Icon }: { number: string; title: string; subtitle: string; icon: LucideIcon }) => (
   <div className="flex items-start gap-3 mb-4">
     <div className="flex items-center justify-center h-7 w-7 rounded-full bg-primary/10 text-primary text-xs font-bold shrink-0 mt-0.5">{number}</div>
     <div className="flex-1">

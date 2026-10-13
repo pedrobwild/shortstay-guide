@@ -55,7 +55,9 @@ export function useReadingProgress(activeId: string) {
       };
       try {
         sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      } catch {}
+      } catch {
+        // storage indisponível — progresso de leitura é best-effort
+      }
     }, SAVE_INTERVAL);
     return () => clearInterval(interval);
   }, [scrollPercent, activeId]);
@@ -74,7 +76,9 @@ export function useReadingProgress(activeId: string) {
         // Restore visited sections
         setVisitedSections(new Set(data.visitedSections));
       }
-    } catch {}
+    } catch {
+      // storage indisponível ou JSON inválido — ignora e segue sem retomar
+    }
   }, []);
 
   const dismissResume = useCallback(() => setResumeData(null), []);
