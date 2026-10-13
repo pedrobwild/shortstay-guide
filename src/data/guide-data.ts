@@ -1,3 +1,4 @@
+import { FONTES_GUIA } from "@/data/fontesGuia";
 import {
   Home, MapPin, TrendingUp, BarChart3, Paintbrush, ShieldCheck,
   Palette, Ruler, Sparkles, BookOpen, CheckSquare, HelpCircle, Send,
@@ -60,10 +61,10 @@ export type SectionItem = {
 };
 
 export const DECISION_DRIVERS = [
-  { id: "limpeza", title: "Limpeza", desc: "Fator #1 global: 90% dos hóspedes consideram limpeza o critério mais importante na escolha. Limpeza impecável = reviews 5 estrelas.", icon: SprayCan, priority: { executivo: 1, turista: 2, estudante: 3, casal: 2 } },
+  { id: "limpeza", title: "Limpeza", desc: "Em pesquisa da AHLA (2020), limpeza foi o fator mais citado por viajantes frequentes na escolha da hospedagem.", sources: [FONTES_GUIA.limpeza], icon: SprayCan, priority: { executivo: 1, turista: 2, estudante: 3, casal: 2 } },
   { id: "checkin", title: "Check-in sem atrito", desc: "Fechadura digital ou key box eliminam esperas e reclamações. Hóspedes corporativos chegam tarde — check-in autônomo é decisivo.", icon: DoorOpen, priority: { executivo: 2, turista: 3, estudante: 2, casal: 4 } },
-  { id: "precisao", title: "Precisão do anúncio", desc: "Fotos reais, descrição honesta e expectativa alinhada. Anúncios que entregam o que prometem têm 2x menos cancelamentos.", icon: Target, priority: { executivo: 3, turista: 1, estudante: 4, casal: 3 } },
-  { id: "avaliacoes", title: "Avaliações e nota", desc: "Acima de 4.8 você entra no topo das buscas. Cada 0.1 ponto acima de 4.5 pode aumentar sua taxa de conversão em até 12%.", icon: Star, priority: { executivo: 5, turista: 4, estudante: 1, casal: 1 } },
+  { id: "precisao", title: "Precisão do anúncio", desc: "Fotos reais, descrição honesta e expectativa alinhada. Precisão é uma das notas por categoria que o Airbnb usa para escolher os Preferidos dos hóspedes.", sources: [FONTES_GUIA.preferidos], icon: Target, priority: { executivo: 3, turista: 1, estudante: 4, casal: 3 } },
+  { id: "avaliacoes", title: "Avaliações e nota", desc: "Nota e avaliações pesam no posicionamento do Airbnb; os Preferidos dos hóspedes têm nota média de 4,92.", sources: [FONTES_GUIA.ranking, FONTES_GUIA.qualidade], icon: Star, priority: { executivo: 5, turista: 4, estudante: 1, casal: 1 } },
   { id: "seguranca", title: "Segurança e acessibilidade", desc: "Portaria 24h, câmeras em áreas comuns, boa iluminação. Casais e turistas solo priorizam segurança acima do preço.", icon: Lock, priority: { executivo: 4, turista: 5, estudante: 5, casal: 5 } },
   { id: "ambiente", title: "Ambiente + trabalho + entretenimento", desc: "Wi-Fi rápido, mesa de trabalho, smart TV e boa acústica. Para estadias de 3+ dias, o setup do ambiente define a experiência.", icon: Wifi, priority: { executivo: 6, turista: 6, estudante: 6, casal: 6 } },
 ];
@@ -218,5 +219,5 @@ export const FAQ_DATA = [
   { q: "Preciso de CNPJ para operar no Airbnb?", a: "Não é obrigatório, mas altamente recomendado. Com CNPJ (MEI ou Simples), você pode emitir notas fiscais, ter conta PJ dedicada e otimizar a tributação. Sem CNPJ, a renda deve ser declarada como pessoa física e pode ter alíquota mais alta de IR." },
   { q: "E se o condomínio não permitir short stay?", a: "Verifique a convenção do condomínio antes de comprar. Se já possui o imóvel, consulte um advogado especializado. Muitos condomínios ainda não têm regras claras — nesse caso, é possível operar dentro da legalidade até que haja deliberação formal em assembleia." },
   { q: "A Bwild faz a gestão operacional do studio?", a: "Sim. A Bwild oferece gestão completa: precificação dinâmica, atendimento ao hóspede, limpeza profissional, manutenção e relatórios mensais. O investidor recebe o rendimento líquido sem se envolver na operação diária." },
-  { q: "Qual a diferença entre short stay e aluguel tradicional?", a: "Short stay (menos de 90 dias) geralmente rende 40-80% mais que aluguel tradicional, mas envolve custos operacionais maiores e gestão ativa. Aluguel tradicional é mais previsível e passivo. A decisão depende do perfil do investidor e da localização." },
+  { q: "Qual a diferença entre short stay e aluguel tradicional?", a: "Short stay (menos de 90 dias). O aluguel tradicional rende cerca de 6,3% ao ano em São Paulo; o short stay pode render mais, com mais custo operacional e mais risco, mas envolve custos operacionais maiores e gestão ativa. Aluguel tradicional é mais previsível e passivo. A decisão depende do perfil do investidor e da localização.", source: FONTES_GUIA.fipezap },
 ];

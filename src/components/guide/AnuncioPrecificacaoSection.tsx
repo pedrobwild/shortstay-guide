@@ -1,3 +1,5 @@
+import FonteLink from "@/components/guide/FonteLink";
+import { FONTES_GUIA } from "@/data/fontesGuia";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -8,9 +10,10 @@ import SectionBlock from "./SectionBlock";
 /* ── Listing anatomy ── */
 const LISTING_ANATOMY = [
   {
+    source: FONTES_GUIA.ranking,
     step: 1,
     title: "Foto de capa irresistível",
-    desc: "60% do CTR vem da primeira foto. Use luz natural, enquadramento amplo e um elemento visual marcante.",
+    desc: "A foto de capa é a primeira coisa que o hóspede vê na busca, e o Airbnb diz que fotos de qualidade ajudam no posicionamento. Use luz natural, enquadramento amplo e um elemento visual marcante.",
     icon: Camera,
     impact: "Crítico",
     tips: ["Fotografe entre 10h–14h com luz natural", "Mostre o ambiente inteiro, não detalhes", "Inclua um elemento memorável (quadro, luminária, vista)"],
@@ -119,6 +122,7 @@ export default function AnuncioPrecificacaoSection() {
                     </div>
                     <p className="font-semibold text-foreground text-sm font-body mb-1">{item.title}</p>
                     <p className="text-sm text-muted-foreground font-body leading-snug mb-3">{item.desc}</p>
+                    {item.source && <FonteLink fonte={item.source} />}
                     <ul className="space-y-1">
                       {item.tips.map((tip, j) => (
                         <li key={j} className="flex items-start gap-1.5 text-xs text-muted-foreground font-body">

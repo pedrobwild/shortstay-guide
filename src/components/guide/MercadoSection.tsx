@@ -1,3 +1,5 @@
+import FonteLink from "@/components/guide/FonteLink";
+import { FONTES_GUIA } from "@/data/fontesGuia";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -84,7 +86,8 @@ export default function MercadoSection() {
             <Lightbulb className="text-gold mt-0.5 flex-shrink-0" size={20} />
             <div>
               <p className="font-semibold text-foreground text-sm mb-1">Para alcançar o topo da faixa, priorize:</p>
-              <p className="text-sm text-muted-foreground">Marcenaria planejada + iluminação cênica + fotos profissionais. Esses 3 fatores combinados podem elevar sua diária em até 40%.</p>
+              <p className="text-sm text-muted-foreground">Marcenaria planejada + iluminação cênica + fotos profissionais. Segundo o Airbnb, anúncios com fotos profissionais tiveram em média 19% mais reservas (2024–2025).</p>
+              <FonteLink fonte={FONTES_GUIA.fotografia} />
             </div>
           </div>
         </CardContent>

@@ -1,3 +1,5 @@
+import FonteLink from "@/components/guide/FonteLink";
+import { FONTES_GUIA } from "@/data/fontesGuia";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -57,7 +59,7 @@ export default function ReformaSection() {
         </TabsContent>
       </Tabs>
       <Accordion type="multiple" className="mt-4 font-body">
-        <AccordionItem value="vinilico-roi"><AccordionTrigger className="text-primary font-semibold">Por que vinílico vence no ROI</AccordionTrigger><AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">O vinílico custa 56% menos que porcelanato, tem instalação mais rápida (1-2 dias vs 3-5 dias) e é visualmente indistinguível em fotos de anúncio. Para short stay, onde o hóspede fica 2-5 dias, a percepção de qualidade é a mesma. Além disso, vinílico é mais silencioso, confortável ao pisar e mais fácil de reparar em caso de dano pontual — basta trocar uma régua.</p></AccordionContent></AccordionItem>
+        <AccordionItem value="vinilico-roi"><AccordionTrigger className="text-primary font-semibold">Por que vinílico vence no ROI</AccordionTrigger><AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">O vinílico costuma custar menos e libera o ambiente quase imediatamente; o porcelanato pede cerca de 72 h até o rejunte e mais alguns dias de secagem e é visualmente indistinguível em fotos de anúncio. Para short stay, onde o hóspede fica 2-5 dias, a percepção de qualidade é a mesma. Além disso, vinílico é mais silencioso, confortável ao pisar e mais fácil de reparar em caso de dano pontual — basta trocar uma régua.</p><FonteLink fonte={FONTES_GUIA.vinilico} /></AccordionContent></AccordionItem>
         <AccordionItem value="porcelanato"><AccordionTrigger className="text-primary font-semibold">Quando porcelanato faz sentido</AccordionTrigger><AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">Em áreas molhadas (banheiro, cozinha aberta com pia) onde a resistência à água é crítica. Também faz sentido em studios de alto padrão (diária acima de R$ 400) onde o investimento adicional é compensado pela diária mais alta e pelo público-alvo que percebe a diferença. Se o condomínio já tem porcelanato em bom estado, não troque — aproveite.</p></AccordionContent></AccordionItem>
       </Accordion>
     </SectionBlock>
