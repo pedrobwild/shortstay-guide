@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import SectionBlock from "./SectionBlock";
 import { useGuideDecision } from "@/hooks/useGuideDecision";
-import { useBairrosData, fmtBRL, fmtPct } from "@/hooks/useIntelligenceData";
+import { useBairrosData, fmtBRL, fmtPct, rotuloFonteDiariaOcupacao } from "@/hooks/useIntelligenceData";
 import { generateRecommendations, type Recommendation } from "@/lib/investorQuiz";
 import { getBairroProfile } from "@/lib/intelligenceInsights";
 import type { BairroAirbnb } from "@/types/intelligence";
@@ -161,6 +161,7 @@ function RecommendationCard({
                 <MetricPill label="ADR" value={fmtBRL(Number(rec.bairro.adr_medio_studio))} />
                 <MetricPill label="Liquidez" value={Number(rec.bairro.score_liquidez).toFixed(0)} />
               </div>
+              <p className="text-[11px] text-muted-foreground font-body mb-2">{rotuloFonteDiariaOcupacao(rec.bairro)}</p>
 
               {/* Reasons */}
               {rec.reasons.length > 0 && (

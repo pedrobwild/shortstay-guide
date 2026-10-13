@@ -249,11 +249,11 @@ const IntelligenceRanking = () => {
                             </Tooltip>
                           </TableCell>
                           <TableCell className={`text-right tabular-nums ${isHighlighted(b.bairro, "max-adr") ? "font-bold text-primary" : ""}`}>
-                            {fmtBRL(b.adr_medio_studio)}
+                            {fmtBRL(b.adr_medio_studio)}{b.diaria_ocupacao_curadas ? "*" : ""}
                             {isHighlighted(b.bairro, "max-adr") && <span className="ml-0.5 text-[9px] text-primary">★</span>}
                           </TableCell>
                           <TableCell className={`text-right tabular-nums ${isHighlighted(b.bairro, "max-occ") ? "font-bold text-primary" : ""}`}>
-                            {fmtPct(b.ocupacao_media_studio)}
+                            {fmtPct(b.ocupacao_media_studio)}{b.diaria_ocupacao_curadas ? "*" : ""}
                             {isHighlighted(b.bairro, "max-occ") && <span className="ml-0.5 text-[9px] text-primary">★</span>}
                           </TableCell>
                           <TableCell className={`text-right tabular-nums ${isHighlighted(b.bairro, "max-yield") ? "font-bold text-emerald-600" : ""}`}>

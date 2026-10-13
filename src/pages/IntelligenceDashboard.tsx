@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { useBairrosData } from "@/hooks/useIntelligenceData";
+import { useBairrosData, rotuloEstimativa } from "@/hooks/useIntelligenceData";
+import { FONTE_BAIRROS_CURADOS } from "@/data/bairrosCurados";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
@@ -93,6 +94,11 @@ const IntelligenceDashboard = () => {
               <p className="mt-2 text-primary-foreground/80 text-sm md:text-base leading-relaxed max-w-xl">
                 Uma jornada guiada para ajudar você a decidir onde investir em studios de short stay em São Paulo.
               </p>
+              {bairros[0] && (
+                <p className="mt-2 text-xs text-primary-foreground/70 max-w-xl">
+                  Diária e ocupação: {FONTE_BAIRROS_CURADOS}. Demais métricas: {rotuloEstimativa(bairros[0])}.
+                </p>
+              )}
               <div className="flex items-center gap-2 mt-3">
                 <div className="h-1.5 w-32 bg-primary-foreground/10 rounded-full overflow-hidden">
                   <div
