@@ -6,4 +6,5 @@ describe("números exibidos em português", () => {
   it("exibe taxa de 18 como 18,0%", () => expect(formatPercent(18)).toBe("18,0%"));
   it("exibe estadia de 4.5 com vírgula", () => expect(formatDecimal(4.5)).toBe("4,5"));
   it("preserva a precisão solicitada", () => expect(formatDecimal(4.92, 2)).toBe("4,92"));
+  it("formata o tick de ocupação 48.7 em português", () => expect(formatPercent(48.7)).toBe("48,7%"));
 });
