@@ -6,6 +6,7 @@ import {
   CalendarCheck, MessageSquare, Trophy, Package, BadgeCheck, Users, Clock, Phone,
   Calculator, Building2, PieChart, Megaphone,
 } from "lucide-react";
+import { RESPOSTA_CUSTO_REFORMA, ESTUDO_REFORMA_URL, SELO_REFORMAS, SELO_PROJETOS, SELO_BAIRROS } from "@/data/provasBewild";
 
 /* ─── Phases (4 macro-blocks) ─── */
 export const PHASES = [
@@ -225,14 +226,14 @@ export function persistScenarios(scenarios: SavedScenario[]) {
 export const fmt = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
 
 export const TRUST_SIGNALS_DATA = [
-  { label: "+200 studios", icon: Package },
-  { label: "4.9 nota média", icon: Star },
+  { label: SELO_REFORMAS, icon: Package },
+  { label: SELO_PROJETOS, icon: Star },
   { label: "Operação própria", icon: BadgeCheck },
-  { label: "+5 anos no mercado", icon: Clock },
+  { label: SELO_BAIRROS, icon: Clock },
 ];
 
 export const FAQ_DATA = [
-  { q: "Quanto custa começar um studio para short stay?", a: "Depende do estado do imóvel e do padrão desejado. Reformas leves começam em R$ 35.000 e projetos premium podem chegar a R$ 120.000. O simulador neste guia ajuda a estimar o retorno sobre cada faixa de investimento." },
+  { q: "Quanto custa começar um studio para short stay?", a: RESPOSTA_CUSTO_REFORMA, link: ESTUDO_REFORMA_URL },
   { q: "Qual o retorno médio de um studio em São Paulo?", a: "Studios bem posicionados e operados geram entre R$ 5.000 e R$ 12.000 de receita bruta mensal, dependendo do bairro, metragem e qualidade do anúncio. Descontando custos operacionais (limpeza, taxa de plataforma, condomínio, IPTU), o yield líquido fica entre 6% e 12% ao ano." },
   { q: "Preciso de CNPJ para operar no Airbnb?", a: "Não é obrigatório, mas altamente recomendado. Com CNPJ (MEI ou Simples), você pode emitir notas fiscais, ter conta PJ dedicada e otimizar a tributação. Sem CNPJ, a renda deve ser declarada como pessoa física e pode ter alíquota mais alta de IR." },
   { q: "E se o condomínio não permitir short stay?", a: "Verifique a convenção do condomínio antes de comprar. Se já possui o imóvel, consulte um advogado especializado. Muitos condomínios ainda não têm regras claras — nesse caso, é possível operar dentro da legalidade até que haja deliberação formal em assembleia." },
