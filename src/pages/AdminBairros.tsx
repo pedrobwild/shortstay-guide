@@ -50,6 +50,7 @@ export default function AdminBairros() {
 
   const salvar = async (bairro: string) => {
     const r = rascunhos[bairro];
+    if (!r || !user) return;
     const parsed = schema.safeParse({ diaria: num(r.diaria), ocupacao: num(r.ocupacao), fonte: r.fonte });
     if (!parsed.success) {
       toast({ title: "Revise os campos", description: parsed.error.issues[0].message, variant: "destructive" });
@@ -57,7 +58,7 @@ export default function AdminBairros() {
     }
     setSalvando(bairro);
     const { error } = await supabase.from("bairro_ajustes").upsert(
-      { bairro, ...parsed.data, updated_by: user?.id ?? null },
+      { bairro, diaria: parsed.data.diaria, ocupacao: parsed.data.ocupacao, fonte: parsed.data.fonte, updated_by: user.id },
       { onConflict: "bairro" },
     );
     setSalvando(null);

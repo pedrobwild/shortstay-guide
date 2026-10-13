@@ -1,4 +1,3 @@
-import OrcamentoButton from "@/components/OrcamentoButton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
@@ -13,10 +12,8 @@ export default function MidPageCTA({ variant = "default" }: { variant?: "default
           <div>
             <p className="font-display text-lg font-bold text-primary-foreground">Quer saber quanto seu studio pode render?</p>
             {!isSlim && <p className="text-base text-primary-foreground/80 font-body mt-1">Compare cenários, simule receita e descubra o potencial real do seu imóvel.</p>}
-            <p className="text-sm text-primary-foreground/70 font-body mt-1">Planeje a reforma do seu studio com uma proposta da Bewild.</p>
           </div>
           <div className="flex gap-2 flex-shrink-0 flex-wrap">
-            <OrcamentoButton local="meio" size="sm" className="min-h-[44px] bg-accent text-accent-foreground font-body" />
             <Button asChild size="sm" className="bg-accent text-accent-foreground font-body" onClick={() => trackGlobal("cta_clicked", { cta_id: "simular_agora", section: `midpage_${variant}` })}>
               <Link to="/mercado">Simular agora</Link>
             </Button>
