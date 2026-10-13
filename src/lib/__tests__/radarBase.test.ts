@@ -9,7 +9,7 @@ function linhas(): LinhaRadar[] {
     const est = b.ocupacaoFonte === "bewild";
     const [ini, fim] = b.period ? periodos[b.period] : [null, null];
     const n = b.activeListings;
-    const conf = est ? "baixa" : n! >= 1000 ? "alta" : "media";
+    const conf = est ? "baixa" : n! >= 1000 ? "alta" : n! >= 200 ? "media" : "baixa";
     const base = { bairro: b.name, amostra_n: n, periodo_inicio: ini, periodo_fim: fim, fonte_id: est ? "estimativa_bewild" : "guestfavorites", fonte_nome: est ? "Estimativa Bewild" : "GuestFavorites", fonte_tipo: est ? "estimativa" : "publica", url_origem: b.sourceUrl, coletado_em: "2026-10-13", confianca: conf } as const;
     const ind: [string, number | null][] = est
       ? [["ocupacao_media_pct", b.avgOccupancy], ["adr_medio_brl", b.dailyAvg], ["adr_p25_brl", b.dailyMin], ["adr_p75_brl", b.dailyMax]]
@@ -27,7 +27,7 @@ describe("base única radar_bairro_atual", () => {
       expect(r).toMatchObject({ dailyAvg: b.dailyAvg, avgOccupancy: b.avgOccupancy, dailyMin: b.dailyMin, dailyMax: b.dailyMax, dailyQuartiles: b.dailyQuartiles, activeListings: b.activeListings, period: b.period, sourceUrl: b.sourceUrl, ocupacaoFonte: b.ocupacaoFonte });
     }
   });
-  it.each([["Pinheiros", "alta", false], ["Liberdade", "media", false], ["Mooca", "media", false], ["Brooklin", "baixa", true]])("%s: confiança %s, estimativa=%s", (nome, conf, est) => {
+  it.each([["Pinheiros", "alta", false], ["Liberdade", "media", false], ["Mooca", "baixa", true], ["Brooklin", "baixa", true]])("%s: confiança %s, estimativa=%s", (nome, conf, est) => {
     const r = bairros.find((x) => x.name === nome)!;
     expect(r.confianca).toBe(conf);
     expect(r.estimativa).toBe(est);
