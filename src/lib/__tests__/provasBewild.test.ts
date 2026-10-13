@@ -43,4 +43,13 @@ describe("provas Bewild — fonte única", () => {
     expect(labels).toEqual([SELO_REFORMAS, SELO_PROJETOS, "Operação própria", SELO_BAIRROS]);
     expect(SELO_BAIRROS).toBe("27 bairros com obra entregue");
   });
+
+  it("garantia e atraso usam a fonte de verdade da Bewild", () => {
+    expect(GARANTIA_ANOS).toBe(5);
+    expect(TEXTO_GARANTIA).toBe("5 anos de garantia");
+    expect(TEXTO_MULTA_ATRASO).toBe("multa por dia de atraso prevista em contrato");
+    const secao = readFileSync("src/components/guide/ProjetoSection.tsx", "utf8");
+    expect(secao).toContain("TEXTO_GARANTIA");
+    expect(secao).toContain("TEXTO_MULTA_ATRASO");
+  });
 });
