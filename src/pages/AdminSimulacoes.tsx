@@ -5,7 +5,7 @@ import AdminTabs from "@/components/admin/AdminTabs";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
-import { DEDUCOES_PADRAO_PCT, resultadoLiquidoMensal, rotuloDecoracao } from "@/lib/bairroAjustes";
+import { DEDUCOES_PADRAO_PCT, resultadoLiquidoMensal } from "@/lib/bairroAjustes";
 
 type Sim = { id: string; created_at: string; device_type: string | null; bairro: string; metragem: string; decoracao: string; bruto: number | null; liquido: number | null };
 
@@ -97,4 +97,4 @@ export default function AdminSimulacoes() {
   );
 }
 
-export { rotuloDecoracao };
+
