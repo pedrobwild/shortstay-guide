@@ -4,11 +4,12 @@ import { join } from "node:path";
 import {
   RESPOSTA_CUSTO_REFORMA, ORCAMENTO_MEDIANO, CONTRATOS_ANALISADOS,
   SELO_REFORMAS, SELO_PROJETOS, SELO_BAIRROS,
+  GARANTIA_ANOS, TEXTO_GARANTIA, TEXTO_MULTA_ATRASO,
 } from "@/data/provasBewild";
 import { FAQ_DATA, TRUST_SIGNALS_DATA } from "@/data/guide-data";
 import { FAQ_ITEMS } from "@/components/guide/FAQSection";
 
-const BANIDOS = ["R$ 15k", "R$ 35.000 a R$ 120.000", "+200 studios", "4.9 nota", ">4.9<", "+5 anos no mercado"];
+const BANIDOS = ["R$ 15k", "R$ 35.000 a R$ 120.000", "+200 studios", "4.9 nota", ">4.9<", "+5 anos no mercado", "Garantia de 1 ano"];
 const SELF = "provasBewild.test.ts";
 
 function files(dir: string): string[] {
