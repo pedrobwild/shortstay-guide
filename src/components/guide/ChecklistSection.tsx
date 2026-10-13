@@ -8,6 +8,7 @@ import { Check, Share2, PartyPopper } from "lucide-react";
 import { CHECKLIST_ITEMS, SCORE_TIERS } from "@/data/guide-data";
 import { useToast } from "@/hooks/use-toast";
 import SectionBlock from "./SectionBlock";
+import OrcamentoButton from "@/components/OrcamentoButton";
 
 const TIER_DESCRIPTIONS: Record<string, string> = {
   Iniciante: "Você precisa amadurecer o projeto antes de investir.",
@@ -95,7 +96,7 @@ export default function ChecklistSection() {
   const tierBadgeColor = getTierBadgeColor(score);
 
   const handleShare = () => {
-    const text = `Completei ${score}/${total} no Checklist do Investidor Bwild — nível ${tier.label}! 🏗️`;
+    const text = `Completei ${score}/${total} no Checklist do Investidor Bewild — nível ${tier.label}! 🏗️`;
     navigator.clipboard.writeText(text);
     toast({ title: "Texto copiado!", description: "Cole onde quiser compartilhar." });
   };
@@ -197,9 +198,7 @@ export default function ChecklistSection() {
                     Você completou o checklist! Seu projeto parece pronto para o próximo passo.
                   </p>
                 </div>
-                <Button size="sm" className="bg-primary text-primary-foreground font-body min-h-[44px]" asChild>
-                  <a href="#cta-final">Solicitar diagnóstico gratuito</a>
-                </Button>
+                <OrcamentoButton local="meio" size="sm" className="font-body min-h-[44px]" />
               </motion.div>
             )}
           </AnimatePresence>

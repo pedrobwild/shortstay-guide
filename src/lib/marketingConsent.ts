@@ -4,7 +4,7 @@ export const PIXEL_ID = "644216424824915";
 export type ConsentChoice = "accepted" | "refused";
 type Tracker = ((...args: unknown[]) => void) & { queue?: unknown[][]; callMethod?: (...args: unknown[]) => void; loaded?: boolean; version?: string; push?: Tracker };
 declare global {
-  interface Window { dataLayer?: unknown[]; gtag?: Tracker; fbq?: Tracker; _fbq?: Tracker; }
+  interface Window { dataLayer?: unknown[]; gtag?: Tracker; fbq?: Tracker; _fbq?: Tracker; "ga-disable-G-CE7GKKDG4L"?: boolean; }
 }
 
 export function isMeasurementAllowedPath(path: string) {
@@ -17,14 +17,15 @@ export function readConsent(): ConsentChoice | null {
 export function canMeasure() {
   return typeof window !== "undefined" && readConsent() === "accepted" && isMeasurementAllowedPath(window.location.pathname);
 }
-function gtag(...args: unknown[]) {
+function gtag(..._args: unknown[]) {
   window.dataLayer ??= [];
   // O gtag consome Arguments, não arrays, na fila do Consent Mode.
+  // eslint-disable-next-line prefer-rest-params -- formato oficial da fila gtag
   window.dataLayer.push(arguments);
 }
 const consentState = (value: "denied" | "granted") => ({
   analytics_storage: value, ad_storage: value, ad_user_data: value, ad_personalization: value,
-  functionality_storage: value, personalization_storage: value, security_storage: "granted",
+  functionality_storage: value, personalization_storage: value, security_storage: value,
 });
 let defaultsSet = false;
 let initialized = false;
@@ -43,14 +44,14 @@ function loadScript(id: string, src: string) {
 }
 export function syncMeasurement() {
   if (!isMeasurementAllowedPath(window.location.pathname)) {
-    window[`ga-disable-${GA_ID}` as keyof Window] = true as never;
+    window["ga-disable-G-CE7GKKDG4L"] = true;
     if (initialized) { gtag("consent", "update", consentState("denied")); window.fbq?.("consent", "revoke"); }
     lastPage = "";
     return;
   }
   initializeConsentDefaults();
   const allowed = canMeasure();
-  window[`ga-disable-${GA_ID}` as keyof Window] = !allowed as never;
+  window["ga-disable-G-CE7GKKDG4L"] = !allowed;
   gtag("consent", "update", consentState(allowed ? "granted" : "denied"));
   if (!allowed) { window.fbq?.("consent", "revoke"); lastPage = ""; return; }
   if (!initialized) {
