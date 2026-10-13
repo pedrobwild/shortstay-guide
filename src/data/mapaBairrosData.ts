@@ -22,6 +22,7 @@ export const POI_COLORS: Record<string, string> = {
   events: "#ef4444",
   metro: "#10b981",
 };
+import { getBairroCurado, receitaMensalReferencia, FONTE_BAIRROS_CURADOS } from "@/data/bairrosCurados";
 import { DISTRICTS_MOCK, type DistrictRow } from "@/data/districtMetrics";
 
 /* ─── Types ─── */
@@ -123,6 +124,11 @@ function parseAdrRange(label: string): [number, number] {
 }
 
 function districtToNeighborhood(d: DistrictRow): Neighborhood {
+  const c = getBairroCurado(d.districtName);
+  const nightly = c ? c.dailyAvg : d.nightlyRateBRL;
+  const occ = c ? c.avgOccupancy : d.occupancyPercent;
+  const range: [number, number] = c ? [c.dailyMin, c.dailyMax] : parseAdrRange(d.adrRangeLabel);
+  const revenue = c ? receitaMensalReferencia(c) : d.revenueMonthBRL;
   const center = DISTRICT_CENTERS[d.districtName] || { lat: -23.55, lng: -46.64, x: 50, y: 50 };
   const demandChip = d.chips.find((c) => c !== "Próximo ao metrô") || "Misto";
   const demandProfile = CHIP_TO_DEMAND[demandChip] || "mixed";
@@ -133,21 +139,21 @@ function districtToNeighborhood(d: DistrictRow): Neighborhood {
     tags: d.chips.map((c) => c.toLowerCase()),
     demandProfile,
     score: d.score,
-    avgNightly: d.nightlyRateBRL,
-    avgOccupancy: d.occupancyPercent,
+    avgNightly: nightly,
+    avgOccupancy: occ,
     coordinates: { x: center.x, y: center.y },
     centerLat: center.lat,
     centerLng: center.lng,
     metrics: {
-      nightlyRate: d.nightlyRateBRL,
-      nightlyRateRange: parseAdrRange(d.adrRangeLabel),
-      occupancy: d.occupancyPercent,
+      nightlyRate: nightly,
+      nightlyRateRange: range,
+      occupancy: occ,
       estimatedROI: d.roiPercent,
       competitionLevel: COMPETITION_MAP[d.competition] || "média",
       activeListings: d.listingsCount,
-      avgRevenueMo: d.revenueMonthBRL,
+      avgRevenueMo: revenue,
       seasonalityIndex: 1.0,
-      dataSource: d.sourceLabel,
+      dataSource: c ? FONTE_BAIRROS_CURADOS : d.sourceLabel,
     },
   };
 }
@@ -183,7 +189,7 @@ export const EVENTS: CityEvent[] = [
   { id: 10, name: "Comic Con Experience (CCXP)", category: "Culture", location: "São Paulo Expo", startDate: "2026-12-03", endDate: "2026-12-06", impactLevel: "high", nearbyNeighborhoods: ["Vila Mariana", "Moema", "Campo Belo"] },
 ];
 
-export const HEAT_POINTS: HeatPoint[] = [
+const HEAT_POINTS_BASE: HeatPoint[] = [
   { id: "hp1", lat: -23.56, lng: -46.69, demandScore: 95, occupancyEstimate: 75, adrEstimate: 410, areaName: "Pinheiros Centro", coordinates: { x: 28, y: 38 } },
   { id: "hp2", lat: -23.55, lng: -46.66, demandScore: 86, occupancyEstimate: 74, adrEstimate: 390, areaName: "Consolação", coordinates: { x: 48, y: 35 } },
   { id: "hp3", lat: -23.56, lng: -46.67, demandScore: 90, occupancyEstimate: 70, adrEstimate: 440, areaName: "Jardim Paulista", coordinates: { x: 42, y: 40 } },
@@ -262,3 +268,9 @@ export function scoreBorder(score: number) {
   if (score >= 84) return "border-amber-500/40";
   return "border-border";
 }
+
+/** Pontos cujo nome é exatamente um bairro curado usam a diária/ocupação curadas. */
+export const HEAT_POINTS: HeatPoint[] = HEAT_POINTS_BASE.map((p) => {
+  const c = getBairroCurado(p.areaName);
+  return c ? { ...p, occupancyEstimate: c.avgOccupancy, adrEstimate: c.dailyAvg } : p;
+});

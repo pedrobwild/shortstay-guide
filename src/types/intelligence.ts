@@ -1,4 +1,6 @@
 export interface BairroAirbnb {
+  /** true quando diária e ocupação vêm de bairrosCurados (não do banco). */
+  diaria_ocupacao_curadas?: boolean;
   id: number;
   bairro: string;
   cidade: string;

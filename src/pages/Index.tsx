@@ -38,6 +38,7 @@ import ChecklistSection from "@/components/guide/ChecklistSection";
 import TrustSignals from "@/components/guide/TrustSignals";
 import FAQSection from "@/components/guide/FAQSection";
 import FinalCTASection from "@/components/guide/FinalCTASection";
+import { FONTE_BAIRROS_CURADOS, rotuloOcupacao } from "@/data/bairrosCurados";
 
 const TendenciasSection = lazy(() => import("@/components/guide/TendenciasSection"));
 
@@ -139,15 +140,16 @@ function IndexInner() {
                             <tr key={b.name} className="border-t border-border hover:bg-muted/50 transition-colors">
                               <td className="px-4 py-3 font-medium text-foreground">{b.name}</td>
                               <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.dailyMin)}</td>
-                              <td className="px-4 py-3 text-muted-foreground">{b.avgOccupancy}%</td>
-                              <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.avgBySize["20–25 m²"])}</td>
-                              <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.avgBySize["26–35 m²"])}</td>
-                              <td className="px-4 py-3 font-semibold text-foreground">R$ {fmt(b.avgBySize["36–50 m²"])}</td>
+                              <td className="px-4 py-3 text-muted-foreground">{rotuloOcupacao(b)}</td>
+                              <td className="px-4 py-3 text-muted-foreground">{b.avgBySize ? `R$ ${fmt(b.avgBySize["20–25 m²"])}` : "—"}</td>
+                              <td className="px-4 py-3 text-muted-foreground">{b.avgBySize ? `R$ ${fmt(b.avgBySize["26–35 m²"])}` : "—"}</td>
+                              <td className="px-4 py-3 font-semibold text-foreground">{b.avgBySize ? `R$ ${fmt(b.avgBySize["36–50 m²"])}` : "—"}</td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     </div>
+                    <p className="px-4 py-3 text-xs text-muted-foreground border-t border-border">Fonte: {FONTE_BAIRROS_CURADOS}. GF = ocupação mediana GuestFavorites.</p>
                   </CardContent>
                 </Card>
               </motion.div>

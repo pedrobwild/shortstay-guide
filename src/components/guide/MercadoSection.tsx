@@ -11,15 +11,17 @@ import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { useBairroData } from "@/hooks/useBairroData";
 import SectionBlock from "./SectionBlock";
 import { DECORATION_LEVELS, fmt } from "@/data/guide-data";
+import { FONTE_BAIRROS_CURADOS } from "@/data/bairrosCurados";
 
 export default function MercadoSection() {
-  const { bairros, lastUpdated } = useBairroData();
+  const { bairros } = useBairroData();
   const [bairro, setBairro] = useState<string>(bairros[0]?.name ?? "");
   const [metragem, setMetragem] = useState(30);
   const [decoracao, setDecoracao] = useState<string>("basico");
-  const [ocupacao, setOcupacao] = useState([75]);
+  const [ocupacao, setOcupacao] = useState([bairros[0]?.avgOccupancy ?? 75]);
 
   const selected = bairros.find((b) => b.name === bairro) ?? bairros[0];
+  useEffect(() => { if (selected) setOcupacao([selected.avgOccupancy]); }, [selected]);
   const decLevel = DECORATION_LEVELS.find((d) => d.value === decoracao) ?? DECORATION_LEVELS[0];
 
   const result = useMemo(() => {
@@ -43,7 +45,7 @@ export default function MercadoSection() {
 
   return (
     <SectionBlock id="mercado" title="Mercado e Precificação — São Paulo" takeaway="Diárias médias, ocupação e receita por bairro atualizado.">
-      {lastUpdated && <Badge variant="secondary" className="mb-4 text-xs font-body">Dados atualizados em {new Date(lastUpdated).toLocaleDateString("pt-BR")}</Badge>}
+      <Badge variant="secondary" className="mb-4 text-xs font-body">Fonte: {FONTE_BAIRROS_CURADOS}</Badge>
       <h3 className="font-display text-xl font-bold text-foreground mb-4">🎯 Meta de Diária</h3>
       <Card className="border-border">
         <CardContent className="p-6 space-y-5 font-body">

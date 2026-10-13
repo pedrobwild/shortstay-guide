@@ -1,6 +1,7 @@
 import { bairroPath } from "@/lib/seo";
 import { useState, useMemo } from "react";
-import { useBairrosData, fmtBRL, fmtPct, fmtScore } from "@/hooks/useIntelligenceData";
+import { useBairrosData, fmtBRL, fmtPct, fmtScore, rotuloEstimativa } from "@/hooks/useIntelligenceData";
+import { FONTE_BAIRROS_CURADOS } from "@/data/bairrosCurados";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -107,6 +108,11 @@ const IntelligenceRanking = () => {
                 <p className="text-sm text-primary-foreground/70 mt-1">
                   {allBairros.length} bairros comparados por Investment Score, yield, ocupação e mais
                 </p>
+                {allBairros[0] && (
+                  <p className="text-xs text-primary-foreground/70 mt-1">
+                    Diária e ocupação: {FONTE_BAIRROS_CURADOS} (bairros marcados com *). Demais métricas: {rotuloEstimativa(allBairros[0])}.
+                  </p>
+                )}
               </div>
               <Link to="/mercado">
                 <Button variant="secondary" size="sm" className="shadow-lg">
@@ -243,11 +249,11 @@ const IntelligenceRanking = () => {
                             </Tooltip>
                           </TableCell>
                           <TableCell className={`text-right tabular-nums ${isHighlighted(b.bairro, "max-adr") ? "font-bold text-primary" : ""}`}>
-                            {fmtBRL(b.adr_medio_studio)}
+                            {fmtBRL(b.adr_medio_studio)}{b.diaria_ocupacao_curadas ? "*" : ""}
                             {isHighlighted(b.bairro, "max-adr") && <span className="ml-0.5 text-[9px] text-primary">★</span>}
                           </TableCell>
                           <TableCell className={`text-right tabular-nums ${isHighlighted(b.bairro, "max-occ") ? "font-bold text-primary" : ""}`}>
-                            {fmtPct(b.ocupacao_media_studio)}
+                            {fmtPct(b.ocupacao_media_studio)}{b.diaria_ocupacao_curadas ? "*" : ""}
                             {isHighlighted(b.bairro, "max-occ") && <span className="ml-0.5 text-[9px] text-primary">★</span>}
                           </TableCell>
                           <TableCell className={`text-right tabular-nums ${isHighlighted(b.bairro, "max-yield") ? "font-bold text-emerald-600" : ""}`}>

@@ -1,3 +1,4 @@
+import { diariaPorMetragem, type SizeKey } from "@/data/bairrosCurados";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -180,7 +181,7 @@ export function useProjectSummary(): ProjectSummary {
     const bairro = bairros.find((b) => b.name === neighborhood);
     const occupancyPct = bairro?.avgOccupancy ?? DEFAULT_OCCUPANCY_PCT;
     const defaultAdr =
-      bairro?.avgBySize[areaSqm as keyof typeof bairro.avgBySize] ?? DEFAULT_ADR_BRL;
+      (bairro ? diariaPorMetragem(bairro, areaSqm as SizeKey as SizeKey) : undefined) ?? DEFAULT_ADR_BRL;
 
     const projection = projectionSummary({
       occupancyPct,

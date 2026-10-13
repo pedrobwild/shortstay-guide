@@ -1,3 +1,4 @@
+import { diariaPorMetragem, type SizeKey } from "@/data/bairrosCurados";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,8 +27,8 @@ interface ScenarioComparatorProps {
   projectId: string;
 }
 
-const SIZE_KEYS: (keyof BairroItem["avgBySize"])[] = ["20–25 m²", "26–35 m²", "36–50 m²"];
-const DEFAULT_SIZE: keyof BairroItem["avgBySize"] = "26–35 m²";
+const SIZE_KEYS: (SizeKey)[] = ["20–25 m²", "26–35 m²", "36–50 m²"];
+const DEFAULT_SIZE: SizeKey = "26–35 m²";
 
 const brl = (v: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(v);
@@ -170,7 +171,7 @@ export default function ScenarioComparator({ projectId }: ScenarioComparatorProp
   );
   const sizeKey = (SIZE_KEYS.includes(base.areaSqm as never)
     ? base.areaSqm
-    : DEFAULT_SIZE) as keyof BairroItem["avgBySize"];
+    : DEFAULT_SIZE) as SizeKey;
 
   const makePreset = (kind: Exclude<ScenarioKind, "custom">): ScenarioAssumptions =>
     presetAssumptions(kind, bairro, sizeKey, base.propertyValue);

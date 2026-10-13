@@ -1,3 +1,4 @@
+import { diariaPorMetragem, type SizeKey } from "@/data/bairrosCurados";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,7 +22,6 @@ import {
 } from "@/lib/bwildComparison";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
 
-type SizeKey = keyof BairroItem["avgBySize"];
 const SIZE_KEYS: SizeKey[] = ["20–25 m²", "26–35 m²", "36–50 m²"];
 
 const brl = (v: number) =>
@@ -53,7 +53,7 @@ export default function BwildVsDiySection() {
   const comparison = useMemo(() => {
     if (!selectedBairro) return null;
     return buildBwildVsDiyComparison({
-      baseAdr: selectedBairro.avgBySize[sizeKey],
+      baseAdr: diariaPorMetragem(selectedBairro, sizeKey),
       baseOccupancyPct: selectedBairro.avgOccupancy,
       propertyValue,
     });
@@ -135,7 +135,7 @@ export default function BwildVsDiySection() {
           </div>
           <p className="text-[11px] text-muted-foreground">
             Base de mercado do bairro/faixa: {selectedBairro.avgOccupancy}% de ocupação ·{" "}
-            {brl(selectedBairro.avgBySize[sizeKey])}/noite. Informe o valor do imóvel para ver o
+            {brl(diariaPorMetragem(selectedBairro, sizeKey))}/noite. Informe o valor do imóvel para ver o
             payback de cada cenário.
           </p>
         </CardContent>
