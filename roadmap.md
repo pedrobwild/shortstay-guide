@@ -13,7 +13,7 @@
 - [x] Implementar consentimento, GA4/Pixel e eventos públicos com bloqueio de áreas privadas.
 - [x] Criar imagem social a partir do hero e atualizar metadados públicos/pré-render.
 - [x] Revisar afirmações sem fonte e rotular premissas, sem alterar cálculos protegidos.
-- [ ] Reorientar abertura para consulta de dados: apresentar Bewild, fontes e caminhos de leitura; tirar orçamento da abertura e barra fixa; verificar navegação.
+- [x] Reorientar abertura para consulta de dados: apresentar Bewild, fontes e caminhos de leitura; tirar orçamento da abertura e barra fixa. Navegação mercado/mapa conferida em 320, 414 e 1280px, sem transbordamento; 44 testes passaram, compilação automática OK. Prompt Claude v2 atualizado; sem publicar.
 - [ ] Marca dos e-mails de cadastro: depende da configuração de domínio de envio; a verificação retornou nenhum domínio de e-mail ativo/configurado, sem alterar dados ou autenticação.
 - [x] Testar fluxos consentidos/recusados, CTAs e HTML pré-renderizado; verificar compilação automática e relatar categorias de textos alterados. Não publicar.
 - [x] Recalcular somente exemplos de reforma com o estudo de 188 contratos, preservando simuladores e case.
