@@ -2,6 +2,8 @@ import { formatDecimal } from "@/lib/numberFormat";
 import { getBairroCurado, fonteBairro, ROTULO_ESTIMATIVA_MERCADO } from "@/data/bairrosCurados";
 import { aplicarAjuste, buscarAjuste, carregarAjustes, mapaAjustes, type BairroAjuste } from "@/lib/bairroAjustes";
 import { useQuery } from "@tanstack/react-query";
+import { carregarRadar } from "@/lib/radarBase";
+import type { BairroCurado } from "@/data/bairrosCurados";
 import { supabase } from "@/integrations/supabase/client";
 import type { BairroAirbnb, RawListing } from "@/types/intelligence";
 
@@ -9,13 +11,15 @@ export function useBairrosData() {
   return useQuery({
     queryKey: ["bairro_airbnb_sp"],
     queryFn: async () => {
-      const [{ data, error }, ajustes] = await Promise.all([
+      const [{ data, error }, ajustes, radar] = await Promise.all([
         supabase.from("bairro_airbnb_sp").select("*").order("score_rentabilidade", { ascending: false }),
         carregarAjustes(),
+        carregarRadar(),
       ]);
       if (error) throw error;
       const mapa = mapaAjustes(ajustes);
-      return (data as unknown as BairroAirbnb[]).map((r) => aplicarCurados(r, mapa));
+      const base = mapaBase(radar.bairros);
+      return (data as unknown as BairroAirbnb[]).map((r) => aplicarCurados(r, mapa, base));
     },
   });
 }
@@ -24,12 +28,13 @@ export function useBairroDetail(bairro: string) {
   return useQuery({
     queryKey: ["bairro_airbnb_sp", bairro],
     queryFn: async () => {
-      const [{ data, error }, ajustes] = await Promise.all([
+      const [{ data, error }, ajustes, radar] = await Promise.all([
         supabase.from("bairro_airbnb_sp").select("*").eq("bairro", bairro).single(),
         carregarAjustes(),
+        carregarRadar(),
       ]);
       if (error) throw error;
-      return aplicarCurados(data as unknown as BairroAirbnb, mapaAjustes(ajustes));
+      return aplicarCurados(data as unknown as BairroAirbnb, mapaAjustes(ajustes), mapaBase(radar.bairros));
     },
     enabled: !!bairro,
   });
@@ -60,8 +65,12 @@ export const fmtScore = (v: number) => (v == null ? undefined : formatDecimal(v,
  * (e receita/yield exibidos são recalculados com elas). As demais métricas
  * continuam do banco, rotuladas como estimativa de mercado.
  */
-export function aplicarCurados(row: BairroAirbnb, ajustes?: Map<string, BairroAjuste>): BairroAirbnb {
-  const base = getBairroCurado(row.bairro);
+const normNome = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+export function mapaBase(lista: BairroCurado[]): Map<string, BairroCurado> {
+  return new Map(lista.map((b) => [normNome(b.name), b]));
+}
+export function aplicarCurados(row: BairroAirbnb, ajustes?: Map<string, BairroAjuste>, baseRadar?: Map<string, BairroCurado>): BairroAirbnb {
+  const base = baseRadar?.get(normNome(row.bairro)) ?? getBairroCurado(row.bairro);
   if (!base) return { ...row, diaria_ocupacao_curadas: false };
   const c = ajustes ? aplicarAjuste(base, buscarAjuste(ajustes, row.bairro)) : base;
   const adr = c.dailyAvg;
