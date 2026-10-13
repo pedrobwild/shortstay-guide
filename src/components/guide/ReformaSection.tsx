@@ -10,7 +10,7 @@ import { Lightbulb, Wrench, Star } from "lucide-react";
 import sectionReforma from "@/assets/section-reforma.jpg";
 import SectionBlock from "./SectionBlock";
 import { fmt } from "@/data/guide-data";
-import { PROPOSTA_REAL_PCT, PROPOSTA_REAL_VALOR, PROPOSTA_REAL_DATA, milReais } from "@/data/provasBewild";
+import { PROPOSTA_REAL_PCT, PROPOSTA_REAL_VALOR, PROPOSTA_REAL_DATA, milReais, ORCAMENTO_MEDIANO, CONTRATOS_ANALISADOS, ESTUDO_REFORMA_URL, STUDIO_EXEMPLO_IMOVEL, STUDIO_EXEMPLO_ITBI, STUDIO_EXEMPLO_TOTAL, STUDIO_EXEMPLO_PCT_REFORMA, STUDIO_EXEMPLO_M2, FIPEZAP_M2, FIPEZAP_DATA } from "@/data/provasBewild";
 
 export default function ReformaSection() {
   const pisoData = { vinilico: [{ item: "Material", valor: 66, area: 25 }, { item: "Instalação", valor: 25, area: 25 }, { item: "Preparação", valor: 12, area: 25 }], porcelanato: [{ item: "Material", valor: 110, area: 25 }, { item: "Instalação", valor: 85, area: 25 }, { item: "Preparação", valor: 40, area: 25 }] };
@@ -21,6 +21,11 @@ export default function ReformaSection() {
   return (
     <SectionBlock id="reforma" title="Reforma Inteligente" takeaway="Quanto investir, onde priorizar e o que gera mais retorno por m².">
       <div className="rounded-2xl overflow-hidden mb-8 shadow-sm ring-1 ring-border"><img src={sectionReforma} alt="Antes e depois de reforma de studio" className="w-full h-40 md:h-64 object-cover" loading="lazy" width={800} height={256} /></div>
+      <div className="mb-6 space-y-2 font-body">
+        <p className="text-sm text-foreground">Exemplo calculado com o estudo de {CONTRATOS_ANALISADOS} contratos: studio de {STUDIO_EXEMPLO_M2} m² × R$ {fmt(FIPEZAP_M2)}/m² (FipeZAP, {FIPEZAP_DATA}) = R$ {fmt(STUDIO_EXEMPLO_IMOVEL)} pelo imóvel. ITBI de 3% (hipótese): R$ {fmt(STUDIO_EXEMPLO_ITBI)}. Reforma completa mediana: R$ {fmt(ORCAMENTO_MEDIANO)}, já incluindo mobiliário e eletros. Total: R$ {fmt(STUDIO_EXEMPLO_TOTAL)}; reforma: {formatDecimal(STUDIO_EXEMPLO_PCT_REFORMA, 1)}% do investimento.</p>
+        <FonteLink fonte={{ title: "Bewild — estudo de 188 contratos", url: ESTUDO_REFORMA_URL }} />
+        <p className="text-xs text-muted-foreground">Os comparativos de materiais e serviços abaixo são hipóteses de exemplo, não preços extraídos do estudo. Confirme cada item no orçamento; não é possível recalculá-los com as medianas agregadas.</p>
+      </div>
       <Tabs defaultValue="piso" className="font-body">
         <TabsList className="mb-4"><TabsTrigger value="piso" className="min-h-[44px] px-4">Piso (25m²)</TabsTrigger><TabsTrigger value="marcenaria" className="min-h-[44px] px-4">Marcenaria</TabsTrigger><TabsTrigger value="iluminacao" className="min-h-[44px] px-4">Iluminação vs Bancada</TabsTrigger></TabsList>
         <TabsContent value="piso">
@@ -47,6 +52,7 @@ export default function ReformaSection() {
             </div>
             <div className="bg-gold-light/50 border border-gold/20 rounded-xl p-4 flex items-start gap-3"><Lightbulb className="text-gold mt-0.5 flex-shrink-0" size={20} /><div><p className="font-semibold text-foreground text-sm mb-1">Marcenaria é o que aparece no anúncio</p><p className="text-sm text-muted-foreground">Equilibre estética e funcionalidade. Armários fechados protegem itens dos hóspedes, mas abertos com iluminação fotografam melhor e geram mais cliques.</p></div></div>
             <p className="text-xs text-muted-foreground">Na reforma completa, a marcenaria é a maior linha do orçamento: {formatDecimal(PROPOSTA_REAL_PCT.marcenaria, 0)}% de uma proposta real de {milReais(PROPOSTA_REAL_VALOR)} ({PROPOSTA_REAL_DATA}).</p>
+            <FonteLink fonte={{ title: "Bewild — análise da proposta", url: ESTUDO_REFORMA_URL }} />
           </CardContent></Card>
         </TabsContent>
         <TabsContent value="iluminacao">

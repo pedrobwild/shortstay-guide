@@ -6,3 +6,6 @@
 - Store guide source references in src/data/fontesGuia.ts and render them through FonteLink so citations stay consistent across repeated claims.
 - Format display-only decimals and percentage points through src/lib/numberFormat.ts; never apply localized strings to calculation inputs or CSS dimensions, to preserve numeric behavior.
 - Keep the home profitability waterfall and its sensitivities in src/lib/rentabilidadeExample.ts, reading neighborhood inputs from the curated source while preserving the example's cost assumptions; this prevents drift between the example and neighborhood metrics.
+
+- Route all budget CTAs through OrcamentoButton and orcamentoUrl; centralize consent and GA4/Meta events in marketingConsent, gating both vendor and guide telemetry by stored consent and public pathname, to prevent unconsented/private tracking.
+- Derive reform investment examples from provasBewild study inputs, counting the turnkey median once; do not infer individual service quotes from aggregate contract statistics.
