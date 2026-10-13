@@ -134,6 +134,36 @@ export type Database = {
         }
         Relationships: []
       }
+      bairro_ajustes: {
+        Row: {
+          bairro: string
+          diaria: number
+          fonte: string
+          id: string
+          ocupacao: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          bairro: string
+          diaria: number
+          fonte: string
+          id?: string
+          ocupacao: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          bairro?: string
+          diaria?: number
+          fonte?: string
+          id?: string
+          ocupacao?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       guide_events: {
         Row: {
           created_at: string | null
