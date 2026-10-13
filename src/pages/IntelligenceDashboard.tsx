@@ -100,7 +100,7 @@ const IntelligenceDashboard = () => {
                   {FONTE_BAIRROS_CURADOS} Demais métricas: {rotuloEstimativa(bairros[0])}.
                 </p>
               )}
-              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">{bairros.map((b) => <div key={b.bairro}><span className="text-xs">{b.bairro}</span><FonteBairro nome={b.bairro} /></div>)}</div>
+              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">{bairros.map((b) => <div key={b.bairro}><span className="text-xs">{b.bairro}</span><FonteBairro nome={b.bairro} inverse /></div>)}</div>
               <div className="flex items-center gap-2 mt-3">
                 <div className="h-1.5 w-32 bg-primary-foreground/10 rounded-full overflow-hidden">
                   <div

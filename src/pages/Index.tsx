@@ -125,26 +125,26 @@ function IndexInner() {
                 <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">Mapa de Bairros Rentáveis</h2>
                 <p className="text-muted-foreground text-lg mb-6">Analise demanda, compare bairros, simule ROI e identifique os melhores investimentos em studios.</p>
                 <LazyMapaBairrosEmbed />
-                <Card className="border-border overflow-hidden mt-8">
+                <Card className="border-border overflow-hidden mt-8 min-w-0 max-w-full">
                   <CardContent className="p-0">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm font-body">
-                        <thead className="bg-secondary">
+                    <div className="min-w-0">
+                      <table className="block lg:table w-full text-sm font-body">
+                        <thead className="hidden lg:table-header-group bg-secondary">
                           <tr>
                             {["Bairro", "Diária média (ADR)", "Ocupação média", "Diária: 25% mais baratos", "Diária: mediana", "Diária: 25% mais caros"].map((h) => (
                               <th key={h} className="px-4 py-3 text-left font-semibold text-foreground">{h}</th>
                             ))}
                           </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="block lg:table-row-group">
                           {bairros.map((b) => (
-                            <tr key={b.name} className="border-t border-border hover:bg-muted/50 transition-colors">
-                              <td className="px-4 py-3 font-medium text-foreground">{b.name}<FonteBairro nome={b.name} /></td>
-                              <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.dailyAvg)}</td>
-                              <td className="px-4 py-3 text-muted-foreground">{rotuloOcupacao(b)}</td>
-                              <td className="px-4 py-3 text-muted-foreground">{b.dailyQuartiles ? `R$ ${fmt(b.dailyQuartiles[0])}` : "—"}</td>
-                              <td className="px-4 py-3 text-muted-foreground">{b.dailyQuartiles ? `R$ ${fmt(b.dailyQuartiles[1])}` : "—"}</td>
-                              <td className="px-4 py-3 font-semibold text-foreground">{b.dailyQuartiles ? `R$ ${fmt(b.dailyQuartiles[2])}` : "—"}</td>
+                            <tr key={b.name} className="grid grid-cols-3 lg:table-row border-t border-border hover:bg-muted/50 transition-colors">
+                              <td className="block lg:table-cell col-span-3 px-4 py-3 font-medium text-foreground">{b.name}<FonteBairro nome={b.name} /></td>
+                              <td className="block lg:table-cell col-span-2 px-4 py-3 text-muted-foreground"><span className="block lg:hidden text-xs">Diária média (ADR)</span>R$ {fmt(b.dailyAvg)}</td>
+                              <td className="block lg:table-cell px-4 py-3 text-muted-foreground"><span className="block lg:hidden text-xs">Ocupação média</span>{rotuloOcupacao(b)}</td>
+                              <td className="block lg:table-cell px-4 py-3 text-muted-foreground"><span className="block lg:hidden text-xs">Diária: 25% mais baratos</span>{b.dailyQuartiles ? `R$ ${fmt(b.dailyQuartiles[0])}` : "—"}</td>
+                              <td className="block lg:table-cell px-4 py-3 text-muted-foreground"><span className="block lg:hidden text-xs">Diária: mediana</span>{b.dailyQuartiles ? `R$ ${fmt(b.dailyQuartiles[1])}` : "—"}</td>
+                              <td className="block lg:table-cell px-4 py-3 font-semibold text-foreground"><span className="block lg:hidden text-xs">Diária: 25% mais caros</span>{b.dailyQuartiles ? `R$ ${fmt(b.dailyQuartiles[2])}` : "—"}</td>
                             </tr>
                           ))}
                         </tbody>
