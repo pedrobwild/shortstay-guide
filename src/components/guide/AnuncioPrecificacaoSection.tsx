@@ -35,12 +35,13 @@ const LISTING_ANATOMY = [
     tips: ["'Wi-Fi 300Mbps ideal para trabalho remoto' > 'Tem Wi-Fi'", "Organize por blocos: localização, conforto, trabalho", "Inclua distâncias a pé para pontos relevantes"],
   },
   {
+    source: FONTES_GUIA.ranking,
     step: 4,
     title: "Amenidades 100% preenchidas",
-    desc: "O algoritmo do Airbnb favorece anúncios com mais amenidades marcadas. Complete todas que se aplicam.",
+    desc: "Informe apenas amenidades reais para que o hóspede possa filtrar a busca pelos recursos de que precisa.",
     icon: BarChart3,
     impact: "Médio",
-    tips: ["Marque todas as amenidades reais, inclusive as óbvias", "Amenidades filtráveis (Wi-Fi, cozinha, AC) são decisivas", "Cada amenidade é um possível filtro do hóspede"],
+    tips: ["Marque todas as amenidades reais, inclusive as óbvias", "Confira as amenidades filtráveis (Wi-Fi, cozinha, AC)", "Cada amenidade é um possível filtro do hóspede"],
   },
 ];
 
@@ -86,9 +87,9 @@ const SEASONALITY = [
 /* ── Rate optimization tips ── */
 const RATE_TIPS = [
   { title: "Fotos profissionais", impact: "+19% de reservas", desc: "Segundo o Airbnb, anúncios com fotos profissionais tiveram em média 19% mais reservas (2024–2025).", icon: Camera, source: FONTES_GUIA.fotografia },
-  { title: "Estadia mínima inteligente", impact: "Eficiência", desc: "2 noites mínimo em semana, 3 em feriados. Reduz viradas e custos de limpeza.", icon: CalendarCheck },
+  { title: "Estadia mínima inteligente", impact: "Eficiência", desc: "Hipótese de regra: mínimo de 2 noites em semana e 3 em feriados. Avalie o efeito nas trocas de hóspedes e no calendário antes de adotar.", icon: CalendarCheck },
   { title: "Título e descrição otimizados", impact: "Clareza", desc: "Teste A/B de títulos e reescreva a descrição a cada trimestre.", icon: FileText },
-  { title: "Preço dinâmico", impact: "Ajuste à demanda", desc: "Ferramentas automatizadas capturam picos que você não consegue monitorar manualmente.", icon: Zap },
+  { title: "Preço dinâmico", impact: "Ajuste à demanda", desc: "Avalie ferramentas de ajuste de preços e acompanhe suas regras e resultados, sem pressupor ganho de receita.", icon: Zap },
 ];
 
 export default function AnuncioPrecificacaoSection() {
@@ -205,7 +206,7 @@ export default function AnuncioPrecificacaoSection() {
       </Card>
 
       {/* ── How to raise rates ── */}
-      <h3 className="font-display text-xl font-bold text-foreground mb-4">Como subir a diária sem perder ocupação</h3>
+      <h3 className="font-display text-xl font-bold text-foreground mb-4">Como testar a diária e acompanhar a ocupação</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         {RATE_TIPS.map((tip, i) => (
           <motion.div
@@ -239,7 +240,8 @@ export default function AnuncioPrecificacaoSection() {
         <Lightbulb className="text-primary mt-0.5 flex-shrink-0" size={20} />
         <div>
           <p className="font-display font-bold text-foreground text-sm mb-1">Preço é o último ajuste, não o primeiro</p>
-          <p className="text-sm text-muted-foreground font-body">Antes de mexer no preço, garanta que fotos, título, descrição e amenidades estejam otimizados. Um anúncio bem montado converte mais a qualquer preço. Precificação sem produto é desconto — precificação com produto é posicionamento.</p>
+          <p className="text-sm text-muted-foreground font-body">Antes de mexer no preço, garanta que fotos, título, descrição e amenidades estejam otimizados. O Airbnb considera fotos, preço e avaliações no posicionamento. Um anúncio completo não garante conversão nem dispensa testar o preço.</p>
+          <FonteLink fonte={FONTES_GUIA.ranking} />
         </div>
       </div>
 
@@ -248,9 +250,9 @@ export default function AnuncioPrecificacaoSection() {
           <AccordionTrigger className="text-primary font-semibold min-h-[48px]">Ferramentas de preço dinâmico recomendadas</AccordionTrigger>
           <AccordionContent>
             <div className="text-sm text-muted-foreground leading-relaxed space-y-2">
-              <p><strong className="text-foreground">PriceLabs</strong> — O mais usado no Brasil. Interface intuitiva, bom para quem tem 1–10 unidades. Integra com Airbnb e Booking.</p>
-              <p><strong className="text-foreground">Beyond Pricing</strong> — Forte em mercados internacionais. Mais robusto para quem opera em múltiplas cidades.</p>
-              <p><strong className="text-foreground">Wheelhouse</strong> — Permite mais controle manual sobre regras. Bom para operadores que querem customização.</p>
+              <p><strong className="text-foreground">PriceLabs</strong> — Consulte recursos, integrações e condições diretamente com o fornecedor antes de contratar.</p>
+              <p><strong className="text-foreground">Beyond Pricing</strong> — Verifique cobertura dos mercados e adequação à sua operação antes de contratar.</p>
+              <p><strong className="text-foreground">Wheelhouse</strong> — Compare as opções de controle de regras e personalização com as necessidades da operação.</p>
               <p className="mt-2"><strong className="text-foreground">Custo e resultado</strong>: confirme o preço com cada fornecedor e avalie o efeito das regras na sua operação; não há ganho de receita garantido.</p>
             </div>
           </AccordionContent>
@@ -259,11 +261,11 @@ export default function AnuncioPrecificacaoSection() {
           <AccordionTrigger className="text-primary font-semibold min-h-[48px]">Calendário de eventos de São Paulo</AccordionTrigger>
           <AccordionContent>
             <div className="text-sm text-muted-foreground leading-relaxed space-y-2">
-              <p><strong className="text-foreground">Carnaval (Fev/Mar)</strong> — Demanda altíssima. Ajuste preços conforme a procura observada. Defina mínimo de 3–4 noites.</p>
-              <p><strong className="text-foreground">F1 GP São Paulo (Nov)</strong> — Interlagos atrai público internacional. ADR premium para Pinheiros, Itaim e Vila Olímpia.</p>
-              <p><strong className="text-foreground">São Paulo Fashion Week (Abr/Out)</strong> — Concentra demanda em bairros centrais e Jardins.</p>
-              <p><strong className="text-foreground">Eventos corporativos</strong> — Feiras no Expo Center Norte, convenções no WTC. Demanda constante de executivos durante a semana.</p>
-              <p><strong className="text-foreground">Feriados prolongados</strong> — Tiradentes, Corpus Christi, 7 de Setembro. Turismo doméstico e ocupação alta.</p>
+              <p><strong className="text-foreground">Carnaval (Fev/Mar)</strong> — Confirme datas e procura observada. Mínimo de 3–4 noites é uma hipótese de regra, não recomendação universal.</p>
+              <p><strong className="text-foreground">F1 GP São Paulo (Nov)</strong> — Confirme datas, acesso ao local e procura observada antes de ajustar a diária de qualquer bairro.</p>
+              <p><strong className="text-foreground">São Paulo Fashion Week (Abr/Out)</strong> — Confira datas e locais da programação e acompanhe a procura na região do imóvel.</p>
+              <p><strong className="text-foreground">Eventos corporativos</strong> — Feiras no Expo Center Norte, convenções no WTC. Confira a programação e acompanhe a procura, sem assumir demanda constante.</p>
+              <p><strong className="text-foreground">Feriados prolongados</strong> — Tiradentes, Corpus Christi, 7 de Setembro. Acompanhe procura e reservas; feriados não garantem ocupação alta.</p>
             </div>
           </AccordionContent>
         </AccordionItem>
