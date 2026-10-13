@@ -15,6 +15,8 @@ import { useBairroData } from "@/hooks/useBairroData";
 import SectionBlock from "./SectionBlock";
 import { fmt, type SavedScenario, loadScenarios, persistScenarios } from "@/data/guide-data";
 
+type CellValue = string | number | null | undefined;
+
 export default function SimuladorSection() {
   const { bairros } = useBairroData();
   const [simBairro, setSimBairro] = useState<string>(bairros[0]?.name ?? "");
