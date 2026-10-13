@@ -64,7 +64,7 @@ export const BWILD_VS_DIY_ASSUMPTIONS = {
     managementPct: 0,
   },
   bwild: {
-    label: "Com a BWild",
+    label: "Com a Bewild",
     occupancyMultiplier: 1.06,
     adrMultiplier: 1.18,
     managementPct: 18,

@@ -78,10 +78,10 @@ export const MARCENARIA_DIAS_MONTAGEM = 5;
 export const FIPEZAP_M2 = 12143;
 export const FIPEZAP_DATA = "ago/2026";
 export const STUDIO_EXEMPLO_M2 = 27;
-export const STUDIO_EXEMPLO_IMOVEL = 328000; // ≈ R$ 328 mil
-export const STUDIO_EXEMPLO_ITBI = 9800; // ≈ R$ 9,8 mil (3%)
-export const STUDIO_EXEMPLO_TOTAL = 410000; // ≈ R$ 410 mil com a reforma mediana
-export const STUDIO_EXEMPLO_PCT_REFORMA = 18; // a reforma é ~18% do total
+export const STUDIO_EXEMPLO_IMOVEL = STUDIO_EXEMPLO_M2 * FIPEZAP_M2; // derivado da área × referência FipeZAP
+export const STUDIO_EXEMPLO_ITBI = STUDIO_EXEMPLO_IMOVEL * 0.03; // hipótese de ITBI de 3%, conforme o estudo
+export const STUDIO_EXEMPLO_TOTAL = STUDIO_EXEMPLO_IMOVEL + STUDIO_EXEMPLO_ITBI + ORCAMENTO_MEDIANO; // sem somar mobília de novo: já está na reforma turnkey
+export const STUDIO_EXEMPLO_PCT_REFORMA = ORCAMENTO_MEDIANO / STUDIO_EXEMPLO_TOTAL * 100; // participação calculada da reforma no total
 
 // ── Prova social ─────────────────────────────────────────────────
 // Origem: números oficiais publicados em bewild.com.br.
@@ -119,9 +119,9 @@ export const RESPOSTA_CUSTO_REFORMA =
 export const RESPOSTA_INVESTIMENTO_TOTAL =
   `Um studio de ${STUDIO_EXEMPLO_M2} m² ao preço médio de venda FipeZap ` +
   `(${brl(FIPEZAP_M2)}/m², ${FIPEZAP_DATA}) custa cerca de ${milReais(STUDIO_EXEMPLO_IMOVEL)}. ` +
-  `Somando ITBI de 3% (≈ ${milReais(STUDIO_EXEMPLO_ITBI)}) e a reforma completa mediana da Bewild ` +
+  `Somando a hipótese de ITBI de 3% (≈ ${milReais(STUDIO_EXEMPLO_ITBI)}) e a reforma completa mediana da Bewild ` +
   `(${brl(ORCAMENTO_MEDIANO)}), o total fica em torno de ${milReais(STUDIO_EXEMPLO_TOTAL)} — ` +
-  `a reforma é cerca de ${STUDIO_EXEMPLO_PCT_REFORMA}% do investimento.`;
+  `a reforma é cerca de ${num(STUDIO_EXEMPLO_PCT_REFORMA)}% do investimento.`;
 
 export const TEXTO_PRAZO_OBRA =
   `${PRAZO_DIAS_UTEIS_MIN} a ${PRAZO_DIAS_UTEIS_MAX} dias úteis em contrato, conforme metragem e integração de sacada`;

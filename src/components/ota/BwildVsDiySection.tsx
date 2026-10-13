@@ -73,11 +73,11 @@ export default function BwildVsDiySection() {
       <div>
         <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
           <GitCompareArrows className="h-4 w-4 text-primary" />
-          Fazer sozinho vs. com a BWild
+          Fazer sozinho vs. com a Bewild
         </h2>
         <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
           O mesmo studio, dois cenários: à esquerda, anunciado por conta própria, sem reforma
-          profissional. À direita, reformado, decorado e operado pela BWild. Veja quanto a mais o
+          profissional. À direita, reformado, decorado e operado pela Bewild. Veja quanto a mais o
           imóvel rende — já descontada a taxa de gestão.
         </p>
       </div>
@@ -169,7 +169,7 @@ export default function BwildVsDiySection() {
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" />
             <h3 className="text-sm font-semibold text-foreground">
-              O que a BWild adiciona — por ano
+              O que a Bewild adiciona — por ano
             </h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

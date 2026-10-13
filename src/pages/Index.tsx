@@ -299,7 +299,7 @@ function IndexInner() {
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <footer className="text-center py-8 text-sm text-muted-foreground font-body">
-              <img src={bwildLogo} alt="Bwild" className="h-6 w-auto mx-auto mb-3 opacity-60" />
+              <img src={bwildLogo} alt="Bewild" className="h-6 w-auto mx-auto mb-3 opacity-60" />
               <Link to="/ferramentas" className="text-primary hover:underline mb-2 inline-block">Ferramentas do Investidor →</Link>
               <p>Um produto <a href="https://bewild.com.br" target="_blank" rel="noopener noreferrer" className="text-primary underline">Bewild</a></p>
               <div className="flex flex-wrap justify-center items-center gap-4 mt-3">

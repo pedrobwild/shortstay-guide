@@ -54,7 +54,7 @@ export function buildProjectChatContext(
       context:
         "O usuário ainda NÃO tem um projeto ativo na plataforma. Responda com base " +
         "apenas nos dados gerais de mercado dos bairros acima e convide-o a criar um " +
-        "projeto no painel ou a falar com um especialista BWild para uma análise " +
+        "projeto no painel ou a usar o botão Peça seu orçamento da Bewild para uma proposta " +
         "personalizada do seu studio.",
     };
   }

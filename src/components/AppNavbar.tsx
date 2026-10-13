@@ -28,7 +28,7 @@ export default function AppNavbar() {
       <div className="max-w-6xl mx-auto flex h-14 items-center justify-between px-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <img src={bwildLogo} alt="Bwild" className="h-7 w-auto" />
+          <img src={bwildLogo} alt="Bewild" className="h-7 w-auto" />
         </Link>
 
         {/* Right side */}

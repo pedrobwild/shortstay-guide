@@ -17,7 +17,7 @@ export default function MapaBairros() {
             <ArrowLeft size={16} /><span className="hidden sm:inline">Voltar ao guia</span>
           </Link>
           <Separator orientation="vertical" className="h-5" />
-          <img src={bwildLogo} alt="Bwild" className="h-6 w-auto" />
+          <img src={bwildLogo} alt="Bewild" className="h-6 w-auto" />
           <span className="text-xs text-muted-foreground font-body hidden md:inline">Mapa de Bairros Rentáveis</span>
         </div>
       </header>
@@ -53,8 +53,8 @@ export default function MapaBairros() {
         </section>
 
         <footer className="text-center py-8 text-sm text-muted-foreground font-body border-t border-border">
-          <img src={bwildLogo} alt="Bwild" className="h-6 w-auto mx-auto mb-3 opacity-60" />
-          © 2026 Bwild · Mapa de Bairros Rentáveis — São Paulo
+          <img src={bwildLogo} alt="Bewild" className="h-6 w-auto mx-auto mb-3 opacity-60" />
+          © 2026 Bewild · Mapa de Bairros Rentáveis — São Paulo
         </footer>
       </main>
     </div>

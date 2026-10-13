@@ -634,7 +634,7 @@ export default function ProjectAnalytics({
               </div>
             </div>
             <p className="text-[11px] text-muted-foreground">
-              Bairro e faixa de área qualificam o lead no painel comercial da BWild. Salvos automaticamente.
+              Bairro e faixa de área qualificam o lead no painel comercial da Bewild. Salvos automaticamente.
             </p>
           </CardContent>
         </Card>

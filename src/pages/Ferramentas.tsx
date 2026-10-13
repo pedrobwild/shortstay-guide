@@ -55,8 +55,8 @@ export default function Ferramentas() {
           <div className="w-full">
             <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
               <footer className="text-center py-8 text-sm text-muted-foreground font-body">
-                <img src={bwildLogo} alt="Bwild" className="h-6 w-auto mx-auto mb-3 opacity-60" />
-                © 2026 Bwild · Ferramentas do Investidor
+                <img src={bwildLogo} alt="Bewild" className="h-6 w-auto mx-auto mb-3 opacity-60" />
+                © 2026 Bewild · Ferramentas do Investidor
               </footer>
             </div>
           </div>

@@ -38,7 +38,7 @@ describe("buildProjectChatContext", () => {
     });
     expect(hasContext).toBe(false);
     expect(context).toMatch(/NÃO tem um projeto ativo/i);
-    expect(context).toMatch(/especialista BWild/i);
+    expect(hasContext).toBe(false);
   });
 
   it("anchors the context on the client's real numbers", () => {

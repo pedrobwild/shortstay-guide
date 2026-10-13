@@ -15,6 +15,8 @@ export function Seo({ title, description, path, noindex }: SeoProps) {
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
       <meta property="og:site_name" content={SITE_NAME} />
+      {!noindex && <meta property="og:image" content={`${SITE_URL}/og-radar.jpg`} />}
+      {!noindex && <meta name="twitter:image" content={`${SITE_URL}/og-radar.jpg`} />}
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
     </Helmet>
