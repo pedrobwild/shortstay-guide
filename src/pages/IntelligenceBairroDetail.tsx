@@ -75,12 +75,26 @@ const PROFILE_ICONS: Record<string, React.ElementType> = {
 };
 
 const IntelligenceBairroDetail = () => {
-  const { bairro } = useParams<{ bairro: string }>();
-  const { data: b, isLoading } = useBairroDetail(decodeURIComponent(bairro || ""));
-  const { data: allBairros } = useBairrosData();
+  const { bairro: rawParam = "" } = useParams<{ bairro: string }>();
+  const { search, hash } = useLocation();
+  let decoded = rawParam;
+  try { decoded = decodeURIComponent(rawParam); } catch { /* valor bruto */ }
+  const slug = slugifyBairro(decoded);
+  const { data: allBairros, isLoading: loadingAll } = useBairrosData();
+  // Resolve o slug para o nome exato do bairro (lista estática primeiro, depois banco).
+  const resolvedName =
+    SEO_BAIRROS.find((n) => slugifyBairro(n) === slug) ??
+    allBairros?.find((x) => slugifyBairro(x.bairro) === slug)?.bairro ??
+    "";
+  const { data: b, isLoading } = useBairroDetail(resolvedName);
+  const seoName = resolvedName || decoded;
+  const seoHead = <Seo title={bairroTitle(seoName)} description={bairroDescription(seoName)} path={`/bairro/${slug}`} />;
 
-  if (isLoading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-pulse text-muted-foreground">Carregando…</div></div>;
-  if (!b) return <div className="min-h-screen bg-background flex items-center justify-center"><p>Bairro não encontrado.</p></div>;
+  // Formato antigo (com acento/maiúsculas/espaços) → redireciona para o slug canônico.
+  if (rawParam !== slug) return <Navigate to={`/bairro/${slug}${search}${hash}`} replace />;
+
+  if (isLoading || (!resolvedName && loadingAll)) return <div className="min-h-screen bg-background flex items-center justify-center">{seoHead}<div className="animate-pulse text-muted-foreground">Carregando…</div></div>;
+  if (!b) return <div className="min-h-screen bg-background flex items-center justify-center"><Seo title="Bairro não encontrado | Radar Bewild" description="Bairro não encontrado." path={`/bairro/${slug}`} noindex /><p>Bairro não encontrado.</p></div>;
 
   const all = allBairros ?? [b];
   const profile = getBairroProfile(b, all);
