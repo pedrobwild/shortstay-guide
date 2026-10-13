@@ -11,6 +11,7 @@ import { useScrollspy } from "@/hooks/useScrollspy";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
 import ScrollProgressBar from "@/components/guide/ScrollProgressBar";
 import ResumeToast from "@/components/guide/ResumeToast";
+import ClientOnly from "@/components/ClientOnly";
 import { BairroProvider, useBairroData } from "@/hooks/useBairroData";
 import { GuideDecisionProvider } from "@/hooks/useGuideDecision";
 import { SECTIONS, PHASES, fmt } from "@/data/guide-data";
@@ -90,8 +91,8 @@ function IndexInner() {
   return (
     <>
       <AppNavbar />
-      <ScrollProgressBar percent={scrollPercent} />
-      <ResumeToast data={resumeData} onDismiss={dismissResume} />
+      <ClientOnly><ScrollProgressBar percent={scrollPercent} /></ClientOnly>
+      <ClientOnly><ResumeToast data={resumeData} onDismiss={dismissResume} /></ClientOnly>
       <TableOfContents activeId={activeId} visitedSections={visitedSections} />
       <MobileMenu activeId={activeId} sectionIndex={sectionIndex} sectionCount={sectionCount} />
       <MobileStickyBar />

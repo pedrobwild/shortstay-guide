@@ -31,6 +31,7 @@ const Ferramentas = lazy(() => import("./pages/Ferramentas"));
 const AdminLeads = lazy(() => import("./pages/AdminLeads"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 import ChatBot from "./components/ChatBot";
+import ClientOnly from "@/components/ClientOnly";
 
 const queryClient = new QueryClient();
 
