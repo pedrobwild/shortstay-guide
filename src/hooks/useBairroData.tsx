@@ -1,10 +1,11 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useMemo } from "react";
 import { BAIRROS_CURADOS } from "@/data/bairrosCurados";
 import type { BairroItem } from "@/data/guide-data";
+import { aplicarAjuste, buscarAjuste, mapaAjustes, useBairroAjustes } from "@/lib/bairroAjustes";
 
 /**
- * Diária e ocupação por bairro vêm SÓ de `bairrosCurados` — o mesmo número no
- * HTML pré-renderizado e depois de carregar. O banco não sobrescreve mais.
+ * Diária e ocupação por bairro vêm de `bairrosCurados`, com os ajustes do admin
+ * sobrepostos quando existirem (a base curada não é alterada).
  */
 type BairroContextValue = {
   bairros: BairroItem[];
@@ -21,5 +22,11 @@ export function useBairroData() {
 }
 
 export function BairroProvider({ children }: { children: React.ReactNode }) {
-  return <BairroContext.Provider value={VALUE}>{children}</BairroContext.Provider>;
+  const { data } = useBairroAjustes();
+  const value = useMemo<BairroContextValue>(() => {
+    if (!data?.length) return VALUE;
+    const mapa = mapaAjustes(data);
+    return { ...VALUE, bairros: BAIRROS_CURADOS.map((b) => aplicarAjuste(b, buscarAjuste(mapa, b.name))) };
+  }, [data]);
+  return <BairroContext.Provider value={value}>{children}</BairroContext.Provider>;
 }
