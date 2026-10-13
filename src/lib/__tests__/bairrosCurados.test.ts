@@ -42,7 +42,7 @@ describe("bairrosCurados", () => {
 
   it("nenhum multiplicador de diária sobrou no código", () => {
     const files: string[] = [];
-    const walk = (d: string) => readdirSync(d).forEach((n) => { const p = join(d, n); statSync(p).isDirectory() ? walk(p) : /\.(ts|tsx)$/.test(n) && !p.includes("__tests__") && files.push(p); });
+    const walk = (d: string) => readdirSync(d).forEach((n) => { const p = join(d, n); if (statSync(p).isDirectory()) walk(p); else if (/\.(ts|tsx)$/.test(n) && !p.includes("__tests__")) files.push(p); });
     walk("src");
     for (const f of files) {
       const s = readFileSync(f, "utf8");
