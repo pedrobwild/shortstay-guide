@@ -38,6 +38,7 @@ import ChecklistSection from "@/components/guide/ChecklistSection";
 import TrustSignals from "@/components/guide/TrustSignals";
 import FAQSection from "@/components/guide/FAQSection";
 import FinalCTASection from "@/components/guide/FinalCTASection";
+import { FONTE_BAIRROS_CURADOS, rotuloOcupacao } from "@/data/bairrosCurados";
 
 const TendenciasSection = lazy(() => import("@/components/guide/TendenciasSection"));
 

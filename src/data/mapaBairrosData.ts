@@ -22,6 +22,7 @@ export const POI_COLORS: Record<string, string> = {
   events: "#ef4444",
   metro: "#10b981",
 };
+import { getBairroCurado, receitaMensalReferencia, FONTE_BAIRROS_CURADOS } from "@/data/bairrosCurados";
 import { DISTRICTS_MOCK, type DistrictRow } from "@/data/districtMetrics";
 
 /* ─── Types ─── */
@@ -123,6 +124,11 @@ function parseAdrRange(label: string): [number, number] {
 }
 
 function districtToNeighborhood(d: DistrictRow): Neighborhood {
+  const c = getBairroCurado(d.districtName);
+  const nightly = c ? c.dailyAvg : d.nightlyRateBRL;
+  const occ = c ? c.avgOccupancy : d.occupancyPercent;
+  const range: [number, number] = c ? [c.dailyMin, c.dailyMax] : parseAdrRange(d.adrRangeLabel);
+  const revenue = c ? receitaMensalReferencia(c) : d.revenueMonthBRL;
   const center = DISTRICT_CENTERS[d.districtName] || { lat: -23.55, lng: -46.64, x: 50, y: 50 };
   const demandChip = d.chips.find((c) => c !== "Próximo ao metrô") || "Misto";
   const demandProfile = CHIP_TO_DEMAND[demandChip] || "mixed";
@@ -133,21 +139,21 @@ function districtToNeighborhood(d: DistrictRow): Neighborhood {
     tags: d.chips.map((c) => c.toLowerCase()),
     demandProfile,
     score: d.score,
-    avgNightly: d.nightlyRateBRL,
-    avgOccupancy: d.occupancyPercent,
+    avgNightly: nightly,
+    avgOccupancy: occ,
     coordinates: { x: center.x, y: center.y },
     centerLat: center.lat,
     centerLng: center.lng,
     metrics: {
-      nightlyRate: d.nightlyRateBRL,
-      nightlyRateRange: parseAdrRange(d.adrRangeLabel),
-      occupancy: d.occupancyPercent,
+      nightlyRate: nightly,
+      nightlyRateRange: range,
+      occupancy: occ,
       estimatedROI: d.roiPercent,
       competitionLevel: COMPETITION_MAP[d.competition] || "média",
       activeListings: d.listingsCount,
-      avgRevenueMo: d.revenueMonthBRL,
+      avgRevenueMo: revenue,
       seasonalityIndex: 1.0,
-      dataSource: d.sourceLabel,
+      dataSource: c ? FONTE_BAIRROS_CURADOS : d.sourceLabel,
     },
   };
 }
