@@ -1,0 +1,5 @@
+- [ ] Substituir as dez afirmações aprovadas e exibir suas fontes.
+- [ ] Padronizar percentuais e decimais com Intl.NumberFormat pt-BR, preservando moeda e case Pinheiros.
+- [x] Ocultar o selo Edit with Lovable no site publicado.
+- [ ] Inventariar outras afirmações percentuais/multiplicadores sem fonte, sem alterá-las.
+- [ ] Verificar testes, tipos, build automático e textos da home pré-renderizada; não publicar.
