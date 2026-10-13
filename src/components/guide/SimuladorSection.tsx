@@ -150,7 +150,7 @@ export default function SimuladorSection() {
                         { label: "Payback", key: "paybackMonths", fmt: (v: CellValue) => v ? `${v} meses` : "—", best: "min" },
                       ] as const).map(row => {
                         const values = scenarios.map(s => (s as unknown as Record<string, CellValue>)[row.key]);
-                        const numericValues = values.filter(v => typeof v === "number" && v > 0);
+                        const numericValues = values.filter((v): v is number => typeof v === "number" && v > 0);
                         const bestVal = row.best === "max" ? Math.max(...numericValues) : row.best === "min" ? Math.min(...numericValues) : null;
                         return (
                           <tr key={row.key} className="border-b border-border/50">
