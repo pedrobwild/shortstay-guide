@@ -135,7 +135,7 @@ export default function BwildVsDiySection() {
             </div>
           </div>
           <p className="text-[11px] text-muted-foreground">
-            Base de mercado do bairro/faixa: {selectedBairro.avgOccupancy}% de ocupação ·{" "}
+            Base de mercado do bairro/faixa: {formatDecimal(selectedBairro.avgOccupancy, 0)}% de ocupação ·{" "}
             {brl(diariaPorMetragem(selectedBairro, sizeKey))}/noite. Informe o valor do imóvel para ver o
             payback de cada cenário.
           </p>
@@ -155,7 +155,7 @@ export default function BwildVsDiySection() {
           scenario={bwild}
           variant="bwild"
           icon={<Hammer className="h-4 w-4" />}
-          subtitle={`Reforma + decoração + operação · gestão ${bwild.managementPct}%`}
+          subtitle={`Reforma + decoração + operação · gestão ${formatDecimal(bwild.managementPct)}%`}
           comparison={comparison}
         />
       </div>
