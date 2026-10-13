@@ -90,6 +90,17 @@ export const PROJETOS = 200;
 /** Bairros com obra entregue. Escrever "em 27 bairros", nunca "+27". */
 export const BAIRROS_ATENDIDOS = 27;
 
+// ── Garantia e atraso ────────────────────────────────────────────
+// Origem: fonte de verdade da Bewild, ago/2026.
+/** Anos de garantia dos serviços da Bewild. */
+export const GARANTIA_ANOS = 5;
+/** Texto de garantia reusado nas seções — nunca escrever "1 ano". */
+export const TEXTO_GARANTIA = `${GARANTIA_ANOS} anos de garantia`;
+/** O contrato da Bewild prevê multa por dia de atraso. */
+export const TEXTO_MULTA_ATRASO = "multa por dia de atraso prevista em contrato";
+
+
+
 // ── Formatação ───────────────────────────────────────────────────
 export const brl = (v: number) =>
   "R$ " + v.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
