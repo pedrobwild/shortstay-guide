@@ -16,3 +16,5 @@
 - [ ] Marca dos e-mails de cadastro: depende da configuração de domínio de envio; a verificação retornou nenhum domínio de e-mail ativo/configurado, sem alterar dados ou autenticação.
 - [x] Testar fluxos consentidos/recusados, CTAs e HTML pré-renderizado; verificar compilação automática e relatar categorias de textos alterados. Não publicar.
 - [x] Recalcular somente exemplos de reforma com o estudo de 188 contratos, preservando simuladores e case.
+
+- [ ] Reescrever afirmações restantes com fontes existentes e conferir tendências e guia; listar alterações sem mudar dados ou cálculos.

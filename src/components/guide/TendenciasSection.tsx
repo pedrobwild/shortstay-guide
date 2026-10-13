@@ -12,6 +12,7 @@ import {
   type TrendSortMode, type TrendItem,
 } from "@/data/guide-data";
 import SectionBlock from "./SectionBlock";
+import FonteLink from "@/components/guide/FonteLink";
 
 const PAGE_SIZE_DESKTOP = 8;
 const PAGE_SIZE_MOBILE = 4;
@@ -84,7 +85,8 @@ export default function TendenciasSection() {
     : activeTag;
 
   return (
-    <SectionBlock id="tendencias" title="Tendências 2026" takeaway="20 práticas dos hosts mais rentáveis do Brasil.">
+    <SectionBlock id="tendencias" title="Tendências 2026" takeaway="Práticas para planejar produto e operação, sem garantia de desempenho.">
+      <p className="text-xs text-muted-foreground mb-4">Impacto e dificuldade são classificações internas de planejamento, não resultados medidos.</p>
       {/* KPI Filter Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         {KPI_FILTERS.map((kpi) => {
@@ -254,7 +256,8 @@ export default function TendenciasSection() {
                 ))}
               </div>
 
-              <p className="text-xs text-primary font-medium">Impacto esperado: {detailTrend.details.expectedImpact}</p>
+              <p className="text-xs text-primary font-medium">Objetivo da prática: {detailTrend.details.expectedImpact}</p>
+              {detailTrend.sources?.map((fonte) => <FonteLink key={fonte.url} fonte={fonte} />)}
             </>
           )}
         </DialogContent>
