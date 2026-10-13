@@ -14,7 +14,8 @@ const bairro: BairroItem = {
   dailyMin: 300,
   dailyMax: 470,
   avgOccupancy: 80,
-  perSqm: 11,
+  dailyAvg: 385,
+  ocupacaoFonte: "bewild",
   avgBySize: { "20–25 m²": 300, "26–35 m²": 380, "36–50 m²": 470 },
 };
 

@@ -43,7 +43,7 @@ export default function MercadoSection() {
 
   return (
     <SectionBlock id="mercado" title="Mercado e Precificação — São Paulo" takeaway="Diárias médias, ocupação e receita por bairro atualizado.">
-      {lastUpdated && <Badge variant="secondary" className="mb-4 text-xs font-body">Dados atualizados em {new Date(lastUpdated).toLocaleDateString("pt-BR")}</Badge>}
+      <Badge variant="secondary" className="mb-4 text-xs font-body">Fonte: {FONTE_BAIRROS_CURADOS}</Badge>
       <h3 className="font-display text-xl font-bold text-foreground mb-4">🎯 Meta de Diária</h3>
       <Card className="border-border">
         <CardContent className="p-6 space-y-5 font-body">
