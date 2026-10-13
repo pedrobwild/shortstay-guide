@@ -1,0 +1,25 @@
+import { describe, expect, it } from "vitest";
+import { BAIRROS_CURADOS, getBairroCurado } from "@/data/bairrosCurados";
+import { aplicarAjuste, buscarAjuste, mapaAjustes, resultadoLiquidoMensal, rotuloDecoracao } from "@/lib/bairroAjustes";
+
+describe("ajustes de bairro", () => {
+  it("sobrepõe diária e ocupação sem alterar a base aprovada", () => {
+    const pinheiros = getBairroCurado("Pinheiros")!;
+    const mapa = mapaAjustes([{ bairro: "Pinheiros", diaria: 350, ocupacao: 70, fonte: "teste" }]);
+    const ajustado = aplicarAjuste(pinheiros, buscarAjuste(mapa, "pinheiros"));
+    expect(ajustado.dailyAvg).toBe(350);
+    expect(ajustado.avgOccupancy).toBe(70);
+    expect(getBairroCurado("Pinheiros")!.dailyAvg).toBe(300);
+    expect(getBairroCurado("Pinheiros")!.avgOccupancy).toBe(62);
+  });
+  it("sem ajuste devolve o bairro original", () => {
+    expect(aplicarAjuste(BAIRROS_CURADOS[0], undefined)).toBe(BAIRROS_CURADOS[0]);
+  });
+  it("resultado líquido desconta 45% de custos padrão", () => {
+    expect(resultadoLiquidoMensal(10000)).toBe(5500);
+  });
+  it("decoração segue o boost do simulador", () => {
+    expect(rotuloDecoracao(0)).toBe("Sem melhoria");
+    expect(rotuloDecoracao(20)).toBe("Premium (+20%)");
+  });
+});

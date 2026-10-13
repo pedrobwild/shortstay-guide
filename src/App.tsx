@@ -29,6 +29,8 @@ const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Ferramentas = lazy(() => import("./pages/Ferramentas"));
 const AdminLeads = lazy(() => import("./pages/AdminLeads"));
+const AdminBairros = lazy(() => import("./pages/AdminBairros"));
+const AdminSimulacoes = lazy(() => import("./pages/AdminSimulacoes"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 import ChatBot from "./components/ChatBot";
 import ClientOnly from "@/components/ClientOnly";
@@ -136,6 +138,9 @@ export function AppRoutes() {
           <Route path="/projetos" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
           <Route path="/projeto/:projectId" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
           <Route path="/admin/leads" element={<AdminRoute><AdminLeads /></AdminRoute>} />
+          <Route path="/admin" element={<Navigate to="/admin/bairros" replace />} />
+          <Route path="/admin/bairros" element={<AdminRoute><AdminBairros /></AdminRoute>} />
+          <Route path="/admin/simulacoes" element={<AdminRoute><AdminSimulacoes /></AdminRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <ClientOnly><ChatBot /></ClientOnly>
