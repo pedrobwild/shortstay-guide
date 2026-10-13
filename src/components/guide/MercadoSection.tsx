@@ -11,15 +11,17 @@ import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { useBairroData } from "@/hooks/useBairroData";
 import SectionBlock from "./SectionBlock";
 import { DECORATION_LEVELS, fmt } from "@/data/guide-data";
+import { FONTE_BAIRROS_CURADOS } from "@/data/bairrosCurados";
 
 export default function MercadoSection() {
-  const { bairros, lastUpdated } = useBairroData();
+  const { bairros } = useBairroData();
   const [bairro, setBairro] = useState<string>(bairros[0]?.name ?? "");
   const [metragem, setMetragem] = useState(30);
   const [decoracao, setDecoracao] = useState<string>("basico");
-  const [ocupacao, setOcupacao] = useState([75]);
+  const [ocupacao, setOcupacao] = useState([bairros[0]?.avgOccupancy ?? 75]);
 
   const selected = bairros.find((b) => b.name === bairro) ?? bairros[0];
+  useEffect(() => { if (selected) setOcupacao([selected.avgOccupancy]); }, [selected]);
   const decLevel = DECORATION_LEVELS.find((d) => d.value === decoracao) ?? DECORATION_LEVELS[0];
 
   const result = useMemo(() => {
