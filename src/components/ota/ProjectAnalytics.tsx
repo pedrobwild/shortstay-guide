@@ -586,7 +586,7 @@ export default function ProjectAnalytics({
             </div>
             <p className="text-[11px] text-muted-foreground">
               Premissas de ADR e ocupação são preenchidas com a média de mercado do bairro/faixa de área
-              ({selectedBairro?.avgOccupancy ?? 0}% ocupação · {brl((selectedBairro ? diariaPorMetragem(selectedBairro, sizeKey as SizeKey) : undefined) ?? 0)}/noite).
+              ({formatDecimal(selectedBairro?.avgOccupancy ?? 0, 0)}% ocupação · {brl((selectedBairro ? diariaPorMetragem(selectedBairro, sizeKey as SizeKey) : undefined) ?? 0)}/noite).
               Ajuste tudo nas premissas abaixo — os números recalculam em tempo real.
             </p>
           </CardContent>
@@ -748,8 +748,8 @@ export default function ProjectAnalytics({
           <div className="space-y-2 text-xs">
             <CostRow label="Receita bruta" value={grossRevenue} positive />
             <CostRow label={`Limpeza (${kpis.reservationsCount} reservas × ${brl(costs.cleaningPerStay)})`} value={-cleaningTotal} />
-            <CostRow label={`Gestão (${costs.managementPct}%)`} value={-managementTotal} />
-            <CostRow label={`Impostos (${costs.taxesPct}%)`} value={-taxesTotal} />
+            <CostRow label={`Gestão (${formatDecimal(costs.managementPct)}%)`} value={-managementTotal} />
+            <CostRow label={`Impostos (${formatDecimal(costs.taxesPct)}%)`} value={-taxesTotal} />
             <CostRow label={`Condomínio (${monthsCount} × ${brl(costs.condoMonthly)})`} value={-condoTotal} />
             <div className="h-px bg-border my-1" />
             <CostRow label="Receita líquida" value={netRevenue} bold />

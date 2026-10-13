@@ -213,7 +213,7 @@ function ProjectionCard({
         <div className="flex items-center justify-between text-[11px] text-muted-foreground">
           <span className="flex items-center gap-1">
             <Building2 className="h-3 w-3" />
-            {projection.occupancyPct.toFixed(0)}% ocupação · {brl(projection.adr)}/noite
+            {formatDecimal(projection.occupancyPct, 0)}% ocupação · {brl(projection.adr)}/noite
           </span>
         </div>
 
@@ -247,7 +247,7 @@ function StatusCard({ deal }: { deal: DealStatus }) {
               style={{ width: `${deal.progressPct}%` }}
             />
           </div>
-          <p className="text-[11px] text-muted-foreground">{deal.progressPct}% concluído</p>
+          <p className="text-[11px] text-muted-foreground">{formatDecimal(deal.progressPct, 0)}% concluído</p>
         </div>
 
         <ul className="space-y-2">

@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 import FonteLink from "@/components/guide/FonteLink";
 import { FONTES_GUIA } from "@/data/fontesGuia";
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -72,7 +73,7 @@ export default function MercadoSection() {
             </Select>
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">Ocupação estimada: <span className="font-bold text-primary">{ocupacao[0]}%</span></label>
+            <label className="text-sm font-medium text-foreground mb-2 block">Ocupação estimada: <span className="font-bold text-primary">{formatDecimal(ocupacao[0], 0)}%</span></label>
             <Slider value={ocupacao} onValueChange={setOcupacao} min={50} max={90} step={1} />
           </div>
           <Separator />
@@ -95,7 +96,7 @@ export default function MercadoSection() {
       <Accordion type="multiple" className="mt-4 font-body">
         <AccordionItem value="metodologia">
           <AccordionTrigger className="text-primary font-semibold">Metodologia de cálculo</AccordionTrigger>
-          <AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">A diária mínima e máxima são faixas observadas para studios do bairro selecionado, baseadas em dados de mercado. O multiplicador de decoração ajusta a faixa: Básico (1.0×) mantém valores base, Premium (1.2×) reflete studios com acabamento e fotos acima da média, Alto padrão (1.45×) reflete studios com design autoral e operação profissional. A metragem aplica ajuste adicional: studios abaixo de 25m² recebem -8% e acima de 35m² recebem +8%.</p></AccordionContent>
+          <AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">A diária mínima e máxima são faixas observadas para studios do bairro selecionado, baseadas em dados de mercado. O multiplicador de decoração ajusta a faixa: Básico ({formatDecimal(1, 1)}×) mantém valores base, Premium ({formatDecimal(1.2, 1)}×) reflete studios com acabamento e fotos acima da média, Alto padrão ({formatDecimal(1.45, 2)}×) reflete studios com design autoral e operação profissional. A metragem aplica ajuste adicional: studios abaixo de 25m² recebem -8% e acima de 35m² recebem +8%.</p></AccordionContent>
         </AccordionItem>
         <AccordionItem value="coleta">
           <AccordionTrigger className="text-primary font-semibold">Como os dados são coletados</AccordionTrigger>

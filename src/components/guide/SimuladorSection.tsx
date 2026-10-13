@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -63,7 +64,7 @@ export default function SimuladorSection() {
   }, [selected, simDiariaAtual, simOcupacao, rateBoost, simReformaBudget, simObjetivo]);
 
   const summaryText = useMemo(() => {
-    return `📊 Simulação de Receita — Short Stay\n\nBairro: ${simBairro}\nMetragem: ${simMetragem}m²\nOcupação: ${simOcupacao[0]}%\nDiária base: R$ ${fmt(sim.baseDaily)}\n` +
+    return `📊 Simulação de Receita — Short Stay\n\nBairro: ${simBairro}\nMetragem: ${simMetragem}m²\nOcupação: ${formatDecimal(simOcupacao[0], 0)}%\nDiária base: R$ ${fmt(sim.baseDaily)}\n` +
       (rateBoost > 0 ? `Diária c/ boost +${rateBoost}%: R$ ${fmt(sim.boostedDaily)}\n` : "") +
       `\nReceita mensal: R$ ${fmt(sim.receitaMensal)}\nReceita anual: R$ ${fmt(sim.receitaAnual)}\n` +
       (sim.paybackMonths ? `\nPayback da reforma: ~${sim.paybackMonths} meses\n` : "") +
@@ -102,7 +103,7 @@ export default function SimuladorSection() {
             <div><label className="text-sm font-medium text-foreground mb-1.5 block">Bairro</label><Select value={simBairro} onValueChange={setSimBairro}><SelectTrigger className="min-h-[48px] text-base"><SelectValue /></SelectTrigger><SelectContent>{bairros.map((b) => <SelectItem key={b.name} value={b.name}>{b.name}</SelectItem>)}</SelectContent></Select></div>
             <div><label className="text-sm font-medium text-foreground mb-1.5 block">Metragem (m²)</label><Input type="number" min={15} max={80} value={simMetragem} onChange={(e) => setSimMetragem(Number(e.target.value) || 30)} className="min-h-[48px] text-base" /></div>
           </div>
-          <div><label className="text-sm font-medium text-foreground mb-2 block">Ocupação estimada: <span className="font-bold text-primary">{simOcupacao[0]}%</span></label><Slider value={simOcupacao} onValueChange={setSimOcupacao} min={50} max={90} step={1} /></div>
+          <div><label className="text-sm font-medium text-foreground mb-2 block">Ocupação estimada: <span className="font-bold text-primary">{formatDecimal(simOcupacao[0], 0)}%</span></label><Slider value={simOcupacao} onValueChange={setSimOcupacao} min={50} max={90} step={1} /></div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div><label className="text-sm font-medium text-foreground mb-1.5 block">Diária atual (opcional, R$)</label><Input type="number" placeholder={`Média do bairro: R$ ${fmt(selected.dailyAvg)}`} value={simDiariaAtual} onChange={(e) => setSimDiariaAtual(e.target.value)} className="min-h-[48px] text-base" /></div>
             <div><label className="text-sm font-medium text-foreground mb-1.5 block">Objetivo</label><Select value={simObjetivo} onValueChange={setSimObjetivo}><SelectTrigger className="min-h-[48px] text-base"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="maximizar">Maximizar receita</SelectItem><SelectItem value="estabilidade">Estabilidade de ocupação</SelectItem><SelectItem value="premium">Posicionamento premium</SelectItem></SelectContent></Select></div>
@@ -142,7 +143,7 @@ export default function SimuladorSection() {
                       {([
                         { label: "Bairro", key: "bairro", fmt: (v: CellValue) => v, best: null },
                         { label: "Metragem", key: "metragem", fmt: (v: CellValue) => `${v}m²`, best: null },
-                        { label: "Ocupação", key: "ocupacao", fmt: (v: CellValue) => `${v}%`, best: "max" },
+                        { label: "Ocupação", key: "ocupacao", fmt: (v: CellValue) => `${formatDecimal(Number(v), 0)}%`, best: "max" },
                         { label: "Diária", key: "boostedDaily", fmt: (v: CellValue) => `R$ ${fmt(Number(v))}`, best: "max" },
                         { label: "Rate boost", key: "rateBoost", fmt: (v: CellValue) => v === 0 ? "Base" : `+${v}%`, best: null },
                         { label: "Receita/mês", key: "receitaMensal", fmt: (v: CellValue) => `R$ ${fmt(Number(v))}`, best: "max" },

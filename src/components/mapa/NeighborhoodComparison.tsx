@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,8 +18,8 @@ interface ComparisonProps {
 const METRICS: { key: string; label: string; getValue: (n: Neighborhood) => number | string; format: (v: number | string) => string; higherIsBetter: boolean }[] = [
   { key: "nightly", label: "Diária média", getValue: (n) => n.metrics.nightlyRate, format: (v) => `R$${fmt(v as number)}`, higherIsBetter: true },
   { key: "nightlyRange", label: "Faixa de diária", getValue: (n) => `R$${fmt(n.metrics.nightlyRateRange[0])}–R$${fmt(n.metrics.nightlyRateRange[1])}`, format: (v) => `${v}`, higherIsBetter: false },
-  { key: "occupancy", label: "Ocupação", getValue: (n) => n.metrics.occupancy, format: (v) => `${v}%`, higherIsBetter: true },
-  { key: "roi", label: "ROI estimado", getValue: (n) => n.metrics.estimatedROI, format: (v) => `${v}%`, higherIsBetter: true },
+  { key: "occupancy", label: "Ocupação", getValue: (n) => n.metrics.occupancy, format: (v) => `${formatDecimal(Number(v))}%`, higherIsBetter: true },
+  { key: "roi", label: "ROI estimado", getValue: (n) => n.metrics.estimatedROI, format: (v) => `${formatDecimal(Number(v))}%`, higherIsBetter: true },
   { key: "revenue", label: "Receita mensal", getValue: (n) => n.metrics.avgRevenueMo, format: (v) => `R$${fmt(v as number)}`, higherIsBetter: true },
   { key: "listings", label: "Anúncios ativos", getValue: (n) => n.metrics.activeListings, format: (v) => `${fmt(v as number)}`, higherIsBetter: false },
   { key: "seasonality", label: "Sazonalidade", getValue: (n) => n.metrics.seasonalityIndex, format: (v) => Number(v) > 1.2 ? "Alta" : Number(v) > 0.9 ? "Moderada" : "Estável", higherIsBetter: false },
