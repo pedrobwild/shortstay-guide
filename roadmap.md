@@ -9,10 +9,10 @@
 - [x] Padronizar números em todos os gráficos e identificar as três curvas mensais como sazonalidade ilustrativa, gerada por fatores fixos e não observada.
 - [x] Recalcular a cascata e sensibilidades do exemplo de Pinheiros usando a base curada, preservando os outros cenários e o case.
 - [x] Verificar 158 testes, lint sem erros (15 avisos antigos), compilação automática OK, HTML da home por SSR e gráfico com eixos e tooltip em português; sem executar build de produção manual ou publicar.
-- [ ] Trocar CTAs e seção final por orçamento externo, padronizar Bewild e autoavaliação, atualizar rodapé.
-- [ ] Implementar consentimento, GA4/Pixel e eventos públicos com bloqueio de áreas privadas.
-- [ ] Criar imagem social a partir do hero e atualizar metadados públicos/pré-render.
-- [ ] Revisar afirmações sem fonte e rotular premissas, sem alterar cálculos protegidos.
-- [ ] Verificar possibilidades de marca nos e-mails de cadastro sem alterar dados do banco.
-- [ ] Testar fluxos consentidos/recusados, CTAs e HTML pré-renderizado; verificar compilação automática e relatar categorias de textos alterados. Não publicar.
-- [ ] Recalcular somente exemplos de reforma com o estudo de 188 contratos, preservando simuladores e case.
+- [x] Trocar CTAs e seção final por orçamento externo, padronizar Bewild e autoavaliação, atualizar rodapé.
+- [x] Implementar consentimento, GA4/Pixel e eventos públicos com bloqueio de áreas privadas.
+- [x] Criar imagem social a partir do hero e atualizar metadados públicos/pré-render.
+- [x] Revisar afirmações sem fonte e rotular premissas, sem alterar cálculos protegidos.
+- [ ] Marca dos e-mails de cadastro: depende da configuração de domínio de envio; a verificação retornou nenhum domínio de e-mail ativo/configurado, sem alterar dados ou autenticação.
+- [x] Testar fluxos consentidos/recusados, CTAs e HTML pré-renderizado; verificar compilação automática e relatar categorias de textos alterados. Não publicar.
+- [x] Recalcular somente exemplos de reforma com o estudo de 188 contratos, preservando simuladores e case.

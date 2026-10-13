@@ -148,7 +148,7 @@ export default function TendenciasSection() {
             "Mostrando todas as tendências"
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <ArrowUpDown size={14} className="text-muted-foreground" />
           <span className="text-xs text-muted-foreground font-body">Ordenar:</span>
           {sortOptions.map((opt) => (

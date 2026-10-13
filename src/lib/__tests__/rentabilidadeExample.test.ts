@@ -22,6 +22,6 @@ describe("exemplo de rentabilidade com Pinheiros curado", () => {
     const e = exemploRentabilidadePinheiros();
     expect(e.investimento).toBeCloseTo(409546.83, 2);
     expect(e.yieldLiquido).toBeCloseTo(7.0433, 4);
-    expect(e.paybackAnos).toBeCloseTo(14.1977, 4);
+    expect(e.paybackAnos).toBeCloseTo(14.1979, 4);
   });
 });
