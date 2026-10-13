@@ -16,14 +16,14 @@ const bairro: BairroItem = {
   avgOccupancy: 80,
   dailyAvg: 385,
   ocupacaoFonte: "bewild",
-  avgBySize: { "20–25 m²": 300, "26–35 m²": 380, "36–50 m²": 470 },
+  dailyQuartiles: null, activeListings: null, period: null, sourceUrl: null,
 };
 
 describe("presetAssumptions", () => {
   it("ancora ocupação e ADR na banda de mercado do bairro/faixa", () => {
     const realista = presetAssumptions("realista", bairro, "26–35 m²");
     expect(realista.occupancyPct).toBe(80);
-    expect(realista.adr).toBe(380);
+    expect(realista.adr).toBe(385);
   });
 
   it("ordena conservador < realista < otimista em ocupação e ADR", () => {

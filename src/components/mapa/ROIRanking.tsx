@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, DollarSign, BarChart3, Users, ChevronDown, Lightbulb } from "lucide-react";
 import { Neighborhood, INVESTOR_INSIGHTS, DEMAND_PROFILE_LABELS, fmt } from "@/data/mapaBairrosData";
+import FonteBairro from "@/components/guide/FonteBairro";
 import FonteLink from "@/components/guide/FonteLink";
 import { formatDecimal } from "@/lib/numberFormat";
 
@@ -149,6 +150,7 @@ export default function ROIRanking({ neighborhoods, onSelectNeighborhood, select
                         <p className="text-[9px] text-muted-foreground mt-1.5 font-body">
                           Faixa: R${fmt(n.metrics.nightlyRateRange[0])}–R${fmt(n.metrics.nightlyRateRange[1])} · {n.metrics.activeListings} anúncios · Fonte: {n.metrics.dataSource}
                         </p>
+                        <FonteBairro nome={n.name} />
                       </div>
                     </div>
                   </CardContent>

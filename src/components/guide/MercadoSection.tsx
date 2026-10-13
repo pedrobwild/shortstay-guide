@@ -5,7 +5,6 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -14,12 +13,12 @@ import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { useBairroData } from "@/hooks/useBairroData";
 import SectionBlock from "./SectionBlock";
 import { DECORATION_LEVELS, fmt } from "@/data/guide-data";
+import FonteBairro from "@/components/guide/FonteBairro";
 import { FONTE_BAIRROS_CURADOS } from "@/data/bairrosCurados";
 
 export default function MercadoSection() {
   const { bairros } = useBairroData();
   const [bairro, setBairro] = useState<string>(bairros[0]?.name ?? "");
-  const [metragem, setMetragem] = useState(30);
   const [decoracao, setDecoracao] = useState<string>("basico");
   const [ocupacao, setOcupacao] = useState([bairros[0]?.avgOccupancy ?? 75]);
 
@@ -29,22 +28,21 @@ export default function MercadoSection() {
 
   const result = useMemo(() => {
     const mult = decLevel.multiplier;
-    const sizeAdj = metragem > 35 ? 1.08 : metragem < 25 ? 0.92 : 1;
-    const min = Math.round(selected.dailyMin * mult * sizeAdj);
-    const max = Math.round(selected.dailyMax * mult * sizeAdj);
-    const avgDaily = (min + max) / 2;
+    const min = Math.round(selected.dailyMin * mult);
+    const max = Math.round(selected.dailyMax * mult);
+    const avgDaily = selected.dailyAvg * mult;
     const nights = 30 * (ocupacao[0] / 100);
     const receitaMensal = Math.round(avgDaily * nights);
     const receitaAnual = receitaMensal * 12;
     return { min, max, receitaMensal, receitaAnual };
-  }, [selected, decLevel, metragem, ocupacao]);
+  }, [selected, decLevel, ocupacao]);
 
   const mercadoTracked = useRef(false);
   useEffect(() => {
     if (mercadoTracked.current) return;
-    const t = setTimeout(() => { trackGlobal("mercado_used", { bairro, metragem, decoracao }); mercadoTracked.current = true; }, 3000);
+    const t = setTimeout(() => { trackGlobal("mercado_used", { bairro, decoracao }); mercadoTracked.current = true; }, 3000);
     return () => clearTimeout(t);
-  }, [bairro, metragem, decoracao]);
+  }, [bairro, decoracao]);
 
   return (
     <SectionBlock id="mercado" title="Mercado e Precificação — São Paulo" takeaway="Diárias médias, ocupação e receita por bairro atualizado.">
@@ -60,13 +58,10 @@ export default function MercadoSection() {
                 <SelectContent>{bairros.map((b) => <SelectItem key={b.name} value={b.name}>{b.name}</SelectItem>)}</SelectContent>
               </Select>
             </div>
-            <div>
-              <label className="text-sm font-medium text-foreground mb-1 block">Metragem (m²)</label>
-              <Input type="number" min={15} max={80} value={metragem} onChange={(e) => setMetragem(Number(e.target.value) || 30)} />
-            </div>
+            <FonteBairro nome={selected.name} />
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground mb-1 block">Nível de decoração</label>
+            <label className="text-sm font-medium text-foreground mb-1 block">Nível de decoração — hipótese</label>
             <Select value={decoracao} onValueChange={setDecoracao}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>{DECORATION_LEVELS.map((d) => <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>)}</SelectContent>
@@ -96,11 +91,11 @@ export default function MercadoSection() {
       <Accordion type="multiple" className="mt-4 font-body">
         <AccordionItem value="metodologia">
           <AccordionTrigger className="text-primary font-semibold">Metodologia de cálculo</AccordionTrigger>
-          <AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">A diária mínima e máxima são faixas observadas para studios do bairro selecionado, baseadas em dados de mercado. O multiplicador de decoração ajusta a faixa: Básico ({formatDecimal(1, 1)}×) mantém valores base, Premium ({formatDecimal(1.2, 1)}×) reflete studios com acabamento e fotos acima da média, Alto padrão ({formatDecimal(1.45, 2)}×) reflete studios com design autoral e operação profissional. A metragem aplica ajuste adicional: studios abaixo de 25m² recebem -8% e acima de 35m² recebem +8%.</p></AccordionContent>
+          <AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">As faixas correspondem aos 25% mais baratos e 25% mais caros na GuestFavorites; bairros sem fonte pública atualizada usam estimativa Bewild. A receita usa a diária média (ADR), não o ponto médio dos quartis. O multiplicador de decoração é uma hipótese: Básico ({formatDecimal(1, 1)}×) mantém valores base, Premium ({formatDecimal(1.2, 1)}×) reflete studios com acabamento e fotos acima da média, Alto padrão ({formatDecimal(1.45, 2)}×) reflete studios com design autoral e operação profissional.</p></AccordionContent>
         </AccordionItem>
         <AccordionItem value="coleta">
           <AccordionTrigger className="text-primary font-semibold">Como os dados são coletados</AccordionTrigger>
-          <AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">Dados de mercado coletados e cruzados pela Bwild a partir de bases do setor (AirDNA, plataformas de reserva, dados públicos de anúncios ativos). Os valores representam médias trimestrais e são atualizados periodicamente para refletir a dinâmica real do mercado paulistano.</p></AccordionContent>
+          <AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">{FONTE_BAIRROS_CURADOS} Brooklin, Consolação e Vila Olímpia: estimativa Bewild (sem fonte pública atualizada).</p></AccordionContent>
         </AccordionItem>
         <AccordionItem value="limitacoes">
           <AccordionTrigger className="text-primary font-semibold">Limitações</AccordionTrigger>

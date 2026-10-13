@@ -23,7 +23,7 @@ export const POI_COLORS: Record<string, string> = {
   events: "#ef4444",
   metro: "#10b981",
 };
-import { getBairroCurado, receitaMensalReferencia, FONTE_BAIRROS_CURADOS } from "@/data/bairrosCurados";
+import { getBairroCurado, receitaMensalReferencia, fonteBairro } from "@/data/bairrosCurados";
 import { DISTRICTS_MOCK, type DistrictRow } from "@/data/districtMetrics";
 
 /* ─── Types ─── */
@@ -151,10 +151,10 @@ function districtToNeighborhood(d: DistrictRow): Neighborhood {
       occupancy: occ,
       estimatedROI: d.roiPercent,
       competitionLevel: COMPETITION_MAP[d.competition] || "média",
-      activeListings: d.listingsCount,
+      activeListings: c?.activeListings ?? d.listingsCount,
       avgRevenueMo: revenue,
       seasonalityIndex: 1.0,
-      dataSource: c ? FONTE_BAIRROS_CURADOS : d.sourceLabel,
+      dataSource: c ? fonteBairro(c) : d.sourceLabel,
     },
   };
 }

@@ -1,3 +1,4 @@
+import FonteBairro from "@/components/guide/FonteBairro";
 import { formatDecimal } from "@/lib/numberFormat";
 import { bairroPath } from "@/lib/seo";
 import { useState, useMemo } from "react";
@@ -111,7 +112,7 @@ const IntelligenceRanking = () => {
                 </p>
                 {allBairros[0] && (
                   <p className="text-xs text-primary-foreground/70 mt-1">
-                    Diária e ocupação: {FONTE_BAIRROS_CURADOS} (bairros marcados com *). Demais métricas: {rotuloEstimativa(allBairros[0])}.
+                    {FONTE_BAIRROS_CURADOS} Bairros marcados com * incluem estimativas Bewild. Demais métricas: {rotuloEstimativa(allBairros[0])}.
                   </p>
                 )}
               </div>
@@ -210,6 +211,7 @@ const IntelligenceRanking = () => {
                               {b.bairro}
                               <ChevronRight className="h-3 w-3 text-muted-foreground opacity-0 group-hover/link:opacity-100 transition-opacity" />
                             </Link>
+                            <FonteBairro nome={b.bairro} />
                           </TableCell>
                           <TableCell className="text-center">
                             {invScore && (
