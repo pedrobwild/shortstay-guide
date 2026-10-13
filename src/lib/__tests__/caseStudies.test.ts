@@ -71,10 +71,10 @@ describe("selectCaseStudies", () => {
     expect(r.leadBairro).toBeNull();
   });
 
-  it("ignores unverified cases", () => {
-    const r = selectCaseStudies({ bairro: "Moema", source: [make({ id: "moema", bairro: "Moema", region: "Zona Sul", verified: false })] });
-    expect(r.matchLevel).toBe("geral");
-    expect(r.cases).toHaveLength(0);
+  it("returns cases regardless of any verification mark (field removed)", () => {
+    const r = selectCaseStudies({ bairro: "Moema", source: [make({ id: "moema", bairro: "Moema", region: "Zona Sul" })] });
+    expect(r.matchLevel).toBe("bairro");
+    expect(r.cases.map((c) => c.id)).toEqual(["moema"]);
   });
 
   it("orders tied cases by the investor profile's dominant strategy", () => {
