@@ -768,6 +768,10 @@ export type Database = {
           whatsapp: string
         }[]
       }
+      admin_registrar_coleta_radar: {
+        Args: { p_coleta: Json }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
