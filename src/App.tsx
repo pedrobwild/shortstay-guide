@@ -109,11 +109,11 @@ const App = () => (
               <Route path="/anuncios" element={<IntelligenceListings />} />
               <Route path="/mapa" element={<MapaBairros />} />
               {/* Redirecionamentos das rotas antigas (mantêm ?query e #hash) */}
-              <Route path="/intelligence" element={<LegacyRedirect to="/mercado" />} />
-              <Route path="/intelligence/ranking" element={<LegacyRedirect to="/ranking" />} />
-              <Route path="/intelligence/listings" element={<LegacyRedirect to="/anuncios" />} />
+              <Route path="/mercado" element={<LegacyRedirect to="/mercado" />} />
+              <Route path="/ranking" element={<LegacyRedirect to="/ranking" />} />
+              <Route path="/anuncios" element={<LegacyRedirect to="/anuncios" />} />
               <Route path="/intelligence/bairro/:bairro" element={<LegacyBairroRedirect />} />
-              <Route path="/mapa-bairros" element={<LegacyRedirect to="/mapa" />} />
+              <Route path="/mapa" element={<LegacyRedirect to="/mapa" />} />
               <Route path="/ferramentas" element={<Ferramentas />} />
               <Route path="/projecao" element={<StudioProjection />} />
               <Route path="/painel" element={<ProtectedRoute><Painel /></ProtectedRoute>} />
@@ -128,6 +128,7 @@ const App = () => (
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
+  </HelmetProvider>
 );
 
 export default App;

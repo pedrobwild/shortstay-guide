@@ -1,3 +1,4 @@
+import { bairroPath } from "@/lib/seo";
 import { useState, useMemo } from "react";
 import { useBairrosData, fmtBRL, fmtPct, fmtScore } from "@/hooks/useIntelligenceData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -98,7 +99,7 @@ const IntelligenceRanking = () => {
               <div>
                 {/* Breadcrumb */}
                 <div className="flex items-center gap-1.5 text-primary-foreground/50 text-xs mb-3">
-                  <Link to="/intelligence" className="hover:text-primary-foreground/80 transition-colors">Intelligence</Link>
+                  <Link to="/mercado" className="hover:text-primary-foreground/80 transition-colors">Intelligence</Link>
                   <ChevronRight className="h-3 w-3" />
                   <span className="text-primary-foreground/80">Ranking</span>
                 </div>
@@ -107,7 +108,7 @@ const IntelligenceRanking = () => {
                   {allBairros.length} bairros comparados por Investment Score, yield, ocupação e mais
                 </p>
               </div>
-              <Link to="/intelligence">
+              <Link to="/mercado">
                 <Button variant="secondary" size="sm" className="shadow-lg">
                   <ArrowLeft className="mr-1 h-4 w-4" /> Voltar
                 </Button>
@@ -196,7 +197,7 @@ const IntelligenceRanking = () => {
                           <TableCell className="font-bold text-muted-foreground text-xs">{i + 1}</TableCell>
                           <TableCell>
                             <Link
-                              to={`/intelligence/bairro/${encodeURIComponent(b.bairro)}`}
+                              to={bairroPath(b.bairro)}
                               className="font-medium text-foreground hover:text-primary transition-colors inline-flex items-center gap-1 group/link"
                             >
                               {b.bairro}

@@ -1,3 +1,4 @@
+import { bairroPath } from "@/lib/seo";
 /**
  * Journey Step Components — 7 steps of the guided decision journey
  * Each step is a self-contained component that builds on the previous one.
@@ -1060,7 +1061,7 @@ export const Step5Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
                     >
                       <td className="p-3 font-bold text-muted-foreground">{i + 1}</td>
                       <td className="p-3">
-                        <Link to={`/intelligence/bairro/${encodeURIComponent(b.bairro)}`} className="block">
+                        <Link to={bairroPath(b.bairro)} className="block">
                           <p className="font-semibold text-foreground group-hover:text-primary transition-colors text-[13px]">
                             {b.bairro}
                           </p>
@@ -1150,7 +1151,7 @@ export const Step5Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
         </motion.div>
 
         <div className="flex items-center justify-between">
-          <Link to="/intelligence/ranking">
+          <Link to="/ranking">
             <Button variant="outline" size="sm" className="text-xs gap-1">
               Ver ranking detalhado <ArrowRight className="h-3 w-3" />
             </Button>
@@ -1367,7 +1368,7 @@ export const Step6Profile = ({ bairros, onComplete }: Step6Props) => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={stagger(i, 0.06)}
                   >
-                    <Link to={`/intelligence/bairro/${encodeURIComponent(b.bairro)}`}>
+                    <Link to={bairroPath(b.bairro)}>
                       <Card className={`hover:shadow-md transition-all group ${i === 0 ? "ring-1 ring-primary/20 border-primary/15" : ""}`}>
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
@@ -1463,7 +1464,7 @@ export const Step7Explore = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
           const badgeStyle = getGradeStyle(s.gradeColor);
           return (
             <motion.div key={b.bairro} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(i)}>
-              <Link to={`/intelligence/bairro/${encodeURIComponent(b.bairro)}`}>
+              <Link to={bairroPath(b.bairro)}>
                 <Card className="h-full hover:shadow-md transition-all group cursor-pointer">
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between mb-3">
@@ -1487,7 +1488,7 @@ export const Step7Explore = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
       </div>
 
       <div className="text-center">
-        <Link to="/intelligence/ranking">
+        <Link to="/ranking">
           <Button variant="outline" size="sm" className="text-xs gap-1">
             Ver todos os {bairros.length} bairros <ArrowRight className="h-3 w-3" />
           </Button>
@@ -1888,7 +1889,7 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
                   )}
 
                   <div className="mt-4 pt-3 border-t border-border/50">
-                    <Link to={`/intelligence/bairro/${encodeURIComponent(rec.bairro.bairro)}`}>
+                    <Link to={bairroPath(rec.bairro.bairro)}>
                       <Button variant="outline" size="sm" className="text-xs w-full gap-1">
                         Ver análise completa de {rec.bairro.bairro} <ChevronRight className="h-3 w-3" />
                       </Button>
@@ -1919,7 +1920,7 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
                 const isRisky = w.icon === "AlertTriangle";
                 return (
                   <motion.div key={w.category} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={stagger(i, 0.05)}>
-                    <Link to={`/intelligence/bairro/${encodeURIComponent(w.bairro)}`}>
+                    <Link to={bairroPath(w.bairro)}>
                       <Card className={`h-full hover:shadow-md transition-all group cursor-pointer ${isRisky ? "border-amber-500/20" : "border-border/50"}`}>
                         <CardContent className="p-4 space-y-1.5">
                           <div className="flex items-center gap-2">
@@ -1977,7 +1978,7 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
                             <p className="text-xs font-semibold text-foreground">{a.label}</p>
                             <p className="text-[11px] text-foreground/70 leading-relaxed mt-0.5">{a.text}</p>
                           </div>
-                          <Link to={`/intelligence/bairro/${encodeURIComponent(a.bairro)}`} className="shrink-0 ml-auto self-center">
+                          <Link to={bairroPath(a.bairro)} className="shrink-0 ml-auto self-center">
                             <Button variant="ghost" size="sm" className="text-[10px] h-7 px-2 gap-0.5">
                               Ver <ChevronRight className="h-3 w-3" />
                             </Button>
@@ -2016,12 +2017,12 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
       </motion.div>
 
       <div className="flex flex-wrap gap-3 justify-center">
-        <Link to="/intelligence/ranking">
+        <Link to="/ranking">
           <Button variant="outline" size="sm" className="text-xs gap-1">
             <BarChart3 className="h-3.5 w-3.5" /> Ranking completo
           </Button>
         </Link>
-        <Link to="/intelligence/listings">
+        <Link to="/anuncios">
           <Button variant="outline" size="sm" className="text-xs gap-1">
             <Building2 className="h-3.5 w-3.5" /> Base de listings
           </Button>

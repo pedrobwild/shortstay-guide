@@ -103,9 +103,9 @@ const IntelligenceBairroDetail = () => {
         <div className="container mx-auto px-4 py-8">
           {/* Breadcrumb */}
           <div className="flex items-center gap-1.5 text-primary-foreground/50 text-xs mb-3">
-            <Link to="/intelligence" className="hover:text-primary-foreground/80 transition-colors">Intelligence</Link>
+            <Link to="/mercado" className="hover:text-primary-foreground/80 transition-colors">Intelligence</Link>
             <ChevronRight className="h-3 w-3" />
-            <Link to="/intelligence/ranking" className="hover:text-primary-foreground/80 transition-colors">Ranking</Link>
+            <Link to="/ranking" className="hover:text-primary-foreground/80 transition-colors">Ranking</Link>
             <ChevronRight className="h-3 w-3" />
             <span className="text-primary-foreground/80">{b.bairro}</span>
           </div>
@@ -114,7 +114,7 @@ const IntelligenceBairroDetail = () => {
               <h1 className="text-2xl md:text-3xl font-bold font-[var(--font-display)]">{b.bairro}</h1>
               <Badge className={`${profile.color} ${profile.textColor}`}>{profile.label}</Badge>
             </div>
-            <Link to="/intelligence/ranking">
+            <Link to="/ranking">
               <Button variant="secondary" size="sm" className="shadow-lg">
                 <ArrowLeft className="mr-1 h-4 w-4" /> Ranking
               </Button>
