@@ -8,11 +8,11 @@ import { RESPOSTA_CUSTO_REFORMA, RESPOSTA_INVESTIMENTO_TOTAL, ESTUDO_REFORMA_URL
 
 export const FAQ_ITEMS: { q: string; a: string; link?: string; source?: FonteGuia }[] = [
   { q: "Quanto custa um studio para short stay em São Paulo?", a: RESPOSTA_INVESTIMENTO_TOTAL, link: ESTUDO_REFORMA_URL },
-  { q: "Qual o retorno esperado de um studio em Airbnb?", a: "O yield bruto varia de 8% a 18% ao ano, dependendo do bairro e operação. Com decoração estratégica e precificação dinâmica, é possível superar 15% em bairros premium." },
+  { q: "Qual o retorno esperado de um studio em Airbnb?", a: "O retorno depende do bairro, do capital investido e da operação. Consulte diária e ocupação na base curada e simule os custos; não há retorno garantido." },
   { q: "Preciso de CNPJ para alugar no Airbnb?", a: "Não é obrigatório, mas é recomendado. Com CNPJ (MEI ou Simples), você emite notas fiscais, tem benefícios tributários e passa mais credibilidade." },
   { q: "Condomínio pode proibir Airbnb?", a: "O STJ decidiu que a convenção do condomínio pode restringir locação por temporada. Verifique a convenção antes de comprar e priorize prédios que permitem ou são neutros." },
-  { q: "Qual a ocupação média de um studio em São Paulo?", a: `A referência da cidade de São Paulo na GuestFavorites é de ${SAO_PAULO_REFERENCIA.avgOccupancy}% de ocupação, ${SAO_PAULO_REFERENCIA.period}, na coleta de 13/10/2026. Os valores variam por bairro; consulte a fonte e o período de cada um na tabela do guia.` },
-  { q: "Vale a pena contratar uma administradora?", a: "Se você tem 1–2 unidades e tempo disponível, autogestão funciona. Acima de 3 unidades ou sem disponibilidade, uma administradora (que cobra 15–25% da receita) pode valer a pena." },
+  { q: "Qual a ocupação média de um studio em São Paulo?", a: `A referência da cidade de São Paulo na GuestFavorites é de ${SAO_PAULO_REFERENCIA.avgOccupancy}% de ocupação, ${SAO_PAULO_REFERENCIA.period}, na coleta de 13/10/2026. Os valores variam por bairro; consulte a fonte e o período de cada um na tabela do guia.`, source: { title: `GuestFavorites — ${SAO_PAULO_REFERENCIA.period}`, url: "https://www.guestfavorites.com" } },
+  { q: "Vale a pena contratar uma administradora?", a: "Se você tem 1–2 unidades e tempo disponível, autogestão funciona. Acima de 3 unidades ou sem disponibilidade, uma administradora pode valer a pena. A comissão de administradoras varia por contrato; confirme na proposta." },
   { q: "Quanto custa a reforma de um studio?", a: RESPOSTA_CUSTO_REFORMA, link: ESTUDO_REFORMA_URL },
   { q: "Qual o melhor bairro para investir em short stay?", a: "Depende do seu orçamento e perfil de risco. Pinheiros, Vila Mariana e Consolação oferecem boa relação risco-retorno. Itaim Bibi e Vila Olímpia têm diárias mais altas mas exigem investimento maior." },
   ...FAQ_DATA.filter((item) => item.source),

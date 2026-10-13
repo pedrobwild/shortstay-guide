@@ -1,3 +1,5 @@
+import OrcamentoButton from "@/components/OrcamentoButton";
+import { trackSimulationUsed } from "@/lib/marketingConsent";
 import { formatDecimal } from "@/lib/numberFormat";
 import { diariaPorMetragem, type SizeKey } from "@/data/bairrosCurados";
 import { useMemo, useState } from "react";
@@ -65,16 +67,17 @@ export default function BwildVsDiySection() {
   const { diy, bwild, delta } = comparison;
 
   return (
-    <section className="space-y-5">
+    <section className="space-y-5" onChangeCapture={trackSimulationUsed} onPointerDownCapture={trackSimulationUsed} onKeyDownCapture={trackSimulationUsed}>
+      <p className="text-sm text-muted-foreground">Hipótese comparativa: multiplicadores de diária e ocupação, teto de ocupação e gestão são premissas fixas, não desempenho observado. O valor do imóvel é uma premissa editável no campo abaixo.</p>
       {/* Header */}
       <div>
         <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
           <GitCompareArrows className="h-4 w-4 text-primary" />
-          Fazer sozinho vs. com a BWild
+          Fazer sozinho vs. com a Bewild
         </h2>
         <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
           O mesmo studio, dois cenários: à esquerda, anunciado por conta própria, sem reforma
-          profissional. À direita, reformado, decorado e operado pela BWild. Veja quanto a mais o
+          profissional. À direita, reformado, decorado e operado pela Bewild. Veja quanto a mais o
           imóvel rende — já descontada a taxa de gestão.
         </p>
       </div>
@@ -166,7 +169,7 @@ export default function BwildVsDiySection() {
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" />
             <h3 className="text-sm font-semibold text-foreground">
-              O que a BWild adiciona — por ano
+              O que a Bewild adiciona — por ano
             </h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -204,23 +207,10 @@ export default function BwildVsDiySection() {
           {/* CTA contextual */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-1">
             <p className="text-xs text-muted-foreground max-w-md">
-              Premissas conservadoras baseadas em dados de mercado e cases da BWild
+              Hipóteses de comparação, não resultados de mercado ou do case de Pinheiros
               (ocupação +{formatDecimal(((BWILD_VS_DIY_ASSUMPTIONS.bwild.occupancyMultiplier / BWILD_VS_DIY_ASSUMPTIONS.diy.occupancyMultiplier - 1) * 100), 0)}% e diária premium por reforma/decoração).
             </p>
-            <Button
-              asChild
-              className="bg-accent text-accent-foreground hover:bg-accent/90 shrink-0"
-              onClick={() => trackGlobal("cta_clicked", {
-                cta_id: "bwild_vs_diy",
-                bairro: selectedBairro.name,
-                net_uplift_brl: Math.round(delta.netRevenueBrl),
-              })}
-            >
-              <Link to="/#cta-final" className="gap-1.5">
-                Quero esse cenário — falar com a BWild
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
+            <OrcamentoButton local="recomendacao" className="min-h-[44px] bg-accent text-accent-foreground shrink-0" />
           </div>
         </CardContent>
       </Card>

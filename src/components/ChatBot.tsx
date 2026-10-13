@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Bot, User, Sparkles, Headphones } from "lucide-react";
-import { Link } from "react-router-dom";
+import { MessageCircle, X, Send, Bot, User, Sparkles } from "lucide-react";
+import OrcamentoButton from "@/components/OrcamentoButton";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
@@ -119,7 +119,8 @@ export default function ChatBot() {
         return;
       }
 
-      const reader = resp.body!.getReader();
+      if (!resp.body) throw new Error("Resposta vazia");
+      const reader = resp.body.getReader();
       const decoder = new TextDecoder();
       let buf = "";
 
@@ -167,7 +168,7 @@ export default function ChatBot() {
           >
             <div className="relative">
               {/* Pulse ring */}
-              <span className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
+              <span className="pointer-events-none absolute inset-2 rounded-full bg-primary/20 animate-ping" />
               <Button
                 onClick={() => { setOpen(true); trackGlobal("chatbot_opened", {}); }}
                 className="relative h-14 w-14 rounded-full shadow-[0_8px_30px_-4px_hsl(var(--primary)/0.4)] bg-primary hover:bg-primary/90 transition-all duration-300 hover:shadow-[0_12px_40px_-4px_hsl(var(--primary)/0.5)] hover:scale-105"
@@ -316,22 +317,7 @@ export default function ChatBot() {
             </div>
 
             {/* Contextual CTA — fala com um humano da BWild */}
-            <Link
-              to="/#cta-final"
-              onClick={() => {
-                setOpen(false);
-                trackGlobal("chatbot_cta_specialist", {
-                  has_active_project: hasActiveProject,
-                  bairro: summary.neighborhood ?? undefined,
-                });
-              }}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 border-t border-border/60 bg-primary/5 text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
-            >
-              <Headphones className="h-3.5 w-3.5" />
-              {hasActiveProject
-                ? "Falar com um especialista BWild sobre meu projeto"
-                : "Falar com um especialista BWild"}
-            </Link>
+            <OrcamentoButton local="chat" variant="ghost" className="min-h-[44px] rounded-none border-t border-border text-primary" />
 
             {/* Input area */}
             <div className="p-3 border-t border-border/60 bg-card">

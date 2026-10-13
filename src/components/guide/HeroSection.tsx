@@ -1,9 +1,10 @@
+import OrcamentoButton from "@/components/OrcamentoButton";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Calculator, MapPin, Sparkles, BookOpen, BarChart3, Target, Lightbulb } from "lucide-react";
 import { Link } from "react-router-dom";
 import sectionHeroStudio from "@/assets/section-hero-studio.jpg";
-import { REFORMAS_ENTREGUES, PROJETOS } from "@/data/provasBewild";
+import { REFORMAS_ENTREGUES, PROJETOS, BAIRROS_ATENDIDOS } from "@/data/provasBewild";
 
 export default function HeroSection() {
   const benefits = [
@@ -50,7 +51,7 @@ export default function HeroSection() {
           <div className="mb-4">
             <span className="inline-flex items-center gap-2 bg-primary/5 border border-primary/15 rounded-full px-4 py-1 text-sm font-body text-foreground">
               <Sparkles size={14} className="text-primary/60" />
-              Guia Bwild 2026 · Atualizado
+              Guia Bewild 2026 · Atualizado
             </span>
           </div>
 
@@ -66,7 +67,7 @@ export default function HeroSection() {
               Este guia é um <strong className="text-foreground">"manual de decisão"</strong> para investir em studios de short stay em São Paulo.
             </p>
             <p className="text-base text-muted-foreground font-body">
-              Ele foi construído a partir de anos de experiência prática da Bwild no mercado — unindo o que funciona na operação do dia a dia com coleta, limpeza e cruzamento de bases de dados do setor para transformar informação dispersa em insight acionável.
+              Ele foi construído a partir de anos de experiência prática da Bewild no mercado — unindo o que funciona na operação do dia a dia com coleta, limpeza e cruzamento de bases de dados do setor para transformar informação dispersa em insight acionável.
             </p>
             <p className="text-base text-muted-foreground font-body">
               Aqui, você encontra ferramentas e frameworks (simuladores, comparadores e leituras de mercado) que ajudam a responder com mais clareza: <strong className="text-foreground">onde faz sentido investir</strong>, como estruturar a conta e o que priorizar no studio e na operação para aumentar a chance de boa ocupação e diária.
@@ -88,6 +89,7 @@ export default function HeroSection() {
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-4">
+            <OrcamentoButton local="hero" size="lg" className="font-body min-h-[44px]" />
             <Button size="lg" className="bg-primary text-primary-foreground font-body w-full sm:w-auto min-h-[44px]" asChild>
               <Link to="/mercado"><Calculator size={18} className="mr-2" />Simular rentabilidade</Link>
             </Button>
@@ -104,7 +106,7 @@ export default function HeroSection() {
             Use as ferramentas para simular cenários. Resultados variam por unidade, prédio e execução.
           </p>
           <p className="text-xs text-muted-foreground/60 font-body">
-            Produzido pela Bwild (edição 2026) — experiência prática + análise de dados aplicada ao short stay.
+            Produzido pela Bewild (edição 2026) — experiência prática + análise de dados aplicada ao short stay.
           </p>
         </motion.div>
 
@@ -141,8 +143,8 @@ export default function HeroSection() {
               </div>
               <div className="w-px h-8 bg-border" />
               <div className="text-center">
-                <p className="text-xs font-mono font-bold text-foreground">R$ 400</p>
-                <p className="text-[10px] text-muted-foreground font-body">diária média</p>
+                <p className="text-xs font-mono font-bold text-foreground">{BAIRROS_ATENDIDOS}</p>
+                <p className="text-[10px] text-muted-foreground font-body">bairros com obra entregue</p>
               </div>
             </div>
           </div>

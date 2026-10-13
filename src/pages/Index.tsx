@@ -1,5 +1,6 @@
 import { useEffect, useRef, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
+import OrcamentoButton from "@/components/OrcamentoButton";
 import AppNavbar from "@/components/AppNavbar";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
@@ -99,7 +100,7 @@ function IndexInner() {
       <MobileMenu activeId={activeId} sectionIndex={sectionIndex} sectionCount={sectionCount} />
       <MobileStickyBar />
 
-      <main className="lg:ml-[60px] w-full flex flex-col items-center pb-24 lg:pb-8 pt-16 lg:pt-0">
+      <main className="lg:ml-[60px] w-full lg:w-[calc(100%-60px)] flex flex-col items-center pb-24 lg:pb-8 pt-16 lg:pt-0">
 
         {/* ═══ HERO ═══ */}
         <div className="w-full">
@@ -298,9 +299,14 @@ function IndexInner() {
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <footer className="text-center py-8 text-sm text-muted-foreground font-body">
-              <img src={bwildLogo} alt="Bwild" className="h-6 w-auto mx-auto mb-3 opacity-60" />
+              <img src={bwildLogo} alt="Bewild" className="h-6 w-auto mx-auto mb-3 opacity-60" />
               <Link to="/ferramentas" className="text-primary hover:underline mb-2 inline-block">Ferramentas do Investidor →</Link>
-              <p>© 2026 Bwild · Guia do Investidor em Studios para Short Stay</p>
+              <p>Um produto <a href="https://bewild.com.br" target="_blank" rel="noopener noreferrer" className="text-primary underline">Bewild</a></p>
+              <div className="flex flex-wrap justify-center items-center gap-4 mt-3">
+                <a href="https://bewild.com.br/privacidade" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] items-center text-primary underline">Política de privacidade</a>
+                <OrcamentoButton local="rodape" variant="link" className="min-h-[44px]" />
+              </div>
+              <p>© 2026 Bewild · Guia do Investidor em Studios para Short Stay</p>
             </footer>
           </div>
         </div>

@@ -18,4 +18,10 @@ describe("exemplo de rentabilidade com Pinheiros curado", () => {
     expect(exemploRentabilidadePinheiros().impactoOcupacao).toBe(450);
     expect(exemploRentabilidadePinheiros().impactoDiaria).toBe(930);
   });
+  it("recalcula rendimento e payback incluindo a reforma mediana de R$ 71.850", () => {
+    const e = exemploRentabilidadePinheiros();
+    expect(e.investimento).toBeCloseTo(409546.83, 2);
+    expect(e.yieldLiquido).toBeCloseTo(7.0433, 4);
+    expect(e.paybackAnos).toBeCloseTo(14.1979, 4);
+  });
 });

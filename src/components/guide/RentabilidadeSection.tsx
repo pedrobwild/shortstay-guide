@@ -7,20 +7,26 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { motion } from "framer-motion";
 import { ArrowDown, TrendingUp, TrendingDown, Minus, AlertCircle, Lightbulb, DollarSign, Percent, Building2, Zap } from "lucide-react";
 import SectionBlock from "./SectionBlock";
-import { exemploRentabilidadePinheiros } from "@/lib/rentabilidadeExample";
+import { exemploRentabilidadePinheiros, retornoSobreInvestimentoExemplo } from "@/lib/rentabilidadeExample";
+import { ESTUDO_REFORMA_URL } from "@/data/provasBewild";
+import FonteLink from "@/components/guide/FonteLink";
 import FonteBairro from "@/components/guide/FonteBairro";
 
 const exemplo = exemploRentabilidadePinheiros();
 const brlExemplo = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+const retornoCenario = (liquido: number) => {
+  const retorno = retornoSobreInvestimentoExemplo(liquido);
+  return { yield: `${formatDecimal(retorno.yieldLiquido, 1)}%`, payback: retorno.paybackAnos === null ? "—" : `${formatDecimal(retorno.paybackAnos, 1)} anos` };
+};
 
 /* ── Waterfall data ── */
 const WATERFALL = [
   { label: "Receita Bruta", desc: "ADR × noites ocupadas/mês", example: brlExemplo(exemplo.receitaBruta), type: "revenue" as const },
-  { label: "Comissão plataforma", desc: "~15% (Airbnb + processamento)", example: `- ${brlExemplo(exemplo.plataforma)}`, type: "cost" as const },
-  { label: "Gestão operacional", desc: "~18% (se terceirizada)", example: `- ${brlExemplo(exemplo.gestao)}`, type: "cost" as const },
-  { label: "Condomínio", desc: "Custo fixo mensal", example: `- ${brlExemplo(exemplo.condominio)}`, type: "fixed" as const },
-  { label: "IPTU + Utilidades", desc: "Luz, água, internet, gás", example: `- ${brlExemplo(exemplo.utilidades)}`, type: "fixed" as const },
-  { label: "Impostos", desc: "~6% (Simples/MEI)", example: `- ${brlExemplo(exemplo.impostos)}`, type: "cost" as const },
+  { label: "Comissão plataforma", desc: "15% — hipótese de plataforma", example: `- ${brlExemplo(exemplo.plataforma)}`, type: "cost" as const },
+  { label: "Gestão operacional", desc: "18% — hipótese de gestão terceirizada", example: `- ${brlExemplo(exemplo.gestao)}`, type: "cost" as const },
+  { label: "Condomínio", desc: "Hipótese de custo fixo mensal", example: `- ${brlExemplo(exemplo.condominio)}`, type: "fixed" as const },
+  { label: "IPTU + Utilidades", desc: "Hipótese: luz, água, internet, gás", example: `- ${brlExemplo(exemplo.utilidades)}`, type: "fixed" as const },
+  { label: "Impostos", desc: "6% — hipótese tributária", example: `- ${brlExemplo(exemplo.impostos)}`, type: "cost" as const },
   { label: "Receita Líquida", desc: "O que sobra no bolso", example: brlExemplo(exemplo.receitaLiquida), type: "result" as const },
 ];
 
@@ -32,7 +38,7 @@ const SCENARIOS = [
     icon: TrendingDown,
     color: "border-amber-500/30 bg-amber-500/[0.03]",
     badgeColor: "bg-amber-100 text-amber-800",
-    metrics: { ocupacao: "65%", adr: "R$ 280", receitaBruta: "R$ 5.460", receitaLiquida: "R$ 2.000", yield: "~6%", payback: "~11 anos" },
+    metrics: { ocupacao: "65%", adr: "R$ 280", receitaBruta: "R$ 5.460", receitaLiquida: "R$ 2.000", ...retornoCenario(2000) },
     desc: "Primeiros meses, baixa temporada ou bairro menos aquecido.",
   },
   {
@@ -41,7 +47,7 @@ const SCENARIOS = [
     icon: Minus,
     color: "border-primary/30 bg-primary/[0.03]",
     badgeColor: "bg-primary/10 text-primary",
-    metrics: { ocupacao: "75%", adr: "R$ 350", receitaBruta: "R$ 7.875", receitaLiquida: "R$ 3.360", yield: "~10%", payback: "~7 anos" },
+    metrics: { ocupacao: "75%", adr: "R$ 350", receitaBruta: "R$ 7.875", receitaLiquida: "R$ 3.360", ...retornoCenario(3360) },
     desc: "Operação estabilizada com boa gestão e produto adequado.",
   },
   {
@@ -50,7 +56,7 @@ const SCENARIOS = [
     icon: TrendingUp,
     color: "border-emerald-500/30 bg-emerald-500/[0.03]",
     badgeColor: "bg-emerald-100 text-emerald-800",
-    metrics: { ocupacao: "85%", adr: "R$ 420", receitaBruta: "R$ 10.710", receitaLiquida: "R$ 4.900", yield: "~15%", payback: "~4 anos" },
+    metrics: { ocupacao: "85%", adr: "R$ 420", receitaBruta: "R$ 10.710", receitaLiquida: "R$ 4.900", ...retornoCenario(4900) },
     desc: "Studio premium, fotos profissionais, preço dinâmico e localização top.",
   },
 ];
@@ -60,7 +66,7 @@ const SENSITIVITY = [
   { driver: "Ocupação", impact: "Alto", desc: `Cada 5pp de ocupação = ~${brlExemplo(exemplo.impactoOcupacao)}/mês de receita bruta`, icon: Percent, color: "text-primary" },
   { driver: "Diária média (ADR)", impact: "Alto", desc: `Cada R$ 50 a mais na diária = ~${brlExemplo(exemplo.impactoDiaria)}/mês bruto a ${formatPercent(exemplo.bairro.avgOccupancy, 0)} de ocupação`, icon: DollarSign, color: "text-primary" },
   { driver: "Condomínio", impact: "Médio", desc: "Custo fixo que não escala — condomínios > R$ 1.200 comprimem margem", icon: Building2, color: "text-amber-600" },
-  { driver: "Gestão operacional", impact: "Médio", desc: "Operação própria economiza ~18% da receita, mas exige tempo e processo", icon: Zap, color: "text-amber-600" },
+  { driver: "Gestão operacional", impact: "Médio", desc: "Na hipótese de gestão de 18%, a operação própria evita essa comissão, mas exige tempo e processo", icon: Zap, color: "text-amber-600" },
 ];
 
 type ActiveScenario = "conservador" | "base" | "agressivo";
@@ -113,7 +119,7 @@ export default function RentabilidadeSection() {
           <div className="mt-4 bg-muted/50 rounded-lg p-3 flex items-start gap-2.5">
             <AlertCircle size={14} className="text-muted-foreground mt-0.5 shrink-0" />
             <p className="text-xs text-muted-foreground font-body">
-              Exemplo baseado em studio de 30m² em {exemplo.bairro.name}, ADR {brlExemplo(exemplo.bairro.dailyAvg)}, ocupação {formatPercent(exemplo.bairro.avgOccupancy, 0)}. A taxa de limpeza não entra na conta porque é paga pelo hóspede. Valores reais variam por unidade e operação.
+              Hipótese de exemplo baseada em studio de 30m² em {exemplo.bairro.name}, ADR {brlExemplo(exemplo.bairro.dailyAvg)}, ocupação {formatPercent(exemplo.bairro.avgOccupancy, 0)}. A taxa de limpeza não entra na conta porque é paga pelo hóspede. Valores reais variam por unidade e operação.
             </p>
           </div>
           <FonteBairro nome={exemplo.bairro.name} />
@@ -122,7 +128,9 @@ export default function RentabilidadeSection() {
 
       {/* ── Scenarios ── */}
       <h3 className="font-display text-xl font-bold text-foreground mb-2">Cenários de retorno</h3>
-      <p className="text-muted-foreground text-sm font-body mb-4">Clique em cada cenário para ver as métricas. O cenário base é o mais provável para uma operação bem executada.</p>
+      <p className="text-muted-foreground text-sm font-body mb-4">Hipóteses de exemplo, não previsões de mercado. Clique para comparar os cenários; os valores não são garantidos. Yield e payback recalculados sobre {brlExemplo(exemplo.investimento)} de investimento total, incluindo a reforma turnkey mediana do estudo de 188 contratos. Receitas e taxas dos cenários foram preservadas.</p>
+      <p className="text-muted-foreground text-sm font-body mb-2">No exemplo de Pinheiros com os dados curados, receita líquida de {brlExemplo(exemplo.receitaLiquida)}/mês: {formatDecimal(exemplo.yieldLiquido, 1)}% ao ano e payback simples de {formatDecimal(exemplo.paybackAnos ?? 0, 1)} anos, sem valorização nem financiamento.</p>
+      <FonteLink fonte={{ title: "Bewild — estudo de 188 contratos", url: ESTUDO_REFORMA_URL }} />
 
       <div className="flex flex-wrap gap-2 mb-4">
         {SCENARIOS.map((s) => (
@@ -200,7 +208,7 @@ export default function RentabilidadeSection() {
         <Lightbulb className="text-primary mt-0.5 flex-shrink-0" size={20} />
         <div>
           <p className="font-display font-bold text-foreground text-sm mb-1">O segredo está na composição, não em um fator isolado</p>
-          <p className="text-sm text-muted-foreground font-body">Um studio com ADR médio mas 85% de ocupação pode render mais que um com diária alta e 60% de ocupação. Da mesma forma, um condomínio barato em bairro bom pode compensar uma diária menor. Use o simulador para testar seus cenários específicos.</p>
+          <p className="text-sm text-muted-foreground font-body">Em uma hipótese ilustrativa, um studio com ADR médio mas 85% de ocupação pode render mais que um com diária alta e 60% de ocupação. Da mesma forma, um condomínio barato em bairro bom pode compensar uma diária menor. Use o simulador para testar seus cenários específicos.</p>
         </div>
       </div>
 
@@ -212,7 +220,7 @@ export default function RentabilidadeSection() {
               <p><strong className="text-foreground">Yield bruto</strong> = receita anual bruta ÷ valor do imóvel. Útil para comparações rápidas entre ativos e regiões. Não considera custos operacionais.</p>
               <p><strong className="text-foreground">Yield líquido</strong> = receita anual líquida ÷ valor do imóvel. Mais realista, mas depende de premissas de custo que variam por operação.</p>
               <p><strong className="text-foreground">ROI (Return on Investment)</strong> = lucro líquido ÷ capital investido total (inclui reforma, mobília, ITBI). É a métrica mais completa, mas exige dados detalhados de implantação.</p>
-              <p><strong className="text-foreground">Payback</strong> = capital investido ÷ lucro líquido mensal. Indica em quantos meses o investimento se paga. Para short stay em SP, paybacks entre 5 e 10 anos são considerados saudáveis.</p>
+              <p><strong className="text-foreground">Payback</strong> = capital investido ÷ lucro líquido mensal. Indica em quantos meses o investimento se paga. Avalie o resultado conforme o risco e o capital investido; não há uma faixa universal de payback.</p>
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -220,12 +228,12 @@ export default function RentabilidadeSection() {
           <AccordionTrigger className="text-primary font-semibold min-h-[48px]">Custos que investidores iniciantes esquecem</AccordionTrigger>
           <AccordionContent>
             <div className="text-sm text-muted-foreground leading-relaxed space-y-2">
-              <p>• <strong className="text-foreground">ITBI</strong>: ~3% do valor do imóvel na compra</p>
-              <p>• <strong className="text-foreground">Registro e escritura</strong>: ~{formatDecimal(1.5)}% adicional</p>
+              <p>• <strong className="text-foreground">ITBI</strong>: 3% do valor do imóvel — hipótese do exemplo; confirme a incidência</p>
+              <p>• <strong className="text-foreground">Registro e escritura</strong>: ~{formatDecimal(1.5)}% adicional — hipótese do exemplo</p>
               <p>• <strong className="text-foreground">Fundo de reserva</strong>: cobrado em muitos condomínios além da taxa ordinária</p>
               <p>• <strong className="text-foreground">Reposição de enxoval</strong>: toalhas, roupas de cama e itens de cozinha a cada 6-12 meses</p>
-              <p>• <strong className="text-foreground">Manutenção corretiva</strong>: ~5% da receita anual para reparos inesperados</p>
-              <p>• <strong className="text-foreground">Vacância sazonal</strong>: janeiro e períodos entre feriados podem ter ocupação 20-30% menor</p>
+              <p>• <strong className="text-foreground">Manutenção corretiva</strong>: 5% da receita anual — hipótese de reserva para reparos</p>
+              <p>• <strong className="text-foreground">Vacância sazonal</strong>: períodos de menor demanda podem reduzir a ocupação; teste essa hipótese no simulador</p>
             </div>
           </AccordionContent>
         </AccordionItem>

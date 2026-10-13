@@ -1,4 +1,5 @@
 import { formatDecimal } from "@/lib/numberFormat";
+import OrcamentoButton from "@/components/OrcamentoButton";
 import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +31,7 @@ export default function RecomendacaoSection() {
       <SectionBlock
         id="recomendacao"
         title="Recomendação Personalizada"
-        takeaway="Complete o diagnóstico de perfil na Fase 2 para desbloquear recomendações personalizadas."
+        takeaway="Complete a autoavaliação de perfil na Fase 2 para desbloquear recomendações personalizadas."
       >
         <Card className="border-dashed border-2 border-border">
           <CardContent className="p-8 text-center">
@@ -40,7 +41,7 @@ export default function RecomendacaoSection() {
             </p>
             <a href="#diagnostico" className="inline-block mt-3">
               <Button variant="outline" size="sm">
-                <ArrowRight size={14} className="mr-1.5" /> Ir para o diagnóstico
+                <ArrowRight size={14} className="mr-1.5" /> Ir para a autoavaliação
               </Button>
             </a>
           </CardContent>
@@ -119,6 +120,7 @@ export default function RecomendacaoSection() {
           </Button>
         </a>
       </div>
+      <OrcamentoButton local="recomendacao" className="mt-6 min-h-[44px]" />
     </SectionBlock>
   );
 }

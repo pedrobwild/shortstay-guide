@@ -44,6 +44,8 @@ function render(p, ssrHtml) {
     `<meta property="og:description" content="${esc(p.description)}" data-rh="true" />`,
     `<meta property="og:url" content="${url}" data-rh="true" />`,
     `<meta property="og:site_name" content="${esc(seo.siteName)}" data-rh="true" />`,
+    `<meta property="og:image" content="${seo.siteUrl}/og-radar.jpg" data-rh="true" />`,
+    `<meta name="twitter:image" content="${seo.siteUrl}/og-radar.jpg" data-rh="true" />`,
     `<meta name="twitter:title" content="${esc(p.title)}" data-rh="true" />`,
     `<meta name="twitter:description" content="${esc(p.description)}" data-rh="true" />`,
     ...(p.jsonLd ? [`<script type="application/ld+json">${JSON.stringify(p.jsonLd).replace(/</g, "\\u003c")}</script>`] : []),
@@ -55,7 +57,7 @@ function render(p, ssrHtml) {
 
   return template
     .replace(/<title>[\s\S]*?<\/title>\s*/, "")
-    .replace(/\s*<meta (name="description"|property="og:(title|description|url|site_name)"|name="twitter:(title|description)")[^>]*>/g, "")
+    .replace(/\s*<meta (name="description"|property="og:(title|description|url|site_name|image)"|name="twitter:(title|description|image)")[^>]*>/g, "")
     .replace(/\s*<link rel="canonical"[^>]*>/g, "")
     .replace("</head>", `    ${head}\n  </head>`)
     .replace('<div id="root"></div>', ssrHtml ? `<div id="root" data-ssr-path="${p.path}">${ssrHtml}</div>` : `<div id="root">${body}</div>`);

@@ -1,3 +1,4 @@
+import OrcamentoButton from "@/components/OrcamentoButton";
 import { Button } from "@/components/ui/button";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { Link } from "react-router-dom";
@@ -8,9 +9,7 @@ export default function MobileStickyBar() {
       <Button asChild className="flex-1 bg-primary text-primary-foreground min-h-[44px]" onClick={() => trackGlobal("cta_clicked", { cta_id: "simular_agora", section: "sticky_bar" })}>
         <Link to="/mercado">Simular agora</Link>
       </Button>
-      <Button asChild variant="outline" className="flex-1 min-h-[44px]" onClick={() => trackGlobal("cta_clicked", { cta_id: "ferramentas", section: "sticky_bar" })}>
-        <Link to="/ferramentas">Ferramentas</Link>
-      </Button>
+      <OrcamentoButton local="barra-celular" variant="outline" className="flex-1 min-h-[44px]" />
     </div>
   );
 }

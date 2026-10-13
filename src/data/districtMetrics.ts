@@ -48,7 +48,7 @@ export const DISTRICTS_MOCK: DistrictRow[] = [
     adrRangeLabel: "R$340–R$480",
     listingsCount: 3200,
     competition: "Alta",
-    sourceLabel: "Bwild/AirDNA 2025",
+    sourceLabel: "Bewild/AirDNA 2025",
     recommendation: {
       bestStudioType: "Compacto premium + home office",
       whyItWorks:
@@ -75,7 +75,7 @@ export const DISTRICTS_MOCK: DistrictRow[] = [
     adrRangeLabel: "R$360–R$520",
     listingsCount: 2600,
     competition: "Alta",
-    sourceLabel: "Bwild/AirDNA 2025",
+    sourceLabel: "Bewild/AirDNA 2025",
     recommendation: {
       bestStudioType: "Business studio (hotel feel)",
       whyItWorks:
@@ -102,7 +102,7 @@ export const DISTRICTS_MOCK: DistrictRow[] = [
     adrRangeLabel: "R$360–R$520",
     listingsCount: 2800,
     competition: "Alta",
-    sourceLabel: "Bwild/AirDNA 2025",
+    sourceLabel: "Bewild/AirDNA 2025",
     recommendation: {
       bestStudioType: "Premium aesthetic (instagramável)",
       whyItWorks:
@@ -308,7 +308,7 @@ export const DISTRICTS_MOCK: DistrictRow[] = [
     adrRangeLabel: "R$240–R$350",
     listingsCount: 2800,
     competition: "Média",
-    sourceLabel: "Bwild/AirDNA 2025",
+    sourceLabel: "Bewild/AirDNA 2025",
     recommendation: {
       bestStudioType: "Business premium + estadias médias",
       whyItWorks:

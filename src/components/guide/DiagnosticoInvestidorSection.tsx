@@ -58,7 +58,7 @@ export default function DiagnosticoInvestidorSection() {
   return (
     <SectionBlock
       id="diagnostico"
-      title="Seu Perfil de Investidor"
+      title="Autoavaliação do investidor"
       takeaway="Responda 3 perguntas rápidas. A plataforma vai personalizar recomendações para o seu perfil."
     >
       {!isComplete ? (

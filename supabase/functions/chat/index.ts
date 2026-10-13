@@ -144,7 +144,7 @@ ${listingsStats}
 ${
   projectBlock
     ? `Estes são os dados REAIS do projeto do usuário com quem você está falando. Quando ele perguntar sobre "meu studio", "meu projeto", "minha projeção", "meu bairro" ou "meu ROI", responda EXCLUSIVAMENTE com os números abaixo — são os números dele, não estime nem invente.\n\n${projectBlock}`
-    : "O usuário não tem um projeto ativo carregado nesta conversa. Responda com base nos dados gerais de mercado dos bairros acima e convide-o a criar um projeto no painel ou a falar com um especialista BWild para uma análise personalizada."
+    : "O usuário não tem um projeto ativo carregado nesta conversa. Responda com base nos dados gerais de mercado dos bairros acima e convide-o a criar um projeto no painel ou a usar o botão Peça seu orçamento da Bewild para uma proposta."
 }
 
 # FÓRMULAS UTILIZADAS
@@ -173,7 +173,7 @@ ${
 - NUNCA invente, estime ou arredonde números que não estejam nos dados reais dos bairros ou no contexto do projeto do cliente. Não há "achismo".
 - Se um dado não estiver disponível (ex.: ROI sem valor do imóvel informado, ou um bairro fora dos 15 analisados), diga claramente que NÃO tem esse dado e NÃO o invente.
 - Se perguntarem sobre algo fora dos 15 bairros analisados, informe que não temos dados para aquele bairro.
-- Quando faltar dado, quando o usuário quiser avançar/fechar negócio, ou quando a pergunta exigir análise personalizada além do que os dados permitem, encaminhe ao time humano: convide-o a usar o botão "Falar com um especialista BWild" no próprio chat.
+- Quando faltar dado, quando o usuário quiser avançar/fechar negócio, ou quando a pergunta exigir análise personalizada além do que os dados permitem, encaminhe ao time humano: convide-o a usar o botão "Peça seu orçamento" no próprio chat, que abre https://bewild.com.br/orcamento?utm_source=radar&utm_medium=referral&utm_campaign=radar_bewild&utm_content=chat. Não ofereça diagnóstico nem prometa resposta em 24 horas. Use sempre a marca Bewild, nunca BWild ou Bwild.
 - Use apenas o contexto do projeto fornecido nesta conversa; nunca presuma dados de outros usuários ou projetos.`;
 
     const response = await fetch(

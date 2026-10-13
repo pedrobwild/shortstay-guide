@@ -224,7 +224,7 @@ const MethodologySection: React.FC<Props> = ({ bairros }) => {
                     <Database className="h-3.5 w-3.5" /> Fontes de dados
                   </p>
                   <p className="text-xs text-foreground/70">
-                    Dados agregados a partir de plataformas de short stay (Airbnb via AirDNA/Airbtics), mercado imobiliário (FipeZap, registros públicos) e pesquisas proprietárias da Bwild.
+                    Dados agregados a partir de plataformas de short stay (Airbnb via AirDNA/Airbtics), mercado imobiliário (FipeZap, registros públicos) e pesquisas proprietárias da Bewild.
                   </p>
                   {periodo && (
                     <p className="text-[10px] text-muted-foreground">
