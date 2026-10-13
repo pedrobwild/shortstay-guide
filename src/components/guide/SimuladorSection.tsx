@@ -127,6 +127,8 @@ export default function SimuladorSection() {
               <DialogContent className="font-body"><DialogHeader><DialogTitle className="font-display">Resumo da Simulação</DialogTitle></DialogHeader><pre className="bg-muted rounded-lg p-4 text-sm text-foreground whitespace-pre-wrap max-h-80 overflow-y-auto">{summaryText}</pre><Button onClick={handleCopy} className="w-full bg-primary text-primary-foreground">{copied ? <><Check size={16} className="mr-2" /> Copiado!</> : <><Copy size={16} className="mr-2" /> Copiar texto</>}</Button></DialogContent>
             </Dialog>
           </div>
+type CellValue = string | number | null | undefined;
+
           {scenarios.length >= 2 && (
             <Dialog open={compareOpen} onOpenChange={setCompareOpen}>
               <DialogTrigger asChild><Button variant="secondary" className="w-full"><Columns2 size={16} className="mr-2" />Comparar cenários ({scenarios.length})</Button></DialogTrigger>
@@ -137,22 +139,22 @@ export default function SimuladorSection() {
                     <thead><tr className="border-b border-border"><th className="text-left py-2 px-2 text-muted-foreground font-medium">Métrica</th>{scenarios.map(s => <th key={s.id} className="text-center py-2 px-2 font-medium text-foreground min-w-[120px]"><div className="text-xs">{s.name}</div></th>)}</tr></thead>
                     <tbody>
                       {([
-                        { label: "Bairro", key: "bairro", fmt: (v: any) => v, best: null },
-                        { label: "Metragem", key: "metragem", fmt: (v: any) => `${v}m²`, best: null },
-                        { label: "Ocupação", key: "ocupacao", fmt: (v: any) => `${v}%`, best: "max" },
-                        { label: "Diária", key: "boostedDaily", fmt: (v: any) => `R$ ${fmt(v)}`, best: "max" },
-                        { label: "Rate boost", key: "rateBoost", fmt: (v: any) => v === 0 ? "Base" : `+${v}%`, best: null },
-                        { label: "Receita/mês", key: "receitaMensal", fmt: (v: any) => `R$ ${fmt(v)}`, best: "max" },
-                        { label: "Receita/ano", key: "receitaAnual", fmt: (v: any) => `R$ ${fmt(v)}`, best: "max" },
-                        { label: "Payback", key: "paybackMonths", fmt: (v: any) => v ? `${v} meses` : "—", best: "min" },
+                        { label: "Bairro", key: "bairro", fmt: (v: CellValue) => v, best: null },
+                        { label: "Metragem", key: "metragem", fmt: (v: CellValue) => `${v}m²`, best: null },
+                        { label: "Ocupação", key: "ocupacao", fmt: (v: CellValue) => `${v}%`, best: "max" },
+                        { label: "Diária", key: "boostedDaily", fmt: (v: CellValue) => `R$ ${fmt(v)}`, best: "max" },
+                        { label: "Rate boost", key: "rateBoost", fmt: (v: CellValue) => v === 0 ? "Base" : `+${v}%`, best: null },
+                        { label: "Receita/mês", key: "receitaMensal", fmt: (v: CellValue) => `R$ ${fmt(v)}`, best: "max" },
+                        { label: "Receita/ano", key: "receitaAnual", fmt: (v: CellValue) => `R$ ${fmt(v)}`, best: "max" },
+                        { label: "Payback", key: "paybackMonths", fmt: (v: CellValue) => v ? `${v} meses` : "—", best: "min" },
                       ] as const).map(row => {
-                        const values = scenarios.map(s => (s as any)[row.key]);
+                        const values = scenarios.map(s => (s as unknown as Record<string, CellValue>)[row.key]);
                         const numericValues = values.filter(v => typeof v === "number" && v > 0);
                         const bestVal = row.best === "max" ? Math.max(...numericValues) : row.best === "min" ? Math.min(...numericValues) : null;
                         return (
                           <tr key={row.key} className="border-b border-border/50">
                             <td className="py-2 px-2 text-muted-foreground">{row.label}</td>
-                            {scenarios.map(s => { const v = (s as any)[row.key]; const isBest = bestVal !== null && v === bestVal && numericValues.length > 1; return <td key={s.id} className={`text-center py-2 px-2 ${isBest ? "text-primary font-bold bg-primary/5" : "text-foreground"}`}>{row.fmt(v)}</td>; })}
+                            {scenarios.map(s => { const v = (s as unknown as Record<string, CellValue>)[row.key]; const isBest = bestVal !== null && v === bestVal && numericValues.length > 1; return <td key={s.id} className={`text-center py-2 px-2 ${isBest ? "text-primary font-bold bg-primary/5" : "text-foreground"}`}>{row.fmt(v)}</td>; })}
                           </tr>
                         );
                       })}
