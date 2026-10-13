@@ -40,6 +40,8 @@ trilha de auditoria.
 
 ## Atualização (sem editar código)
 
+No admin, abra **Coletas** (`/admin/coletas`), selecione o bairro (ou São Paulo), preencha fonte GuestFavorites, período, data de coleta/publicação, amostra, link, indicadores e observação. Confirme **Registrar nova coleta**. O salvamento é exclusivo de admin e registra os novos indicadores/desativa os anteriores na mesma transação, preservando o histórico. Não reaproveita quartis/receita opcionais vazios da coleta antiga. Períodos já registrados são recusados para não sobrescrever o histórico. Ajustes manuais de Bairros continuam independentes e podem prevalecer nas telas. A confiança é calculada pela view, não pelo formulário. O histórico da tela lista as últimas 100 coletas do bairro.
+
 1. Refaça a coleta e salve um novo `guestfavorites-AAAA-MM-DD.csv` aqui.
 2. Insira as novas linhas em `radar_observacoes` (`ativo = true`, novo
    `coletado_em`, período, `amostra_n`, `url_origem`, `publicado_em`).
