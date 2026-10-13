@@ -5,7 +5,7 @@ import { toast } from "@/hooks/use-toast";
 import { BAIRRO_DATA, type BairroItem } from "@/data/guide-data";
 import type { Tables } from "@/integrations/supabase/types";
 
-function mapSupabaseToBairro(row: Tables<"bairro_airbnb_sp">["Row"]): BairroItem {
+function mapSupabaseToBairro(row: Tables<"bairro_airbnb_sp">): BairroItem {
   const adr = row.adr_medio_studio ?? 300;
   // ocupacao_media_studio é NUMERIC(5,4) → fração 0–1 (ex.: 0.75). A UI usa
   // percentual (0–100), então convertemos. Aceita também valores já em %

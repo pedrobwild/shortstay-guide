@@ -1,6 +1,6 @@
 import { useRef, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
+import type { TablesInsert } from "@/integrations/supabase/types";
 
 type EventPayload = {
   event_type: string;
@@ -27,7 +27,7 @@ export function useGuideAnalytics() {
     if (buffer.current.length === 0) return;
     const batch = buffer.current.splice(0);
     try {
-      await supabase.from("guide_events").insert(batch as unknown as Tables<"guide_events">["Insert"][]);
+      await supabase.from("guide_events").insert(batch as unknown as TablesInsert<"guide_events">[]);
     } catch {
       // silently fail — analytics should never break UX
     }

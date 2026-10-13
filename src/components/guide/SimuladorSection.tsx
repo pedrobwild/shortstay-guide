@@ -143,10 +143,10 @@ export default function SimuladorSection() {
                         { label: "Bairro", key: "bairro", fmt: (v: CellValue) => v, best: null },
                         { label: "Metragem", key: "metragem", fmt: (v: CellValue) => `${v}m²`, best: null },
                         { label: "Ocupação", key: "ocupacao", fmt: (v: CellValue) => `${v}%`, best: "max" },
-                        { label: "Diária", key: "boostedDaily", fmt: (v: CellValue) => `R$ ${fmt(v)}`, best: "max" },
+                        { label: "Diária", key: "boostedDaily", fmt: (v: CellValue) => `R$ ${fmt(Number(v))}`, best: "max" },
                         { label: "Rate boost", key: "rateBoost", fmt: (v: CellValue) => v === 0 ? "Base" : `+${v}%`, best: null },
-                        { label: "Receita/mês", key: "receitaMensal", fmt: (v: CellValue) => `R$ ${fmt(v)}`, best: "max" },
-                        { label: "Receita/ano", key: "receitaAnual", fmt: (v: CellValue) => `R$ ${fmt(v)}`, best: "max" },
+                        { label: "Receita/mês", key: "receitaMensal", fmt: (v: CellValue) => `R$ ${fmt(Number(v))}`, best: "max" },
+                        { label: "Receita/ano", key: "receitaAnual", fmt: (v: CellValue) => `R$ ${fmt(Number(v))}`, best: "max" },
                         { label: "Payback", key: "paybackMonths", fmt: (v: CellValue) => v ? `${v} meses` : "—", best: "min" },
                       ] as const).map(row => {
                         const values = scenarios.map(s => (s as unknown as Record<string, CellValue>)[row.key]);
