@@ -127,7 +127,6 @@ export default function SimuladorSection() {
               <DialogContent className="font-body"><DialogHeader><DialogTitle className="font-display">Resumo da Simulação</DialogTitle></DialogHeader><pre className="bg-muted rounded-lg p-4 text-sm text-foreground whitespace-pre-wrap max-h-80 overflow-y-auto">{summaryText}</pre><Button onClick={handleCopy} className="w-full bg-primary text-primary-foreground">{copied ? <><Check size={16} className="mr-2" /> Copiado!</> : <><Copy size={16} className="mr-2" /> Copiar texto</>}</Button></DialogContent>
             </Dialog>
           </div>
-type CellValue = string | number | null | undefined;
 
           {scenarios.length >= 2 && (
             <Dialog open={compareOpen} onOpenChange={setCompareOpen}>
