@@ -85,50 +85,68 @@ function LegacyBairroRedirect() {
   return <LegacyRedirect to={`/bairro/${slugifyBairro(name)}`} />;
 }
 
+/** Provedores compartilhados entre o app (navegador) e a pré-renderização (build). */
+export function AppShell({ children, helmetContext }: { children: React.ReactNode; helmetContext?: object }) {
+  return (
+    <HelmetProvider context={helmetContext}>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            {children}
+          </TooltipProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
+  );
+}
+
+/** Rotas do app; o roteador (Browser/Static) é fornecido por quem renderiza. */
+export function AppRoutes() {
+  return (
+    <>
+      <ScrollToHash />
+      <PostLoginProvision />
+      <Suspense fallback={<PageFallback />}>
+        <RouteSeo />
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/mercado" element={<IntelligenceDashboard />} />
+          <Route path="/ranking" element={<IntelligenceRanking />} />
+          <Route path="/bairro/:bairro" element={<IntelligenceBairroDetail />} />
+          <Route path="/anuncios" element={<IntelligenceListings />} />
+          <Route path="/mapa" element={<MapaBairros />} />
+          {/* Redirecionamentos das rotas antigas (mantêm ?query e #hash) */}
+          <Route path="/intelligence" element={<LegacyRedirect to="/mercado" />} />
+          <Route path="/intelligence/ranking" element={<LegacyRedirect to="/ranking" />} />
+          <Route path="/intelligence/listings" element={<LegacyRedirect to="/anuncios" />} />
+          <Route path="/intelligence/bairro/:bairro" element={<LegacyBairroRedirect />} />
+          <Route path="/mapa-bairros" element={<LegacyRedirect to="/mapa" />} />
+          <Route path="/ferramentas" element={<Ferramentas />} />
+          <Route path="/projecao" element={<StudioProjection />} />
+          <Route path="/painel" element={<ProtectedRoute><Painel /></ProtectedRoute>} />
+          <Route path="/projetos" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+          <Route path="/projeto/:projectId" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
+          <Route path="/admin/leads" element={<AdminRoute><AdminLeads /></AdminRoute>} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <ClientOnly><ChatBot /></ClientOnly>
+      </Suspense>
+    </>
+  );
+}
+
 const App = () => (
-  <HelmetProvider>
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <ScrollToHash />
-          <PostLoginProvision />
-          <Suspense fallback={<PageFallback />}>
-            <RouteSeo />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/mercado" element={<IntelligenceDashboard />} />
-              <Route path="/ranking" element={<IntelligenceRanking />} />
-              <Route path="/bairro/:bairro" element={<IntelligenceBairroDetail />} />
-              <Route path="/anuncios" element={<IntelligenceListings />} />
-              <Route path="/mapa" element={<MapaBairros />} />
-              {/* Redirecionamentos das rotas antigas (mantêm ?query e #hash) */}
-              <Route path="/intelligence" element={<LegacyRedirect to="/mercado" />} />
-              <Route path="/intelligence/ranking" element={<LegacyRedirect to="/ranking" />} />
-              <Route path="/intelligence/listings" element={<LegacyRedirect to="/anuncios" />} />
-              <Route path="/intelligence/bairro/:bairro" element={<LegacyBairroRedirect />} />
-              <Route path="/mapa-bairros" element={<LegacyRedirect to="/mapa" />} />
-              <Route path="/ferramentas" element={<Ferramentas />} />
-              <Route path="/projecao" element={<StudioProjection />} />
-              <Route path="/painel" element={<ProtectedRoute><Painel /></ProtectedRoute>} />
-              <Route path="/projetos" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
-              <Route path="/projeto/:projectId" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
-              <Route path="/admin/leads" element={<AdminRoute><AdminLeads /></AdminRoute>} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <ChatBot />
-          </Suspense>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-  </HelmetProvider>
+  <AppShell>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  </AppShell>
 );
 
 export default App;
