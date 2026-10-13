@@ -12,3 +12,4 @@
 
 - Admin overrides of neighborhood daily rate/occupancy live in the bairro_ajustes table and are applied only via src/lib/bairroAjustes.ts at display time; bairrosCurados.ts and the Pinheiros example keep reading the approved base. Why: editable numbers without altering the approved source.
 - Keep homepage introductory context in HeroSection and public data entry links in existing guide controls; do not couple introductory content to new data queries. Why: preserve server-rendered context and existing consultation flows.
+- Register market collections through the admin-only transactional RPC, never separate client insert/deactivate calls; preserve old observations and reject duplicate periods to avoid partial updates and lost history.

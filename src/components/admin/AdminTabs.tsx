@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 
 const ABAS = [
   { to: "/admin/bairros", label: "Bairros" },
+  { to: "/admin/coletas", label: "Coletas" },
   { to: "/admin/simulacoes", label: "Simulações" },
   { to: "/admin/leads", label: "Leads" },
 ];
