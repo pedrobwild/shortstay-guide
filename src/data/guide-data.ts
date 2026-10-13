@@ -49,7 +49,7 @@ export const SECTIONS = [
   { id: "casestudy", label: "Case study", icon: BookOpen, phase: 4 },
   { id: "checklist", label: "Checklist investidor", icon: CheckSquare, phase: 4 },
   { id: "faq", label: "FAQ", icon: HelpCircle, phase: 4 },
-  { id: "cta-final", label: "Solicitar diagnóstico", icon: Send, phase: 4 },
+  { id: "cta-final", label: "Peça seu orçamento", icon: Send, phase: 4 },
 ] as const;
 
 export type SectionItem = {
@@ -115,7 +115,7 @@ export const TREND_TAG_COLORS: Record<string, string> = {
 };
 
 export const TRENDS_2026: TrendItem[] = [
-  { id: 1, numberLabel: "#1", title: "Fotografia profissional estratégica", short: "Fotos profissionais aumentam CTR, conversão e diária.", tags: ["Fotos"], difficulty: "medium", impact: "high", details: { what: "Hosts top investem em fotógrafos especializados em Airbnb.", how: ["Contrate fotógrafo com portfólio de interiores e short stay.", "Fotografe com luz natural e enquadramentos amplos.", "Priorize a foto principal como 'foto de capa'."], checklist: ["Foto de capa forte", "Cozinha/banheiro bem iluminados", "Sequência lógica"], expectedImpact: "+20% a +40% nas reservas." } },
+  { id: 1, numberLabel: "#1", title: "Fotografia profissional estratégica", short: "Fotos profissionais aumentam CTR, conversão e diária.", tags: ["Fotos"], difficulty: "medium", impact: "high", details: { what: "Hosts top investem em fotógrafos especializados em Airbnb.", how: ["Contrate fotógrafo com portfólio de interiores e short stay.", "Fotografe com luz natural e enquadramentos amplos.", "Priorize a foto principal como 'foto de capa'."], checklist: ["Foto de capa forte", "Cozinha/banheiro bem iluminados", "Sequência lógica"], expectedImpact: "Fotos de qualidade ajudam no posicionamento do anúncio; consulte a fonte Airbnb na seção Mercado e Precificação." } },
   { id: 2, numberLabel: "#2", title: "Primeira foto extremamente forte", short: "A primeira imagem define se o usuário clica no anúncio.", tags: ["Fotos"], difficulty: "easy", impact: "high", details: { what: "A imagem de capa é o maior driver de cliques.", how: ["Use iluminação perfeita e enquadramento amplo.", "Inclua um elemento visual marcante.", "Evite fotos escuras ou muito fechadas."], checklist: ["Capa clara e ampla", "Elemento memorável visível"], expectedImpact: "Aumenta CTR e melhora a taxa de reserva." } },
   { id: 3, numberLabel: "#3", title: "Identidade visual do apartamento", short: "Um conceito único faz o anúncio se destacar.", tags: ["Design"], difficulty: "medium", impact: "high", details: { what: "Hosts profissionais criam um tema consistente.", how: ["Escolha um conceito: industrial, tropical, escandinavo.", "Mantenha paleta de cores consistente.", "Use 1–2 peças 'statement'."], checklist: ["Paleta definida", "Tema aplicado", "Peça marcante"], expectedImpact: "Diferencia o anúncio e aumenta cliques." } },
   { id: 4, numberLabel: "#4", title: "Self check-in ultra intuitivo", short: "Menos fricção no check-in, mais avaliações.", tags: ["Operação", "Automação"], difficulty: "medium", impact: "high", details: { what: "Além da fechadura digital, a experiência é guiada.", how: ["Crie vídeo de check-in (30–60s).", "Manual visual com fotos e passos curtos."], checklist: ["Fechadura digital + backup", "Vídeo curto", "Manual visual"], expectedImpact: "Reduz perguntas e melhora avaliações." } },
@@ -134,7 +134,7 @@ export const TRENDS_2026: TrendItem[] = [
   { id: 17, numberLabel: "#17", title: "Estratégia de estadia mínima", short: "Regras por período melhoram ocupação e eficiência.", tags: ["Precificação"], difficulty: "easy", impact: "medium", details: { what: "Mínimo de noites varia por demanda.", how: ["Fim de semana: mínimo 2 noites.", "Alta temporada: mínimo 3 noites."], checklist: ["Regras por temporada"], expectedImpact: "Menos gaps e melhor ocupação." } },
   { id: 18, numberLabel: "#18", title: "Automatização de mensagens", short: "Automação reduz trabalho e melhora experiência.", tags: ["Automação", "Operação"], difficulty: "medium", impact: "medium", details: { what: "Mensagens padronizadas e automáticas.", how: ["Pré check-in, guia da casa, pós checkout.", "Use Hospitable ou Guesty."], checklist: ["Templates prontos", "Gatilhos configurados"], expectedImpact: "Menos esforço e menos erro." } },
   { id: 19, numberLabel: "#19", title: "Reviews estratégicas", short: "Pedir review na hora certa aumenta a taxa de avaliação.", tags: ["Operação"], difficulty: "easy", impact: "medium", details: { what: "Mensagem pós checkout pedindo avaliação.", how: ["Automatize a solicitação e seja cordial."], checklist: ["Mensagem automática"], expectedImpact: "Mais avaliações 5 estrelas." } },
-  { id: 20, numberLabel: "#20", title: "Portfólio de unidades", short: "Hosts +100k escalam com padrão replicável.", tags: ["Escala"], difficulty: "advanced", impact: "high", details: { what: "Receita alta vem de escala e padronização.", how: ["Replicar operação e padrão em 3 a 10 unidades."], checklist: ["Padrão replicável", "Equipe e processos"], expectedImpact: "Transforma o Airbnb em negócio recorrente." } },
+  { id: 20, numberLabel: "#20", title: "Portfólio de unidades", short: "Operadores podem escalar com um padrão replicável.", tags: ["Escala"], difficulty: "advanced", impact: "high", details: { what: "Receita alta vem de escala e padronização.", how: ["Replicar operação e padrão em 3 a 10 unidades."], checklist: ["Padrão replicável", "Equipe e processos"], expectedImpact: "Transforma o Airbnb em negócio recorrente." } },
 ];
 
 export const TREND_ALL_TAGS = ["Fotos", "Design", "Operação", "Precificação", "Experiência", "Automação", "Escala"];
@@ -171,7 +171,7 @@ export const CHECKLIST_ITEMS = [
 
 export const SCORE_TIERS = [
   { min: 0, max: 3, label: "Iniciante", color: "bg-destructive", desc: "Você precisa amadurecer o projeto antes de investir." },
-  { min: 4, max: 6, label: "Em progresso", color: "bg-accent", desc: "Bom começo, mas faltam itens críticos. Considere um diagnóstico." },
+  { min: 4, max: 6, label: "Em progresso", color: "bg-accent", desc: "Bom começo, mas faltam itens críticos. Peça seu orçamento." },
   { min: 7, max: 8, label: "Quase pronto", color: "bg-primary/70", desc: "Falta pouco! Revise os itens pendentes e avance com confiança." },
   { min: 9, max: 10, label: "Pronto para investir", color: "bg-primary", desc: "Excelente! Seu planejamento está sólido. Hora de agir." },
 ];
@@ -215,7 +215,7 @@ export const TRUST_SIGNALS_DATA = [
 
 export const FAQ_DATA = [
   { q: "Quanto custa começar um studio para short stay?", a: RESPOSTA_CUSTO_REFORMA, link: ESTUDO_REFORMA_URL },
-  { q: "Qual o retorno médio de um studio em São Paulo?", a: "Studios bem posicionados e operados geram entre R$ 5.000 e R$ 12.000 de receita bruta mensal, dependendo do bairro, metragem e qualidade do anúncio. Descontando custos operacionais (limpeza, taxa de plataforma, condomínio, IPTU), o yield líquido fica entre 6% e 12% ao ano." },
+  { q: "Qual o retorno médio de um studio em São Paulo?", a: "O retorno depende da diária, ocupação, investimento e custos operacionais. Consulte os dados por bairro e teste suas próprias premissas no simulador." },
   { q: "Preciso de CNPJ para operar no Airbnb?", a: "Não é obrigatório, mas altamente recomendado. Com CNPJ (MEI ou Simples), você pode emitir notas fiscais, ter conta PJ dedicada e otimizar a tributação. Sem CNPJ, a renda deve ser declarada como pessoa física e pode ter alíquota mais alta de IR." },
   { q: "E se o condomínio não permitir short stay?", a: "Verifique a convenção do condomínio antes de comprar. Se já possui o imóvel, consulte um advogado especializado. Muitos condomínios ainda não têm regras claras — nesse caso, é possível operar dentro da legalidade até que haja deliberação formal em assembleia." },
   { q: "A Bwild faz a gestão operacional do studio?", a: "Sim. A Bwild oferece gestão completa: precificação dinâmica, atendimento ao hóspede, limpeza profissional, manutenção e relatórios mensais. O investidor recebe o rendimento líquido sem se envolver na operação diária." },

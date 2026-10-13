@@ -240,11 +240,11 @@ export const TAG_ICONS: Record<string, typeof MapPin> = {
 };
 
 export const INVESTOR_INSIGHTS = [
-  { icon: Train, text: "Studios próximos ao metrô tendem a ter +10% ocupação média." },
+  { icon: Train, text: "Considere a proximidade ao metrô ao avaliar o acesso dos hóspedes." },
   { icon: Utensils, text: "Localização perto de serviços e pontos de interesse está entre os fatores que o Airbnb considera no ranking.", source: FONTES_GUIA.ranking },
   { icon: Briefcase, text: "Feiras e eventos corporativos concentram demanda em datas específicas; confira o calendário do bairro." },
   { icon: Music, text: "No Lollapalooza Brasil 2026, as buscas por hospedagem no Airbnb em São Paulo subiram cerca de 140% em relação a 2025.", source: FONTES_GUIA.lollapalooza },
-  { icon: Building2, text: "Bairros com score acima de 88 têm payback médio abaixo de 3 anos." },
+  { icon: Building2, text: "Score acima de 88 é um limiar interno de avaliação; calcule o payback com as premissas do seu imóvel." },
 ];
 
 export const DEMAND_PROFILE_LABELS: Record<string, { label: string; emoji: string }> = {

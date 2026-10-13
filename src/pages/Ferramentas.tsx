@@ -25,7 +25,7 @@ export default function Ferramentas() {
                 Ferramentas do Investidor
               </h1>
               <p className="text-muted-foreground text-lg font-body max-w-2xl">
-                Diagnóstico de perfil, recomendação personalizada e plano de ação — ferramentas complementares para refinar sua estratégia.
+                Autoavaliação do investidor, recomendação personalizada e plano de ação — ferramentas complementares para refinar sua estratégia.
               </p>
             </div>
           </div>

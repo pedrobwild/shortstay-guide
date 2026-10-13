@@ -50,7 +50,7 @@ const PRICING_PHASES = [
     phase: "Lançamento",
     period: "Mês 1–2",
     strategy: "Entrada agressiva: -20% do mercado",
-    desc: "Priorize volume de reservas e reviews. As primeiras 5–10 avaliações definem sua posição no algoritmo.",
+    desc: "Priorize volume de reservas e reviews. Acompanhe as avaliações e a resposta dos hóspedes, sem assumir um limiar fixo de posicionamento.",
     color: "bg-amber-500",
   },
   {
@@ -78,17 +78,17 @@ const PRICING_PHASES = [
 
 /* ── Seasonality ── */
 const SEASONALITY = [
-  { period: "Alta", months: "Mar, Jun, Jul, Out, Nov, Dez", occupancy: "80–90%", pricing: "+20 a +50%", color: "bg-primary/10 text-primary" },
-  { period: "Média", months: "Fev, Abr, Mai, Ago, Set", occupancy: "70–80%", pricing: "Base", color: "bg-muted text-muted-foreground" },
-  { period: "Baixa", months: "Jan (pós-feriados)", occupancy: "55–65%", pricing: "-10 a -15%", color: "bg-amber-100 text-amber-800" },
+  { period: "Alta", months: "Mar, Jun, Jul, Out, Nov, Dez", occupancy: "Demanda potencialmente maior", pricing: "Revisar conforme procura", color: "bg-primary/10 text-primary" },
+  { period: "Média", months: "Fev, Abr, Mai, Ago, Set", occupancy: "Demanda variável", pricing: "Base", color: "bg-muted text-muted-foreground" },
+  { period: "Baixa", months: "Jan (pós-feriados)", occupancy: "Demanda potencialmente menor", pricing: "Revisar conforme procura", color: "bg-amber-100 text-amber-800" },
 ];
 
 /* ── Rate optimization tips ── */
 const RATE_TIPS = [
-  { title: "Fotos profissionais", impact: "+20–40%", desc: "O maior ROI por real investido. Fotos profissionais podem dobrar seu CTR.", icon: Camera },
-  { title: "Estadia mínima inteligente", impact: "+10–15%", desc: "2 noites mínimo em semana, 3 em feriados. Reduz viradas e custos de limpeza.", icon: CalendarCheck },
-  { title: "Título e descrição otimizados", impact: "+10–20%", desc: "Teste A/B de títulos e reescreva a descrição a cada trimestre.", icon: FileText },
-  { title: "Preço dinâmico", impact: "+15–25%", desc: "Ferramentas automatizadas capturam picos que você não consegue monitorar manualmente.", icon: Zap },
+  { title: "Fotos profissionais", impact: "+19% de reservas", desc: "Segundo o Airbnb, anúncios com fotos profissionais tiveram em média 19% mais reservas (2024–2025).", icon: Camera, source: FONTES_GUIA.fotografia },
+  { title: "Estadia mínima inteligente", impact: "Eficiência", desc: "2 noites mínimo em semana, 3 em feriados. Reduz viradas e custos de limpeza.", icon: CalendarCheck },
+  { title: "Título e descrição otimizados", impact: "Clareza", desc: "Teste A/B de títulos e reescreva a descrição a cada trimestre.", icon: FileText },
+  { title: "Preço dinâmico", impact: "Ajuste à demanda", desc: "Ferramentas automatizadas capturam picos que você não consegue monitorar manualmente.", icon: Zap },
 ];
 
 export default function AnuncioPrecificacaoSection() {
@@ -141,7 +141,7 @@ export default function AnuncioPrecificacaoSection() {
 
       {/* ── Pricing Strategy Timeline ── */}
       <h3 className="font-display text-xl font-bold text-foreground mb-2">Estratégia de precificação por fase</h3>
-      <p className="text-muted-foreground text-sm font-body mb-4">A precificação evolui com a maturidade do anúncio. Não comece pelo preço ideal — conquiste credibilidade primeiro.</p>
+      <p className="text-muted-foreground text-sm font-body mb-4">Hipótese de estratégia: períodos e ajustes de preço abaixo são premissas ilustrativas, não resultados observados. Adapte-os à sua operação.</p>
 
       <div className="relative mb-10">
         {/* Timeline line */}
@@ -177,6 +177,7 @@ export default function AnuncioPrecificacaoSection() {
 
       {/* ── Seasonality ── */}
       <h3 className="font-display text-xl font-bold text-foreground mb-4">Sazonalidade em São Paulo</h3>
+      <p className="text-sm text-muted-foreground mb-4">Calendário ilustrativo: confirme a demanda e as datas antes de ajustar preços. Não representa uma série mensal observada.</p>
       <Card className="border-border mb-10">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -225,6 +226,7 @@ export default function AnuncioPrecificacaoSection() {
                     <Badge variant="secondary" className="text-[10px] font-body">{tip.impact}</Badge>
                   </div>
                   <p className="text-sm text-muted-foreground font-body leading-snug">{tip.desc}</p>
+                  {tip.source && <FonteLink fonte={tip.source} />}
                 </div>
               </CardContent>
             </Card>
@@ -249,7 +251,7 @@ export default function AnuncioPrecificacaoSection() {
               <p><strong className="text-foreground">PriceLabs</strong> — O mais usado no Brasil. Interface intuitiva, bom para quem tem 1–10 unidades. Integra com Airbnb e Booking.</p>
               <p><strong className="text-foreground">Beyond Pricing</strong> — Forte em mercados internacionais. Mais robusto para quem opera em múltiplas cidades.</p>
               <p><strong className="text-foreground">Wheelhouse</strong> — Permite mais controle manual sobre regras. Bom para operadores que querem customização.</p>
-              <p className="mt-2"><strong className="text-foreground">Investimento típico</strong>: R$ 30–80/mês por unidade. O retorno médio reportado é de 15–25% a mais de receita vs. preço fixo.</p>
+              <p className="mt-2"><strong className="text-foreground">Custo e resultado</strong>: confirme o preço com cada fornecedor e avalie o efeito das regras na sua operação; não há ganho de receita garantido.</p>
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -257,7 +259,7 @@ export default function AnuncioPrecificacaoSection() {
           <AccordionTrigger className="text-primary font-semibold min-h-[48px]">Calendário de eventos de São Paulo</AccordionTrigger>
           <AccordionContent>
             <div className="text-sm text-muted-foreground leading-relaxed space-y-2">
-              <p><strong className="text-foreground">Carnaval (Fev/Mar)</strong> — Demanda altíssima. Preços podem triplicar. Defina mínimo de 3–4 noites.</p>
+              <p><strong className="text-foreground">Carnaval (Fev/Mar)</strong> — Demanda altíssima. Ajuste preços conforme a procura observada. Defina mínimo de 3–4 noites.</p>
               <p><strong className="text-foreground">F1 GP São Paulo (Nov)</strong> — Interlagos atrai público internacional. ADR premium para Pinheiros, Itaim e Vila Olímpia.</p>
               <p><strong className="text-foreground">São Paulo Fashion Week (Abr/Out)</strong> — Concentra demanda em bairros centrais e Jardins.</p>
               <p><strong className="text-foreground">Eventos corporativos</strong> — Feiras no Expo Center Norte, convenções no WTC. Demanda constante de executivos durante a semana.</p>

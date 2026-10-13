@@ -1,3 +1,4 @@
+import { trackSimulationUsed } from "@/lib/marketingConsent";
 import { formatDecimal } from "@/lib/numberFormat";
 /**
  * Simulador de Investimento — Calcula custos de aquisição, financiamento,
@@ -154,7 +155,8 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
         </div>
       </CardHeader>
 
-      <CardContent className="p-4 md:p-6 space-y-6">
+      <CardContent className="p-4 md:p-6 space-y-6" onPointerDownCapture={trackSimulationUsed} onKeyDownCapture={trackSimulationUsed}>
+        <p className="text-sm text-muted-foreground">Premissas editáveis: compra, entrada, juros, prazo e decoração podem ser alterados nos controles. Taxas de aquisição e custos operacionais são hipóteses fixas desta simulação; confirme-os na proposta.</p>
         {/* ── INPUTS ──────────────────────────────────────── */}
         <div className="space-y-5">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
@@ -176,7 +178,7 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
               className="w-full"
             />
             <div className="flex justify-between text-[10px] text-muted-foreground">
-              <span>R$ 200k</span><span>R$ 1.5M</span>
+              <span>R$ 200k</span><span>R$ 1,5M</span>
             </div>
           </div>
 

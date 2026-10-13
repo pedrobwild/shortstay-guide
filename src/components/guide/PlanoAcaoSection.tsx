@@ -32,7 +32,7 @@ export default function PlanoAcaoSection() {
       title: "Definir perfil de investidor",
       description: hasProfile
         ? `Perfil definido: ${investorProfile!.name}. Recomendações personalizadas ativas.`
-        : "Complete o diagnóstico para personalizar suas recomendações.",
+        : "Complete a autoavaliação para personalizar suas recomendações.",
       status: hasProfile ? "done" : "action",
       href: "#diagnostico",
     });

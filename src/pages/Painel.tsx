@@ -21,7 +21,7 @@ const brl = (v: number) =>
 const SHORTCUTS = [
   { to: "/mapa", icon: Map, title: "Mapa de bairros", desc: "Compare diárias e ocupação por região." },
   { to: "/mercado", icon: BarChart3, title: "Inteligência de mercado", desc: "Rankings e dados de listings reais." },
-  { to: "/ferramentas", icon: Wrench, title: "Ferramentas do investidor", desc: "Diagnóstico, recomendação e plano de ação." },
+  { to: "/ferramentas", icon: Wrench, title: "Ferramentas do investidor", desc: "Autoavaliação, recomendação e plano de ação." },
   { to: "/projetos", icon: FolderOpen, title: "Meus projetos", desc: "Gerencie e crie novos studios." },
 ];
 

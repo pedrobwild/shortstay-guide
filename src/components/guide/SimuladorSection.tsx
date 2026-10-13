@@ -1,3 +1,5 @@
+import { trackSimulationUsed } from "@/lib/marketingConsent";
+import OrcamentoButton from "@/components/OrcamentoButton";
 import { formatDecimal } from "@/lib/numberFormat";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -98,7 +100,8 @@ export default function SimuladorSection() {
         </div>
       )}
       <Card className="border-border">
-        <CardContent className="p-6 space-y-5 font-body">
+        <CardContent className="p-6 space-y-5 font-body" onChangeCapture={trackSimulationUsed} onPointerDownCapture={trackSimulationUsed} onKeyDownCapture={trackSimulationUsed}>
+          <p className="text-sm text-muted-foreground">Premissas editáveis: altere os campos e controles. Ajustes por objetivo e níveis de decoração são hipóteses, não ganhos observados.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div><label className="text-sm font-medium text-foreground mb-1.5 block">Bairro</label><Select value={simBairro} onValueChange={setSimBairro}><SelectTrigger className="min-h-[48px] text-base"><SelectValue /></SelectTrigger><SelectContent>{bairros.map((b) => <SelectItem key={b.name} value={b.name}>{b.name}</SelectItem>)}</SelectContent></Select></div>
             <div><label className="text-sm font-medium text-foreground mb-1.5 block">Metragem (m²)</label><Input type="number" min={15} max={80} value={simMetragem} onChange={(e) => setSimMetragem(Number(e.target.value) || 30)} className="min-h-[48px] text-base" /></div>
@@ -108,7 +111,7 @@ export default function SimuladorSection() {
             <div><label className="text-sm font-medium text-foreground mb-1.5 block">Diária atual (opcional, R$)</label><Input type="number" placeholder={`Média do bairro: R$ ${fmt(selected.dailyAvg)}`} value={simDiariaAtual} onChange={(e) => setSimDiariaAtual(e.target.value)} className="min-h-[48px] text-base" /></div>
             <div><label className="text-sm font-medium text-foreground mb-1.5 block">Objetivo</label><Select value={simObjetivo} onValueChange={setSimObjetivo}><SelectTrigger className="min-h-[48px] text-base"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="maximizar">Maximizar receita</SelectItem><SelectItem value="estabilidade">Estabilidade de ocupação</SelectItem><SelectItem value="premium">Posicionamento premium</SelectItem></SelectContent></Select></div>
           </div>
-          <div><label className="text-sm font-medium text-foreground mb-2 block">Impacto de aumento na diária</label><div className="flex gap-2 flex-wrap">{[0, 10, 20, 30].map((v) => <Button key={v} size="sm" variant={rateBoost === v ? "default" : "outline"} onClick={() => setRateBoost(v)} className={`min-h-[44px] min-w-[48px] ${rateBoost === v ? "bg-primary text-primary-foreground" : ""}`}>{v === 0 ? "Base" : `+${v}%`}</Button>)}</div></div>
+          <div><label className="text-sm font-medium text-foreground mb-2 block">Impacto de aumento na diária — hipótese</label><div className="flex gap-2 flex-wrap">{[0, 10, 20, 30].map((v) => <Button key={v} size="sm" variant={rateBoost === v ? "default" : "outline"} onClick={() => setRateBoost(v)} className={`min-h-[44px] min-w-[48px] ${rateBoost === v ? "bg-primary text-primary-foreground" : ""}`}>{v === 0 ? "Base" : `+${v}%`}</Button>)}</div></div>
           <div><label className="text-sm font-medium text-foreground mb-1.5 block">Orçamento de reforma (opcional, R$)</label><Input type="number" placeholder="Ex: 72.000" value={simReformaBudget} onChange={(e) => setSimReformaBudget(e.target.value)} className="min-h-[48px] text-base" /></div>
           <Separator />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -170,9 +173,10 @@ export default function SimuladorSection() {
         </CardContent>
       </Card>
       <Accordion type="multiple" className="mt-4 font-body">
-         <AccordionItem value="rateboost"><AccordionTrigger className="text-primary font-semibold min-h-[48px]">Como funciona o rate boost</AccordionTrigger><AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">O cenário Base usa a diária média do bairro (ou sua diária atual, se informada). <strong className="text-foreground">+10%</strong> = decoração básica melhorada (pintura, iluminação, enxoval novo). <strong className="text-foreground">+20%</strong> = decoração premium com fotos profissionais e mobília planejada. <strong className="text-foreground">+30%</strong> = studio de alto padrão com design autoral, fotos de catálogo e operação otimizada. Cada nível é cumulativo ao anterior.</p></AccordionContent></AccordionItem>
-        <AccordionItem value="payback"><AccordionTrigger className="text-primary font-semibold min-h-[48px]">O que o payback considera</AccordionTrigger><AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">O cálculo de payback é simplificado: <strong className="text-foreground">Payback = Orçamento de reforma ÷ Receita incremental mensal</strong> (diferença entre cenário boosted e cenário base). Não inclui custos operacionais como limpeza (~R$ 80-120/virada), taxa da plataforma (~15%), condomínio, IPTU ou imposto de renda. Para uma projeção completa, solicite um diagnóstico personalizado.</p></AccordionContent></AccordionItem>
+         <AccordionItem value="rateboost"><AccordionTrigger className="text-primary font-semibold min-h-[48px]">Como funciona o rate boost</AccordionTrigger><AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">O cenário Base usa a diária média do bairro (ou sua diária atual, se informada). <strong className="text-foreground">+10%</strong> = decoração básica melhorada (pintura, iluminação, enxoval novo). <strong className="text-foreground">+20%</strong> = decoração premium com fotos profissionais e mobília planejada. <strong className="text-foreground">+30%</strong> = studio de alto padrão com design autoral, fotos de catálogo e operação otimizada. Os percentuais são hipóteses de simulação, não resultados comprovados.</p></AccordionContent></AccordionItem>
+        <AccordionItem value="payback"><AccordionTrigger className="text-primary font-semibold min-h-[48px]">O que o payback considera</AccordionTrigger><AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">O cálculo de payback é simplificado: <strong className="text-foreground">Payback = Orçamento de reforma ÷ Receita incremental mensal</strong> (diferença entre cenário boosted e cenário base). Não inclui custos operacionais como limpeza (~R$ 80-120/virada), taxa da plataforma (~15%), condomínio, IPTU ou imposto de renda. Taxas e custos mencionados são hipóteses do exemplo. Para planejar a reforma, peça seu orçamento.</p></AccordionContent></AccordionItem>
       </Accordion>
+      <OrcamentoButton local="meio" className="mt-4 min-h-[44px]" />
     </SectionBlock>
   );
 }
