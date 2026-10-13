@@ -31,7 +31,7 @@ async function loadBairrosContext(): Promise<string> {
 
   const { data: radar, error: radarError } = await supabase.from("radar_bairro_atual").select("*").eq("cidade", "São Paulo");
   if (radarError) console.error("Error loading radar:", radarError);
-  const grupos = new Map<string, Record<string, any>>();
+  const grupos = new Map<string, Record<string, { valor: number; [k: string]: unknown } & Record<string, any>>>();
   for (const r of radar ?? []) {
     const k = normNome(r.bairro);
     if (!grupos.has(k)) grupos.set(k, {});
