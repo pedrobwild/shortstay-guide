@@ -1,4 +1,6 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation, Navigate } from "react-router-dom";
+import { slugifyBairro, SEO_BAIRROS, bairroTitle, bairroDescription } from "@/lib/seo";
+import { Seo } from "@/components/RouteSeo";
 import { useBairroDetail, useBairrosData, fmtBRL, fmtPct, fmtScore } from "@/hooks/useIntelligenceData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -113,6 +115,7 @@ const IntelligenceBairroDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {seoHead}
       <header className="bg-hero-gradient text-primary-foreground">
         <div className="container mx-auto px-4 py-8">
           {/* Breadcrumb */}
