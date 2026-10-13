@@ -364,9 +364,9 @@ serve(async (req) => {
         .update({ status: "error" })
         .eq("id", connectionId);
 
-      const msg = downloadError.name === "AbortError"
+      const msg = downloadError instanceof Error && downloadError.name === "AbortError"
         ? "Timeout ao baixar calendário (>15s)"
-        : `Falha ao baixar calendário: ${downloadError.message}`;
+        : `Falha ao baixar calendário: ${downloadError instanceof Error ? downloadError.message : String(downloadError)}`;
 
       return jsonResponse({ success: false, error: msg }, 502);
     }
