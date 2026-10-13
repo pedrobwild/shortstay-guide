@@ -5,6 +5,7 @@ import {
   GraduationCap, Camera, DollarSign, FileText, Zap, MousePointerClick,
   CalendarCheck, MessageSquare, Trophy, Package, BadgeCheck, Users, Clock, Phone,
   Calculator, Building2, PieChart, Megaphone,
+  type LucideIcon,
 } from "lucide-react";
 import { RESPOSTA_CUSTO_REFORMA, ESTUDO_REFORMA_URL, SELO_REFORMAS, SELO_PROJETOS, SELO_BAIRROS } from "@/data/provasBewild";
 
@@ -74,7 +75,7 @@ export const SECTIONS = [
 export type SectionItem = {
   id: string;
   label: string;
-  icon: any;
+  icon: LucideIcon;
   phase: number;
   href?: string;
 };

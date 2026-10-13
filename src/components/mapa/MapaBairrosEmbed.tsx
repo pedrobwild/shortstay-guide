@@ -452,7 +452,7 @@ function InteractiveMap({
               }} paint={{ "text-color": "#fff" }} />
               {/* Individual POI points */}
               <Layer id="poi-unclustered" type="circle" filter={["!", ["has", "point_count"]]} paint={{
-                "circle-color": colorExpr,
+                "circle-color": colorExpression,
                 "circle-radius": 6,
                 "circle-stroke-width": 2,
                 "circle-stroke-color": "#fff",
