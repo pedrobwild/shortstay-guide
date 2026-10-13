@@ -1,3 +1,4 @@
+import { FONTES_GUIA } from "@/data/fontesGuia";
 import {
   MapPin, Train, Calendar, Briefcase, Stethoscope, Zap, Music, Trophy, Theater, Ticket,
   Utensils, Wifi, Palette, ShoppingBag, Star, Building2, Plane, Trees, GraduationCap, Heart,
@@ -240,9 +241,9 @@ export const TAG_ICONS: Record<string, typeof MapPin> = {
 
 export const INVESTOR_INSIGHTS = [
   { icon: Train, text: "Studios próximos ao metrô tendem a ter +10% ocupação média." },
-  { icon: Utensils, text: "Áreas com alta densidade de restaurantes aumentam diária média em até 15%." },
-  { icon: Briefcase, text: "Eventos corporativos aumentam demanda em bairros business em até 25%." },
-  { icon: Music, text: "Festivais de música geram picos de até 40% na demanda local." },
+  { icon: Utensils, text: "Localização perto de serviços e pontos de interesse está entre os fatores que o Airbnb considera no ranking.", source: FONTES_GUIA.ranking },
+  { icon: Briefcase, text: "Feiras e eventos corporativos concentram demanda em datas específicas; confira o calendário do bairro." },
+  { icon: Music, text: "No Lollapalooza Brasil 2026, as buscas por hospedagem no Airbnb em São Paulo subiram cerca de 140% em relação a 2025.", source: FONTES_GUIA.lollapalooza },
   { icon: Building2, text: "Bairros com score acima de 88 têm payback médio abaixo de 3 anos." },
 ];
 

@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 import { bairroPath } from "@/lib/seo";
 import { useState } from "react";
 import { useRawListings, fmtBRL, fmtPct } from "@/hooks/useIntelligenceData";
@@ -119,7 +120,7 @@ const IntelligenceListings = () => {
                         <TableCell className="text-right tabular-nums">{fmtBRL(l.preco_noite_atual)}</TableCell>
                         <TableCell className="text-right tabular-nums">{fmtPct(l.ocupacao_estimada)}</TableCell>
                         <TableCell className="text-right tabular-nums">{fmtBRL(l.receita_anual_estimada)}</TableCell>
-                        <TableCell className="text-right tabular-nums">{Number(l.rating_geral).toFixed(2)}</TableCell>
+                        <TableCell className="text-right tabular-nums">{formatDecimal(Number(l.rating_geral), 2)}</TableCell>
                         <TableCell className="text-right tabular-nums">{l.n_reviews}</TableCell>
                         <TableCell className="text-center">{l.is_superhost ? <Badge className="bg-amber-100 text-amber-800 text-[10px]">⭐ SH</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
                         <TableCell className="text-[11px] text-muted-foreground">{l.fonte}</TableCell>

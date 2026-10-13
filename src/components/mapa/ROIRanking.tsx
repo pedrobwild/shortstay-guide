@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, DollarSign, BarChart3, Users, ChevronDown, Lightbulb } from "lucide-react";
 import { Neighborhood, INVESTOR_INSIGHTS, DEMAND_PROFILE_LABELS, fmt } from "@/data/mapaBairrosData";
+import FonteLink from "@/components/guide/FonteLink";
+import { formatDecimal } from "@/lib/numberFormat";
 
 type SortKey = "roi" | "nightly" | "occupancy" | "competition";
 
@@ -129,7 +131,7 @@ export default function ROIRanking({ neighborhoods, onSelectNeighborhood, select
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
                           <div>
                             <p className="text-[10px] text-muted-foreground">ROI est.</p>
-                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{n.metrics.estimatedROI}%</p>
+                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{formatDecimal(n.metrics.estimatedROI)}%</p>
                           </div>
                           <div>
                             <p className="text-[10px] text-muted-foreground">Diária média</p>
@@ -137,7 +139,7 @@ export default function ROIRanking({ neighborhoods, onSelectNeighborhood, select
                           </div>
                           <div>
                             <p className="text-[10px] text-muted-foreground">Ocupação</p>
-                            <p className="text-xs font-bold text-foreground">{n.metrics.occupancy}%</p>
+                            <p className="text-xs font-bold text-foreground">{formatDecimal(n.metrics.occupancy, 0)}%</p>
                           </div>
                           <div>
                             <p className="text-[10px] text-muted-foreground">Receita/mês</p>
@@ -163,7 +165,7 @@ export default function ROIRanking({ neighborhoods, onSelectNeighborhood, select
           <Lightbulb size={12} />
           Insights do investidor
         </div>
-        {INVESTOR_INSIGHTS.slice(0, 3).map((insight, i) => (
+        {INVESTOR_INSIGHTS.slice(0, 4).map((insight, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, y: 8 }}
@@ -172,7 +174,7 @@ export default function ROIRanking({ neighborhoods, onSelectNeighborhood, select
           >
             <div className="flex items-start gap-2 p-2.5 rounded-lg bg-primary/5 border border-primary/10">
               <insight.icon size={14} className="text-primary shrink-0 mt-0.5" />
-              <p className="text-[11px] text-foreground/80 font-body leading-relaxed">{insight.text}</p>
+              <div className="min-w-0"><p className="text-[11px] text-foreground/80 font-body leading-relaxed">{insight.text}</p>{insight.source && <FonteLink fonte={insight.source} />}</div>
             </div>
           </motion.div>
         ))}

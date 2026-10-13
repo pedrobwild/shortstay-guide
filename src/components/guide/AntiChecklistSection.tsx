@@ -20,7 +20,7 @@ export default function AntiChecklistSection() {
       </div>
       <div className="bg-primary/5 border border-primary/20 rounded-lg p-5 flex items-start gap-3">
         <DollarSign className="text-primary mt-0.5 flex-shrink-0" size={22} />
-        <div><p className="font-display font-bold text-foreground text-lg mb-1">Economia pode chegar a 30% no custo total</p><p className="text-sm text-muted-foreground">Ao evitar demolições desnecessárias e priorizar marcenaria + layout, investidores experientes economizam até 30% do orçamento de reforma — dinheiro que vai direto para decoração e fotos, onde o retorno é comprovado.</p></div>
+        <div><p className="font-display font-bold text-foreground text-lg mb-1">Menos demolição, menos custo</p><p className="text-sm text-muted-foreground">Ao evitar demolições desnecessárias e priorizar marcenaria + layout, cada parede ou revestimento mantido tira demolição, entulho e refazimento do orçamento — dinheiro que vai direto para decoração e fotos, onde o retorno é comprovado.</p></div>
       </div>
       <Accordion type="multiple" className="mt-4 font-body">
         <AccordionItem value="custos-evitaveis"><AccordionTrigger className="text-primary font-semibold">Detalhamento dos custos evitáveis</AccordionTrigger><AccordionContent>

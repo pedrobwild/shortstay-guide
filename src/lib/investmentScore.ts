@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 /**
  * ═══════════════════════════════════════════════════════════════
  * INVESTMENT SCORE — Motor central do produto
@@ -45,9 +46,9 @@ export function calculateTrueYield(b: BairroAirbnb): TrueYieldResult {
   if (Math.abs(delta) < 0.005) {
     comparison = "O True Yield está alinhado com o Yield Airbnb da plataforma, sugerindo consistência nos dados.";
   } else if (delta > 0) {
-    comparison = `O True Yield é ${(delta * 100).toFixed(1)}pp acima do Yield Airbnb reportado. Isso pode indicar que o imóvel tem potencial de retorno maior do que o estimado pela plataforma.`;
+    comparison = `O True Yield é ${formatDecimal((delta * 100), 1)}pp acima do Yield Airbnb reportado. Isso pode indicar que o imóvel tem potencial de retorno maior do que o estimado pela plataforma.`;
   } else {
-    comparison = `O True Yield é ${(Math.abs(delta) * 100).toFixed(1)}pp abaixo do Yield Airbnb reportado. Diferenças em sazonalidade, vacância real ou taxas podem explicar essa diferença.`;
+    comparison = `O True Yield é ${formatDecimal((Math.abs(delta) * 100), 1)}pp abaixo do Yield Airbnb reportado. Diferenças em sazonalidade, vacância real ou taxas podem explicar essa diferença.`;
   }
 
   return { trueYield, annualRevenue, propertyPrice, comparison, delta };
@@ -249,16 +250,16 @@ function buildScoreNarrative(
   };
 
   let riskNote = "";
-  if (confidenceFactor < 1) riskNote += ` O score foi ajustado em ${((1 - confidenceFactor) * 100).toFixed(0)}% pela qualidade dos dados.`;
-  if (liquidityRiskFactor < 1) riskNote += ` Penalidade de ${((1 - liquidityRiskFactor) * 100).toFixed(0)}% por liquidez abaixo do ideal.`;
+  if (confidenceFactor < 1) riskNote += ` O score foi ajustado em ${formatDecimal(((1 - confidenceFactor) * 100), 0)}% pela qualidade dos dados.`;
+  if (liquidityRiskFactor < 1) riskNote += ` Penalidade de ${formatDecimal(((1 - liquidityRiskFactor) * 100), 0)}% por liquidez abaixo do ideal.`;
 
   if (grade === "A+" || grade === "A") {
-    return `${bairro} alcança nota ${grade} (${score.toFixed(1)}), destacando-se em ${pillarNames[strongest[0]]}. É um dos bairros mais completos para investimento em short stay.${riskNote}`;
+    return `${bairro} alcança nota ${grade} (${formatDecimal(score, 1)}), destacando-se em ${pillarNames[strongest[0]]}. É um dos bairros mais completos para investimento em short stay.${riskNote}`;
   }
   if (grade === "B") {
-    return `${bairro} tem nota ${grade} (${score.toFixed(1)}), com destaque em ${pillarNames[strongest[0]]}. Consistente, embora ${pillarNames[weakest[0]]} mereça atenção.${riskNote}`;
+    return `${bairro} tem nota ${grade} (${formatDecimal(score, 1)}), com destaque em ${pillarNames[strongest[0]]}. Consistente, embora ${pillarNames[weakest[0]]} mereça atenção.${riskNote}`;
   }
-  return `${bairro} recebe nota ${grade} (${score.toFixed(1)}). Ponto forte: ${pillarNames[strongest[0]]}. Ponto fraco: ${pillarNames[weakest[0]]}.${riskNote}`;
+  return `${bairro} recebe nota ${grade} (${formatDecimal(score, 1)}). Ponto forte: ${pillarNames[strongest[0]]}. Ponto fraco: ${pillarNames[weakest[0]]}.${riskNote}`;
 }
 
 // ── Batch calculation for rankings ───────────────────────────────

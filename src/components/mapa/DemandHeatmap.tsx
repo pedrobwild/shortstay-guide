@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { HeatPoint } from "@/data/mapaBairrosData";
@@ -107,7 +108,7 @@ export default function DemandHeatmap({ heatPoints, visible }: DemandHeatmapProp
                     </div>
                     <div>
                       <p className="text-muted-foreground">Ocupação</p>
-                      <p className="font-bold text-foreground">{hp.occupancyEstimate}%</p>
+                      <p className="font-bold text-foreground">{formatDecimal(hp.occupancyEstimate, 0)}%</p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">ADR</p>

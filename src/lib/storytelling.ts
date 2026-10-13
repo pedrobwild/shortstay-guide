@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 /**
  * Storytelling components for the Short Stay Intelligence module.
  * Phase 3: Strategic lessons and consultive narratives.
@@ -82,7 +83,7 @@ export const STRATEGIC_LESSONS: StrategicLesson[] = [
         return { bairro: b.bairro, compositeScore: avg - spread * 0.3, avg };
       });
       const best = scored.reduce((a, b) => a.compositeScore > b.compositeScore ? a : b);
-      return `${best.bairro} aparece como o bairro mais equilibrado, com score médio de ${best.avg.toFixed(1)} e baixa dispersão entre rentabilidade, liquidez e crescimento.`;
+      return `${best.bairro} aparece como o bairro mais equilibrado, com score médio de ${formatDecimal(best.avg, 1)} e baixa dispersão entre rentabilidade, liquidez e crescimento.`;
     },
     takeaway: "Busque equilíbrio entre retorno, demanda e estabilidade.",
     icon: "Scale",

@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -150,7 +151,7 @@ function RecommendationCard({
                   {profile.label}
                 </Badge>
                 <Badge variant="outline" className="font-body text-[10px]">
-                  <span className={rec.gradeColor}>{rec.grade}</span> · {rec.personalizedScore.toFixed(0)}pts
+                  <span className={rec.gradeColor}>{rec.grade}</span> · {formatDecimal(rec.personalizedScore, 0)}pts
                 </Badge>
               </div>
 
@@ -159,7 +160,7 @@ function RecommendationCard({
                 <MetricPill label="Yield" value={fmtPct(rec.bairro.yield_bruto_airbnb)} />
                 <MetricPill label="Ocupação" value={fmtPct(rec.bairro.ocupacao_media_studio)} />
                 <MetricPill label="ADR" value={fmtBRL(Number(rec.bairro.adr_medio_studio))} />
-                <MetricPill label="Liquidez" value={Number(rec.bairro.score_liquidez).toFixed(0)} />
+                <MetricPill label="Liquidez" value={formatDecimal(Number(rec.bairro.score_liquidez), 0)} />
               </div>
               <p className="text-[11px] text-muted-foreground font-body mb-2">{rotuloFonteDiariaOcupacao(rec.bairro)}</p>
 

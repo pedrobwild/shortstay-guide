@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 import type { BairroAirbnb } from "@/types/intelligence";
 import { fmtBRL, fmtPct, fmtScore } from "@/hooks/useIntelligenceData";
 
@@ -216,25 +217,25 @@ export function getBairroProfile(b: BairroAirbnb, allBairros: BairroAirbnb[]): B
   // High return: top yield — prioritized over "risky" even with high saturation
   if (yld >= maxYield * 0.80 && liq >= 50) {
     const def = PROFILE_DEFS["alto-retorno"];
-    return { ...def, profile: "alto-retorno", quickRead: `Yield de ${(yld * 100).toFixed(1)}% — acima da maioria dos bairros` };
+    return { ...def, profile: "alto-retorno", quickRead: `Yield de ${formatDecimal((yld * 100), 1)}% — acima da maioria dos bairros` };
   }
 
   // Risky opportunity: high yield but low liquidity OR low confidence (saturation alone no longer triggers this)
   if (yld >= maxYield * 0.85 && (liq < 50 || confianca === "baixo")) {
     const def = PROFILE_DEFS["oportunidade-arriscada"];
-    return { ...def, profile: "oportunidade-arriscada", quickRead: `Yield atrativo (${(yld * 100).toFixed(1)}%), mas com sinais de risco${liq < 50 ? " — liquidez abaixo do ideal" : ""}${confianca === "baixo" ? " — dados limitados" : ""}` };
+    return { ...def, profile: "oportunidade-arriscada", quickRead: `Yield atrativo (${formatDecimal((yld * 100), 1)}%), mas com sinais de risco${liq < 50 ? " — liquidez abaixo do ideal" : ""}${confianca === "baixo" ? " — dados limitados" : ""}` };
   }
 
   // High occupancy: top 85% instead of 95%
   if (occ >= maxOcc * 0.85) {
     const def = PROFILE_DEFS["alta-ocupacao"];
-    return { ...def, profile: "alta-ocupacao", quickRead: `Ocupação de ${(occ * 100).toFixed(0)}% — fluxo de caixa mais estável` };
+    return { ...def, profile: "alta-ocupacao", quickRead: `Ocupação de ${formatDecimal((occ * 100), 0)}% — fluxo de caixa mais estável` };
   }
 
   // Consistent growth: lowered threshold from 65 to 55
   if (cresc >= 55 && cresc > rent * 0.9) {
     const def = PROFILE_DEFS["crescimento-consistente"];
-    return { ...def, profile: "crescimento-consistente", quickRead: `Score de crescimento ${cresc.toFixed(0)} — trajetória ascendente` };
+    return { ...def, profile: "crescimento-consistente", quickRead: `Score de crescimento ${formatDecimal(cresc, 0)} — trajetória ascendente` };
   }
 
   // Default: balanced

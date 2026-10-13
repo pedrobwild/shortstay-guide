@@ -49,8 +49,8 @@ describe("buildProjectChatContext", () => {
     expect(context).toContain("26–35 m²");
     // Receita líquida anual e ROI presentes (formatados em BRL/%)
     expect(context).toMatch(/Receita líquida anual projetada: R\$\s?70\.000/);
-    expect(context).toContain("7.20% ao ano");
-    expect(context).toContain("13.9 anos");
+    expect(context).toContain("7,20% ao ano");
+    expect(context).toContain("13,9 anos");
   });
 
   it("does NOT expose ROI/payback when the property value is missing", () => {

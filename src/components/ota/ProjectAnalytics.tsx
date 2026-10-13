@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 import { diariaPorMetragem, type SizeKey } from "@/data/bairrosCurados";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
@@ -585,7 +586,7 @@ export default function ProjectAnalytics({
             </div>
             <p className="text-[11px] text-muted-foreground">
               Premissas de ADR e ocupação são preenchidas com a média de mercado do bairro/faixa de área
-              ({selectedBairro?.avgOccupancy ?? 0}% ocupação · {brl((selectedBairro ? diariaPorMetragem(selectedBairro, sizeKey as SizeKey) : undefined) ?? 0)}/noite).
+              ({formatDecimal(selectedBairro?.avgOccupancy ?? 0, 0)}% ocupação · {brl((selectedBairro ? diariaPorMetragem(selectedBairro, sizeKey as SizeKey) : undefined) ?? 0)}/noite).
               Ajuste tudo nas premissas abaixo — os números recalculam em tempo real.
             </p>
           </CardContent>
@@ -693,7 +694,7 @@ export default function ProjectAnalytics({
         <h3 className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Visão geral</h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <KpiCard icon={<Percent className="h-4 w-4" />} label="Ocupação"
-            value={`${kpis.occupancyPct.toFixed(1)}%`}
+            value={`${formatDecimal(kpis.occupancyPct, 1)}%`}
             hint={`${kpis.bookedNights}n reservadas · ${kpis.blockedNights}n bloqueadas`} />
           <KpiCard icon={<DollarSign className="h-4 w-4" />} label="Receita bruta"
             value={brl(grossRevenue)}
@@ -703,10 +704,10 @@ export default function ProjectAnalytics({
             label="Receita líquida"
             value={brl(netRevenue)}
             accent
-            hint={`Margem ${netMarginPct.toFixed(1)}% · Custos ${brl(totalCosts)}`}
+            hint={`Margem ${formatDecimal(netMarginPct, 1)}% · Custos ${brl(totalCosts)}`}
           />
           <KpiCard icon={<Moon className="h-4 w-4" />} label="Estadia média"
-            value={`${kpis.averageStayNights.toFixed(1)} noites`}
+            value={`${formatDecimal(kpis.averageStayNights, 1)} noites`}
             hint={`${kpis.reservationsCount} reservas no período`} />
         </div>
       </div>
@@ -726,7 +727,7 @@ export default function ProjectAnalytics({
             hint="Receita / nº de reservas" />
           <KpiCard icon={<Hash className="h-4 w-4" />} label="Reservas"
             value={`${kpis.reservationsCount}`}
-            hint={`${patterns.backToBackCount} back-to-back · ${patterns.weekendArrivalsPct.toFixed(0)}% chegam fim de semana`} />
+            hint={`${patterns.backToBackCount} back-to-back · ${formatDecimal(patterns.weekendArrivalsPct, 0)}% chegam fim de semana`} />
         </div>
       </div>
 
@@ -747,8 +748,8 @@ export default function ProjectAnalytics({
           <div className="space-y-2 text-xs">
             <CostRow label="Receita bruta" value={grossRevenue} positive />
             <CostRow label={`Limpeza (${kpis.reservationsCount} reservas × ${brl(costs.cleaningPerStay)})`} value={-cleaningTotal} />
-            <CostRow label={`Gestão (${costs.managementPct}%)`} value={-managementTotal} />
-            <CostRow label={`Impostos (${costs.taxesPct}%)`} value={-taxesTotal} />
+            <CostRow label={`Gestão (${formatDecimal(costs.managementPct)}%)`} value={-managementTotal} />
+            <CostRow label={`Impostos (${formatDecimal(costs.taxesPct)}%)`} value={-taxesTotal} />
             <CostRow label={`Condomínio (${monthsCount} × ${brl(costs.condoMonthly)})`} value={-condoTotal} />
             <div className="h-px bg-border my-1" />
             <CostRow label="Receita líquida" value={netRevenue} bold />
@@ -909,7 +910,7 @@ export default function ProjectAnalytics({
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                   <XAxis dataKey="monthLabel" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
                   <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))"
-                    tickFormatter={(v) => v.toFixed(1)} />
+                    tickFormatter={(v) => formatDecimal(v, 1)} />
                   <Tooltip
                     contentStyle={{
                       background: "hsl(var(--background))",
@@ -917,8 +918,8 @@ export default function ProjectAnalytics({
                       borderRadius: 8, fontSize: 12,
                     }}
                     formatter={(value: number, name: string) => {
-                      if (name === "index") return [`${value.toFixed(2)}x`, "Índice"];
-                      return [`${value.toFixed(1)}%`, "Ocupação"];
+                      if (name === "index") return [`${formatDecimal(value, 2)}x`, "Índice"];
+                      return [`${formatDecimal(value, 1)}%`, "Ocupação"];
                     }}
                   />
                   <ReferenceLine y={1} stroke="hsl(var(--muted-foreground))" strokeDasharray="3 3" />
@@ -965,15 +966,15 @@ export default function ProjectAnalytics({
                   {yoy.map((m) => (
                     <tr key={m.monthKey} className="border-b border-border/50">
                       <td className="py-2 font-medium text-foreground">{m.monthLabel}</td>
-                      <td className="py-2 text-right text-muted-foreground">{m.previousOccupancyPct.toFixed(1)}%</td>
-                      <td className="py-2 text-right">{m.currentOccupancyPct.toFixed(1)}%</td>
+                      <td className="py-2 text-right text-muted-foreground">{formatDecimal(m.previousOccupancyPct, 1)}%</td>
+                      <td className="py-2 text-right">{formatDecimal(m.currentOccupancyPct, 1)}%</td>
                       <td className={`py-2 text-right font-medium ${m.occupancyDeltaPct >= 0 ? "text-primary" : "text-destructive"}`}>
-                        {m.occupancyDeltaPct >= 0 ? "+" : ""}{m.occupancyDeltaPct.toFixed(1)}pp
+                        {m.occupancyDeltaPct >= 0 ? "+" : ""}{formatDecimal(m.occupancyDeltaPct, 1)}pp
                       </td>
                       <td className="py-2 text-right text-muted-foreground">{brl(m.previousRevenueBrl)}</td>
                       <td className="py-2 text-right">{brl(m.currentRevenueBrl)}</td>
                       <td className={`py-2 text-right font-medium ${m.revenueDeltaPct >= 0 ? "text-primary" : "text-destructive"}`}>
-                        {m.revenueDeltaPct >= 0 ? "+" : ""}{m.revenueDeltaPct.toFixed(1)}%
+                        {m.revenueDeltaPct >= 0 ? "+" : ""}{formatDecimal(m.revenueDeltaPct, 1)}%
                       </td>
                     </tr>
                   ))}
@@ -994,12 +995,12 @@ export default function ProjectAnalytics({
             </div>
             <div className="grid grid-cols-2 gap-3 text-xs">
               <PatternStat label="Back-to-back" value={`${patterns.backToBackCount}`}
-                hint={`${patterns.backToBackRatePct.toFixed(0)}% das transições sem gap`} />
-              <PatternStat label="Gap médio" value={`${patterns.averageGapNights.toFixed(1)}n`}
-                hint={`Mediana ${patterns.medianGapNights.toFixed(1)}n`} />
-              <PatternStat label="Taxa de bloqueio" value={`${patterns.blockRatePct.toFixed(1)}%`}
+                hint={`${formatDecimal(patterns.backToBackRatePct, 0)}% das transições sem gap`} />
+              <PatternStat label="Gap médio" value={`${formatDecimal(patterns.averageGapNights, 1)}n`}
+                hint={`Mediana ${formatDecimal(patterns.medianGapNights, 1)}n`} />
+              <PatternStat label="Taxa de bloqueio" value={`${formatDecimal(patterns.blockRatePct, 1)}%`}
                 hint={`${patterns.blockedCount} bloqueios`} />
-              <PatternStat label="Chegada fim de semana" value={`${patterns.weekendArrivalsPct.toFixed(0)}%`}
+              <PatternStat label="Chegada fim de semana" value={`${formatDecimal(patterns.weekendArrivalsPct, 0)}%`}
                 hint={`Sex/Sáb`} />
               <PatternStat label="Estadia mais longa" value={`${patterns.longestStayNights}n`} />
               <PatternStat label="Estadia mais curta" value={`${patterns.shortestStayNights}n`} />
@@ -1025,12 +1026,12 @@ export default function ProjectAnalytics({
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-md border border-border p-2 space-y-0.5">
                   <p className="text-[11px] text-muted-foreground">Ocupação fim de semana</p>
-                  <p className="text-sm font-medium text-foreground">{weekendSplit.weekendOccupancyPct.toFixed(1)}%</p>
+                  <p className="text-sm font-medium text-foreground">{formatDecimal(weekendSplit.weekendOccupancyPct, 1)}%</p>
                   <p className="text-[10px] text-muted-foreground">{brl(weekendSplit.weekendRevenueBrl)}</p>
                 </div>
                 <div className="rounded-md border border-border p-2 space-y-0.5">
                   <p className="text-[11px] text-muted-foreground">Ocupação dia de semana</p>
-                  <p className="text-sm font-medium text-foreground">{weekendSplit.weekdayOccupancyPct.toFixed(1)}%</p>
+                  <p className="text-sm font-medium text-foreground">{formatDecimal(weekendSplit.weekdayOccupancyPct, 1)}%</p>
                   <p className="text-[10px] text-muted-foreground">{brl(weekendSplit.weekdayRevenueBrl)}</p>
                 </div>
               </div>
@@ -1057,16 +1058,16 @@ export default function ProjectAnalytics({
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Noites/mês para zerar custos fixos</span>
-                <span className="font-medium text-foreground">{breakEven.breakEvenNightsPerMonth.toFixed(1)}n</span>
+                <span className="font-medium text-foreground">{formatDecimal(breakEven.breakEvenNightsPerMonth, 1)}n</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Ocupação mínima necessária</span>
-                <span className="font-medium text-foreground">{breakEven.breakEvenOccupancyPct.toFixed(1)}%</span>
+                <span className="font-medium text-foreground">{formatDecimal(breakEven.breakEvenOccupancyPct, 1)}%</span>
               </div>
               <div className="h-px bg-border my-1" />
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Ocupação média atual</span>
-                <span className="font-medium text-foreground">{breakEven.currentMonthlyOccupancyPct.toFixed(1)}%</span>
+                <span className="font-medium text-foreground">{formatDecimal(breakEven.currentMonthlyOccupancyPct, 1)}%</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Margem vs break-even</span>
@@ -1074,7 +1075,7 @@ export default function ProjectAnalytics({
                   variant={breakEven.marginVsBreakEvenPct >= 0 ? "default" : "destructive"}
                   className="text-[10px]"
                 >
-                  {breakEven.marginVsBreakEvenPct >= 0 ? "+" : ""}{breakEven.marginVsBreakEvenPct.toFixed(1)}pp
+                  {breakEven.marginVsBreakEvenPct >= 0 ? "+" : ""}{formatDecimal(breakEven.marginVsBreakEvenPct, 1)}pp
                 </Badge>
               </div>
             </div>
@@ -1108,16 +1109,16 @@ export default function ProjectAnalytics({
                 <div className="h-px bg-border my-1" />
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Yield bruto</span>
-                  <span className="font-medium text-foreground">{returns.grossYieldPct.toFixed(2)}%</span>
+                  <span className="font-medium text-foreground">{formatDecimal(returns.grossYieldPct, 2)}%</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Cap rate (yield líquido)</span>
-                  <span className="font-medium text-primary">{returns.capRatePct.toFixed(2)}%</span>
+                  <span className="font-medium text-primary">{formatDecimal(returns.capRatePct, 2)}%</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Payback estimado</span>
                   <span className="font-medium text-foreground">
-                    {returns.paybackYears !== null ? `${returns.paybackYears.toFixed(1)} anos` : "—"}
+                    {returns.paybackYears !== null ? `${formatDecimal(returns.paybackYears, 1)} anos` : "—"}
                   </span>
                 </div>
                 <p className="text-[11px] text-muted-foreground">
@@ -1296,7 +1297,7 @@ function OtbCard({ label, otb }: { label: string; otb: ReturnType<typeof forward
           <p className="text-xs text-muted-foreground">{label}</p>
           <Badge variant="secondary" className="text-[10px]">{otb.bookedNights}n</Badge>
         </div>
-        <p className="text-xl font-semibold text-foreground">{pct.toFixed(1)}%</p>
+        <p className="text-xl font-semibold text-foreground">{formatDecimal(pct, 1)}%</p>
         <div className="h-1.5 rounded-full bg-muted overflow-hidden">
           <div
             className="h-full bg-primary transition-all"
@@ -1346,8 +1347,8 @@ function SplitBar({
         <div style={{ width: `${rightPct}%`, background: rightColor }} className="transition-all" />
       </div>
       <div className="flex justify-between text-[11px] text-foreground font-medium">
-        <span>{leftValue}n · {leftPct.toFixed(0)}%</span>
-        <span>{rightValue}n · {rightPct.toFixed(0)}%</span>
+        <span>{leftValue}n · {formatDecimal(leftPct, 0)}%</span>
+        <span>{rightValue}n · {formatDecimal(rightPct, 0)}%</span>
       </div>
     </div>
   );
@@ -1368,7 +1369,7 @@ function MonthlyTooltip({ active, payload }: { active?: boolean; payload?: Reado
   return (
     <div className="rounded-md border border-border bg-background px-3 py-2 text-xs shadow-md">
       <p className="font-medium text-foreground mb-1">{m.monthLabel}</p>
-      <p className="text-muted-foreground">Ocupação: <span className="text-foreground font-medium">{m.occupancyPct.toFixed(1)}%</span></p>
+      <p className="text-muted-foreground">Ocupação: <span className="text-foreground font-medium">{formatDecimal(m.occupancyPct, 1)}%</span></p>
       <p className="text-muted-foreground">Reservas: <span className="text-foreground font-medium">{m.bookedNights}n</span> · Bloq: {m.blockedNights}n</p>
       <p className="text-muted-foreground">Bruta: <span className="text-foreground font-medium">{brl(m.estimatedRevenueBrl)}</span></p>
       {typeof m.netRevenueBrl === "number" && (

@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 /**
  * Embeddable version of the Mapa de Bairros dashboard.
  * Can be used standalone (MapaBairros page) or embedded as a section in Index.
@@ -88,8 +89,8 @@ function ROISimulator({ neighborhood, onClose }: { neighborhood: Neighborhood; o
         {[
           { label: "Receita mensal", value: `R$ ${fmt(result.monthlyRevenue)}`, icon: DollarSign, positive: true },
           { label: "Lucro mensal", value: `R$ ${fmt(result.monthlyProfit)}`, icon: Wallet, positive: result.monthlyProfit > 0 },
-          { label: "ROI anual", value: `${result.roi.toFixed(1)}%`, icon: TrendingUp, positive: result.roi > 0 },
-          { label: "Payback estimado", value: result.payback > 0 ? `${result.payback.toFixed(1)} anos` : "—", icon: Clock, positive: result.payback > 0 && result.payback < 5 },
+          { label: "ROI anual", value: `${formatDecimal(result.roi, 1)}%`, icon: TrendingUp, positive: result.roi > 0 },
+          { label: "Payback estimado", value: result.payback > 0 ? `${formatDecimal(result.payback, 1)} anos` : "—", icon: Clock, positive: result.payback > 0 && result.payback < 5 },
         ].map((card, i) => (
           <motion.div
             key={card.label}
@@ -148,8 +149,8 @@ function NeighborhoodCard({ n, isSelected, isHighlighted, onClick, index = 0 }: 
           </div>
           <div className="flex items-center gap-3 text-xs text-muted-foreground font-body mb-1.5">
             <span>R$ {n.avgNightly}/noite</span>
-            <span>{n.avgOccupancy}% ocup.</span>
-            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{n.metrics.estimatedROI}% ROI</span>
+            <span>{formatDecimal(n.avgOccupancy, 0)}% ocup.</span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{formatDecimal(n.metrics.estimatedROI, 1)}% ROI</span>
           </div>
           <p className="text-[9px] text-muted-foreground font-body mb-2.5">
             ~{fmt(n.metrics.activeListings)} studios no Airbnb · R${fmt(n.metrics.nightlyRateRange[0])}–R${fmt(n.metrics.nightlyRateRange[1])}/noite · R${fmt(n.metrics.avgRevenueMo)}/mês
@@ -352,8 +353,8 @@ function InteractiveMap({
                 Score {hoveredN.score}
               </div>
             </div>
-            <div className="text-[10px] text-muted-foreground">R${hoveredN.avgNightly}/noite · {hoveredN.avgOccupancy}% ocup.</div>
-            <div className="text-[10px] text-muted-foreground">ROI est. {hoveredN.metrics.estimatedROI}% · ~{fmt(hoveredN.metrics.activeListings)} studios</div>
+            <div className="text-[10px] text-muted-foreground">R${hoveredN.avgNightly}/noite · {formatDecimal(hoveredN.avgOccupancy, 0)}% ocup.</div>
+            <div className="text-[10px] text-muted-foreground">ROI est. {formatDecimal(hoveredN.metrics.estimatedROI, 1)}% · ~{fmt(hoveredN.metrics.activeListings)} studios</div>
             <div className="text-[9px] text-muted-foreground/60 mt-1">Clique para selecionar</div>
           </Popup>
         )}
@@ -362,9 +363,9 @@ function InteractiveMap({
           <Popup longitude={hoveredPoly.lng} latitude={hoveredPoly.lat} offset={8} closeButton={false} closeOnClick={false} anchor="bottom">
             <div className="text-[11px] font-bold">{hoveredPoly.name}</div>
             <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[10px] text-muted-foreground mt-1">
-              <span>ROI est.</span><span className="font-semibold text-foreground">{hoveredPoly.roi}%</span>
+              <span>ROI est.</span><span className="font-semibold text-foreground">{formatDecimal(hoveredPoly.roi, 1)}%</span>
               <span>Diária</span><span className="font-semibold text-foreground">R${hoveredPoly.rate}</span>
-              <span>Ocupação</span><span className="font-semibold text-foreground">{hoveredPoly.occ}%</span>
+              <span>Ocupação</span><span className="font-semibold text-foreground">{formatDecimal(hoveredPoly.occ, 0)}%</span>
               <span>Receita/mês</span><span className="font-semibold text-foreground">R${fmt(hoveredPoly.rev)}</span>
             </div>
           </Popup>

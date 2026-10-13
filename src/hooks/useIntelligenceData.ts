@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 import { getBairroCurado, FONTE_BAIRROS_CURADOS, ROTULO_ESTIMATIVA_MERCADO } from "@/data/bairrosCurados";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -50,9 +51,9 @@ export function useRawListings(bairro?: string) {
 export const fmtBRL = (v: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
 
-export const fmtPct = (v: number) => `${(v * 100).toFixed(1)}%`;
+export const fmtPct = (v: number) => `${formatDecimal((v * 100), 1)}%`;
 
-export const fmtScore = (v: number) => v?.toFixed(1) ?? "—";
+export const fmtScore = (v: number) => (v == null ? undefined : formatDecimal(v, 1)) ?? "—";
 /**
  * Quando o bairro existe em bairrosCurados, diária média e ocupação vêm de lá
  * (e receita/yield exibidos são recalculados com elas). As demais métricas

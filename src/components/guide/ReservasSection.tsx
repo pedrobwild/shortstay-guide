@@ -1,3 +1,5 @@
+import FonteLink from "@/components/guide/FonteLink";
+import { FONTES_RESERVAS } from "@/data/fontesGuia";
 import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,6 +43,7 @@ export default function ReservasSection() {
                       <p className="font-semibold text-foreground text-sm">{driver.title}</p>
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed">{driver.desc}</p>
+                    <div>{driver.sources?.map((fonte) => <FonteLink key={fonte.url} fonte={fonte} />)}</div>
                   </div>
                 </div>
               </CardContent>
@@ -51,10 +54,7 @@ export default function ReservasSection() {
       <div className="bg-muted rounded-lg p-4 font-body">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Fontes</p>
         <ul className="text-xs text-muted-foreground space-y-1">
-          <li>• Airbnb Global Quality Report — fatores de qualidade e drivers de decisão</li>
-          <li>• AHLA (American Hotel & Lodging Association) — estatística de prioridade de limpeza</li>
-          <li>• Expedia Group 2025 Traveler Value Index — influência de social proof na decisão</li>
-          <li>• Annals of Tourism Research: Empirical Insights — categorias de amenidades e experiência do hóspede</li>
+          {FONTES_RESERVAS.map((fonte) => <li key={fonte.url}><FonteLink fonte={fonte} /> — {fonte.detail}</li>)}
         </ul>
       </div>
       <Accordion type="multiple" className="mt-4 font-body">
@@ -66,10 +66,7 @@ export default function ReservasSection() {
           <AccordionTrigger className="text-primary font-semibold min-h-[48px]">Fontes dos dados</AccordionTrigger>
           <AccordionContent>
             <ul className="text-sm text-muted-foreground space-y-2">
-              <li>• <strong className="text-foreground">Airbnb Global Quality Report</strong> — Fatores de qualidade e drivers de decisão baseados em milhões de reviews globais</li>
-              <li>• <strong className="text-foreground">AHLA (American Hotel & Lodging Association)</strong> — Estatística de que 90% dos hóspedes consideram limpeza o critério #1</li>
-              <li>• <strong className="text-foreground">Expedia Group 2025 Traveler Value Index</strong> — Influência de social proof (avaliações, nota) na taxa de conversão</li>
-              <li>• <strong className="text-foreground">Annals of Tourism Research: Empirical Insights</strong> — Categorias de amenidades e impacto na experiência do hóspede</li>
+              {FONTES_RESERVAS.map((fonte) => <li key={fonte.url}><FonteLink fonte={fonte} /> — {fonte.detail}</li>)}
             </ul>
           </AccordionContent>
         </AccordionItem>

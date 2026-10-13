@@ -1,3 +1,6 @@
+import { formatDecimal } from "@/lib/numberFormat";
+import FonteLink from "@/components/guide/FonteLink";
+import { FONTES_GUIA } from "@/data/fontesGuia";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -43,7 +46,7 @@ export default function ReformaSection() {
               <Card className="border-border"><CardContent className="p-5 text-center"><p className="text-3xl font-display font-bold text-primary">R$ 19.000</p><p className="text-sm text-muted-foreground mt-1">Armários abertos / nichos</p><Badge className="mt-2 bg-gold-light text-foreground border-0 font-body">Mais estético</Badge></CardContent></Card>
             </div>
             <div className="bg-gold-light/50 border border-gold/20 rounded-xl p-4 flex items-start gap-3"><Lightbulb className="text-gold mt-0.5 flex-shrink-0" size={20} /><div><p className="font-semibold text-foreground text-sm mb-1">Marcenaria é o que aparece no anúncio</p><p className="text-sm text-muted-foreground">Equilibre estética e funcionalidade. Armários fechados protegem itens dos hóspedes, mas abertos com iluminação fotografam melhor e geram mais cliques.</p></div></div>
-            <p className="text-xs text-muted-foreground">Na reforma completa, a marcenaria é a maior linha do orçamento: {PROPOSTA_REAL_PCT.marcenaria}% de uma proposta real de {milReais(PROPOSTA_REAL_VALOR)} ({PROPOSTA_REAL_DATA}).</p>
+            <p className="text-xs text-muted-foreground">Na reforma completa, a marcenaria é a maior linha do orçamento: {formatDecimal(PROPOSTA_REAL_PCT.marcenaria, 0)}% de uma proposta real de {milReais(PROPOSTA_REAL_VALOR)} ({PROPOSTA_REAL_DATA}).</p>
           </CardContent></Card>
         </TabsContent>
         <TabsContent value="iluminacao">
@@ -57,7 +60,7 @@ export default function ReformaSection() {
         </TabsContent>
       </Tabs>
       <Accordion type="multiple" className="mt-4 font-body">
-        <AccordionItem value="vinilico-roi"><AccordionTrigger className="text-primary font-semibold">Por que vinílico vence no ROI</AccordionTrigger><AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">O vinílico custa 56% menos que porcelanato, tem instalação mais rápida (1-2 dias vs 3-5 dias) e é visualmente indistinguível em fotos de anúncio. Para short stay, onde o hóspede fica 2-5 dias, a percepção de qualidade é a mesma. Além disso, vinílico é mais silencioso, confortável ao pisar e mais fácil de reparar em caso de dano pontual — basta trocar uma régua.</p></AccordionContent></AccordionItem>
+        <AccordionItem value="vinilico-roi"><AccordionTrigger className="text-primary font-semibold">Por que vinílico vence no ROI</AccordionTrigger><AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">O vinílico costuma custar menos e libera o ambiente quase imediatamente; o porcelanato pede cerca de 72 h até o rejunte e mais alguns dias de secagem e é visualmente indistinguível em fotos de anúncio. Para short stay, onde o hóspede fica 2-5 dias, a percepção de qualidade é a mesma. Além disso, vinílico é mais silencioso, confortável ao pisar e mais fácil de reparar em caso de dano pontual — basta trocar uma régua.</p><FonteLink fonte={FONTES_GUIA.vinilico} /></AccordionContent></AccordionItem>
         <AccordionItem value="porcelanato"><AccordionTrigger className="text-primary font-semibold">Quando porcelanato faz sentido</AccordionTrigger><AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">Em áreas molhadas (banheiro, cozinha aberta com pia) onde a resistência à água é crítica. Também faz sentido em studios de alto padrão (diária acima de R$ 400) onde o investimento adicional é compensado pela diária mais alta e pelo público-alvo que percebe a diferença. Se o condomínio já tem porcelanato em bom estado, não troque — aproveite.</p></AccordionContent></AccordionItem>
       </Accordion>
     </SectionBlock>

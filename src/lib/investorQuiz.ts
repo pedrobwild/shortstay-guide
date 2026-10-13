@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 /**
  * Investor Profile Quiz — Logic for Step 5 of the guided journey
  * 
@@ -300,9 +301,9 @@ export function generateRecommendations(
     // Generate reasons
     const reasons: string[] = [];
     if (normRetorno > 70) reasons.push(`Yield de ${fmtPct(b.yield_bruto_airbnb)} — acima da maioria dos bairros`);
-    if (normDemanda > 70) reasons.push(`Boa liquidez (score ${Number(b.score_liquidez).toFixed(0)}) — operação mais previsível`);
+    if (normDemanda > 70) reasons.push(`Boa liquidez (score ${formatDecimal(Number(b.score_liquidez), 0)}) — operação mais previsível`);
     if (normOperacao > 70) reasons.push(`Ocupação de ${fmtPct(b.ocupacao_media_studio)} — poucos dias vazios`);
-    if (normFuturo > 70) reasons.push(`Potencial de crescimento acima da média (score ${Number(b.score_crescimento_potencial).toFixed(0)})`);
+    if (normFuturo > 70) reasons.push(`Potencial de crescimento acima da média (score ${formatDecimal(Number(b.score_crescimento_potencial), 0)})`);
     if (Number(b.delta_yield) > 0.03) reasons.push(`Airbnb rende ${fmtPct(b.delta_yield)} a mais que aluguel tradicional`);
 
     if (reasons.length === 0) {

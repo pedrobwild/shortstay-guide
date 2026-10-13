@@ -1,3 +1,4 @@
+import { formatDecimal } from "@/lib/numberFormat";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -173,11 +174,11 @@ export default function DiagnosticoInvestidorSection() {
                           <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden mb-1">
                             <div
                               className="h-full bg-primary rounded-full transition-all duration-500"
-                              style={{ width: `${pct}%` }}
+                              style={{ width: `${formatDecimal(pct, 0)}%` }}
                             />
                           </div>
                           <p className="text-xs font-body">
-                            <span className="font-semibold text-foreground">{pct}%</span>{" "}
+                            <span className="font-semibold text-foreground">{formatDecimal(pct, 0)}%</span>{" "}
                             <span className="text-muted-foreground">{labels[key]}</span>
                           </p>
                         </div>
