@@ -3,3 +3,6 @@
 - [x] Ocultar o selo Edit with Lovable no site publicado.
 - [x] Inventariar outras afirmações percentuais/multiplicadores sem fonte, sem alterá-las.
 - [x] Verificar testes, lint, build automático e entrada SSR da home; registrar no relatório que não há resultado isolado de tipos/build de produção. Não publicar.
+- [ ] Atualizar coleta GuestFavorites aprovada, espelho do chat e fontes por bairro sem alterar o banco ou o case.
+- [ ] Trocar colunas por metragem por quartis; retirar ajuste de metragem e marcar decoração como hipótese.
+- [ ] Testar dados e conferir Pinheiros, Liberdade e Mooca na home pré-renderizada, carregada e páginas de bairro. Não publicar.
