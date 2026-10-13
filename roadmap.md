@@ -6,6 +6,6 @@
 - [x] Atualizar coleta GuestFavorites aprovada, espelho do chat e fontes por bairro sem alterar o banco ou o case.
 - [x] Trocar colunas por metragem por quartis; retirar ajuste de metragem e marcar decoração como hipótese.
 - [x] Testar dados e conferir Pinheiros, Liberdade e Mooca na home pré-renderizada, carregada e páginas de bairro. 154 testes passaram, lint sem erros e compilação automática OK; SSR conferido diretamente, sem executar build de produção manual. Site não publicado; chat atualizado no serviço compartilhado.
-- [ ] Padronizar números em todos os gráficos e identificar curvas mensais ilustrativas.
-- [ ] Recalcular a cascata e sensibilidades do exemplo de Pinheiros usando a base curada.
-- [ ] Executar testes e verificar gráficos e exemplo na tela; conferir compilação automática, sem publicar.
+- [x] Padronizar números em todos os gráficos e identificar as três curvas mensais como sazonalidade ilustrativa, gerada por fatores fixos e não observada.
+- [x] Recalcular a cascata e sensibilidades do exemplo de Pinheiros usando a base curada, preservando os outros cenários e o case.
+- [x] Verificar 158 testes, lint sem erros (15 avisos antigos), compilação automática OK, HTML da home por SSR e gráfico com eixos e tooltip em português; sem executar build de produção manual ou publicar.
