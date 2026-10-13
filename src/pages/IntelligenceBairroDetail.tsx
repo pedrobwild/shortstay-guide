@@ -1,7 +1,7 @@
 import { useParams, Link, useLocation, Navigate } from "react-router-dom";
 import { slugifyBairro, SEO_BAIRROS, bairroTitle, bairroDescription } from "@/lib/seo";
 import { Seo } from "@/components/RouteSeo";
-import { useBairroDetail, useBairrosData, fmtBRL, fmtPct, fmtScore } from "@/hooks/useIntelligenceData";
+import { useBairroDetail, useBairrosData, fmtBRL, fmtPct, fmtScore, rotuloFonteDiariaOcupacao } from "@/hooks/useIntelligenceData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -138,7 +138,7 @@ const IntelligenceBairroDetail = () => {
             </Link>
           </div>
           <p className="text-sm text-primary-foreground/80 max-w-2xl leading-relaxed mt-3">{headerNarrative}</p>
-          <p className="text-xs text-primary-foreground/50 mt-2">{b.periodo_inicio} a {b.periodo_fim} · {b.nivel_confianca_dados === "alto" ? "Alta confiança nos dados" : "Confiança intermediária nos dados"}</p>
+          <p className="text-xs text-primary-foreground/70 mt-2">{rotuloFonteDiariaOcupacao(b)}</p>
         </div>
       </header>
 
