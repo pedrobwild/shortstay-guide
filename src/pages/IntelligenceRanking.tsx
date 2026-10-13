@@ -1,3 +1,4 @@
+import AppNavbar from "@/components/AppNavbar";
 import FonteBairro from "@/components/guide/FonteBairro";
 import { formatDecimal } from "@/lib/numberFormat";
 import { bairroPath } from "@/lib/seo";
@@ -60,11 +61,14 @@ const IntelligenceRanking = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="space-y-3 w-full max-w-sm px-4">
-          <div className="h-6 bg-muted rounded animate-pulse" />
-          <div className="h-4 bg-muted/60 rounded animate-pulse w-2/3" />
-          <div className="h-64 bg-muted/40 rounded-lg animate-pulse mt-4" />
+      <div className="min-h-screen bg-background">
+        <AppNavbar fixo={false} />
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="space-y-3 w-full max-w-sm px-4">
+            <div className="h-6 bg-muted rounded animate-pulse" />
+            <div className="h-4 bg-muted/60 rounded animate-pulse w-2/3" />
+            <div className="h-64 bg-muted/40 rounded-lg animate-pulse mt-4" />
+          </div>
         </div>
       </div>
     );
@@ -95,6 +99,7 @@ const IntelligenceRanking = () => {
   return (
     <TooltipProvider delayDuration={200}>
       <div className="min-h-screen bg-background">
+        <AppNavbar fixo={false} />
         {/* Hero */}
         <header className="bg-hero-gradient text-primary-foreground">
           <div className="container mx-auto px-4 py-8">
@@ -102,7 +107,7 @@ const IntelligenceRanking = () => {
               <div>
                 {/* Breadcrumb */}
                 <div className="flex items-center gap-1.5 text-primary-foreground/50 text-xs mb-3">
-                  <Link to="/mercado" className="hover:text-primary-foreground/80 transition-colors">Intelligence</Link>
+                  <Link to="/mercado" className="hover:text-primary-foreground/80 transition-colors">Inteligência de mercado</Link>
                   <ChevronRight className="h-3 w-3" />
                   <span className="text-primary-foreground/80">Ranking</span>
                 </div>

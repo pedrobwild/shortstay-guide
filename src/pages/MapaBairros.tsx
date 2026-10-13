@@ -1,26 +1,16 @@
 import bwildLogo from "@/assets/bewild-logo.webp";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Calculator, TrendingUp } from "lucide-react";
+import { Calculator, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import AppNavbar from "@/components/AppNavbar";
 import MapaBairrosEmbed from "@/components/mapa/MapaBairrosEmbed";
 
 export default function MapaBairros() {
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-30 bg-card/90 backdrop-blur border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 flex items-center gap-4">
-          <Link to="/" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft size={16} /><span className="hidden sm:inline">Voltar ao guia</span>
-          </Link>
-          <Separator orientation="vertical" className="h-5" />
-          <img src={bwildLogo} alt="Bewild" className="h-6 w-auto" />
-          <span className="text-xs text-muted-foreground font-body hidden md:inline">Mapa de Bairros Rentáveis</span>
-        </div>
-      </header>
+      <AppNavbar />
 
       <main className="max-w-7xl mx-auto px-4 md:px-8 pb-24">
         {/* Hero */}

@@ -1,3 +1,4 @@
+import AppNavbar from "@/components/AppNavbar";
 import { useState, useMemo } from "react";
 import { useBairrosData, rotuloEstimativa } from "@/hooks/useIntelligenceData";
 import FonteBairro from "@/components/guide/FonteBairro";
@@ -44,12 +45,15 @@ const IntelligenceDashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="space-y-4 w-full max-w-md px-4">
-          <div className="h-8 bg-muted rounded-lg animate-pulse" />
-          <div className="h-4 bg-muted/70 rounded animate-pulse w-3/4" />
-          <div className="grid grid-cols-3 gap-3 mt-6">
-            {[1, 2, 3].map(i => <div key={i} className="h-24 bg-muted rounded-lg animate-pulse" />)}
+      <div className="min-h-screen bg-background">
+        <AppNavbar fixo={false} />
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="space-y-4 w-full max-w-md px-4">
+            <div className="h-8 bg-muted rounded-lg animate-pulse" />
+            <div className="h-4 bg-muted/70 rounded animate-pulse w-3/4" />
+            <div className="grid grid-cols-3 gap-3 mt-6">
+              {[1, 2, 3].map(i => <div key={i} className="h-24 bg-muted rounded-lg animate-pulse" />)}
+            </div>
           </div>
         </div>
       </div>
@@ -58,8 +62,13 @@ const IntelligenceDashboard = () => {
 
   if (!bairros?.length) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Nenhum dado disponível.</p>
+      <div className="min-h-screen bg-background">
+        <AppNavbar fixo={false} />
+        <main className="mx-auto max-w-xl px-4 py-16 text-center space-y-4">
+          <h1 className="font-display text-2xl font-bold text-foreground">Não há dados de mercado para mostrar agora</h1>
+          <p className="text-sm text-muted-foreground">A base do Radar não respondeu ou está vazia. Tente recarregar a página em instantes.</p>
+          <Button className="min-h-[44px]" onClick={() => window.location.reload()}>Recarregar</Button>
+        </main>
       </div>
     );
   }
@@ -75,6 +84,7 @@ const IntelligenceDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <AppNavbar fixo={false} />
       {/* ── HERO ──────────────────────────────────────────── */}
       <header className="bg-hero-gradient text-primary-foreground relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(200_60%_35%_/_0.3),_transparent_70%)]" />
@@ -90,7 +100,7 @@ const IntelligenceDashboard = () => {
                 </Badge>
               </div>
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold font-[var(--font-display)] leading-tight">
-                Short Stay Intelligence
+                Inteligência de mercado
               </h1>
               <p className="mt-2 text-primary-foreground/80 text-sm md:text-base leading-relaxed max-w-xl">
                 Uma jornada guiada para ajudar você a decidir onde investir em studios de short stay em São Paulo.

@@ -1,4 +1,7 @@
 import FonteBairro from "@/components/guide/FonteBairro";
+import AppNavbar from "@/components/AppNavbar";
+import OrcamentoButton from "@/components/OrcamentoButton";
+import ProximoPassoBairro from "@/components/intelligence/ProximoPassoBairro";
 import { formatPercent, formatDecimal } from "@/lib/numberFormat";
 import { useParams, Link, useLocation, Navigate } from "react-router-dom";
 import { slugifyBairro, SEO_BAIRROS, bairroTitle, bairroDescription } from "@/lib/seo";
@@ -90,15 +93,44 @@ const IntelligenceBairroDetail = () => {
     SEO_BAIRROS.find((n) => slugifyBairro(n) === slug) ??
     allBairros?.find((x) => slugifyBairro(x.bairro) === slug)?.bairro ??
     "";
-  const { data: b, isLoading } = useBairroDetail(resolvedName);
+  const { data: b, isLoading, isError, refetch } = useBairroDetail(resolvedName);
   const seoName = resolvedName || decoded;
   const seoHead = <Seo title={bairroTitle(seoName)} description={bairroDescription(seoName)} path={`/bairro/${slug}`} />;
 
   // Formato antigo (com acento/maiúsculas/espaços) → redireciona para o slug canônico.
   if (rawParam !== slug) return <Navigate to={`/bairro/${slug}${search}${hash}`} replace />;
 
-  if (isLoading || (!resolvedName && loadingAll)) return <div className="min-h-screen bg-background flex items-center justify-center">{seoHead}<div className="animate-pulse text-muted-foreground">Carregando…</div></div>;
-  if (!b) return <div className="min-h-screen bg-background flex items-center justify-center"><Seo title="Bairro não encontrado | Radar Bewild" description="Bairro não encontrado." path={`/bairro/${slug}`} noindex /><p>Bairro não encontrado.</p></div>;
+  if (isLoading || (!resolvedName && loadingAll)) return <div className="min-h-screen bg-background">{seoHead}<AppNavbar fixo={false} /><div className="flex min-h-[60vh] items-center justify-center"><div className="animate-pulse text-muted-foreground">Carregando dados do bairro…</div></div></div>;
+  // Bairro conhecido, mas a consulta falhou (rede/servidor): não confundir com "sem dados".
+  if (!b && isError && resolvedName) return (
+    <div className="min-h-screen bg-background">
+      {seoHead}
+      <AppNavbar fixo={false} />
+      <main className="mx-auto max-w-xl px-4 py-16 text-center space-y-4">
+        <h1 className="font-display text-2xl font-bold text-foreground">Não foi possível carregar {resolvedName} agora</h1>
+        <p className="text-sm text-muted-foreground">A conexão com a base do Radar falhou. Tente de novo em instantes; os dados não foram alterados.</p>
+        <div className="flex flex-col sm:flex-row justify-center gap-3">
+          <Button className="min-h-[44px]" onClick={() => void refetch()}>Tentar de novo</Button>
+          <Button asChild variant="outline" className="min-h-[44px]"><Link to="/ranking">Ver ranking de bairros</Link></Button>
+        </div>
+      </main>
+    </div>
+  );
+  if (!b) return (
+    <div className="min-h-screen bg-background">
+      <Seo title="Bairro não encontrado | Radar Bewild" description="Bairro não encontrado." path={`/bairro/${slug}`} noindex />
+      <AppNavbar fixo={false} />
+      <main className="mx-auto max-w-xl px-4 py-16 text-center space-y-4">
+        <h1 className="font-display text-2xl font-bold text-foreground">Não há dados deste bairro no Radar</h1>
+        <p className="text-sm text-muted-foreground">Confira os bairros com dados no ranking ou no mapa. Se você já tem um imóvel nesse endereço, a Bewild pode orçar a reforma.</p>
+        <div className="flex flex-col sm:flex-row justify-center gap-3">
+          <Button asChild className="min-h-[44px]"><Link to="/ranking">Ver ranking de bairros</Link></Button>
+          <Button asChild variant="outline" className="min-h-[44px]"><Link to="/mapa">Abrir o mapa</Link></Button>
+        </div>
+        <OrcamentoButton local="bairro" variant="ghost" className="min-h-[44px]" />
+      </main>
+    </div>
+  );
 
   const all = allBairros ?? [b];
   const profile = getBairroProfile(b, all);
@@ -118,11 +150,12 @@ const IntelligenceBairroDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       {seoHead}
+      <AppNavbar fixo={false} />
       <header className="bg-hero-gradient text-primary-foreground">
         <div className="container mx-auto px-4 py-8">
           {/* Breadcrumb */}
           <div className="flex items-center gap-1.5 text-primary-foreground/50 text-xs mb-3">
-            <Link to="/mercado" className="hover:text-primary-foreground/80 transition-colors">Intelligence</Link>
+            <Link to="/mercado" className="hover:text-primary-foreground/80 transition-colors">Inteligência de mercado</Link>
             <ChevronRight className="h-3 w-3" />
             <Link to="/ranking" className="hover:text-primary-foreground/80 transition-colors">Ranking</Link>
             <ChevronRight className="h-3 w-3" />
@@ -566,6 +599,9 @@ const IntelligenceBairroDetail = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* ── Próximo passo ──────────────────────────── */}
+        <ProximoPassoBairro bairro={b.bairro} />
 
         {/* ── Disclaimer ──────────────────────────────── */}
         <footer className="border-t border-border/40 pt-6 pb-2 text-center">

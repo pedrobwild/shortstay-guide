@@ -5,6 +5,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Menu, ArrowUpRight, ChevronDown } from "lucide-react";
 import bwildLogo from "@/assets/bewild-logo.webp";
 import { SECTIONS, PHASES } from "@/data/guide-data";
+import { LINKS_PUBLICOS } from "@/data/navegacao";
+import { trackGlobal } from "@/hooks/useGuideAnalytics";
+import OrcamentoButton from "@/components/OrcamentoButton";
 
 interface Props {
   activeId: string;
@@ -180,6 +183,27 @@ export default function MobileMenu({ activeId, sectionIndex, sectionCount }: Pro
                 </div>
               );
             })}
+
+            <div className="h-px bg-border/40 mx-1 my-3" />
+
+            {/* Telas do Radar fora do guia (mesmos links da navbar) */}
+            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Explorar o Radar</p>
+            <ul className="space-y-0.5">
+              {LINKS_PUBLICOS.filter((l) => l.to !== "/" && !l.to.startsWith("/#")).map((l) => (
+                <li key={l.id}>
+                  <Link
+                    to={l.to}
+                    onClick={() => { trackGlobal("cta_clicked", { cta_id: l.id, section: "menu_celular" }); setOpen(false); }}
+                    className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm min-h-[44px] text-foreground/80 hover:text-foreground hover:bg-muted/60"
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div className="px-1 pt-3">
+              <OrcamentoButton local="navbar" className="w-full min-h-[44px]" />
+            </div>
           </nav>
         </SheetContent>
       </Sheet>
