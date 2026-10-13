@@ -1,3 +1,4 @@
+import { diariaPorMetragem, type SizeKey } from "@/data/bairrosCurados";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,7 +42,6 @@ interface ProjectAnalyticsProps {
   mode?: ProjectAnalyticsMode;
 }
 
-type SizeKey = keyof BairroItem["avgBySize"];
 const SIZE_KEYS: SizeKey[] = ["20–25 m²", "26–35 m²", "36–50 m²"];
 
 const brl = (v: number) =>
@@ -177,7 +177,7 @@ export default function ProjectAnalytics({
   // Aplica defaults de ADR + ocupação do bairro/m² selecionados
   const applyBairroDefaults = (bairro: BairroItem | undefined, size: SizeKey) => {
     if (!bairro) return;
-    setCosts((prev) => ({ ...prev, adr: bairro.avgBySize[size] }));
+    setCosts((prev) => ({ ...prev, adr: diariaPorMetragem(bairro, size) }));
     setOccupancyPct(bairro.avgOccupancy);
   };
 
@@ -192,7 +192,7 @@ export default function ProjectAnalytics({
       projectionInitDone.current = true;
       setOccupancyPct(selectedBairro.avgOccupancy);
       if (!hasSavedCosts(costsKey)) {
-        setCosts((prev) => ({ ...prev, adr: selectedBairro.avgBySize[sizeKey] }));
+        setCosts((prev) => ({ ...prev, adr: diariaPorMetragem(selectedBairro, sizeKey) }));
       }
       return;
     }
@@ -585,7 +585,7 @@ export default function ProjectAnalytics({
             </div>
             <p className="text-[11px] text-muted-foreground">
               Premissas de ADR e ocupação são preenchidas com a média de mercado do bairro/faixa de área
-              ({selectedBairro?.avgOccupancy ?? 0}% ocupação · {brl(selectedBairro?.avgBySize[sizeKey] ?? 0)}/noite).
+              ({selectedBairro?.avgOccupancy ?? 0}% ocupação · {brl((selectedBairro ? diariaPorMetragem(selectedBairro, sizeKey as SizeKey) : undefined) ?? 0)}/noite).
               Ajuste tudo nas premissas abaixo — os números recalculam em tempo real.
             </p>
           </CardContent>

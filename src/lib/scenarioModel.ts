@@ -1,3 +1,4 @@
+import { diariaPorMetragem, type SizeKey } from "@/data/bairrosCurados";
 /**
  * Modelo puro do comparador multi-cenário de investimento.
  *
@@ -58,7 +59,7 @@ export const SCENARIO_PRESETS: readonly PresetConfig[] = [
   { kind: "otimista", label: "Otimista", occupancyDeltaPct: 8, adrFactor: 1.15 },
 ] as const;
 
-const SIZE_FALLBACK: keyof BairroItem["avgBySize"] = "26–35 m²";
+const SIZE_FALLBACK: SizeKey = "26–35 m²";
 
 const clampPct = (v: number) => Math.min(100, Math.max(0, v));
 const round = (v: number) => Math.round(v);
@@ -76,12 +77,12 @@ export function scenarioKindLabel(kind: ScenarioKind): string {
 export function presetAssumptions(
   kind: Exclude<ScenarioKind, "custom">,
   bairro: BairroItem | undefined,
-  sizeKey: keyof BairroItem["avgBySize"] = SIZE_FALLBACK,
+  sizeKey: SizeKey = SIZE_FALLBACK,
   basePropertyValue = 0,
 ): ScenarioAssumptions {
   const preset = SCENARIO_PRESETS.find((p) => p.kind === kind) ?? SCENARIO_PRESETS[1];
   const baseOccupancy = bairro?.avgOccupancy ?? DEFAULT_OCCUPANCY_PCT;
-  const baseAdr = bairro?.avgBySize[sizeKey] ?? DEFAULT_ADR_BRL;
+  const baseAdr = (bairro ? diariaPorMetragem(bairro, sizeKey as SizeKey) : undefined) ?? DEFAULT_ADR_BRL;
   return {
     occupancyPct: clampPct(round(baseOccupancy + preset.occupancyDeltaPct)),
     adr: round(baseAdr * preset.adrFactor),
