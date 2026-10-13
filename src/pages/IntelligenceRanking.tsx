@@ -211,6 +211,7 @@ const IntelligenceRanking = () => {
                               {b.bairro}
                               <ChevronRight className="h-3 w-3 text-muted-foreground opacity-0 group-hover/link:opacity-100 transition-opacity" />
                             </Link>
+                            <FonteBairro nome={b.bairro} />
                           </TableCell>
                           <TableCell className="text-center">
                             {invScore && (
