@@ -1,8 +1,15 @@
 // Pós-build: gera um HTML estático por rota pública (head próprio + H1 e
 // descrição já no HTML) e o sitemap.xml. Ao carregar, o React substitui o
 // conteúdo de #root e o app segue como SPA normalmente.
-import { readFileSync, writeFileSync, mkdirSync } from "fs";
+import { readFileSync, writeFileSync, mkdirSync, rmSync } from "fs";
 import { resolve, dirname } from "path";
+import { pathToFileURL } from "url";
+
+// Shims mínimos para módulos que tocam storage ao carregar (ex.: cliente de auth).
+const memStorage = () => { const m = new Map(); return { getItem: (k) => m.get(k) ?? null, setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k), clear: () => m.clear(), key: (i) => [...m.keys()][i] ?? null, get length() { return m.size; } }; };
+globalThis.localStorage ??= memStorage();
+globalThis.sessionStorage ??= memStorage();
+const ssr = await import(pathToFileURL(resolve("dist-ssr/entry-server.js")).href);
 
 const seo = JSON.parse(readFileSync(resolve("src/data/seoRoutes.json"), "utf8"));
 const DIST = resolve("dist");
@@ -27,7 +34,7 @@ const nav = [
   ["/anuncios", "Anúncios"], ["/ferramentas", "Ferramentas"], ["/projecao", "Projeção"],
 ];
 
-function render(p) {
+function render(p, ssrHtml) {
   const url = `${seo.siteUrl}${p.path}`;
   const head = [
     `<title>${esc(p.title)}</title>`,
@@ -39,6 +46,7 @@ function render(p) {
     `<meta property="og:site_name" content="${esc(seo.siteName)}" data-rh="true" />`,
     `<meta name="twitter:title" content="${esc(p.title)}" data-rh="true" />`,
     `<meta name="twitter:description" content="${esc(p.description)}" data-rh="true" />`,
+    ...(p.jsonLd ? [`<script type="application/ld+json">${JSON.stringify(p.jsonLd).replace(/</g, "\\u003c")}</script>`] : []),
   ].join("\n    ");
   const isBairro = p.path.startsWith("/bairro/");
   const body = `<main><h1>${esc(p.h1)}</h1><p>${esc(p.description)}</p>${
@@ -50,11 +58,20 @@ function render(p) {
     .replace(/\s*<meta (name="description"|property="og:(title|description|url|site_name)"|name="twitter:(title|description)")[^>]*>/g, "")
     .replace(/\s*<link rel="canonical"[^>]*>/g, "")
     .replace("</head>", `    ${head}\n  </head>`)
-    .replace('<div id="root"></div>', `<div id="root">${body}</div>`);
+    .replace('<div id="root"></div>', ssrHtml ? `<div id="root" data-ssr-path="${p.path}">${ssrHtml}</div>` : `<div id="root">${body}</div>`);
 }
 
+// Home: conteúdo completo do guia renderizado com React (hidratado no navegador).
+const home = pages.find((p) => p.path === "/");
+home.jsonLd = [
+  { "@context": "https://schema.org", "@type": "Organization", "@id": `${seo.siteUrl}/#org`, name: "Bewild", url: "https://bewild.com.br" },
+  { "@context": "https://schema.org", "@type": "WebSite", "@id": `${seo.siteUrl}/#website`, name: seo.siteName, url: `${seo.siteUrl}/`, inLanguage: "pt-BR", publisher: { "@id": `${seo.siteUrl}/#org` } },
+  { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: ssr.FAQ_ITEMS.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) },
+];
+const { html: homeHtml } = await ssr.render("/");
+
 for (const p of pages) {
-  const html = render(p);
+  const html = render(p, p.path === "/" ? homeHtml : null);
   if (p.path === "/") {
     writeFileSync(resolve(DIST, "index.html"), html);
     continue;
@@ -74,3 +91,5 @@ const sitemap = [
 ].join("\n");
 writeFileSync(resolve(DIST, "sitemap.xml"), sitemap);
 console.log(`prerender: ${pages.length} páginas + sitemap.xml`);
+
+rmSync(resolve("dist-ssr"), { recursive: true, force: true });
