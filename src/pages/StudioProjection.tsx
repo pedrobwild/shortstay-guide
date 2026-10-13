@@ -40,7 +40,7 @@ export default function StudioProjection() {
           {/* Dashboard em modo projeção */}
           <ProjectAnalytics mode="projection" />
 
-          {/* Comparativo "fazer sozinho vs. com a BWild" — ancora o ROI da reforma */}
+          {/* Comparativo "fazer sozinho vs. com a Bewild" — ancora o ROI da reforma */}
           <div className="border-t border-border pt-8">
             <BwildVsDiySection />
           </div>

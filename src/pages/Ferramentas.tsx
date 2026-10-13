@@ -7,7 +7,7 @@ import PlanoAcaoSection from "@/components/guide/PlanoAcaoSection";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import bwildLogo from "@/assets/bwild-logo.png";
+import bwildLogo from "@/assets/bewild-logo.webp";
 
 export default function Ferramentas() {
   return (

@@ -13,7 +13,7 @@ function relevanceCopy(matchLevel: MatchLevel, leadBairro: string | null, region
     case "bairro":
       return {
         label: "No seu bairro",
-        text: `Você demonstrou interesse em ${leadBairro}. Veja um case real que a BWild operou aqui.`,
+        text: `Você demonstrou interesse em ${leadBairro}. Veja um case real que a Bewild operou aqui.`,
       };
     case "regiao":
       return {
@@ -22,7 +22,7 @@ function relevanceCopy(matchLevel: MatchLevel, leadBairro: string | null, region
       };
     default:
       return {
-        label: "Case real BWild",
+        label: "Case real Bewild",
         text: leadBairro
           ? `Ainda não temos um case público em ${leadBairro}. Veja um de nossos cases de referência.`
           : "Uma jornada real de investidor — do imóvel à receita recorrente.",

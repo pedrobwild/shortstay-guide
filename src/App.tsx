@@ -8,7 +8,7 @@ import RouteSeo from "@/components/RouteSeo";
 import { slugifyBairro } from "@/lib/seo";
 import { lazy, Suspense, useEffect } from "react";
 import { AuthProvider } from "@/hooks/useAuth";
-import bwildLogo from "@/assets/bwild-logo.png";
+import bwildLogo from "@/assets/bewild-logo.webp";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import PostLoginProvision from "@/components/PostLoginProvision";

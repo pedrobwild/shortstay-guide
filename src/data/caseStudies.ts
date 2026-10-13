@@ -1,10 +1,10 @@
 // src/data/caseStudies.ts
 //
-// Prova social contextual: cases reais de studios operados pela BWild,
+// Prova social contextual: cases reais de studios operados pela Bewild,
 // versionados em código (git-reviewable) em vez de inventados em runtime.
 //
 // ⚠️ REGRA DE INTEGRIDADE
-// Só inclua aqui cases REAIS da BWild. Nunca publique métricas de performance
+// Só inclua aqui cases REAIS da Bewild. Nunca publique métricas de performance
 // (ADR, ocupação, yield) sem base real confirmada.
 
 import type { InvestorProfile } from "@/lib/investorQuiz";
@@ -57,7 +57,7 @@ export interface CaseStudy {
   yieldBruto: string;
   paybackMeses: number;
   timeline: CaseTimelineStep[];
-  /** Antes/depois — opcional. Só preencher com material real da BWild. */
+  /** Antes/depois — opcional. Só preencher com material real da Bewild. */
   fotos?: CasePhoto[];
   /** Usado como fallback geral quando não há match de bairro/região. */
   featured?: boolean;
@@ -74,7 +74,7 @@ const PINHEIROS_TIMELINE: CaseTimelineStep[] = [
 ];
 
 /**
- * Cases reais da BWild.
+ * Cases reais da Bewild.
  *
  * Hoje há um único case público (Studio em Pinheiros), os mesmos números que
  * já eram exibidos no guia. Para tornar a prova social mais contextual em mais

@@ -4,7 +4,7 @@
  * Transforma os sinais brutos agregados pela RPC `admin_lead_scores`
  * (telemetria de guide_events + premissas de project_assumptions + conta
  * criada) em um score 0–100 e um tier comercial ("quente/morno/frio"),
- * para que o time da BWild ataque primeiro os leads mais quentes.
+ * para que o time da Bewild ataque primeiro os leads mais quentes.
  *
  * O cálculo vive aqui (e não no SQL) de propósito: é a regra de negócio mais
  * volátil do funil, então fica próxima do produto, coberta por testes e fácil

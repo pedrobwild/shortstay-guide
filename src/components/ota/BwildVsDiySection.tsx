@@ -31,7 +31,7 @@ const brl = (v: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(v);
 
 /**
- * Comparativo lado a lado "fazer sozinho (DIY) vs. com a BWild" do MESMO studio.
+ * Comparativo lado a lado "fazer sozinho (DIY) vs. com a Bewild" do MESMO studio.
  *
  * Ancora o valor da reforma no ROI: dois cenários partindo da base de mercado do
  * bairro/faixa de área, com multiplicadores documentados em
@@ -145,7 +145,7 @@ export default function BwildVsDiySection() {
         </CardContent>
       </Card>
 
-      {/* Duas colunas: DIY vs BWild */}
+      {/* Duas colunas: DIY vs Bewild */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ScenarioColumn
           scenario={diy}

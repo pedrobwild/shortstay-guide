@@ -7,7 +7,7 @@ import {
 describe("buildBwildVsDiyComparison", () => {
   const base = { baseAdr: 380, baseOccupancyPct: 80, propertyValue: 600_000 };
 
-  it("BWild supera DIY em ocupação, ADR e receita líquida", () => {
+  it("Bewild supera DIY em ocupação, ADR e receita líquida", () => {
     const { diy, bwild, delta } = buildBwildVsDiyComparison(base);
 
     expect(bwild.occupancyPct).toBeGreaterThan(diy.occupancyPct);
@@ -34,7 +34,7 @@ describe("buildBwildVsDiyComparison", () => {
     expect(bwild.occupancyPct).toBeLessThanOrEqual(BWILD_VS_DIY_ASSUMPTIONS.occupancyCapPct + 0.5);
   });
 
-  it("payback do BWild é mais curto quando há valor do imóvel", () => {
+  it("payback do Bewild é mais curto quando há valor do imóvel", () => {
     const { diy, bwild, delta } = buildBwildVsDiyComparison(base);
     expect(bwild.paybackYears).not.toBeNull();
     expect(diy.paybackYears).not.toBeNull();

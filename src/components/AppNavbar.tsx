@@ -3,7 +3,7 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Button } from "@/components/ui/button";
 import { LogOut, User, FolderOpen, LayoutDashboard, Flame } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import bwildLogo from "@/assets/bwild-logo.png";
+import bwildLogo from "@/assets/bewild-logo.webp";
 
 /**
  * Navbar global com logo, nome do usuário e logout.
