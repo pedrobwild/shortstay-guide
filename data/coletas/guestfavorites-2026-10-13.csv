@@ -1,0 +1,19 @@
+bairro,status,url,periodo,atualizada_em,ocupacao_destaque_pct,adr_destaque_brl,receita_anual_destaque_brl,anuncios_ativos,ocupacao_top10_pct,ocupacao_top25_pct,ocupacao_mediana_pct,ocupacao_bottom25_pct,adr_top10_brl,adr_top25_brl,adr_mediana_brl,adr_bottom25_brl,receita_top10_brl,receita_top25_brl,receita_mediana_brl,receita_bottom25_brl,observacao
+Pinheiros,coletado,https://www.guestfavorites.com/airbnb-occupancy-rates-in-pinheiros-sao-paulo-brazil,2026-01..2026-09,2026-10-08,62,300,68335,2424,91,79,61,30,436,301,232,171,97456,68493,46673,18972,
+Bela Vista,coletado,https://www.guestfavorites.com/airbnb-occupancy-rates-in-bela-vista-sao-paulo-brazil,2026-01..2026-09,2026-10-08,64,237,54954,1983,92,81,62,31,354,256,198,140,82115,59061,39968,16547,
+Itaim Bibi,coletado,https://www.guestfavorites.com/airbnb-occupancy-rates-in-itaim-bibi-sao-paulo-brazil,2026-01..2026-09,2026-10-08,59,359,77390,3884,89,76,56,27,542,404,279,180,126641,84969,50956,20585,
+Jardim Paulista,coletado,https://www.guestfavorites.com/airbnb-occupancy-rates-in-jardim-paulista-sao-paulo-brazil,2026-01..2026-09,2026-10-08,62,319,72372,3147,90,78,60,31,458,327,251,183,106049,73427,50936,23529,
+Liberdade,coletado,https://www.guestfavorites.com/airbnb-occupancy-rates-in-liberdade-sao-paulo-brazil,2026-01..2026-07,2026-08-20,61,230,51079,553,91,77,55,25,321,251,195,132,70968,55239,51079,13414,"texto da página também cita receita típica de R$ 35.938, conflitando com R$ 51.079"
+Moema,coletado,https://www.guestfavorites.com/airbnb-occupancy-rates-in-moema-sao-paulo-brazil,2026-01..2026-09,2026-10-08,61,263,58542,2621,90,78,59,32,369,288,225,167,85472,63524,44847,22091,
+República,coletado,https://www.guestfavorites.com/airbnb-occupancy-rates-in-republica-sao-paulo-brazil,2026-01..2026-07,2026-08-20,63,203,46492,3079,91,79,60,32,285,210,166,117,66310,48036,33372,14782,
+Vila Mariana,coletado,https://www.guestfavorites.com/airbnb-occupancy-rates-in-vila-mariana-sao-paulo-brazil,2026-01..2026-09,2026-10-02,60,226,49446,2238,90,77,57,26,298,235,194,143,69156,53116,36003,14371,
+Mooca,coletado,https://www.guestfavorites.com/airbnb-occupancy-rates-in-mooca-sao-paulo-brazil,2026-01..2026-09,2026-10-08,59,241,51765,85,90,75,49,3,326,268,195,27,78209,58344,32097,1948,"amostra pequena (85 anúncios)"
+Perdizes,coletado,https://www.guestfavorites.com/airbnb-occupancy-rates-in-perdizes-sao-paulo-brazil,2026-01..2026-09,2026-10-08,53,254,49423,1752,87,71,49,21,369,276,217,174,75159,53439,35285,14499,
+São Paulo (cidade),coletado,https://www.guestfavorites.com/airbnb-occupancy-rates-in-sao-paulo-brasil,2026-01..2026-09,2026-10-08,60,266,58259,34854,,,,,,,,,,,,,"referência da cidade"
+Brooklin,nao_encontrado,,,,,,,,,,,,,,,,,,,,"sem página publicada na listagem da cidade nem na busca"
+Consolação,nao_encontrado,,,,,,,,,,,,,,,,,,,,"não reconferido nesta coleta; o site bewild.com.br cita 63% / R$ 269 / 1.612 anúncios (coleta jan–ago/2026)"
+Vila Olímpia,nao_encontrado,,,,,,,,,,,,,,,,,,,,"sem página publicada"
+Vila Nova Conceição,nao_encontrado,,,,,,,,,,,,,,,,,,,,"sem página publicada"
+Barra Funda,nao_encontrado,,,,,,,,,,,,,,,,,,,,"sem página publicada"
+Campo Belo,nao_encontrado,,,,,,,,,,,,,,,,,,,,"não reconferido nesta coleta; o site bewild.com.br cita 60% / R$ 233 / 1.077 anúncios (coleta jan–ago/2026)"
+Butantã,nao_encontrado,,,,,,,,,,,,,,,,,,,,"não reconferido nesta coleta; o site bewild.com.br cita 61% / R$ 276 / 373 anúncios (coleta jan–ago/2026)"
