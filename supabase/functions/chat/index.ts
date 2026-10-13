@@ -7,27 +7,11 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Espelho da coleta aprovada de src/data/bairrosCurados.ts, 13/10/2026.
-const gf = (media: number, ocupacao: number, quartis: [number, number, number], anuncios: number, periodo: string, slug: string) => ({
-  media, ocupacao, quartis, anuncios, periodo, gf: true,
-  url: `https://www.guestfavorites.com/airbnb-occupancy-rates-in-${slug}-sao-paulo-brazil`,
-});
-const BAIRROS_CURADOS = {
-  "bela vista": gf(237, 64, [140, 198, 256], 1983, "jan–set/2026", "bela-vista"),
-  "brooklin": { media: 360, ocupacao: 75, gf: false },
-  "consolacao": { media: 325, ocupacao: 63, gf: false },
-  "itaim bibi": gf(359, 59, [180, 279, 404], 3884, "jan–set/2026", "itaim-bibi"),
-  "jardim paulista": gf(319, 62, [183, 251, 327], 3147, "jan–set/2026", "jardim-paulista"),
-  "liberdade": gf(230, 61, [132, 195, 251], 553, "jan–jul/2026", "liberdade"),
-  "moema": gf(263, 61, [167, 225, 288], 2621, "jan–set/2026", "moema"),
-  "pinheiros": gf(300, 62, [171, 232, 301], 2424, "jan–set/2026", "pinheiros"),
-  "republica": gf(203, 63, [117, 166, 210], 3079, "jan–jul/2026", "republica"),
-  "vila mariana": gf(226, 60, [143, 194, 235], 2238, "jan–set/2026", "vila-mariana"),
-  "vila olimpia": { media: 415, ocupacao: 79, gf: false },
-  "mooca": gf(241, 59, [27, 195, 268], 85, "jan–set/2026", "mooca"),
-  "perdizes": gf(254, 53, [174, 217, 276], 1752, "jan–set/2026", "perdizes"),
-};
-const SAO_PAULO_REFERENCIA = { ocupacao: 60, media: 266, anuncios: 34854, periodo: "jan–set/2026" };
+// Base única: diária, ocupação, quartis, amostra e fonte vêm da view radar_bairro_atual.
+type Curado = { media: number; ocupacao: number; quartis?: number[]; anuncios?: number; periodo?: string; url?: string; gf: boolean; fonte: string; coleta: string; confianca: string };
+const MESES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const periodo = (i?: string | null, f?: string | null) => i && f ? `${MESES[+i.slice(5,7)-1]}–${MESES[+f.slice(5,7)-1]}/${f.slice(0,4)}` : undefined;
+const fmtD = (d: string) => d.split("-").reverse().join("/");
 const normNome = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
 async function loadBairrosContext(): Promise<string> {
@@ -45,19 +29,41 @@ async function loadBairrosContext(): Promise<string> {
     return "Dados dos bairros indisponíveis no momento.";
   }
 
+  const { data: radar, error: radarError } = await supabase.from("radar_bairro_atual").select("*").eq("cidade", "São Paulo");
+  if (radarError) console.error("Error loading radar:", radarError);
+  const grupos = new Map<string, Record<string, any>>();
+  for (const r of radar ?? []) {
+    const k = normNome(r.bairro);
+    if (!grupos.has(k)) grupos.set(k, {});
+    grupos.get(k)![r.indicador] = r;
+  }
+  const curado = (nome: string): Curado | undefined => {
+    const g = grupos.get(normNome(nome));
+    const adr = g?.adr_medio_brl, occ = g?.ocupacao_media_pct;
+    if (!adr || !occ) return undefined;
+    const gfOk = adr.fonte_tipo !== "estimativa";
+    const q = [g.adr_p25_brl, g.adr_mediana_brl, g.adr_p75_brl];
+    return {
+      media: Number(adr.valor), ocupacao: Number(occ.valor), gf: gfOk, fonte: adr.fonte_nome, coleta: adr.coletado_em,
+      confianca: adr.confianca === "baixa" || occ.confianca === "baixa" ? "baixa" : adr.confianca === "media" || occ.confianca === "media" ? "média" : "alta",
+      ...(gfOk && q.every(Boolean) ? { quartis: q.map((x) => Number(x.valor)), anuncios: g.anuncios_ativos ? Number(g.anuncios_ativos.valor) : undefined, periodo: periodo(adr.periodo_inicio, adr.periodo_fim), url: adr.url_origem } : {}),
+    };
+  };
+  const sp = curado("São Paulo");
+
   const lines = bairros.map((b) => {
-    const c = BAIRROS_CURADOS[normNome(b.bairro) as keyof typeof BAIRROS_CURADOS];
+    const c = curado(b.bairro);
     const precoEstudio = (b.preco_m2_residencial_medio ?? 0) * (b.area_media_estudio ?? 30);
     const est = `(estimativa de mercado — base 2025, ${b.periodo_inicio} a ${b.periodo_fim}, confiança ${b.nivel_confianca_dados})`;
     const curadas = c
       ? [
           `- Diária média (ADR): R$${c.media}`,
           `- Ocupação: ${c.ocupacao}%`,
-          ...("quartis" in c ? [
+          ...(c.quartis ? [
             `- Diária: 25% mais baratos / mediana / 25% mais caros: R$${c.quartis.join(" / R$")}`,
-            `- Anúncios ativos: ${c.anuncios}${b.bairro === "Mooca" ? " — amostra pequena (85 anúncios)" : ""}`,
-            `- Fonte: GuestFavorites, ${c.periodo} (${c.url}); coleta de 13/10/2026`,
-          ] : ["- Fonte: estimativa Bewild (sem fonte pública atualizada)"]),
+            `- Anúncios ativos: ${c.anuncios}${(c.anuncios ?? 0) < 200 ? ` — amostra pequena (${c.anuncios} anúncios)` : ""}`,
+            `- Fonte: ${c.fonte}, ${c.periodo} (${c.url}); coleta de ${fmtD(c.coleta)}; confiança ${c.confianca}`,
+          ] : [`- Fonte: estimativa Bewild (sem fonte pública atualizada); confiança ${c.confianca}`]),
           `- Receita mensal de referência (diária média × 30 × ocupação): R$${Math.round(c.media * 30 * c.ocupacao / 100)}`,
         ]
       : [
@@ -87,7 +93,8 @@ async function loadBairrosContext(): Promise<string> {
     ].join("\n");
   });
 
-  return `Referência da cidade de São Paulo — GuestFavorites, ${SAO_PAULO_REFERENCIA.periodo}, coleta de 13/10/2026: ocupação ${SAO_PAULO_REFERENCIA.ocupacao}%, ADR R$${SAO_PAULO_REFERENCIA.media}, ${SAO_PAULO_REFERENCIA.anuncios} anúncios.\n\n${lines.join("\n\n")}`;
+  const ref = sp ? `Referência da cidade de São Paulo — ${sp.fonte}, ${sp.periodo ?? ""}, coleta de ${fmtD(sp.coleta)}: ocupação ${sp.ocupacao}%, ADR R$${sp.media}.` : "Referência da cidade indisponível.";
+  return `${ref}\n\n${lines.join("\n\n")}`;
 }
 
 async function loadListingsStats(): Promise<string> {
@@ -129,7 +136,7 @@ serve(async (req) => {
 
     const SYSTEM_PROMPT = `Você é um consultor especialista em investimento imobiliário para short-stay (aluguel de curta temporada) em São Paulo, Brasil. Seu foco é em studios e apartamentos compactos para plataformas como Airbnb.
 
-Você tem acesso à coleta pública GuestFavorites de 13/10/2026 e a estimativas de mercado — base 2025 da plataforma Short Stay Intelligence. Diferencie sempre as fontes; cite o período e o link do bairro, e avise sobre a amostra pequena da Mooca. Brooklin, Consolação e Vila Olímpia são estimativa Bewild (sem fonte pública atualizada), nunca GuestFavorites. Use esses dados para fundamentar suas respostas com números precisos. Sempre que possível, cite os dados abaixo em vez de inventar números.
+Você tem acesso à base única de dados de mercado do Radar Bewild (fonte, período, data de coleta, amostra e confiança por bairro) e a estimativas de mercado — base 2025 da plataforma Short Stay Intelligence. Diferencie sempre as fontes; cite o período e o link do bairro, e avise sobre a amostra pequena da Mooca. Bairros com fonte "estimativa Bewild" ou confiança baixa devem ser apresentados como estimativa, nunca como dado público. Use esses dados para fundamentar suas respostas com números precisos. Sempre que possível, cite os dados abaixo em vez de inventar números.
 
 # DADOS REAIS DOS BAIRROS (ordenados por Score Rentabilidade)
 
