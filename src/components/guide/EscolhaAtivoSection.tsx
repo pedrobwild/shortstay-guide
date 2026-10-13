@@ -295,8 +295,8 @@ export default function EscolhaAtivoSection() {
           </AccordionTrigger>
           <AccordionContent>
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3">
-              <p>A faixa <strong className="text-foreground">25–35 m²</strong> é o sweet spot para short stay em São Paulo. Abaixo de 25m², o espaço limita a experiência (especialmente para estadias &gt; 3 noites). Acima de 40m², o custo de aquisição e condomínio sobe sem proporcional aumento na diária.</p>
-              <p><strong className="text-foreground">Eficiência de planta</strong>: priorize unidades onde a área útil é maximizada — sem corredores longos, com cozinha integrada e banheiro compacto mas funcional. Uma planta de 28m² bem desenhada pode performar melhor que uma de 35m² com layout ruim.</p>
+              <p>Avalie a metragem em conjunto com circulação, mobiliário, investimento e necessidades do público-alvo. Não há uma faixa universal que garanta melhor desempenho ou uma relação fixa entre área e diária.</p>
+              <p><strong className="text-foreground">Eficiência de planta</strong>: priorize unidades onde a área útil é maximizada — sem corredores longos, com cozinha integrada e banheiro compacto mas funcional. Compare plantas pela funcionalidade, sem presumir retorno superior apenas pela metragem.</p>
               <p><strong className="text-foreground">Regra prática</strong>: se a cama, mesa de trabalho, sofá (ou banco) e armário cabem sem comprometer circulação, a planta é eficiente.</p>
             </div>
           </AccordionContent>
