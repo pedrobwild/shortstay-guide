@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { BAIRROS_CURADOS } from "@/data/bairrosCurados";
-import { montarBairros, rotuloFonteRadar, type LinhaRadar } from "@/lib/radarBase";
+import { alertasFonteRadar, montarBairros, rotuloFonteRadar, type LinhaRadar } from "@/lib/radarBase";
 
 const periodos: Record<string, [string, string]> = { "jan–set/2026": ["2026-01-01", "2026-09-30"], "jan–jul/2026": ["2026-01-01", "2026-07-31"] };
 // Simula a view com a carga inicial (mesmos valores de bairrosCurados).
@@ -27,10 +27,34 @@ describe("base única radar_bairro_atual", () => {
       expect(r).toMatchObject({ dailyAvg: b.dailyAvg, avgOccupancy: b.avgOccupancy, dailyMin: b.dailyMin, dailyMax: b.dailyMax, dailyQuartiles: b.dailyQuartiles, activeListings: b.activeListings, period: b.period, sourceUrl: b.sourceUrl, ocupacaoFonte: b.ocupacaoFonte });
     }
   });
-  it.each([["Pinheiros", "alta", false], ["Liberdade", "media", false], ["Mooca", "baixa", true], ["Brooklin", "baixa", true]])("%s: confiança %s, estimativa=%s", (nome, conf, est) => {
+  it.each([["Pinheiros", "alta", false], ["Liberdade", "media", false], ["Mooca", "baixa", false], ["Brooklin", "baixa", true]])("%s: confiança %s, estimativa=%s", (nome, conf, est) => {
     const r = bairros.find((x) => x.name === nome)!;
     expect(r.confianca).toBe(conf);
     expect(r.estimativa).toBe(est);
+  });
+  const mooca = bairros.find((b) => b.name === "Mooca");
+  it("Mooca é pública com 85 anúncios e alerta de amostra pequena, não estimativa", () => {
+    expect(mooca).toBeDefined();
+    if (!mooca) throw new Error("Mooca ausente");
+    expect(mooca.amostraN).toBe(85);
+    expect(alertasFonteRadar(mooca)).toEqual({ estimativa: false, amostraPequena: true, desatualizado: false });
+  });
+  it("Brooklin tem alerta apenas de estimativa", () => {
+    const brooklin = bairros.find((b) => b.name === "Brooklin");
+    if (!brooklin) throw new Error("Brooklin ausente");
+    expect(alertasFonteRadar(brooklin)).toEqual({ estimativa: true, amostraPequena: false, desatualizado: false });
+  });
+  it.each([[199, true], [200, false], [null, false]])("amostra pública n=%s: pequena=%s", (amostraN, pequena) => {
+    if (!mooca) throw new Error("Mooca ausente");
+    expect(alertasFonteRadar({ ...mooca, amostraN }).amostraPequena).toBe(pequena);
+  });
+  it.each([[240, false], [241, true]])("coleta pública há %s dias: desatualizada=%s sem virar estimativa", (idadeDias, desatualizado) => {
+    if (!mooca) throw new Error("Mooca ausente");
+    expect(alertasFonteRadar({ ...mooca, idadeDias, amostraN: 553 })).toEqual({ estimativa: false, amostraPequena: false, desatualizado });
+  });
+  it("fonte estimativa não recebe alertas de fonte pública mesmo com amostra pequena e antiga", () => {
+    if (!mooca) throw new Error("Mooca ausente");
+    expect(alertasFonteRadar({ ...mooca, fonteTipo: "estimativa", idadeDias: 241 })).toEqual({ estimativa: true, amostraPequena: false, desatualizado: false });
   });
   it("monta o texto de fonte com período, coleta, n= e selo", () => {
     expect(rotuloFonteRadar(bairros.find((x) => x.name === "Pinheiros")!)).toBe("GuestFavorites, jan–set/2026 · coleta 13/10/2026 · n=2.424 · confiança alta");

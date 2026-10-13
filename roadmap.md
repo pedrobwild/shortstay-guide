@@ -26,4 +26,5 @@
 
 - [x] Base única de dados de mercado: tabelas radar_fontes/radar_observacoes e view radar_bairro_atual (confiança e idade calculadas), carga com a coleta de 13/10/2026, app e chat lendo do banco, bairrosCurados.ts só como reserva; registro da correção de leitura de guide_leads/guide_events. Conferido Pinheiros, Liberdade, Mooca e Brooklin; 185 testes e lint OK; sem publicar.
 - [ ] Site bewild.com.br passar a ler radar_bairro_atual (depende do repositório do site).
+- [ ] Separar rótulos de estimativa (tipo da fonte), amostra pequena (pública, baixa, n < 200) e dado desatualizado (pública, coleta > 240 dias) no app e chat; testar e conferir Mooca/Brooklin, sem alterar dados/view/confiança ou publicar.
 - [x] Regra de confiança da view radar_bairro_atual endurecida: 'media' agora exige amostra >= 200 E coleta <= 240 dias (antes bastava um dos dois). Mooca (n=85) passou a 'baixa' e ganhou o selo "estimativa"; Liberdade segue 'media'; demais inalterados. 185 testes OK, preview conferido, aviso de amostra pequena mantido. Não publicado — Pedro publica em seguida.
