@@ -15,6 +15,7 @@ import { coletaSchema, indicadoresColeta, numeroColeta } from "@/lib/radarColeta
 import { useRadarBase } from "@/lib/radarBase";
 
 const inicial = () => ({ bairro: "Mooca", fonte_id: "guestfavorites" as const, periodo_inicio: "", periodo_fim: "", coletado_em: new Date().toISOString().slice(0, 10), publicado_em: "", amostra_n: "", url_origem: "", observacao: "" });
+const dataBR = (v: string | null) => v ? v.split("-").reverse().join("/") : "Sem período";
 export default function AdminColetas() {
   const qc = useQueryClient();
   const radar = useRadarBase();
@@ -62,7 +63,7 @@ export default function AdminColetas() {
       {historico.isLoading && <p role="status">Carregando…</p>}
       {historico.isError && <p role="alert">Não foi possível carregar. <Button variant="link" onClick={() => historico.refetch()}>Tentar novamente</Button></p>}
       {historico.data?.length === 0 && <p className="text-muted-foreground">Nenhuma coleta registrada.</p>}
-      <ul className="space-y-3">{historico.data?.map((r) => <li key={r.id} className="rounded-md border border-border p-3 text-sm space-y-1"><p className="font-semibold">{r.fonte_id} · {r.coletado_em.split("-").reverse().join("/")} · {r.ativo ? "Ativa" : "Inativa"}</p><p className="text-muted-foreground">{r.periodo_inicio ?? "Sem período"} — {r.periodo_fim ?? ""} · n={r.amostra_n ?? "não informado"}</p>{r.observacao && <p className="break-words">{r.observacao}</p>}</li>)}</ul>
+      <ul className="space-y-3">{historico.data?.map((r) => <li key={r.id} className="rounded-md border border-border p-3 text-sm space-y-1"><p className="font-semibold">{r.fonte_id} · {dataBR(r.coletado_em)} · {r.ativo ? "Ativa" : "Inativa"}</p><p className="text-muted-foreground">{dataBR(r.periodo_inicio)} — {dataBR(r.periodo_fim)} · n={r.amostra_n ?? "não informado"}</p>{r.observacao && <p className="break-words">{r.observacao}</p>}</li>)}</ul>
       {radar.data?.offline && <p className="text-destructive">A consulta de mercado está indisponível; o site está usando a reserva offline.</p>}
     </section>
     <AlertDialog open={confirmar} onOpenChange={setConfirmar}><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Substituir a coleta de {form.bairro}?</AlertDialogTitle><AlertDialogDescription>Os novos números passam a valer na base compartilhada. Todas as observações ativas anteriores deste bairro serão desativadas, sem apagar o histórico. Indicadores opcionais vazios não serão reaproveitados da coleta anterior.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel disabled={saving}>Cancelar</AlertDialogCancel><AlertDialogAction disabled={saving} onClick={(e) => { e.preventDefault(); salvar(); }}>{saving ? "Salvando…" : "Confirmar coleta"}</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
