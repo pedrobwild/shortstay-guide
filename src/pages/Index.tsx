@@ -38,6 +38,7 @@ import ChecklistSection from "@/components/guide/ChecklistSection";
 import TrustSignals from "@/components/guide/TrustSignals";
 import FAQSection from "@/components/guide/FAQSection";
 import FinalCTASection from "@/components/guide/FinalCTASection";
+import FonteBairro from "@/components/guide/FonteBairro";
 import { FONTE_BAIRROS_CURADOS, rotuloOcupacao } from "@/data/bairrosCurados";
 
 const TendenciasSection = lazy(() => import("@/components/guide/TendenciasSection"));
@@ -130,7 +131,7 @@ function IndexInner() {
                       <table className="w-full text-sm font-body">
                         <thead className="bg-secondary">
                           <tr>
-                            {["Bairro", "Diária mín.", "Ocupação média", "20–25 m²", "26–35 m²", "36–50 m²"].map((h) => (
+                            {["Bairro", "Diária média (ADR)", "Ocupação média", "Diária: 25% mais baratos", "Diária: mediana", "Diária: 25% mais caros"].map((h) => (
                               <th key={h} className="px-4 py-3 text-left font-semibold text-foreground">{h}</th>
                             ))}
                           </tr>
@@ -138,18 +139,18 @@ function IndexInner() {
                         <tbody>
                           {bairros.map((b) => (
                             <tr key={b.name} className="border-t border-border hover:bg-muted/50 transition-colors">
-                              <td className="px-4 py-3 font-medium text-foreground">{b.name}</td>
-                              <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.dailyMin)}</td>
+                              <td className="px-4 py-3 font-medium text-foreground">{b.name}<FonteBairro nome={b.name} /></td>
+                              <td className="px-4 py-3 text-muted-foreground">R$ {fmt(b.dailyAvg)}</td>
                               <td className="px-4 py-3 text-muted-foreground">{rotuloOcupacao(b)}</td>
-                              <td className="px-4 py-3 text-muted-foreground">{b.avgBySize ? `R$ ${fmt(b.avgBySize["20–25 m²"])}` : "—"}</td>
-                              <td className="px-4 py-3 text-muted-foreground">{b.avgBySize ? `R$ ${fmt(b.avgBySize["26–35 m²"])}` : "—"}</td>
-                              <td className="px-4 py-3 font-semibold text-foreground">{b.avgBySize ? `R$ ${fmt(b.avgBySize["36–50 m²"])}` : "—"}</td>
+                              <td className="px-4 py-3 text-muted-foreground">{b.dailyQuartiles ? `R$ ${fmt(b.dailyQuartiles[0])}` : "—"}</td>
+                              <td className="px-4 py-3 text-muted-foreground">{b.dailyQuartiles ? `R$ ${fmt(b.dailyQuartiles[1])}` : "—"}</td>
+                              <td className="px-4 py-3 font-semibold text-foreground">{b.dailyQuartiles ? `R$ ${fmt(b.dailyQuartiles[2])}` : "—"}</td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     </div>
-                    <p className="px-4 py-3 text-xs text-muted-foreground border-t border-border">Fonte: {FONTE_BAIRROS_CURADOS}. GF = ocupação mediana GuestFavorites.</p>
+                    <p className="px-4 py-3 text-xs text-muted-foreground border-t border-border">{FONTE_BAIRROS_CURADOS}</p>
                   </CardContent>
                 </Card>
               </motion.div>

@@ -1,5 +1,5 @@
 import { formatDecimal } from "@/lib/numberFormat";
-import { getBairroCurado, FONTE_BAIRROS_CURADOS, ROTULO_ESTIMATIVA_MERCADO } from "@/data/bairrosCurados";
+import { getBairroCurado, fonteBairro, ROTULO_ESTIMATIVA_MERCADO } from "@/data/bairrosCurados";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { BairroAirbnb, RawListing } from "@/types/intelligence";
@@ -94,7 +94,8 @@ export function rotuloEstimativa(b: Pick<BairroAirbnb, "periodo_inicio" | "perio
 }
 
 export function rotuloFonteDiariaOcupacao(b: BairroAirbnb): string {
-  return b.diaria_ocupacao_curadas
-    ? `Diária e ocupação: ${FONTE_BAIRROS_CURADOS}. Demais métricas: ${rotuloEstimativa(b)}.`
+  const c = getBairroCurado(b.bairro);
+  return c
+    ? `Diária e ocupação: ${fonteBairro(c)}. Demais métricas: ${rotuloEstimativa(b)}.`
     : `Todas as métricas: ${rotuloEstimativa(b)}.`;
 }

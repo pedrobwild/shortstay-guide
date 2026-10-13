@@ -1,3 +1,4 @@
+import FonteBairro from "@/components/guide/FonteBairro";
 import { formatDecimal } from "@/lib/numberFormat";
 import { useParams, Link, useLocation, Navigate } from "react-router-dom";
 import { slugifyBairro, SEO_BAIRROS, bairroTitle, bairroDescription } from "@/lib/seo";
@@ -140,6 +141,8 @@ const IntelligenceBairroDetail = () => {
           </div>
           <p className="text-sm text-primary-foreground/80 max-w-2xl leading-relaxed mt-3">{headerNarrative}</p>
           <p className="text-xs text-primary-foreground/70 mt-2">{rotuloFonteDiariaOcupacao(b)}</p>
+          <FonteBairro nome={b.bairro} />
+          <p className="text-sm mt-2">Diária média (ADR): {fmtBRL(b.adr_medio_studio)} · Ocupação: {fmtPct(b.ocupacao_media_studio)}</p>
         </div>
       </header>
 
