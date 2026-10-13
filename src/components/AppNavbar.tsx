@@ -50,9 +50,9 @@ export default function AppNavbar() {
                 </Button>
                 {isAdmin && (
                   <Button variant="ghost" size="sm" asChild>
-                    <Link to="/admin/leads" className="gap-1.5">
+                    <Link to="/admin" className="gap-1.5">
                       <Flame className="h-4 w-4" />
-                      <span className="hidden sm:inline">Leads</span>
+                      <span className="hidden sm:inline">Admin</span>
                     </Link>
                   </Button>
                 )}

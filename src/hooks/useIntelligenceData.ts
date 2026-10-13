@@ -1,5 +1,6 @@
 import { formatDecimal } from "@/lib/numberFormat";
 import { getBairroCurado, fonteBairro, ROTULO_ESTIMATIVA_MERCADO } from "@/data/bairrosCurados";
+import { aplicarAjuste, buscarAjuste, carregarAjustes, mapaAjustes, type BairroAjuste } from "@/lib/bairroAjustes";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { BairroAirbnb, RawListing } from "@/types/intelligence";
@@ -8,12 +9,13 @@ export function useBairrosData() {
   return useQuery({
     queryKey: ["bairro_airbnb_sp"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("bairro_airbnb_sp")
-        .select("*")
-        .order("score_rentabilidade", { ascending: false });
+      const [{ data, error }, ajustes] = await Promise.all([
+        supabase.from("bairro_airbnb_sp").select("*").order("score_rentabilidade", { ascending: false }),
+        carregarAjustes(),
+      ]);
       if (error) throw error;
-      return (data as unknown as BairroAirbnb[]).map(aplicarCurados);
+      const mapa = mapaAjustes(ajustes);
+      return (data as unknown as BairroAirbnb[]).map((r) => aplicarCurados(r, mapa));
     },
   });
 }
@@ -22,13 +24,12 @@ export function useBairroDetail(bairro: string) {
   return useQuery({
     queryKey: ["bairro_airbnb_sp", bairro],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("bairro_airbnb_sp")
-        .select("*")
-        .eq("bairro", bairro)
-        .single();
+      const [{ data, error }, ajustes] = await Promise.all([
+        supabase.from("bairro_airbnb_sp").select("*").eq("bairro", bairro).single(),
+        carregarAjustes(),
+      ]);
       if (error) throw error;
-      return aplicarCurados(data as unknown as BairroAirbnb);
+      return aplicarCurados(data as unknown as BairroAirbnb, mapaAjustes(ajustes));
     },
     enabled: !!bairro,
   });
@@ -59,9 +60,10 @@ export const fmtScore = (v: number) => (v == null ? undefined : formatDecimal(v,
  * (e receita/yield exibidos são recalculados com elas). As demais métricas
  * continuam do banco, rotuladas como estimativa de mercado.
  */
-export function aplicarCurados(row: BairroAirbnb): BairroAirbnb {
-  const c = getBairroCurado(row.bairro);
-  if (!c) return { ...row, diaria_ocupacao_curadas: false };
+export function aplicarCurados(row: BairroAirbnb, ajustes?: Map<string, BairroAjuste>): BairroAirbnb {
+  const base = getBairroCurado(row.bairro);
+  if (!base) return { ...row, diaria_ocupacao_curadas: false };
+  const c = ajustes ? aplicarAjuste(base, buscarAjuste(ajustes, row.bairro)) : base;
   const adr = c.dailyAvg;
   const occ = c.avgOccupancy / 100;
   const receitaAnual = Math.round(adr * 30 * occ) * 12;

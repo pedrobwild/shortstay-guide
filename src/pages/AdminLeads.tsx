@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import AdminTabs from "@/components/admin/AdminTabs";
 import AppNavbar from "@/components/AppNavbar";
 import {
   Table,
@@ -131,6 +132,7 @@ export default function AdminLeads() {
     <div className="min-h-screen bg-background">
       <AppNavbar />
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+        <AdminTabs />
         <header className="space-y-1">
           <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">
             Leads por prontidão
