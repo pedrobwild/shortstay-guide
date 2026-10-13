@@ -32,6 +32,7 @@ const AdminLeads = lazy(() => import("./pages/AdminLeads"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 import ChatBot from "./components/ChatBot";
 import ClientOnly from "@/components/ClientOnly";
+import CookieConsent from "@/components/CookieConsent";
 
 const queryClient = new QueryClient();
 
@@ -65,7 +66,7 @@ function ScrollToHash() {
 function PageFallback() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background">
-      <img src={bwildLogo} alt="Bwild" className="h-10 w-auto opacity-60" />
+      <img src={bwildLogo} alt="Bewild" className="h-10 w-auto opacity-60" />
       <div className="flex items-center gap-2 text-muted-foreground font-body text-sm">
         <div className="h-4 w-4 border-2 border-primary/40 border-t-primary rounded-full animate-spin" />
         Carregando...
@@ -108,6 +109,7 @@ export function AppRoutes() {
   return (
     <>
       <ScrollToHash />
+      <ClientOnly><CookieConsent /></ClientOnly>
       <PostLoginProvision />
       <Suspense fallback={<PageFallback />}>
         <RouteSeo />
