@@ -704,7 +704,7 @@ export default function ProjectAnalytics({
             label="Receita líquida"
             value={brl(netRevenue)}
             accent
-            hint={`Margem ${netMarginPct.toFixed(1)}% · Custos ${brl(totalCosts)}`}
+            hint={`Margem ${formatDecimal(netMarginPct, 1)}% · Custos ${brl(totalCosts)}`}
           />
           <KpiCard icon={<Moon className="h-4 w-4" />} label="Estadia média"
             value={`${formatDecimal(kpis.averageStayNights, 1)} noites`}
