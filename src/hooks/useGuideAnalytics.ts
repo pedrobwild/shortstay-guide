@@ -1,3 +1,4 @@
+import { canMeasure } from "@/lib/marketingConsent";
 import { useRef, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { TablesInsert } from "@/integrations/supabase/types";
@@ -24,6 +25,7 @@ export function useGuideAnalytics() {
   const flushTimer = useRef<ReturnType<typeof setInterval>>();
 
   const flush = useCallback(async () => {
+    if (!canMeasure()) { buffer.current = []; return; }
     if (buffer.current.length === 0) return;
     const batch = buffer.current.splice(0);
     try {
@@ -43,6 +45,7 @@ export function useGuideAnalytics() {
 
   const trackEvent = useCallback(
     (eventType: string, eventData: Record<string, unknown> = {}) => {
+      if (!canMeasure()) return;
       buffer.current.push({
         event_type: eventType,
         event_data: eventData,

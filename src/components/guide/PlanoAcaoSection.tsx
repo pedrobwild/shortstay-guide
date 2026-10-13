@@ -1,3 +1,4 @@
+import OrcamentoButton from "@/components/OrcamentoButton";
 import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -200,6 +201,7 @@ export default function PlanoAcaoSection() {
           </div>
         </div>
       )}
+      <OrcamentoButton local="plano-acao" className="mt-6 min-h-[44px]" />
     </SectionBlock>
   );
 }

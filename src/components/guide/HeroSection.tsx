@@ -1,9 +1,10 @@
+import OrcamentoButton from "@/components/OrcamentoButton";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Calculator, MapPin, Sparkles, BookOpen, BarChart3, Target, Lightbulb } from "lucide-react";
 import { Link } from "react-router-dom";
 import sectionHeroStudio from "@/assets/section-hero-studio.jpg";
-import { REFORMAS_ENTREGUES, PROJETOS } from "@/data/provasBewild";
+import { REFORMAS_ENTREGUES, PROJETOS, BAIRROS_ATENDIDOS } from "@/data/provasBewild";
 
 export default function HeroSection() {
   const benefits = [
@@ -88,6 +89,7 @@ export default function HeroSection() {
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-4">
+            <OrcamentoButton local="hero" size="lg" className="font-body min-h-[44px]" />
             <Button size="lg" className="bg-primary text-primary-foreground font-body w-full sm:w-auto min-h-[44px]" asChild>
               <Link to="/mercado"><Calculator size={18} className="mr-2" />Simular rentabilidade</Link>
             </Button>
@@ -141,8 +143,8 @@ export default function HeroSection() {
               </div>
               <div className="w-px h-8 bg-border" />
               <div className="text-center">
-                <p className="text-xs font-mono font-bold text-foreground">R$ 400</p>
-                <p className="text-[10px] text-muted-foreground font-body">diária média</p>
+                <p className="text-xs font-mono font-bold text-foreground">{BAIRROS_ATENDIDOS}</p>
+                <p className="text-[10px] text-muted-foreground font-body">bairros com obra entregue</p>
               </div>
             </div>
           </div>

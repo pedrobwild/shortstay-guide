@@ -15,3 +15,4 @@
 - [ ] Revisar afirmações sem fonte e rotular premissas, sem alterar cálculos protegidos.
 - [ ] Verificar possibilidades de marca nos e-mails de cadastro sem alterar dados do banco.
 - [ ] Testar fluxos consentidos/recusados, CTAs e HTML pré-renderizado; verificar compilação automática e relatar categorias de textos alterados. Não publicar.
+- [ ] Recalcular somente exemplos de reforma com o estudo de 188 contratos, preservando simuladores e case.
