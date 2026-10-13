@@ -168,7 +168,7 @@ export default function ChatBot() {
           >
             <div className="relative">
               {/* Pulse ring */}
-              <span className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
+              <span className="pointer-events-none absolute inset-2 rounded-full bg-primary/20 animate-ping" />
               <Button
                 onClick={() => { setOpen(true); trackGlobal("chatbot_opened", {}); }}
                 className="relative h-14 w-14 rounded-full shadow-[0_8px_30px_-4px_hsl(var(--primary)/0.4)] bg-primary hover:bg-primary/90 transition-all duration-300 hover:shadow-[0_12px_40px_-4px_hsl(var(--primary)/0.5)] hover:scale-105"

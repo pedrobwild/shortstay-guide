@@ -116,7 +116,7 @@ export default function AnuncioPrecificacaoSection() {
                     <item.icon className="text-primary" size={18} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
                       <Badge variant="secondary" className="font-body text-xs">#{item.step}</Badge>
                       <Badge className="bg-primary/10 text-primary font-body text-[10px]">{item.impact}</Badge>
                     </div>
@@ -181,7 +181,7 @@ export default function AnuncioPrecificacaoSection() {
       <Card className="border-border mb-10">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm font-body">
+            <table className="w-full table-fixed text-xs sm:text-sm font-body [&_th]:px-2 [&_td]:px-2 [&_th]:break-words [&_td]:break-words">
               <thead className="bg-secondary">
                 <tr>
                   {["Período", "Meses", "Ocupação esperada", "Ajuste de preço"].map((h) => (

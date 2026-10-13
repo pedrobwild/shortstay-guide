@@ -7,11 +7,17 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { motion } from "framer-motion";
 import { ArrowDown, TrendingUp, TrendingDown, Minus, AlertCircle, Lightbulb, DollarSign, Percent, Building2, Zap } from "lucide-react";
 import SectionBlock from "./SectionBlock";
-import { exemploRentabilidadePinheiros } from "@/lib/rentabilidadeExample";
+import { exemploRentabilidadePinheiros, retornoSobreInvestimentoExemplo } from "@/lib/rentabilidadeExample";
+import { ESTUDO_REFORMA_URL } from "@/data/provasBewild";
+import FonteLink from "@/components/guide/FonteLink";
 import FonteBairro from "@/components/guide/FonteBairro";
 
 const exemplo = exemploRentabilidadePinheiros();
 const brlExemplo = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+const retornoCenario = (liquido: number) => {
+  const retorno = retornoSobreInvestimentoExemplo(liquido);
+  return { yield: `${formatDecimal(retorno.yieldLiquido, 1)}%`, payback: retorno.paybackAnos === null ? "—" : `${formatDecimal(retorno.paybackAnos, 1)} anos` };
+};
 
 /* ── Waterfall data ── */
 const WATERFALL = [
@@ -32,7 +38,7 @@ const SCENARIOS = [
     icon: TrendingDown,
     color: "border-amber-500/30 bg-amber-500/[0.03]",
     badgeColor: "bg-amber-100 text-amber-800",
-    metrics: { ocupacao: "65%", adr: "R$ 280", receitaBruta: "R$ 5.460", receitaLiquida: "R$ 2.000", yield: "~6%", payback: "~11 anos" },
+    metrics: { ocupacao: "65%", adr: "R$ 280", receitaBruta: "R$ 5.460", receitaLiquida: "R$ 2.000", ...retornoCenario(2000) },
     desc: "Primeiros meses, baixa temporada ou bairro menos aquecido.",
   },
   {
@@ -41,7 +47,7 @@ const SCENARIOS = [
     icon: Minus,
     color: "border-primary/30 bg-primary/[0.03]",
     badgeColor: "bg-primary/10 text-primary",
-    metrics: { ocupacao: "75%", adr: "R$ 350", receitaBruta: "R$ 7.875", receitaLiquida: "R$ 3.360", yield: "~10%", payback: "~7 anos" },
+    metrics: { ocupacao: "75%", adr: "R$ 350", receitaBruta: "R$ 7.875", receitaLiquida: "R$ 3.360", ...retornoCenario(3360) },
     desc: "Operação estabilizada com boa gestão e produto adequado.",
   },
   {
@@ -50,7 +56,7 @@ const SCENARIOS = [
     icon: TrendingUp,
     color: "border-emerald-500/30 bg-emerald-500/[0.03]",
     badgeColor: "bg-emerald-100 text-emerald-800",
-    metrics: { ocupacao: "85%", adr: "R$ 420", receitaBruta: "R$ 10.710", receitaLiquida: "R$ 4.900", yield: "~15%", payback: "~4 anos" },
+    metrics: { ocupacao: "85%", adr: "R$ 420", receitaBruta: "R$ 10.710", receitaLiquida: "R$ 4.900", ...retornoCenario(4900) },
     desc: "Studio premium, fotos profissionais, preço dinâmico e localização top.",
   },
 ];
@@ -122,7 +128,9 @@ export default function RentabilidadeSection() {
 
       {/* ── Scenarios ── */}
       <h3 className="font-display text-xl font-bold text-foreground mb-2">Cenários de retorno</h3>
-      <p className="text-muted-foreground text-sm font-body mb-4">Hipóteses de exemplo, não previsões de mercado. Clique para comparar os cenários; os valores não são garantidos.</p>
+      <p className="text-muted-foreground text-sm font-body mb-4">Hipóteses de exemplo, não previsões de mercado. Clique para comparar os cenários; os valores não são garantidos. Yield e payback recalculados sobre {brlExemplo(exemplo.investimento)} de investimento total, incluindo a reforma turnkey mediana do estudo de 188 contratos. Receitas e taxas dos cenários foram preservadas.</p>
+      <p className="text-muted-foreground text-sm font-body mb-2">No exemplo de Pinheiros com os dados curados, receita líquida de {brlExemplo(exemplo.receitaLiquida)}/mês: {formatDecimal(exemplo.yieldLiquido, 1)}% ao ano e payback simples de {formatDecimal(exemplo.paybackAnos ?? 0, 1)} anos, sem valorização nem financiamento.</p>
+      <FonteLink fonte={{ title: "Bewild — estudo de 188 contratos", url: ESTUDO_REFORMA_URL }} />
 
       <div className="flex flex-wrap gap-2 mb-4">
         {SCENARIOS.map((s) => (
