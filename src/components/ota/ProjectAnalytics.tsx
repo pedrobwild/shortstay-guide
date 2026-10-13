@@ -769,7 +769,7 @@ export default function ProjectAnalytics({
               <BarChart data={monthly} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                 <XAxis dataKey="monthLabel" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" unit="%" domain={[0, 100]} />
+                <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => formatDecimal(Number(v))} unit="%" domain={[0, 100]} />
                 <Tooltip content={<MonthlyTooltip />} />
                 <Bar dataKey="occupancyPct" radius={[4, 4, 0, 0]}>
                   {monthly.map((m) => (
@@ -807,7 +807,7 @@ export default function ProjectAnalytics({
                 <YAxis
                   tick={{ fontSize: 11 }}
                   stroke="hsl(var(--muted-foreground))"
-                  tickFormatter={(v) => `R$${Math.round(v / 1000)}k`}
+                  tickFormatter={(v) => `R$${formatDecimal(Math.round(v / 1000), 0)}k`}
                 />
                 <Tooltip
                   formatter={(value: number, name: string) => [brl(value), name === "estimatedRevenueBrl" ? "Bruta" : "Líquida"]}
@@ -850,14 +850,14 @@ export default function ProjectAnalytics({
                 <BarChart data={stays} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                   <XAxis dataKey="bucket" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" allowDecimals={false} />
+                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" allowDecimals={false} tickFormatter={(v) => formatDecimal(Number(v), 0)} />
                   <Tooltip
                     contentStyle={{
                       background: "hsl(var(--background))",
                       border: "1px solid hsl(var(--border))",
                       borderRadius: 8, fontSize: 12,
                     }}
-                    formatter={(v: number) => [`${v} reservas`, "Quantidade"]}
+                    formatter={(v: number) => [`${formatDecimal(v, 0)} reservas`, "Quantidade"]}
                   />
                   <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -874,14 +874,14 @@ export default function ProjectAnalytics({
                 <BarChart data={weekday} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                   <XAxis dataKey="label" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" allowDecimals={false} />
+                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" allowDecimals={false} tickFormatter={(v) => formatDecimal(Number(v), 0)} />
                   <Tooltip
                     contentStyle={{
                       background: "hsl(var(--background))",
                       border: "1px solid hsl(var(--border))",
                       borderRadius: 8, fontSize: 12,
                     }}
-                    formatter={(v: number) => [`${v} noites`, "Reservadas"]}
+                    formatter={(v: number) => [`${formatDecimal(v, 0)} noites`, "Reservadas"]}
                   />
                   <Bar dataKey="bookedNights" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -901,7 +901,7 @@ export default function ProjectAnalytics({
                 <h3 className="text-sm font-medium text-foreground">Sazonalidade</h3>
               </div>
               <span className="text-[11px] text-muted-foreground">
-                Índice 1.0 = média do período observado
+                Índice {formatDecimal(1)} = média do período observado
               </span>
             </div>
             <div className="h-56">
@@ -1370,7 +1370,7 @@ function MonthlyTooltip({ active, payload }: { active?: boolean; payload?: Reado
     <div className="rounded-md border border-border bg-background px-3 py-2 text-xs shadow-md">
       <p className="font-medium text-foreground mb-1">{m.monthLabel}</p>
       <p className="text-muted-foreground">Ocupação: <span className="text-foreground font-medium">{formatDecimal(m.occupancyPct, 1)}%</span></p>
-      <p className="text-muted-foreground">Reservas: <span className="text-foreground font-medium">{m.bookedNights}n</span> · Bloq: {m.blockedNights}n</p>
+      <p className="text-muted-foreground">Reservas: <span className="text-foreground font-medium">{formatDecimal(m.bookedNights, 0)}n</span> · Bloq: {formatDecimal(m.blockedNights, 0)}n</p>
       <p className="text-muted-foreground">Bruta: <span className="text-foreground font-medium">{brl(m.estimatedRevenueBrl)}</span></p>
       {typeof m.netRevenueBrl === "number" && (
         <p className="text-muted-foreground">Líquida: <span className="text-foreground font-medium">{brl(m.netRevenueBrl)}</span></p>

@@ -181,9 +181,9 @@ export default function NeighborhoodComparison({ onClose, initialNeighborhoods =
             <ChartContainer config={chartConfig} className="h-[160px] w-full">
               <BarChart data={chartData} layout="vertical" margin={{ left: 0, right: 20, top: 5, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                <XAxis type="number" tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} className="text-[10px]" />
+                <XAxis type="number" tickFormatter={(v) => `R$${formatDecimal(Number(v) / 1000, 0)}k`} className="text-[10px]" />
                 <YAxis dataKey="name" type="category" width={90} className="text-[10px]" />
-                <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartTooltip content={<ChartTooltipContent formatter={(value) => `R$${fmt(Number(value))}`} />} />
                 <Bar dataKey="revenue" radius={[0, 4, 4, 0]} barSize={20}>
                   {chartData.map((_, i) => (
                     <Cell key={i} fill={i === 0 ? "hsl(152, 69%, 45%)" : i === 1 ? "hsl(var(--primary))" : "hsl(43, 96%, 56%)"} />
