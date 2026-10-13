@@ -4,10 +4,8 @@
 // versionados em código (git-reviewable) em vez de inventados em runtime.
 //
 // ⚠️ REGRA DE INTEGRIDADE
-// Só inclua aqui cases REAIS e verificados pela BWild. Nunca publique métricas
-// de performance (ADR, ocupação, yield) sem base real — marque `verified: true`
-// apenas quando os números forem confirmados. Cases sem `verified` não são
-// exibidos publicamente pelo `selectCaseStudies`.
+// Só inclua aqui cases REAIS da BWild. Nunca publique métricas de performance
+// (ADR, ocupação, yield) sem base real confirmada.
 
 import type { InvestorProfile } from "@/lib/investorQuiz";
 
@@ -61,8 +59,6 @@ export interface CaseStudy {
   timeline: CaseTimelineStep[];
   /** Antes/depois — opcional. Só preencher com material real da BWild. */
   fotos?: CasePhoto[];
-  /** Apenas cases confirmados pela BWild são exibidos publicamente. */
-  verified: boolean;
   /** Usado como fallback geral quando não há match de bairro/região. */
   featured?: boolean;
 }
@@ -78,12 +74,12 @@ const PINHEIROS_TIMELINE: CaseTimelineStep[] = [
 ];
 
 /**
- * Cases reais e verificados da BWild.
+ * Cases reais da BWild.
  *
  * Hoje há um único case público (Studio em Pinheiros), os mesmos números que
  * já eram exibidos no guia. Para tornar a prova social mais contextual em mais
- * bairros, adicione novos cases REAIS aqui (com `verified: true`) — o
- * `selectCaseStudies` passa a priorizá-los automaticamente pelo bairro do lead.
+ * bairros, adicione novos cases REAIS aqui — o `selectCaseStudies` passa a
+ * priorizá-los automaticamente pelo bairro do lead.
  */
 export const CASE_STUDIES: CaseStudy[] = [
   {
@@ -100,7 +96,6 @@ export const CASE_STUDIES: CaseStudy[] = [
     yieldBruto: "29.1%",
     paybackMeses: 7,
     timeline: PINHEIROS_TIMELINE,
-    verified: true,
     featured: true,
   },
 ];
@@ -206,8 +201,6 @@ function makeProfileSorter(profile?: InvestorProfile | null) {
  *   1. `bairro` — cases no mesmo bairro do lead;
  *   2. `regiao` — cases na mesma zona, quando não há case no bairro exato;
  *   3. `geral`  — cases em destaque (featured), quando não há bairro/região.
- *
- * Considera apenas cases verificados (`verified: true`).
  */
 export function selectCaseStudies(opts: {
   bairro?: string | null;
