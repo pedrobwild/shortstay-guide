@@ -52,15 +52,9 @@ describe("coleta GuestFavorites aprovada em 13/10/2026", () => {
     expect(aplicarCurados(row)).toMatchObject({ adr_medio_studio: adr, ocupacao_media_studio: occ / 100 });
     expect(row.adr_medio_studio).toBe(180);
   });
-  it("espelho do chat coincide com todas as linhas da base", () => {
+  it("o chat lê a base única do banco, sem cópia fixa dos números", () => {
     const source = readFileSync("supabase/functions/chat/index.ts", "utf8");
-    const start = source.indexOf("const gf =");
-    const end = source.indexOf("const normNome");
-    const table = new Function(`${source.slice(start, end).replace(/: \[number, number, number\]/g, "").replace(/: (number|string)/g, "")} return BAIRROS_CURADOS;`)();
-    for (const b of BAIRROS_CURADOS) {
-      const nome = b.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-      expect(table[nome]).toMatchObject({ media: b.dailyAvg, ocupacao: b.avgOccupancy, gf: b.ocupacaoFonte === "guestfavorites" });
-      if (b.dailyQuartiles) expect(table[nome]).toMatchObject({ quartis: b.dailyQuartiles, anuncios: b.activeListings, periodo: b.period, url: b.sourceUrl });
-    }
+    expect(source).toContain('from("radar_bairro_atual")');
+    expect(source).not.toMatch(/gf\(237, 64/);
   });
 });
