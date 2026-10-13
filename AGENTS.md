@@ -9,3 +9,5 @@
 
 - Route all budget CTAs through OrcamentoButton and orcamentoUrl; centralize consent and GA4/Meta events in marketingConsent, gating both vendor and guide telemetry by stored consent and public pathname, to prevent unconsented/private tracking.
 - Derive reform investment examples from provasBewild study inputs, counting the turnkey median once; do not infer individual service quotes from aggregate contract statistics.
+
+- Admin overrides of neighborhood daily rate/occupancy live in the bairro_ajustes table and are applied only via src/lib/bairroAjustes.ts at display time; bairrosCurados.ts and the Pinheiros example keep reading the approved base. Why: editable numbers without altering the approved source.
