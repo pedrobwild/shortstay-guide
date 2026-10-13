@@ -1,4 +1,5 @@
 import { trackSimulationUsed } from "@/lib/marketingConsent";
+import { resultadoLiquidoMensal, rotuloDecoracao } from "@/lib/bairroAjustes";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import { formatDecimal } from "@/lib/numberFormat";
 import { useState, useEffect, useRef, useMemo } from "react";
