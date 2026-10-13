@@ -189,7 +189,7 @@ export const EVENTS: CityEvent[] = [
   { id: 10, name: "Comic Con Experience (CCXP)", category: "Culture", location: "São Paulo Expo", startDate: "2026-12-03", endDate: "2026-12-06", impactLevel: "high", nearbyNeighborhoods: ["Vila Mariana", "Moema", "Campo Belo"] },
 ];
 
-export const HEAT_POINTS: HeatPoint[] = [
+const HEAT_POINTS_BASE: HeatPoint[] = [
   { id: "hp1", lat: -23.56, lng: -46.69, demandScore: 95, occupancyEstimate: 75, adrEstimate: 410, areaName: "Pinheiros Centro", coordinates: { x: 28, y: 38 } },
   { id: "hp2", lat: -23.55, lng: -46.66, demandScore: 86, occupancyEstimate: 74, adrEstimate: 390, areaName: "Consolação", coordinates: { x: 48, y: 35 } },
   { id: "hp3", lat: -23.56, lng: -46.67, demandScore: 90, occupancyEstimate: 70, adrEstimate: 440, areaName: "Jardim Paulista", coordinates: { x: 42, y: 40 } },
@@ -268,3 +268,9 @@ export function scoreBorder(score: number) {
   if (score >= 84) return "border-amber-500/40";
   return "border-border";
 }
+
+/** Pontos cujo nome é exatamente um bairro curado usam a diária/ocupação curadas. */
+export const HEAT_POINTS: HeatPoint[] = HEAT_POINTS_BASE.map((p) => {
+  const c = getBairroCurado(p.areaName);
+  return c ? { ...p, occupancyEstimate: c.avgOccupancy, adrEstimate: c.dailyAvg } : p;
+});
