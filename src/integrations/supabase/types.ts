@@ -479,6 +479,98 @@ export type Database = {
         }
         Relationships: []
       }
+      radar_fontes: {
+        Row: {
+          id: string
+          metodologia_declarada: boolean
+          nome: string
+          observacao: string | null
+          tipo: string
+          url: string | null
+        }
+        Insert: {
+          id: string
+          metodologia_declarada?: boolean
+          nome: string
+          observacao?: string | null
+          tipo: string
+          url?: string | null
+        }
+        Update: {
+          id?: string
+          metodologia_declarada?: boolean
+          nome?: string
+          observacao?: string | null
+          tipo?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
+      radar_observacoes: {
+        Row: {
+          amostra_n: number | null
+          ativo: boolean
+          bairro: string
+          cidade: string
+          coletado_em: string
+          created_at: string
+          fonte_id: string
+          id: string
+          indicador: string
+          observacao: string | null
+          periodo_fim: string | null
+          periodo_inicio: string | null
+          publicado_em: string | null
+          unidade: string
+          url_origem: string | null
+          valor: number
+        }
+        Insert: {
+          amostra_n?: number | null
+          ativo?: boolean
+          bairro: string
+          cidade?: string
+          coletado_em: string
+          created_at?: string
+          fonte_id: string
+          id?: string
+          indicador: string
+          observacao?: string | null
+          periodo_fim?: string | null
+          periodo_inicio?: string | null
+          publicado_em?: string | null
+          unidade: string
+          url_origem?: string | null
+          valor: number
+        }
+        Update: {
+          amostra_n?: number | null
+          ativo?: boolean
+          bairro?: string
+          cidade?: string
+          coletado_em?: string
+          created_at?: string
+          fonte_id?: string
+          id?: string
+          indicador?: string
+          observacao?: string | null
+          periodo_fim?: string | null
+          periodo_inicio?: string | null
+          publicado_em?: string | null
+          unidade?: string
+          url_origem?: string | null
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "radar_observacoes_fonte_id_fkey"
+            columns: ["fonte_id"]
+            isOneToOne: false
+            referencedRelation: "radar_fontes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       raw_listings: {
         Row: {
           adr_estimado: number | null
@@ -610,7 +702,39 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      radar_bairro_atual: {
+        Row: {
+          amostra_n: number | null
+          bairro: string | null
+          cidade: string | null
+          coletado_em: string | null
+          confianca: string | null
+          fonte_id: string | null
+          fonte_nome: string | null
+          fonte_tipo: string | null
+          fonte_url: string | null
+          id: string | null
+          idade_dias: number | null
+          indicador: string | null
+          metodologia_declarada: boolean | null
+          observacao: string | null
+          periodo_fim: string | null
+          periodo_inicio: string | null
+          publicado_em: string | null
+          unidade: string | null
+          url_origem: string | null
+          valor: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "radar_observacoes_fonte_id_fkey"
+            columns: ["fonte_id"]
+            isOneToOne: false
+            referencedRelation: "radar_fontes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       admin_lead_scores: {

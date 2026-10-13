@@ -1,4 +1,7 @@
-/** Fonte única: coleta pública GuestFavorites aprovada por Pedro em 13/10/2026.
+/** RESERVA OFFLINE. A fonte de verdade agora é o banco (view radar_bairro_atual,
+ * lida por src/lib/radarBase.ts). Este arquivo só é usado se a consulta falhar
+ * e pelo case Pinheiros (protegido). Nova coleta = novas linhas no banco, não aqui.
+ * Origem: coleta pública GuestFavorites aprovada por Pedro em 13/10/2026.
  * Quartis de diária não são faixas de metragem. Receita é sempre calculada.
  */
 export type SizeKey = "20–25 m²" | "26–35 m²" | "36–50 m²";

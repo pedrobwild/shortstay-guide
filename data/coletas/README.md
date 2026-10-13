@@ -1,9 +1,13 @@
 # Coletas de dados de mercado
 
 Registro bruto das coletas usadas pelo Radar Bewild. Cada arquivo guarda o que
-estava publicado na fonte no dia da coleta, sem estimar nem converter. Os
-valores exibidos no app vêm de `src/data/bairrosCurados.ts`; este diretório é a
-trilha de auditoria desses números.
+estava publicado na fonte no dia da coleta, sem estimar nem converter. A
+fonte de verdade dos valores exibidos é o banco: tabela `radar_observacoes`
+(uma linha por bairro × indicador × período × fonte), fontes em `radar_fontes`
+e a view `radar_bairro_atual`, que entrega a observação ativa mais recente com
+`confianca` (alta/média/baixa) e `idade_dias` calculadas. App e chat leem essa
+view; `src/data/bairrosCurados.ts` é só reserva offline. Este diretório é a
+trilha de auditoria.
 
 ## guestfavorites-2026-10-13.csv
 
@@ -34,12 +38,13 @@ trilha de auditoria desses números.
   média.
 - Os números não são específicos de studio.
 
-## Atualização
+## Atualização (sem editar código)
 
-1. Refaça a coleta nas mesmas páginas.
-2. Salve um novo arquivo `guestfavorites-AAAA-MM-DD.csv`.
-3. Atualize `src/data/bairrosCurados.ts` e a cópia em
-   `supabase/functions/chat/index.ts`.
-4. Atualize os mesmos números nas páginas `/reforma/<bairro>` do site
-   bewild.com.br (`src/content/bairros.ts` no repositório do site), para os
-   dois nunca divergirem.
+1. Refaça a coleta e salve um novo `guestfavorites-AAAA-MM-DD.csv` aqui.
+2. Insira as novas linhas em `radar_observacoes` (`ativo = true`, novo
+   `coletado_em`, período, `amostra_n`, `url_origem`, `publicado_em`).
+3. Desative as linhas antigas do mesmo bairro/indicador (`ativo = false`);
+   nunca apague, para manter o histórico.
+4. A confiança é recalculada sozinha pela view; nada é digitado.
+5. App e chat passam a mostrar os números novos na próxima leitura. O site
+   bewild.com.br deve ler a mesma view (pendente).

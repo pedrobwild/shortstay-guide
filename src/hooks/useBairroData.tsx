@@ -1,10 +1,12 @@
 import { createContext, useContext, useMemo } from "react";
 import { BAIRROS_CURADOS } from "@/data/bairrosCurados";
+import { useRadarBase } from "@/lib/radarBase";
 import type { BairroItem } from "@/data/guide-data";
 import { aplicarAjuste, buscarAjuste, mapaAjustes, useBairroAjustes } from "@/lib/bairroAjustes";
 
 /**
- * Diária e ocupação por bairro vêm de `bairrosCurados`, com os ajustes do admin
+ * Diária e ocupação por bairro vêm da base única do banco (`radar_bairro_atual`,
+ * via useRadarBase); `bairrosCurados` só é usado como reserva offline, com os ajustes do admin
  * sobrepostos quando existirem (a base curada não é alterada).
  */
 type BairroContextValue = {
@@ -23,10 +25,11 @@ export function useBairroData() {
 
 export function BairroProvider({ children }: { children: React.ReactNode }) {
   const { data } = useBairroAjustes();
+  const radar = useRadarBase();
   const value = useMemo<BairroContextValue>(() => {
-    if (!data?.length) return VALUE;
+    const base = radar.data?.bairros ?? BAIRROS_CURADOS;
     const mapa = mapaAjustes(data);
-    return { ...VALUE, bairros: BAIRROS_CURADOS.map((b) => aplicarAjuste(b, buscarAjuste(mapa, b.name))) };
-  }, [data]);
+    return { bairros: base.map((b) => aplicarAjuste(b, buscarAjuste(mapa, b.name))), lastUpdated: null, isLoading: radar.isLoading };
+  }, [data, radar.data, radar.isLoading]);
   return <BairroContext.Provider value={value}>{children}</BairroContext.Provider>;
 }

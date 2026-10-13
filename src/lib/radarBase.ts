@@ -1,0 +1,98 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { BAIRROS_CURADOS, SAO_PAULO_REFERENCIA, type BairroCurado } from "@/data/bairrosCurados";
+
+/**
+ * Base única de dados de mercado: a view `radar_bairro_atual` (banco) é a fonte
+ * de verdade. Aqui ela é convertida para o formato BairroCurado que o app já usa.
+ * `bairrosCurados.ts` só entra como reserva quando a consulta falha.
+ */
+export type Confianca = "alta" | "media" | "baixa";
+export type LinhaRadar = {
+  indicador: string; bairro: string; valor: number; amostra_n: number | null;
+  periodo_inicio: string | null; periodo_fim: string | null; fonte_id: string; fonte_nome: string;
+  fonte_tipo: string; url_origem: string | null; coletado_em: string; confianca: Confianca;
+};
+export type BairroRadar = BairroCurado & {
+  fonteNome: string; coletadoEm: string | null; amostraN: number | null; confianca: Confianca | null; estimativa: boolean;
+};
+
+const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+export function rotuloPeriodo(ini: string | null, fim: string | null): string | null {
+  if (!ini || !fim) return null;
+  const [a1, m1] = ini.split("-").map(Number);
+  const [a2, m2] = fim.split("-").map(Number);
+  return a1 === a2 ? `${MESES[m1 - 1]}–${MESES[m2 - 1]}/${a2}` : `${MESES[m1 - 1]}/${a1}–${MESES[m2 - 1]}/${a2}`;
+}
+const fmtData = (iso: string) => { const [y, m, d] = iso.slice(0, 10).split("-"); return `${d}/${m}/${y}`; };
+
+const ORDEM = new Map(BAIRROS_CURADOS.map((b, i) => [b.name, i]));
+export const CIDADE = "São Paulo";
+
+/** Agrupa as linhas da view por bairro e monta BairroCurado (sem a referência da cidade). */
+export function montarBairros(linhas: LinhaRadar[]): BairroRadar[] {
+  const grupos = new Map<string, Map<string, LinhaRadar>>();
+  for (const l of linhas) {
+    if (!grupos.has(l.bairro)) grupos.set(l.bairro, new Map());
+    grupos.get(l.bairro)!.set(l.indicador, l);
+  }
+  const out: BairroRadar[] = [];
+  for (const [name, g] of grupos) {
+    if (name === CIDADE) continue;
+    const occ = g.get("ocupacao_media_pct"), adr = g.get("adr_medio_brl");
+    if (!occ || !adr) continue;
+    const v = (k: string) => (g.has(k) ? Number(g.get(k)!.valor) : null);
+    const estimativa = adr.fonte_tipo === "estimativa";
+    const p25 = v("adr_p25_brl"), med = v("adr_mediana_brl"), p75 = v("adr_p75_brl");
+    const dailyAvg = Number(adr.valor);
+    const ordem: Confianca[] = ["baixa", "media", "alta"];
+    const confianca = ordem[Math.min(ordem.indexOf(occ.confianca), ordem.indexOf(adr.confianca))];
+    out.push({
+      name, dailyAvg, avgOccupancy: Number(occ.valor),
+      dailyMin: p25 ?? dailyAvg, dailyMax: p75 ?? dailyAvg,
+      dailyQuartiles: !estimativa && p25 != null && med != null && p75 != null ? [p25, med, p75] : null,
+      activeListings: v("anuncios_ativos"),
+      ocupacaoFonte: estimativa ? "bewild" : "guestfavorites",
+      period: rotuloPeriodo(adr.periodo_inicio, adr.periodo_fim),
+      sourceUrl: adr.url_origem,
+      fonteNome: adr.fonte_nome, coletadoEm: adr.coletado_em, amostraN: adr.amostra_n,
+      confianca, estimativa: estimativa || confianca === "baixa",
+    });
+  }
+  return out.sort((a, b) => (ORDEM.get(a.name) ?? 99) - (ORDEM.get(b.name) ?? 99) || a.name.localeCompare(b.name, "pt-BR"));
+}
+
+/** Reserva offline: a base aprovada no código, sem selo de confiança calculado. */
+export function bairrosReserva(): BairroRadar[] {
+  return BAIRROS_CURADOS.map((b) => ({
+    ...b, fonteNome: b.ocupacaoFonte === "guestfavorites" ? "GuestFavorites" : "Estimativa Bewild",
+    coletadoEm: "2026-10-13", amostraN: b.activeListings, confianca: null, estimativa: b.ocupacaoFonte === "bewild",
+  }));
+}
+
+/** "GuestFavorites, jan–set/2026 · coleta 13/10/2026 · n=2.424 · confiança alta" */
+export function rotuloFonteRadar(b: BairroRadar): string {
+  const partes = [b.period ? `${b.fonteNome}, ${b.period}` : b.fonteNome];
+  if (b.coletadoEm) partes.push(`coleta ${fmtData(b.coletadoEm)}`);
+  if (b.amostraN != null) partes.push(`n=${new Intl.NumberFormat("pt-BR").format(b.amostraN)}`);
+  if (b.confianca) partes.push(`confiança ${b.confianca === "media" ? "média" : b.confianca}`);
+  return partes.join(" · ");
+}
+
+export async function carregarRadar(): Promise<{ bairros: BairroRadar[]; cidade: typeof SAO_PAULO_REFERENCIA; offline: boolean }> {
+  const { data, error } = await supabase.from("radar_bairro_atual").select("*").eq("cidade", CIDADE);
+  if (error || !data?.length) return { bairros: bairrosReserva(), cidade: SAO_PAULO_REFERENCIA, offline: true };
+  const linhas = data as unknown as LinhaRadar[];
+  const bairros = montarBairros(linhas);
+  const sp = linhas.filter((l) => l.bairro === CIDADE);
+  const val = (k: string) => sp.find((l) => l.indicador === k);
+  const occ = val("ocupacao_media_pct"), adr = val("adr_medio_brl"), n = val("anuncios_ativos");
+  const cidade = occ && adr && n
+    ? { avgOccupancy: Number(occ.valor), dailyAvg: Number(adr.valor), activeListings: Number(n.valor), period: rotuloPeriodo(adr.periodo_inicio, adr.periodo_fim) ?? "" }
+    : SAO_PAULO_REFERENCIA;
+  return { bairros: bairros.length ? bairros : bairrosReserva(), cidade, offline: !bairros.length };
+}
+
+export function useRadarBase() {
+  return useQuery({ queryKey: ["radar_bairro_atual"], queryFn: carregarRadar, staleTime: 60 * 60 * 1000 });
+}

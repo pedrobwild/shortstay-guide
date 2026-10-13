@@ -23,3 +23,6 @@
 - [x] Gerar OG 1200×630 com Pinheiros (R$ 300/62%), Bela Vista (R$ 237/64%) e Vila Mariana (R$ 226/60%) e fonte GuestFavorites; atualizar head e pré-render. Imagem e metadados conferidos no navegador; 173 testes passaram, build automático OK; sem publicar.
 - [x] Publicar o site para que banner de cookies, consentimento e links de orçamento apareçam a visitantes reais; publicação solicitada em 13/10/2026 às 09:02 UTC para https://radarbewild.com.br (visibilidade pública, selo oculto). A verificação de segurança não exigiu resolução prévia e registrou 1 pendência crítica: policy permissiva de INSERT/SELECT em guide_leads (e warn equivalente em guide_events, raw_listings, bairro_airbnb_sp).
 
+
+- [x] Base única de dados de mercado: tabelas radar_fontes/radar_observacoes e view radar_bairro_atual (confiança e idade calculadas), carga com a coleta de 13/10/2026, app e chat lendo do banco, bairrosCurados.ts só como reserva; registro da correção de leitura de guide_leads/guide_events. Conferido Pinheiros, Liberdade, Mooca e Brooklin; 185 testes e lint OK; sem publicar.
+- [ ] Site bewild.com.br passar a ler radar_bairro_atual (depende do repositório do site).
