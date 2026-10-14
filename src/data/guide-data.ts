@@ -195,14 +195,26 @@ export type SavedScenario = {
 
 export const SCENARIOS_KEY = "bwild_guide_scenarios";
 
+/**
+ * Cenários do simulador ficam neste navegador (localStorage) para sobreviver a
+ * novas visitas; quem tinha cenários na sessão antiga (sessionStorage) é migrado.
+ * Só premissas e resultados da simulação — nenhum dado pessoal.
+ */
 export function loadScenarios(): SavedScenario[] {
   try {
-    return JSON.parse(sessionStorage.getItem(SCENARIOS_KEY) || "[]");
+    const salvo = localStorage.getItem(SCENARIOS_KEY);
+    if (salvo) return JSON.parse(salvo);
+    const antigo = sessionStorage.getItem(SCENARIOS_KEY);
+    if (antigo) {
+      localStorage.setItem(SCENARIOS_KEY, antigo);
+      return JSON.parse(antigo);
+    }
+    return [];
   } catch { return []; }
 }
 
 export function persistScenarios(scenarios: SavedScenario[]) {
-  sessionStorage.setItem(SCENARIOS_KEY, JSON.stringify(scenarios));
+  try { localStorage.setItem(SCENARIOS_KEY, JSON.stringify(scenarios)); } catch { /* armazenamento indisponível: segue só na tela */ }
 }
 
 export const fmt = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 0 });

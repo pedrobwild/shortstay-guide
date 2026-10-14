@@ -103,3 +103,27 @@ export async function provisionProjectForLead(
 
   return { projectId };
 }
+
+/**
+ * Guarda uma simulação do guia como novo projeto de quem já está logado
+ * (botão "Guardar no Painel"). Diferente do auto-provisionamento, sempre cria
+ * um projeto novo, porque a pessoa pediu explicitamente para guardar esta conta.
+ * Premissas: só bairro e m², como no provisionamento.
+ */
+export async function criarProjetoDaSimulacao(userId: string, intent: LeadIntent): Promise<ProvisionResult> {
+  const nome = intent.neighborhood ? `Meu Studio — ${intent.neighborhood}` : "Meu Studio";
+  const { data: criado, error } = await supabase
+    .from("projects")
+    .insert({ user_id: userId, name: nome })
+    .select("id")
+    .single();
+  if (error || !criado) return { projectId: null };
+  if (intent.neighborhood || intent.area_sqm) {
+    await supabase.from("project_assumptions").insert({
+      project_id: criado.id,
+      neighborhood: intent.neighborhood || null,
+      area_sqm: intent.area_sqm || null,
+    });
+  }
+  return { projectId: criado.id };
+}

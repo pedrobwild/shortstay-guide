@@ -91,3 +91,8 @@ export function trackSimulationUsed() {
   simulationSent = true;
   gtag("event", "simulacao_usada");
 }
+/** Compartilhamento da simulação (aprovado em 13/10/2026); só após consentimento. */
+export function trackSimulationShared(canal: string) {
+  if (!canMeasure()) return;
+  gtag("event", "simulacao_compartilhada", { canal });
+}

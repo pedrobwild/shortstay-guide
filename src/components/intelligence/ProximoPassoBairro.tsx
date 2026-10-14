@@ -8,6 +8,7 @@ import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { bairrosReserva, useRadarBase } from "@/lib/radarBase";
 import { slugifyBairro } from "@/lib/seo";
 import { linkSimuladorBairro } from "@/data/navegacao";
+import { caminhoComparar } from "@/lib/comparar";
 import { SELO_BAIRROS, SELO_PROJETOS, SELO_REFORMAS, TEXTO_GARANTIA } from "@/data/provasBewild";
 
 const PROVAS = [SELO_REFORMAS, SELO_PROJETOS, SELO_BAIRROS, TEXTO_GARANTIA];
@@ -45,6 +46,9 @@ export default function ProximoPassoBairro({ bairro }: { bairro: string }) {
           </Button>
           <OrcamentoButton local="bairro" variant="outline" className="min-h-[44px] sm:flex-1" />
         </div>
+        <Link to={caminhoComparar([slug])} className="inline-flex min-h-[44px] items-center text-sm font-medium text-primary underline underline-offset-4">
+          Comparar {bairro} com outros bairros
+        </Link>
         <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
           {PROVAS.map((p) => (
             <li key={p} className="flex items-center gap-2 text-sm text-muted-foreground">

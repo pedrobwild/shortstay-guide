@@ -3,7 +3,7 @@ import { SECTIONS } from "@/data/guide-data";
 
 const STORAGE_KEY = "bwild_guide_progress";
 const SAVE_INTERVAL = 3000;
-const RESUME_MAX_AGE_DAYS = 7;
+const RESUME_MAX_AGE_DAYS = 30;
 
 export interface ReadingProgress {
   scrollPercent: number;
@@ -54,7 +54,8 @@ export function useReadingProgress(activeId: string) {
         lastVisit: Date.now(),
       };
       try {
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        // localStorage: o aviso de retomar funciona também em uma nova visita (não só na mesma aba).
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       } catch {
         // storage indisponível — progresso de leitura é best-effort
       }
@@ -65,7 +66,9 @@ export function useReadingProgress(activeId: string) {
   // Load resume data on mount
   useEffect(() => {
     try {
-      const raw = sessionStorage.getItem(STORAGE_KEY);
+      // Quem chegou por um link com destino (#seção ou simulação compartilhada) não recebe o aviso.
+      if (window.location.hash || window.location.search) return;
+      const raw = localStorage.getItem(STORAGE_KEY) ?? sessionStorage.getItem(STORAGE_KEY);
       if (!raw) return;
       const data: ReadingProgress = JSON.parse(raw);
       const age = Date.now() - data.lastVisit;
