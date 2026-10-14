@@ -2,6 +2,8 @@ import FonteBairro from "@/components/guide/FonteBairro";
 import AppNavbar from "@/components/AppNavbar";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import ProximoPassoBairro from "@/components/intelligence/ProximoPassoBairro";
+import { lembrarBairro } from "@/lib/retomada";
+import { useEffect } from "react";
 import { formatPercent, formatDecimal } from "@/lib/numberFormat";
 import { useParams, Link, useLocation, Navigate } from "react-router-dom";
 import { slugifyBairro, SEO_BAIRROS, bairroTitle, bairroDescription } from "@/lib/seo";
@@ -95,6 +97,8 @@ const IntelligenceBairroDetail = () => {
     "";
   const { data: b, isLoading, isError, refetch } = useBairroDetail(resolvedName);
   const seoName = resolvedName || decoded;
+  // Lembra o último bairro visto para o aviso de retomar na home (só no navegador).
+  useEffect(() => { if (b?.bairro) lembrarBairro(slug, b.bairro); }, [b?.bairro, slug]);
   const seoHead = <Seo title={bairroTitle(seoName)} description={bairroDescription(seoName)} path={`/bairro/${slug}`} />;
 
   // Formato antigo (com acento/maiúsculas/espaços) → redireciona para o slug canônico.

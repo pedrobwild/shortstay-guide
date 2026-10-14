@@ -1,4 +1,9 @@
-import { trackSimulationUsed } from "@/lib/marketingConsent";
+import { trackSimulationShared, trackSimulationUsed } from "@/lib/marketingConsent";
+import { lembrarSimulacao } from "@/lib/retomada";
+import { criarProjetoDaSimulacao, savePendingProvision } from "@/lib/leadProvisioning";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { caminhoSimulacao, campoParaInteiro, lerPremissas, temPremissasAlemDoBairro, type ObjetivoSimulador } from "@/lib/simulacaoLink";
 import { resultadoLiquidoMensal, rotuloDecoracao } from "@/lib/bairroAjustes";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import { formatDecimal } from "@/lib/numberFormat";
@@ -12,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ArrowUpRight, FileText, Copy, Check, Bookmark, Columns2, Trash2 } from "lucide-react";
+import { ArrowUpRight, FileText, Copy, Check, Bookmark, Columns2, Trash2, Share2, MessageCircle, Info, FolderPlus, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { useBairroData } from "@/hooks/useBairroData";
@@ -33,7 +38,15 @@ export default function SimuladorSection() {
   const [rateBoost, setRateBoost] = useState(0);
   const [exportOpen, setExportOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [scenarios, setScenarios] = useState<SavedScenario[]>(loadScenarios);
+  // Começa vazio no SSR e carrega no navegador, para o HTML pré-renderizado e a hidratação coincidirem.
+  const [scenarios, setScenarios] = useState<SavedScenario[]>([]);
+  useEffect(() => { const salvos = loadScenarios(); if (salvos.length) setScenarios(salvos); }, []);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [recebida, setRecebida] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [guardando, setGuardando] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
 
   useEffect(() => {
@@ -48,18 +61,25 @@ export default function SimuladorSection() {
     return () => window.removeEventListener("populate-simulator", handler);
   }, []);
 
-  // Pré-seleção vinda de outras telas (ex.: página de bairro → "/?bairro=pinheiros#simulador").
-  // Só lê a URL no navegador; aplica quando a lista de bairros contém o slug pedido.
-  const bairroDaUrlAplicado = useRef(false);
+  // Premissas vindas da URL: página de bairro ("/?bairro=pinheiros#simulador") ou
+  // link compartilhado (bairro, metragem, ocupação, diária, objetivo, boost, reforma).
+  // Só lê a URL no navegador; aplica uma vez, quando a lista de bairros contém o slug pedido.
+  const premissasAplicadas = useRef(false);
   useEffect(() => {
-    if (bairroDaUrlAplicado.current || typeof window === "undefined") return;
-    const pedido = new URLSearchParams(window.location.search).get("bairro");
-    if (!pedido) return;
-    const alvo = bairros.find((b) => slugifyBairro(b.name) === slugifyBairro(pedido));
-    if (alvo) {
-      setSimBairro(alvo.name);
-      bairroDaUrlAplicado.current = true;
-    }
+    if (premissasAplicadas.current || typeof window === "undefined") return;
+    const p = lerPremissas(window.location.search);
+    if (!p.bairro && !temPremissasAlemDoBairro(p)) { premissasAplicadas.current = true; return; }
+    const alvo = p.bairro ? bairros.find((b) => slugifyBairro(b.name) === p.bairro) : undefined;
+    if (p.bairro && !alvo) return; // lista ainda carregando (ou bairro fora da base): tenta de novo quando mudar
+    if (alvo) setSimBairro(alvo.name);
+    if (p.metragem !== undefined) setSimMetragem(p.metragem);
+    if (p.ocupacao !== undefined) setSimOcupacao([p.ocupacao]);
+    if (p.diaria !== undefined) setSimDiariaAtual(String(p.diaria));
+    if (p.objetivo) setSimObjetivo(p.objetivo);
+    if (p.boost !== undefined) setRateBoost(p.boost);
+    if (p.reforma !== undefined) setSimReformaBudget(String(p.reforma));
+    if (temPremissasAlemDoBairro(p)) setRecebida(true);
+    premissasAplicadas.current = true;
   }, [bairros]);
 
   const selected = bairros.find((b) => b.name === simBairro) ?? bairros[0];
@@ -81,13 +101,69 @@ export default function SimuladorSection() {
     return { baseDaily: Math.round(baseDaily), boostedDaily: Math.round(boostedDaily), receitaMensal, receitaAnual, baseMensal, delta, paybackMonths, adjustedOcc };
   }, [selected, simDiariaAtual, simOcupacao, rateBoost, simReformaBudget, simObjetivo]);
 
+  const linkSimulacao = () => {
+    const caminho = caminhoSimulacao({
+      bairro: simBairro,
+      metragem: simMetragem,
+      ocupacao: simOcupacao[0],
+      diaria: campoParaInteiro(simDiariaAtual),
+      objetivo: simObjetivo as ObjetivoSimulador,
+      boost: rateBoost,
+      reforma: campoParaInteiro(simReformaBudget),
+    });
+    return typeof window === "undefined" ? caminho : `${window.location.origin}${caminho}`;
+  };
   const summaryText = useMemo(() => {
     return `📊 Simulação de Receita — Short Stay\n\nBairro: ${simBairro}\nMetragem: ${simMetragem}m²\nOcupação: ${formatDecimal(simOcupacao[0], 0)}%\nDiária base: R$ ${fmt(sim.baseDaily)}\n` +
       (rateBoost > 0 ? `Diária c/ boost +${rateBoost}%: R$ ${fmt(sim.boostedDaily)}\n` : "") +
       `\nReceita mensal: R$ ${fmt(sim.receitaMensal)}\nReceita anual: R$ ${fmt(sim.receitaAnual)}\n` +
       (sim.paybackMonths ? `\nPayback da reforma: ~${sim.paybackMonths} meses\n` : "") +
-      `\nGerado no Radar Bewild · radarbewild.com.br`;
-  }, [simBairro, simMetragem, simOcupacao, sim, rateBoost]);
+      `\nAbrir esta simulação: ${linkSimulacao()}\nGerado no Radar Bewild · radarbewild.com.br`;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [simBairro, simMetragem, simOcupacao, sim, rateBoost, simDiariaAtual, simObjetivo, simReformaBudget]);
+
+  // Guardar a simulação na conta: logado cria o projeto já; sem conta, guarda a intenção
+  // (bairro e m²) e leva ao cadastro — o projeto é criado ao entrar (PostLoginProvision).
+  const guardarNoPainel = async () => {
+    const intent = { neighborhood: simBairro, area_sqm: String(simMetragem) };
+    trackGlobal("cta_clicked", { cta_id: user ? "guardar_painel" : "criar_conta_simulacao", section: "simulador", bairro: simBairro });
+    if (!user) {
+      savePendingProvision(intent);
+      navigate("/signup?origem=simulador");
+      return;
+    }
+    setGuardando(true);
+    const { projectId } = await criarProjetoDaSimulacao(user.id, intent);
+    setGuardando(false);
+    if (projectId) navigate(`/projeto/${projectId}`);
+    else toast({ title: "Não foi possível guardar agora", description: "Tente de novo em instantes; o cenário continua salvo neste navegador.", variant: "destructive" });
+  };
+
+  const textoCompartilhar = `Simulação de studio em ${simBairro} no Radar Bewild: receita estimada de R$ ${fmt(sim.receitaMensal)}/mês com as premissas abaixo (hipóteses editáveis, não é garantia de resultado).`;
+  const registrarCompartilhamento = (canal: string) => {
+    trackSimulationShared(canal);
+    trackGlobal("simulacao_compartilhada", { canal, bairro: simBairro, metragem: simMetragem, ocupacao: simOcupacao[0] });
+  };
+  const handleShare = async () => {
+    const url = linkSimulacao();
+    // No celular, abre o compartilhamento do sistema; no desktop (ou se falhar), mostra as opções.
+    if (typeof navigator !== "undefined" && typeof navigator.share === "function" && window.matchMedia?.("(pointer: coarse)").matches) {
+      try {
+        await navigator.share({ title: "Simulação no Radar Bewild", text: textoCompartilhar, url });
+        registrarCompartilhamento("nativo");
+        return;
+      } catch (e) {
+        if (e instanceof DOMException && e.name === "AbortError") return; // a pessoa cancelou
+      }
+    }
+    setLinkCopied(false);
+    setShareOpen(true);
+  };
+  const copiarLink = async () => {
+    try { await navigator.clipboard.writeText(linkSimulacao()); setLinkCopied(true); registrarCompartilhamento("copiar_link"); setTimeout(() => setLinkCopied(false), 2000); }
+    catch { toast({ title: "Não foi possível copiar", description: "Selecione o link e copie manualmente." }); }
+  };
+  const whatsappHref = () => `https://wa.me/?text=${encodeURIComponent(`${textoCompartilhar} ${linkSimulacao()}`)}`;
 
   const handleCopy = () => { navigator.clipboard.writeText(summaryText); setCopied(true); trackGlobal("export_simulation", { bairro: simBairro, metragem: simMetragem, ocupacao: simOcupacao[0], resultado: sim.receitaMensal }); setTimeout(() => setCopied(false), 2000); };
 
@@ -100,6 +176,17 @@ export default function SimuladorSection() {
 
   const removeScenario = (id: string) => { const u = scenarios.filter(s => s.id !== id); setScenarios(u); persistScenarios(u); };
   const loadScenarioIntoSim = (s: SavedScenario) => { setSimBairro(s.bairro); setSimMetragem(s.metragem); setSimOcupacao([s.ocupacao]); setSimDiariaAtual(s.diariaAtual); setSimObjetivo(s.objetivo); setRateBoost(s.rateBoost); setSimReformaBudget(s.reformaBudget); setCompareOpen(false); };
+
+  // Lembra a última simulação (para o aviso de retomar), só depois que a pessoa mexeu no simulador.
+  const interagiu = useRef(false);
+  const marcarInteracao = () => { interagiu.current = true; };
+  useEffect(() => {
+    if (!interagiu.current) return;
+    const t = setTimeout(() => {
+      lembrarSimulacao(caminhoSimulacao({ bairro: simBairro, metragem: simMetragem, ocupacao: simOcupacao[0], diaria: campoParaInteiro(simDiariaAtual), objetivo: simObjetivo as ObjetivoSimulador, boost: rateBoost, reforma: campoParaInteiro(simReformaBudget) }), simBairro);
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [simBairro, simMetragem, simOcupacao, simDiariaAtual, simObjetivo, rateBoost, simReformaBudget]);
 
   const simTracked = useRef(false);
   useEffect(() => {
@@ -116,7 +203,13 @@ export default function SimuladorSection() {
         </div>
       )}
       <Card className="border-border">
-        <CardContent className="p-6 space-y-5 font-body" onChangeCapture={trackSimulationUsed} onPointerDownCapture={trackSimulationUsed} onKeyDownCapture={trackSimulationUsed}>
+        <CardContent className="p-6 space-y-5 font-body" onChangeCapture={() => { marcarInteracao(); trackSimulationUsed(); }} onPointerDownCapture={() => { marcarInteracao(); trackSimulationUsed(); }} onKeyDownCapture={() => { marcarInteracao(); trackSimulationUsed(); }}>
+          {recebida && (
+            <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-secondary/60 p-3" role="status">
+              <Info size={18} className="mt-0.5 shrink-0 text-primary" />
+              <p className="text-sm text-foreground">Você abriu uma simulação compartilhada: as premissas abaixo são de quem enviou o link. Altere à vontade — nada é salvo para a outra pessoa.</p>
+            </div>
+          )}
           <p className="text-sm text-muted-foreground">Premissas editáveis: altere os campos e controles. Ajustes por objetivo e níveis de decoração são hipóteses, não ganhos observados.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div><label className="text-sm font-medium text-foreground mb-1.5 block">Bairro</label><Select value={simBairro} onValueChange={setSimBairro}><SelectTrigger className="min-h-[48px] text-base"><SelectValue /></SelectTrigger><SelectContent>{bairros.map((b) => <SelectItem key={b.name} value={b.name}>{b.name}</SelectItem>)}</SelectContent></Select></div>
@@ -143,11 +236,37 @@ export default function SimuladorSection() {
             </div>
           )}
           <div className="flex flex-col sm:flex-row gap-2">
+            <Button className="flex-1 min-h-[44px]" onClick={() => void handleShare()}><Share2 size={16} className="mr-2" />Compartilhar simulação</Button>
             <Button variant="outline" className="flex-1 min-h-[44px]" onClick={saveScenario}><Bookmark size={16} className="mr-2" />Salvar cenário</Button>
             <Dialog open={exportOpen} onOpenChange={setExportOpen}>
               <DialogTrigger asChild><Button variant="outline" className="flex-1 min-h-[44px]"><FileText size={16} className="mr-2" />Exportar simulação</Button></DialogTrigger>
               <DialogContent className="font-body"><DialogHeader><DialogTitle className="font-display">Resumo da Simulação</DialogTitle></DialogHeader><pre className="bg-muted rounded-lg p-4 text-sm text-foreground whitespace-pre-wrap max-h-80 overflow-y-auto">{summaryText}</pre><Button onClick={handleCopy} className="w-full bg-primary text-primary-foreground">{copied ? <><Check size={16} className="mr-2" /> Copiado!</> : <><Copy size={16} className="mr-2" /> Copiar texto</>}</Button></DialogContent>
             </Dialog>
+            <Dialog open={shareOpen} onOpenChange={setShareOpen}>
+              <DialogContent className="font-body">
+                <DialogHeader><DialogTitle className="font-display">Compartilhar simulação</DialogTitle></DialogHeader>
+                <p className="text-sm text-muted-foreground">Quem abrir o link vê esta mesma conta, com as mesmas fontes, e pode mudar as premissas.</p>
+                <Input readOnly value={linkSimulacao()} onFocus={(e) => e.currentTarget.select()} className="min-h-[48px] text-base" aria-label="Link da simulação" />
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button onClick={() => void copiarLink()} className="flex-1 min-h-[44px]">{linkCopied ? <><Check size={16} className="mr-2" />Link copiado</> : <><Copy size={16} className="mr-2" />Copiar link</>}</Button>
+                  <Button asChild variant="outline" className="flex-1 min-h-[44px]">
+                    <a href={whatsappHref()} target="_blank" rel="noopener noreferrer" onClick={() => registrarCompartilhamento("whatsapp")}><MessageCircle size={16} className="mr-2" />Enviar no WhatsApp</a>
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          <div className="flex flex-col gap-3 rounded-lg border border-border bg-secondary/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-muted-foreground">
+              {user
+                ? <>Guarde esta simulação de <strong className="text-foreground">{simBairro}</strong> como projeto no Painel para refinar a projeção depois.</>
+                : <>Cenários salvos ficam só neste navegador. Com uma conta, a simulação de <strong className="text-foreground">{simBairro}</strong> vira um projeto no Painel, acessível de qualquer aparelho.</>}
+            </p>
+            <Button variant="outline" className="min-h-[44px] shrink-0" onClick={() => void guardarNoPainel()} disabled={guardando}>
+              {guardando ? <Loader2 size={16} className="mr-2 animate-spin" /> : <FolderPlus size={16} className="mr-2" />}
+              {user ? "Guardar no Painel" : "Criar conta e guardar"}
+            </Button>
           </div>
 
           {scenarios.length >= 2 && (

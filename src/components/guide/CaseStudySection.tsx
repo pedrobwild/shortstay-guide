@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Calendar, MapPin, Ruler, DollarSign } from "lucide-react";
@@ -36,10 +36,17 @@ export default function CaseStudySection() {
   // Bairro do lead: seleção em sessão (quiz/recomendação) ou bairro informado
   // na captura do lead (persistido em localStorage). Fallback gracioso quando
   // não há nenhum dos dois.
+  // Lido depois da montagem: no HTML pré-renderizado não há localStorage, e ler na
+  // renderização faria o texto do servidor e do navegador divergirem (erro de hidratação).
+  const [bairroSalvo, setBairroSalvo] = useState<string | null>(null);
+  useEffect(() => {
+    const salvo = loadPendingProvision()?.neighborhood;
+    if (salvo) setBairroSalvo(salvo);
+  }, []);
   const selection = useMemo(() => {
-    const leadBairro = selectedBairro ?? loadPendingProvision()?.neighborhood ?? null;
+    const leadBairro = selectedBairro ?? bairroSalvo ?? null;
     return selectCaseStudies({ bairro: leadBairro, profile: investorProfile });
-  }, [selectedBairro, investorProfile]);
+  }, [selectedBairro, bairroSalvo, investorProfile]);
 
   const caseData = selection.cases[0];
   if (!caseData) return null;

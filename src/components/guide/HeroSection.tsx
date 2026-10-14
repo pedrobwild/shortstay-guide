@@ -4,6 +4,13 @@ import { Link } from "react-router-dom";
 import sectionHeroStudio from "@/assets/section-hero-studio.jpg";
 import { FONTE_BAIRROS_CURADOS } from "@/data/bairrosCurados";
 
+/** Três entradas por intenção; cada uma salta para a fase do guia correspondente. */
+const PORTAS = [
+  { href: "#mapa-bairros", titulo: "Escolher o bairro", texto: "Confira diária, ocupação e fonte de cada bairro no mapa." },
+  { href: "#simulador", titulo: "Validar a conta", texto: "Simule a receita com as premissas do seu imóvel." },
+  { href: "#reforma", titulo: "Preparar a reforma", texto: "Veja o que faz um studio performar e quanto custa a reforma completa." },
+] as const;
+
 export default function HeroSection() {
   return (
     <section id="hero" className="scroll-mt-24 pb-8 md:pb-12">
@@ -57,12 +64,21 @@ export default function HeroSection() {
         <div className="min-w-0">
           <p className="text-sm font-body text-muted-foreground mb-2">Da consulta à decisão</p>
           <h2 className="font-display text-xl font-semibold mb-3 tracking-normal">Por onde começar?</h2>
-          <ol className="font-body text-sm leading-relaxed text-muted-foreground space-y-2 list-decimal pl-5">
-            <li>Escolha um bairro no mapa e confira diária, ocupação e fonte.</li>
-            <li>Compare as referências no mercado e no ranking.</li>
-            <li>Simule receitas e custos com as premissas do seu imóvel.</li>
+          <p className="font-body text-sm leading-relaxed text-muted-foreground mb-2">Escolha pelo que você quer resolver agora:</p>
+          <ol className="font-body text-sm space-y-2">
+            {PORTAS.map((porta, i) => (
+              <li key={porta.href}>
+                <a href={porta.href} className="group flex min-h-[44px] items-start gap-3 rounded-lg border border-border bg-card px-3 py-2.5 transition-colors hover:border-primary/40 hover:bg-secondary/50">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary tabular-nums">{i + 1}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-semibold text-foreground">{porta.titulo}</span>
+                    <span className="block text-muted-foreground leading-relaxed">{porta.texto}</span>
+                  </span>
+                  <ArrowDown size={16} aria-hidden="true" className="mt-1 shrink-0 text-primary opacity-60 group-hover:opacity-100" />
+                </a>
+              </li>
+            ))}
           </ol>
-          <a href="#mapa-bairros" className="inline-flex items-center min-h-[44px] text-sm text-primary underline underline-offset-4 gap-1 mt-2">Começar pelo mapa<ArrowDown size={16} aria-hidden="true" /></a>
         </div>
       </div>
     </section>

@@ -37,6 +37,7 @@ import DecoracaoSection from "@/components/guide/DecoracaoSection";
 import CaseStudySection from "@/components/guide/CaseStudySection";
 import ChecklistSection from "@/components/guide/ChecklistSection";
 import TrustSignals from "@/components/guide/TrustSignals";
+import PerfilInvestidorAtalho from "@/components/guide/PerfilInvestidorAtalho";
 import FAQSection from "@/components/guide/FAQSection";
 import FinalCTASection from "@/components/guide/FinalCTASection";
 import FonteBairro from "@/components/guide/FonteBairro";
@@ -151,7 +152,10 @@ function IndexInner() {
                         </tbody>
                       </table>
                     </div>
-                    <p className="px-4 py-3 text-xs text-muted-foreground border-t border-border">{FONTE_BAIRROS_CURADOS}</p>
+                    <div className="flex flex-col gap-1 px-4 py-3 border-t border-border sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-xs text-muted-foreground">{FONTE_BAIRROS_CURADOS}</p>
+                      <Link to="/comparar" className="inline-flex min-h-[44px] shrink-0 items-center text-sm font-medium text-primary underline underline-offset-4">Comparar bairros lado a lado</Link>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -172,6 +176,7 @@ function IndexInner() {
         <div className="w-full">
           <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
             <PhaseHeader {...phase(2)} />
+            <PerfilInvestidorAtalho />
           </div>
         </div>
 

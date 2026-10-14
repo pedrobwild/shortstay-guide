@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { loadPendingProvision } from "@/lib/leadProvisioning";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 
 export default function Signup() {
   const [fullName, setFullName] = useState("");
@@ -13,6 +14,14 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  // Vindo do simulador: mostra o que será guardado (bairro e m² da intenção pendente).
+  const [simulacao, setSimulacao] = useState<{ bairro?: string; m2?: string } | null>(null);
+  useEffect(() => {
+    if (params.get("origem") !== "simulador") return;
+    const intent = loadPendingProvision();
+    if (intent?.neighborhood) setSimulacao({ bairro: intent.neighborhood, m2: intent.area_sqm });
+  }, [params]);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +51,11 @@ export default function Signup() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground">Seu acesso exclusivo Bewild</h1>
           <p className="text-sm text-muted-foreground mt-1">Crie seu acesso e desbloqueie sua proposta personalizada</p>
+          {simulacao && (
+            <p className="mt-3 rounded-lg border border-primary/20 bg-secondary/60 px-3 py-2 text-sm text-foreground" role="status">
+              Sua simulação de {simulacao.bairro}{simulacao.m2 ? ` (${simulacao.m2} m²)` : ""} vira um projeto no Painel assim que a conta for criada.
+            </p>
+          )}
         </div>
 
         <form onSubmit={handleSignup} className="space-y-4">
