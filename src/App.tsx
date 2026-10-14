@@ -50,18 +50,48 @@ function ScrollToHash() {
   useEffect(() => {
     if (!hash) return;
     const id = decodeURIComponent(hash.slice(1));
+    // Espera o alvo existir (páginas lazy, dados) por até 8s, rola até ele e,
+    // por mais 4s, realinha se conteúdo carregado acima (mapa, seções lazy)
+    // empurrar o alvo. Para assim que a pessoa rolar, tocar ou usar o teclado.
+    const ESPERA_MS = 8000;
+    const REALINHAR_MS = 4000;
+    const inicio = performance.now();
     let raf = 0;
-    let attempts = 0;
-    const tryScroll = () => {
+    let fim = 0;
+    let observer: ResizeObserver | null = null;
+    let interrompido = false;
+
+    const parar = () => {
+      interrompido = true;
+      cancelAnimationFrame(raf);
+      window.clearTimeout(fim);
+      observer?.disconnect();
+      for (const ev of ["wheel", "touchstart", "keydown", "mousedown"]) window.removeEventListener(ev, parar);
+    };
+
+    const alinhar = (el: HTMLElement) => {
+      if (interrompido) return;
+      el.scrollIntoView({ behavior: "auto", block: "start" });
+    };
+
+    const tentar = () => {
+      if (interrompido) return;
       const el = document.getElementById(id);
       if (el) {
         el.scrollIntoView({ behavior: "smooth", block: "start" });
+        for (const ev of ["wheel", "touchstart", "keydown", "mousedown"]) window.addEventListener(ev, parar, { passive: true });
+        if (typeof ResizeObserver !== "undefined") {
+          observer = new ResizeObserver(() => alinhar(el));
+          observer.observe(document.body);
+        }
+        fim = window.setTimeout(parar, REALINHAR_MS);
         return;
       }
-      if (attempts++ < 60) raf = requestAnimationFrame(tryScroll);
+      if (performance.now() - inicio < ESPERA_MS) raf = requestAnimationFrame(tentar);
     };
-    raf = requestAnimationFrame(tryScroll);
-    return () => cancelAnimationFrame(raf);
+
+    raf = requestAnimationFrame(tentar);
+    return parar;
   }, [hash, pathname]);
   return null;
 }
