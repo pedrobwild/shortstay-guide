@@ -41,6 +41,7 @@ import PerfilInvestidorAtalho from "@/components/guide/PerfilInvestidorAtalho";
 import FAQSection from "@/components/guide/FAQSection";
 import FinalCTASection from "@/components/guide/FinalCTASection";
 import FonteBairro from "@/components/guide/FonteBairro";
+import FaixaQuartis from "@/components/guide/FaixaQuartis";
 import { FONTE_BAIRROS_CURADOS, rotuloOcupacao } from "@/data/bairrosCurados";
 
 const TendenciasSection = lazy(() => import("@/components/guide/TendenciasSection"));
@@ -144,9 +145,10 @@ function IndexInner() {
                               <td className="block lg:table-cell col-span-3 px-4 py-3 font-medium text-foreground">{b.name}<FonteBairro nome={b.name} /></td>
                               <td className="block lg:table-cell col-span-2 px-4 py-3 text-muted-foreground"><span className="block lg:hidden text-xs">Diária média (ADR)</span>R$ {fmt(b.dailyAvg)}</td>
                               <td className="block lg:table-cell px-4 py-3 text-muted-foreground"><span className="block lg:hidden text-xs">Ocupação média</span>{rotuloOcupacao(b)}</td>
-                              <td className="block lg:table-cell px-4 py-3 text-muted-foreground"><span className="block lg:hidden text-xs">Diária: 25% mais baratos</span>{b.dailyQuartiles ? `R$ ${fmt(b.dailyQuartiles[0])}` : "—"}</td>
-                              <td className="block lg:table-cell px-4 py-3 text-muted-foreground"><span className="block lg:hidden text-xs">Diária: mediana</span>{b.dailyQuartiles ? `R$ ${fmt(b.dailyQuartiles[1])}` : "—"}</td>
-                              <td className="block lg:table-cell px-4 py-3 font-semibold text-foreground"><span className="block lg:hidden text-xs">Diária: 25% mais caros</span>{b.dailyQuartiles ? `R$ ${fmt(b.dailyQuartiles[2])}` : "—"}</td>
+                              <td className="col-span-3 px-4 pb-4 lg:hidden">{b.dailyQuartiles ? <FaixaQuartis quartis={b.dailyQuartiles} /> : <span className="text-xs text-muted-foreground">Sem quartis publicados para este bairro.</span>}</td>
+                              <td className="hidden lg:table-cell px-4 py-3 text-muted-foreground"><span className="block lg:hidden text-xs">Diária: 25% mais baratos</span>{b.dailyQuartiles ? `R$ ${fmt(b.dailyQuartiles[0])}` : "—"}</td>
+                              <td className="hidden lg:table-cell px-4 py-3 text-muted-foreground"><span className="block lg:hidden text-xs">Diária: mediana</span>{b.dailyQuartiles ? `R$ ${fmt(b.dailyQuartiles[1])}` : "—"}</td>
+                              <td className="hidden lg:table-cell px-4 py-3 font-semibold text-foreground"><span className="block lg:hidden text-xs">Diária: 25% mais caros</span>{b.dailyQuartiles ? `R$ ${fmt(b.dailyQuartiles[2])}` : "—"}</td>
                             </tr>
                           ))}
                         </tbody>

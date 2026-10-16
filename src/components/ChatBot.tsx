@@ -1,4 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo, startTransition } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { BAIRROS_CURADOS } from "@/data/bairrosCurados";
+import { slugifyBairro } from "@/lib/seo";
+import { atalhosDaResposta, sugestoesDaPagina } from "@/lib/chatAtalhos";
 import { MessageCircle, X, Send, Bot, User, Sparkles } from "lucide-react";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import { Button } from "@/components/ui/button";
@@ -37,6 +41,26 @@ export default function ChatBot() {
   const hasActiveProject = summary.hasProject && !!summary.neighborhood;
 
   // Sugestões ancoradas no projeto do cliente quando disponível.
+  // Contexto da página aberta: bairro da URL (/bairro/:slug) e bairros do comparador (?b=).
+  const { pathname, search } = useLocation();
+  const navigate = useNavigate();
+  const nomesBairros = useMemo(() => BAIRROS_CURADOS.map((b) => b.name), []);
+  const nomePorSlug = (slug: string) => nomesBairros.find((n) => slugifyBairro(n) === slug) ?? null;
+  const bairroDaPagina = pathname.startsWith("/bairro/") ? nomePorSlug(pathname.split("/")[2] ?? "") : null;
+  const comparando = pathname === "/comparar"
+    ? (new URLSearchParams(search).get("b") ?? "").split(",").map(nomePorSlug).filter((n): n is string => Boolean(n))
+    : [];
+  const sugestoesPagina = sugestoesDaPagina(pathname, bairroDaPagina, comparando);
+
+  // Leva a uma tela do app; no celular fecha o chat para a página aparecer.
+  const irPara = (para: string, origem: string) => {
+    trackGlobal("chatbot_atalho", { destino: para, origem });
+    if (window.matchMedia?.("(max-width: 1023px)").matches) setOpen(false);
+    // Como transição: a página atual fica na tela enquanto a próxima carrega (sem a tela
+    // de carregamento esconder o chat no meio da animação de fechar).
+    startTransition(() => navigate(para));
+  };
+
   const suggestions =
     hasActiveProject && summary.neighborhood
       ? [
@@ -45,7 +69,7 @@ export default function ChatBot() {
           "Como melhorar a rentabilidade do meu projeto?",
           "Quais os riscos do meu investimento?",
         ]
-      : QUICK_SUGGESTIONS;
+      : sugestoesPagina ?? QUICK_SUGGESTIONS;
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -223,8 +247,8 @@ export default function ChatBot() {
             {/* Messages */}
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scrollbar-none bg-gradient-to-b from-card to-background/50">
               {messages.map((m, i) => (
+                <div key={i} className="space-y-2">
                 <motion.div
-                  key={i}
                   initial={{ opacity: 0, y: 8, scale: 0.97 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ type: "spring", stiffness: 500, damping: 35, delay: i === messages.length - 1 ? 0.05 : 0 }}
@@ -244,7 +268,18 @@ export default function ChatBot() {
                   >
                     {m.role === "assistant" ? (
                       <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1.5 [&_ol]:my-1.5 [&_li]:my-0.5 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_h1]:font-bold [&_h2]:font-bold [&_h3]:font-semibold [&_h1]:mt-3 [&_h2]:mt-2 [&_h3]:mt-1.5 [&_strong]:text-foreground [&_code]:text-xs [&_code]:bg-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded">
-                        <ReactMarkdown>{m.content}</ReactMarkdown>
+                        <ReactMarkdown
+                          components={{
+                            a: ({ href = "", children }) =>
+                              href.startsWith("/") ? (
+                                <a href={href} onClick={(e) => { e.preventDefault(); irPara(href, "link_resposta"); }}>{children}</a>
+                              ) : (
+                                <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>
+                              ),
+                          }}
+                        >
+                          {m.content}
+                        </ReactMarkdown>
                       </div>
                     ) : (
                       m.content
@@ -256,6 +291,25 @@ export default function ChatBot() {
                     </div>
                   )}
                 </motion.div>
+                {m.role === "assistant" && i > 0 && !(loading && i === messages.length - 1) && (() => {
+                  const atalhos = atalhosDaResposta(m.content, nomesBairros);
+                  if (!atalhos.length) return null;
+                  return (
+                    <div className="flex flex-wrap gap-1.5 pl-[42px]" aria-label="Atalhos">
+                      {atalhos.map((a) => (
+                        <Link
+                          key={a.para}
+                          to={a.para}
+                          onClick={(e) => { e.preventDefault(); irPara(a.para, a.tipo); }}
+                          className="inline-flex min-h-[36px] items-center rounded-lg border border-primary/25 bg-primary/5 px-3 text-xs font-medium text-primary hover:bg-primary/10"
+                        >
+                          {a.rotulo}
+                        </Link>
+                      ))}
+                    </div>
+                  );
+                })()}
+                </div>
               ))}
 
               {/* Quick suggestions */}

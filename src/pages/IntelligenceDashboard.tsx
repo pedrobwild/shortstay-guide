@@ -1,5 +1,5 @@
 import AppNavbar from "@/components/AppNavbar";
-import { useState, useMemo } from "react";
+import { useState, useMemo, lazy, Suspense } from "react";
 import { useBairrosData, rotuloEstimativa } from "@/hooks/useIntelligenceData";
 import FonteBairro from "@/components/guide/FonteBairro";
 import { FONTE_BAIRROS_CURADOS } from "@/data/bairrosCurados";
@@ -13,16 +13,25 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { FOOTER_DISCLAIMER } from "@/lib/uiHelpers";
 import type { QuizAnswers, InvestorProfile } from "@/lib/investorQuiz";
-import {
-  Step1Context,
-  Step2Highlights,
-  Step3Learn,
-  Step4Learnings,
-  Step5Compare,
-  Step6Profile,
-  Step7Explore,
-  Step8Recommendation,
-} from "@/components/intelligence/JourneySteps";
+// Cada etapa da jornada é carregada só quando a pessoa chega nela (antes: um arquivo de 2.000 linhas).
+const Step1Context = lazy(() => import("@/components/intelligence/jornada/Step1").then((m) => ({ default: m.Step1Context })));
+const Step2Highlights = lazy(() => import("@/components/intelligence/jornada/Step2").then((m) => ({ default: m.Step2Highlights })));
+const Step3Learn = lazy(() => import("@/components/intelligence/jornada/Step3").then((m) => ({ default: m.Step3Learn })));
+const Step4Learnings = lazy(() => import("@/components/intelligence/jornada/Step4").then((m) => ({ default: m.Step4Learnings })));
+const Step5Compare = lazy(() => import("@/components/intelligence/jornada/Step5").then((m) => ({ default: m.Step5Compare })));
+const Step6Profile = lazy(() => import("@/components/intelligence/jornada/Step6").then((m) => ({ default: m.Step6Profile })));
+const Step7Explore = lazy(() => import("@/components/intelligence/jornada/Step7").then((m) => ({ default: m.Step7Explore })));
+const Step8Recommendation = lazy(() => import("@/components/intelligence/jornada/Step8").then((m) => ({ default: m.Step8Recommendation })));
+
+function EtapaCarregando() {
+  return (
+    <div className="space-y-3 py-6" aria-busy="true" aria-label="Carregando etapa">
+      <div className="h-6 w-2/3 rounded bg-muted animate-pulse" />
+      <div className="h-4 w-1/2 rounded bg-muted/70 animate-pulse" />
+      <div className="h-48 rounded-lg bg-muted/40 animate-pulse" />
+    </div>
+  );
+}
 
 // ── Step definitions ─────────────────────────────────────────────
 
@@ -175,6 +184,7 @@ const IntelligenceDashboard = () => {
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.25 }}
           >
+            <Suspense fallback={<EtapaCarregando />}>
             {currentStep === 1 && <Step1Context bairros={bairros} onNext={goNext} />}
             {currentStep === 2 && <Step2Highlights bairros={bairros} onNext={goNext} />}
             {currentStep === 3 && <Step3Learn onNext={goNext} />}
@@ -189,6 +199,7 @@ const IntelligenceDashboard = () => {
                 answers={quizAnswers}
               />
             )}
+            </Suspense>
           </motion.div>
         </AnimatePresence>
       </main>

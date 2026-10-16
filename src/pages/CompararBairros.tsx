@@ -4,6 +4,8 @@ import { Check, Copy, MessageCircle, Plus, Share2, X } from "lucide-react";
 import AppNavbar from "@/components/AppNavbar";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import FonteBairro from "@/components/guide/FonteBairro";
+import FaixaQuartis from "@/components/guide/FaixaQuartis";
+import { VariacaoColetaBairro } from "@/components/guide/VariacaoColeta";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -37,9 +39,6 @@ export default function CompararBairros() {
 const LINHAS: { rotulo: string; valor: (b: BairroItem) => string; ajuda?: string }[] = [
   { rotulo: "Diária média (ADR)", valor: (b) => `R$ ${fmt(b.dailyAvg)}` },
   { rotulo: "Ocupação média", valor: (b) => formatPercent(b.avgOccupancy, 0) },
-  { rotulo: "Diária: 25% mais baratos", valor: (b) => (b.dailyQuartiles ? `R$ ${fmt(b.dailyQuartiles[0])}` : "—") },
-  { rotulo: "Diária: mediana", valor: (b) => (b.dailyQuartiles ? `R$ ${fmt(b.dailyQuartiles[1])}` : "—") },
-  { rotulo: "Diária: 25% mais caros", valor: (b) => (b.dailyQuartiles ? `R$ ${fmt(b.dailyQuartiles[2])}` : "—") },
   { rotulo: "Anúncios na amostra", valor: (b) => (b.activeListings != null ? fmt(b.activeListings) : "—") },
   { rotulo: "Receita mensal de referência", valor: (b) => `R$ ${fmt(receitaMensalReferencia(b))}`, ajuda: "diária × 30 × ocupação, antes de custos" },
 ];
@@ -140,6 +139,7 @@ function CompararConteudo() {
                     <h2 className="font-display text-xl font-bold text-foreground">{b.name}</h2>
                     <FonteBairro nome={b.name} />
                   </div>
+                  <VariacaoColetaBairro bairro={b.name} className="p-3" />
                   <dl className="divide-y divide-border/60">
                     {LINHAS.map((l) => (
                       <div key={l.rotulo} className="flex items-baseline justify-between gap-3 py-2">
@@ -151,6 +151,12 @@ function CompararConteudo() {
                       </div>
                     ))}
                   </dl>
+                  <div>
+                    <p className="mb-1 text-sm text-muted-foreground">Faixa de diárias</p>
+                    {b.dailyQuartiles
+                      ? <FaixaQuartis quartis={b.dailyQuartiles} />
+                      : <p className="text-sm text-muted-foreground">Sem quartis publicados para este bairro.</p>}
+                  </div>
                   <div className="flex flex-col gap-2">
                     <Button asChild className="min-h-[44px]">
                       <Link to={linkSimuladorBairro(slug)} onClick={() => trackGlobal("cta_clicked", { cta_id: "simular_bairro", section: "comparar", bairro: b.name })}>Simular {b.name}</Link>
