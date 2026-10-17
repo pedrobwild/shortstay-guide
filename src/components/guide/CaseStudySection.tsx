@@ -13,7 +13,7 @@ function relevanceCopy(matchLevel: MatchLevel, leadBairro: string | null, region
     case "bairro":
       return {
         label: "No seu bairro",
-        text: `Você demonstrou interesse em ${leadBairro}. Veja um case real que a Bewild operou aqui.`,
+        text: `Você demonstrou interesse em ${leadBairro}. Veja um case real de studio reformado pela Bewild aqui.`,
       };
     case "regiao":
       return {
