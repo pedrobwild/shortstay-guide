@@ -195,7 +195,6 @@ export default function ProjecaoStudio() {
   const negativo = a.liquido < 0;
   const periodo = `${capitalizar(mesAno(r.months[0]))} a ${mesAno(r.months[r.months.length - 1])}`;
   const semValor = !(p.valorImovel > 0);
-  const contextoOrcamento = { bairro: bairro?.name, area: p.area, valorImovel: p.valorImovel || undefined, resultadoLiquido: a.liquido };
 
   const atualizar = (parcial: Partial<PremissasProjecao>) => setP((atual) => ({ ...atual, ...parcial }));
   const escolherBairro = (nome: string) => {
@@ -437,13 +436,12 @@ export default function ProjecaoStudio() {
               <div className="min-w-0">
                 <p className="mb-1.5 text-[13px] font-semibold uppercase tracking-[0.06em] text-primary-label">Próximo passo</p>
                 <p className="mb-1.5 font-display text-2xl font-semibold leading-[1.2]">Preparar a reforma do studio em {bairro.name}</p>
-                <p className="text-sm text-primary-soft">Antes de seguir para o pedido de orçamento, você revisa os dados desta simulação.</p>
+                <p className="text-sm text-primary-soft">A Bewild orça a reforma completa do seu studio, do projeto à entrega.</p>
               </div>
               <OrcamentoButton
                 local="projecao"
                 rotulo="Solicitar orçamento de reforma"
                 icone={false}
-                contexto={contextoOrcamento}
                 className="min-h-[48px] bg-card px-[22px] text-[15px] font-bold text-primary hover:bg-accent-light"
               />
             </div>
@@ -487,7 +485,7 @@ export default function ProjecaoStudio() {
           <div className="text-xs text-muted-foreground">Resultado líquido estimado</div>
           <div className={cn("truncate text-lg font-bold tabular-nums", negativo ? "text-destructive" : "text-primary")}>{formatBRL(a.liquido / 12)}/mês</div>
         </div>
-        <OrcamentoButton local="projecao" rotulo="Orçar reforma" icone={false} contexto={contextoOrcamento} className="min-h-[48px] px-4 text-sm font-semibold" />
+        <OrcamentoButton local="projecao" rotulo="Orçar reforma" icone={false} className="min-h-[48px] px-4 text-sm font-semibold" />
       </div>
     </main>
   );

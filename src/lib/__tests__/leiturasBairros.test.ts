@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { NEIGHBORHOODS } from "@/data/mapaBairrosData";
+import { EVENTS, NEIGHBORHOODS } from "@/data/mapaBairrosData";
 import { receitaMensalReferencia } from "@/data/bairrosCurados";
 import { bairrosReserva } from "@/lib/radarBase";
 import { aplicarAjuste } from "@/lib/bairroAjustes";
-import { SEM_FONTE_LEITURA, alinharLeiturasComBase, temPerfil } from "@/lib/leiturasBairros";
+import { alinharLeiturasComBase, nomesNaBase, temPerfil } from "@/lib/leiturasBairros";
 
 const base = bairrosReserva();
 const leituras = alinharLeiturasComBase(NEIGHBORHOODS, base);
@@ -14,7 +14,6 @@ describe("leituras do /mapa com a base do Radar", () => {
     for (const b of base) {
       const n = leituras.find((l) => l.name === b.name);
       if (!n) continue;
-      expect(n.naBase).toBe(true);
       expect(n.metrics.nightlyRate).toBe(b.dailyAvg);
       expect(n.metrics.occupancy).toBe(b.avgOccupancy);
       expect(n.metrics.avgRevenueMo).toBe(receitaMensalReferencia(b));
@@ -36,12 +35,17 @@ describe("leituras do /mapa com a base do Radar", () => {
     expect(porNome("Mooca").aviso).toBe("amostra pequena (85 anúncios)");
   });
 
-  it("bairro fora da base fica sem número de mercado", () => {
-    for (const nome of ["Barra Funda", "Campo Belo", "Santana", "Itaquera"]) {
-      const n = porNome(nome);
-      expect(n.naBase).toBe(false);
-      expect(n.metrics).toMatchObject({ nightlyRate: 0, occupancy: 0, avgRevenueMo: 0, estimatedROI: 0, activeListings: null, dataSource: SEM_FONTE_LEITURA });
-    }
+  it("bairro fora da base não entra nas leituras", () => {
+    const nomes = leituras.map((n) => n.name);
+    for (const nome of ["Barra Funda", "Campo Belo", "Santana", "Itaquera"]) expect(nomes).not.toContain(nome);
+    const naBase = new Set(base.map((b) => b.name));
+    for (const nome of nomes) expect(naBase.has(nome), nome).toBe(true);
+  });
+
+  it("eventos ficam só com bairros próximos da base", () => {
+    expect(nomesNaBase(["Moema", "Campo Belo", "itaim bibi"], base)).toEqual(["Moema", "Itaim Bibi"]);
+    const apas = EVENTS.find((e) => e.name === "APAS Show")!;
+    expect(nomesNaBase(apas.nearbyNeighborhoods, base)).toEqual([]); // Barra Funda e Santana: o evento sai da lista
   });
 
   it("segue os ajustes do admin, como o painel", () => {

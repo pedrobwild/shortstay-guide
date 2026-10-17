@@ -3,7 +3,7 @@
  * os critérios internos do mapa anterior (score, perfil de demanda, concorrência,
  * eventos) com os números de mercado da base do Radar — a mesma do painel do
  * bairro, para o mesmo bairro nunca aparecer com dois valores na tela.
- * Bairro fora da base não ganha número de mercado: não há fonte para ele.
+ * Só entram bairros da base do Radar: fora dela não há diária nem ocupação com fonte.
  */
 import { receitaMensalReferencia } from "@/data/bairrosCurados";
 import type { Neighborhood, NeighborhoodMetrics } from "@/data/mapaBairrosData";
@@ -12,34 +12,24 @@ import {
   type BairroBase, type NaturezaBairro,
 } from "@/lib/radarUi";
 
-export const SEM_FONTE_LEITURA = "Fora da base do Radar: sem diária e ocupação com fonte";
-
 export interface LeituraBairro extends Omit<Neighborhood, "metrics"> {
   metrics: Omit<NeighborhoodMetrics, "activeListings"> & { activeListings: number | null };
-  /** Bairro presente na base do Radar (números de mercado com fonte). */
-  naBase: boolean;
-  natureza: NaturezaBairro | null;
+  natureza: NaturezaBairro;
   /** Aviso de amostra pequena (Mooca). */
   aviso: string | null;
 }
 
+/** Leituras dos bairros que estão na base do Radar, com os números da base; os demais ficam de fora. */
 export function alinharLeiturasComBase(lista: Neighborhood[], base: BairroBase[]): LeituraBairro[] {
   const porNome = new Map(base.map((b) => [normalizarTexto(b.name), b]));
-  return lista.map((n) => {
+  return lista.flatMap((n) => {
     const b = porNome.get(normalizarTexto(n.name));
-    if (!b) {
-      // Sem fonte: zera os números do seed do mapa antigo para nunca chegarem à tela.
-      return {
-        ...n, avgNightly: 0, avgOccupancy: 0, naBase: false, natureza: null, aviso: null,
-        metrics: { ...n.metrics, nightlyRate: 0, nightlyRateRange: [0, 0], occupancy: 0, estimatedROI: 0, activeListings: null, avgRevenueMo: 0, dataSource: SEM_FONTE_LEITURA },
-      };
-    }
-    return {
+    if (!b) return [];
+    return [{
       ...n,
       name: b.name,
       avgNightly: b.dailyAvg,
       avgOccupancy: b.avgOccupancy,
-      naBase: true,
       natureza: naturezaBairro(b),
       aviso: avisoAmostraBairro(b),
       metrics: {
@@ -51,7 +41,16 @@ export function alinharLeiturasComBase(lista: Neighborhood[], base: BairroBase[]
         avgRevenueMo: receitaMensalReferencia(b),
         dataSource: fonteCurtaBairro(b),
       },
-    };
+    }];
+  });
+}
+
+/** Nomes que estão na base do Radar, com a grafia da base (bairros próximos de eventos, destaques). */
+export function nomesNaBase(nomes: string[], base: Pick<BairroBase, "name">[]): string[] {
+  const porNome = new Map(base.map((b) => [normalizarTexto(b.name), b.name]));
+  return nomes.flatMap((nome) => {
+    const daBase = porNome.get(normalizarTexto(nome));
+    return daBase ? [daBase] : [];
   });
 }
 

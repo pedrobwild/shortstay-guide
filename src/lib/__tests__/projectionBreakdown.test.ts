@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_SP_SEASONALITY, projectionBreakdown, projectionSummary } from "@/lib/projectAnalytics";
+import { DEFAULT_SP_SEASONALITY, generateProjectionEvents, occupancyByMonth, projectionBreakdown, projectionSummary } from "@/lib/projectAnalytics";
 
 // Pinheiros (62% · R$ 300) com as premissas padrão, a partir de 01/10/2026.
 const params = {
@@ -52,5 +52,27 @@ describe("detalhamento da projeção (tela /projecao)", () => {
     expect(r.grossYieldPct).toBeCloseTo((r.annualGrossRevenueBrl / 650000) * 100, 6);
     expect(r.capRatePct).toBeCloseTo((r.annualNetRevenueBrl / 650000) * 100, 6);
     expect(r.paybackYears).toBeCloseTo(650000 / r.annualNetRevenueBrl, 6);
+  });
+});
+
+describe("último mês lotado (sem 13º mês vazio)", () => {
+  // Janela de out/2026 a set/2027: setembro tem índice 1,15, então 95% de ocupação lota o último mês
+  // e a última estadia termina em 01/10/2027.
+  const lotado = { ...params, occupancyPct: 95 };
+
+  it("a janela continua com 12 meses", () => {
+    const eventos = generateProjectionEvents({ occupancyPct: 95, avgStayNights: 3, months: 12, seasonality: DEFAULT_SP_SEASONALITY, startDate: params.startDate });
+    const ultimo = eventos[eventos.length - 1];
+    expect(ultimo.end.toISOString().slice(0, 10)).toBe("2027-10-01");
+    expect(occupancyByMonth(eventos).map((m) => m.monthKey)).toHaveLength(12);
+  });
+
+  it("a receita anual é a soma dos 12 meses, sem desconto de 1/13", () => {
+    const r = projectionBreakdown(lotado);
+    expect(r.monthsObserved).toBe(12);
+    expect(r.annualGrossRevenueBrl).toBeCloseTo(r.grossRevenueBrl, 6);
+    expect(r.annualNetRevenueBrl).toBeCloseTo(r.netRevenueBrl, 6);
+    expect(r.condoTotalBrl).toBe(500 * 12);
+    expect(soma(r.months.map((m) => m.grossBrl))).toBeCloseTo(r.annualGrossRevenueBrl, 6);
   });
 });

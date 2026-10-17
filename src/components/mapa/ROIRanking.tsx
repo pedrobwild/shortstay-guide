@@ -8,7 +8,7 @@ import { INVESTOR_INSIGHTS, DEMAND_PROFILE_LABELS } from "@/data/mapaBairrosData
 import FonteBairro from "@/components/guide/FonteBairro";
 import FonteLink from "@/components/guide/FonteLink";
 import NaturezaTag from "@/components/radar/NaturezaTag";
-import { SEM_FONTE_LEITURA, type LeituraBairro } from "@/lib/leiturasBairros";
+import type { LeituraBairro } from "@/lib/leiturasBairros";
 import { formatBRL, formatDecimal, formatPercent } from "@/lib/numberFormat";
 
 type SortKey = "receita" | "nightly" | "occupancy" | "competition";
@@ -29,9 +29,9 @@ interface ROIRankingProps {
 }
 
 /**
- * Ranking dos bairros das leituras do mapa. Diária, ocupação e receita vêm da base
- * do Radar (mesmos números do painel); bairro fora da base fica no fim, sem número.
- * Score e concorrência são critérios internos da Bewild.
+ * Ranking dos bairros das leituras do mapa (só bairros da base do Radar). Diária,
+ * ocupação e receita são os mesmos números do painel; score e concorrência são
+ * critérios internos da Bewild.
  */
 export default function ROIRanking({ neighborhoods, onSelectNeighborhood, selectedName }: ROIRankingProps) {
   const [sortBy, setSortBy] = useState<SortKey>("receita");
@@ -46,9 +46,7 @@ export default function ROIRanking({ neighborhoods, onSelectNeighborhood, select
         case "competition": return -competitionOrder[n.metrics.competitionLevel];
       }
     };
-    // Bairros sem fonte sempre por último, em ordem alfabética.
-    return [...neighborhoods].sort((a, b) =>
-      Number(b.naBase) - Number(a.naBase) || (a.naBase ? valor(b) - valor(a) : 0) || a.name.localeCompare(b.name, "pt-BR"));
+    return [...neighborhoods].sort((a, b) => valor(b) - valor(a) || a.name.localeCompare(b.name, "pt-BR"));
   }, [neighborhoods, sortBy]);
 
   const currentSort = SORT_OPTIONS.find((s) => s.key === sortBy)!;
@@ -130,9 +128,9 @@ export default function ROIRanking({ neighborhoods, onSelectNeighborhood, select
                   <CardContent className="p-3">
                     <div className="flex items-start gap-3">
                       <div className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold tabular-nums ${
-                        n.naBase && i < 3 ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
+                        i < 3 ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
                       }`}>
-                        {n.naBase ? `#${i + 1}` : "—"}
+                        #{i + 1}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
@@ -147,35 +145,29 @@ export default function ROIRanking({ neighborhoods, onSelectNeighborhood, select
                             {n.aviso && <span className="text-[11px] font-medium text-estimate-text">{n.aviso}</span>}
                           </div>
                         )}
-                        {n.naBase ? (
-                          <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
-                            <div>
-                              <p className="text-[10px] text-muted-foreground">Receita ref./mês</p>
-                              <p className="text-xs font-bold tabular-nums text-primary">{formatBRL(n.metrics.avgRevenueMo)}</p>
-                            </div>
-                            <div>
-                              <p className="text-[10px] text-muted-foreground">Diária média</p>
-                              <p className="text-xs font-bold tabular-nums text-foreground">{formatBRL(n.metrics.nightlyRate)}</p>
-                            </div>
-                            <div>
-                              <p className="text-[10px] text-muted-foreground">Ocupação</p>
-                              <p className="text-xs font-bold tabular-nums text-foreground">{formatPercent(n.metrics.occupancy, 0)}</p>
-                            </div>
-                            <div>
-                              <p className="text-[10px] text-muted-foreground">Score (critério interno)</p>
-                              <p className="text-xs font-bold tabular-nums text-foreground">{n.score}</p>
-                            </div>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
+                          <div>
+                            <p className="text-[10px] text-muted-foreground">Receita ref./mês</p>
+                            <p className="text-xs font-bold tabular-nums text-primary">{formatBRL(n.metrics.avgRevenueMo)}</p>
                           </div>
-                        ) : (
-                          <p className="mt-2 text-[11px] text-muted-foreground">{SEM_FONTE_LEITURA}. Score (critério interno): {n.score}.</p>
-                        )}
-                        {n.naBase && (
-                          <p className="text-[10px] text-muted-foreground mt-1.5 font-body tabular-nums">
-                            {n.natureza === "estimativa" ? "Faixa estimada" : "Faixa central (25% a 75%)"}: {formatBRL(n.metrics.nightlyRateRange[0])}–{formatBRL(n.metrics.nightlyRateRange[1])}
-                            {n.metrics.activeListings != null ? ` · ${formatDecimal(n.metrics.activeListings, 0)} anúncios` : ""}
-                          </p>
-                        )}
-                        {n.naBase && <FonteBairro nome={n.name} semNatureza />}
+                          <div>
+                            <p className="text-[10px] text-muted-foreground">Diária média</p>
+                            <p className="text-xs font-bold tabular-nums text-foreground">{formatBRL(n.metrics.nightlyRate)}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-muted-foreground">Ocupação</p>
+                            <p className="text-xs font-bold tabular-nums text-foreground">{formatPercent(n.metrics.occupancy, 0)}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-muted-foreground">Score (critério interno)</p>
+                            <p className="text-xs font-bold tabular-nums text-foreground">{n.score}</p>
+                          </div>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mt-1.5 font-body tabular-nums">
+                          {n.natureza === "estimativa" ? "Faixa estimada" : "Faixa central (25% a 75%)"}: {formatBRL(n.metrics.nightlyRateRange[0])}–{formatBRL(n.metrics.nightlyRateRange[1])}
+                          {n.metrics.activeListings != null ? ` · ${formatDecimal(n.metrics.activeListings, 0)} anúncios` : ""}
+                        </p>
+                        <FonteBairro nome={n.name} semNatureza />
                       </div>
                     </div>
                   </CardContent>

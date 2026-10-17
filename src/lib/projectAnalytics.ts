@@ -329,9 +329,13 @@ export function occupancyByMonth(
     return key;
   };
 
-  // Inicializa todos os meses no range
+  // Inicializa todos os meses no range. O fim do evento (checkout) é exclusivo: a última
+  // noite ocupada é a véspera. Contar o próprio checkout criava um mês vazio no fim quando a
+  // última estadia terminava no dia 1º (o "13º mês" da projeção com o último mês lotado).
+  const ultimaNoite = addDaysUtc(last, -1);
+  const fimDoRange = ultimaNoite.getTime() < first.getTime() ? first : ultimaNoite;
   let cur = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth(), 1));
-  const endMark = new Date(Date.UTC(last.getUTCFullYear(), last.getUTCMonth(), 1));
+  const endMark = new Date(Date.UTC(fimDoRange.getUTCFullYear(), fimDoRange.getUTCMonth(), 1));
   while (cur.getTime() <= endMark.getTime()) {
     ensureMonth(cur.getUTCFullYear(), cur.getUTCMonth());
     cur = new Date(Date.UTC(cur.getUTCFullYear(), cur.getUTCMonth() + 1, 1));

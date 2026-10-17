@@ -101,6 +101,12 @@ describe("occupancyByMonth", () => {
   it("returns empty for no events", () => {
     expect(occupancyByMonth([])).toEqual([]);
   });
+  it("checkout on the 1st does not create an empty month", () => {
+    const evs = normalizeEvents([raw("2026-01-30", "2026-02-01")]);
+    const months = occupancyByMonth(evs, 100);
+    expect(months.map((m) => m.monthKey)).toEqual(["2026-01"]);
+    expect(months[0].bookedNights).toBe(2);
+  });
 });
 
 describe("stayLengthDistribution", () => {

@@ -10,7 +10,7 @@ import {
   type CityEvent,
 } from "@/data/mapaBairrosData";
 import { useBairroData } from "@/hooks/useBairroData";
-import { SEM_FONTE_LEITURA, alinharLeiturasComBase, temPerfil, type LeituraBairro } from "@/lib/leiturasBairros";
+import { alinharLeiturasComBase, nomesNaBase, temPerfil, type LeituraBairro } from "@/lib/leiturasBairros";
 import { formatBRL, formatDecimal, formatPercent } from "@/lib/numberFormat";
 import { cn } from "@/lib/utils";
 
@@ -47,8 +47,13 @@ export default function LeiturasComplementares({
     if (!perfis.length) return leituras;
     return leituras.filter((n) => temPerfil(n, perfis));
   }, [leituras, perfis]);
-  const destacados = eventoAtivo?.nearbyNeighborhoods ?? [];
-  const escolher = (n: LeituraBairro) => { setSelecionado(n.name); if (n.naBase) onSelecionarBairro(n.name); };
+  // Eventos: só os bairros próximos que estão na base (sem nenhum, o evento sai da lista).
+  const eventos = useMemo(
+    () => EVENTS.map((e) => ({ ...e, nearbyNeighborhoods: nomesNaBase(e.nearbyNeighborhoods, bairros) })).filter((e) => e.nearbyNeighborhoods.length > 0),
+    [bairros],
+  );
+  const destacados = eventoAtivo ? nomesNaBase(eventoAtivo.nearbyNeighborhoods, bairros) : [];
+  const escolher = (n: LeituraBairro) => { setSelecionado(n.name); onSelecionarBairro(n.name); };
   const alternarPerfil = (k: string) => onPerfis(perfis.includes(k) ? perfis.filter((x) => x !== k) : [...perfis, k]);
 
   return (
@@ -56,7 +61,7 @@ export default function LeiturasComplementares({
       <p className="rotulo-secao mb-2.5">Outras leituras dos bairros</p>
       <h2 id="leituras-titulo" className="mb-3 font-display text-[28px] font-bold leading-[1.15] text-foreground md:text-[36px]">Perfil de demanda, eventos e ranking</h2>
       <p className="mb-6 max-w-[760px] text-[15px] leading-[1.55] text-muted-foreground">
-        Diária, ocupação e receita vêm da base do Radar, a mesma do painel acima; bairros fora da base aparecem sem esses números. Score, concorrência e perfil de demanda são critérios internos da Bewild, não estatísticas de mercado.
+        Diária, ocupação e receita vêm da base do Radar, a mesma do painel acima. Score, concorrência e perfil de demanda são critérios internos da Bewild, não estatísticas de mercado.
       </p>
 
       {/* Perfil de demanda + comparação */}
@@ -90,7 +95,7 @@ export default function LeiturasComplementares({
 
       {comparando && (
         <div className="mt-6">
-          <NeighborhoodComparison onClose={() => setComparando(false)} disponiveis={leituras} initialNeighborhoods={leituras.filter((n) => n.naBase).slice(0, 2)} />
+          <NeighborhoodComparison onClose={() => setComparando(false)} disponiveis={leituras} initialNeighborhoods={leituras.slice(0, 2)} />
         </div>
       )}
 
@@ -128,20 +133,14 @@ export default function LeiturasComplementares({
                         {n.aviso && <span className="text-[11px] font-medium text-estimate-text">{n.aviso}</span>}
                       </span>
                     )}
-                    {n.naBase ? (
-                      <>
-                        <span className="mb-1.5 flex flex-wrap gap-x-3 text-xs tabular-nums text-muted-foreground">
-                          <span>{formatBRL(n.metrics.nightlyRate)}/noite</span>
-                          <span>{formatPercent(n.metrics.occupancy, 0)} ocup.</span>
-                          <span>{formatBRL(n.metrics.avgRevenueMo)}/mês ref.</span>
-                        </span>
-                        <span className="mb-2 block text-[11px] tabular-nums text-muted-foreground">
-                          {n.metrics.activeListings != null ? `${formatDecimal(n.metrics.activeListings, 0)} anúncios · ` : ""}{n.natureza === "estimativa" ? "faixa estimada" : "faixa central"} {formatBRL(n.metrics.nightlyRateRange[0])}–{formatBRL(n.metrics.nightlyRateRange[1])}/noite · {n.metrics.dataSource}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="mb-2 block text-[11px] text-muted-foreground">{SEM_FONTE_LEITURA}.</span>
-                    )}
+                    <span className="mb-1.5 flex flex-wrap gap-x-3 text-xs tabular-nums text-muted-foreground">
+                      <span>{formatBRL(n.metrics.nightlyRate)}/noite</span>
+                      <span>{formatPercent(n.metrics.occupancy, 0)} ocup.</span>
+                      <span>{formatBRL(n.metrics.avgRevenueMo)}/mês ref.</span>
+                    </span>
+                    <span className="mb-2 block text-[11px] tabular-nums text-muted-foreground">
+                      {n.metrics.activeListings != null ? `${formatDecimal(n.metrics.activeListings, 0)} anúncios · ` : ""}{n.natureza === "estimativa" ? "faixa estimada" : "faixa central"} {formatBRL(n.metrics.nightlyRateRange[0])}–{formatBRL(n.metrics.nightlyRateRange[1])}/noite · {n.metrics.dataSource}
+                    </span>
                     <span className="flex flex-wrap gap-1">
                       {n.tags.slice(0, 4).map((tag) => {
                         const Icone = TAG_ICONS[tag] || MapPin;
@@ -174,7 +173,7 @@ export default function LeiturasComplementares({
           <span className="rounded-full bg-secondary px-2 py-0.5 text-muted-foreground">Baixa demanda — impacto localizado</span>
         </div>
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {EVENTS.map((evento) => {
+          {eventos.map((evento) => {
             const Icone = EVENT_ICONS[evento.category as keyof typeof EVENT_ICONS] || Calendar;
             const estilo = IMPACT_STYLES[evento.impactLevel] || IMPACT_STYLES.low;
             const ativo = eventoAtivo?.id === evento.id;

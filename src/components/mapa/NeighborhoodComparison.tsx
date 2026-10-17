@@ -15,7 +15,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 
 interface ComparisonProps {
   onClose: () => void;
-  /** Bairros que podem entrar na comparação (só os da base do Radar têm números). */
+  /** Bairros que podem entrar na comparação (os da base do Radar). */
   disponiveis: LeituraBairro[];
   initialNeighborhoods?: LeituraBairro[];
 }
@@ -39,13 +39,12 @@ const chartConfig = {
 
 /** Comparação rápida das leituras do mapa; a comparação completa fica em /comparar. */
 export default function NeighborhoodComparison({ onClose, disponiveis, initialNeighborhoods = [] }: ComparisonProps) {
-  const naBase = disponiveis.filter((n) => n.naBase);
-  const [selected, setSelected] = useState<LeituraBairro[]>(initialNeighborhoods.filter((n) => n.naBase).slice(0, 3));
+  const [selected, setSelected] = useState<LeituraBairro[]>(initialNeighborhoods.slice(0, 3));
   const [showPicker, setShowPicker] = useState(false);
 
   // Mantém a seleção com os números atuais da base (eles podem chegar depois da reserva offline).
-  const atuais = selected.map((s) => naBase.find((n) => n.id === s.id) ?? s);
-  const available = naBase.filter((n) => !atuais.some((s) => s.id === n.id));
+  const atuais = selected.map((s) => disponiveis.find((n) => n.id === s.id) ?? s);
+  const available = disponiveis.filter((n) => !atuais.some((s) => s.id === n.id));
 
   const addNeighborhood = (n: LeituraBairro) => {
     if (atuais.length < 3) {
@@ -139,7 +138,7 @@ export default function NeighborhoodComparison({ onClose, disponiveis, initialNe
         </div>
       ) : (
         <>
-          <p className="mb-3 text-xs text-muted-foreground">✓ = maior valor na linha. Bairros fora da base do Radar não entram: não há diária nem ocupação com fonte para eles.</p>
+          <p className="mb-3 text-xs text-muted-foreground">✓ = maior valor na linha.</p>
           <div className="mb-6 overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
