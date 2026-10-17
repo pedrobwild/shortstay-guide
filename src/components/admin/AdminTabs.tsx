@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const ABAS = [
+  { to: "/admin/mercado", label: "Mercado" },
   { to: "/admin/bairros", label: "Bairros" },
   { to: "/admin/coletas", label: "Coletas" },
   { to: "/admin/simulacoes", label: "Simulações" },
