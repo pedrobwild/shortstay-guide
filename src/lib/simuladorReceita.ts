@@ -15,6 +15,7 @@
 import { DEFAULT_PROJECTION_COSTS } from "@/lib/projectAnalytics";
 import { formatPercent } from "@/lib/numberFormat";
 import type { SizeKey } from "@/data/bairrosCurados";
+import { DECORATION_LEVELS } from "@/data/guide-data";
 
 export type ModoSimulacao = "short_stay" | "tradicional";
 
@@ -195,6 +196,11 @@ const fmtPct = (v: number) => formatPercent(v, Number.isInteger(v) ? 0 : 1);
 
 export const DECORACOES = ["basico", "premium", "alto"] as const;
 export type Decoracao = (typeof DECORACOES)[number];
+/** Diária média do bairro × multiplicador do nível de decoração (DECORATION_LEVELS, hipótese). */
+export function diariaComDecoracao(dailyAvg: number, decoracao: Decoracao): number {
+  const nivel = DECORATION_LEVELS.find((d) => d.value === decoracao) ?? DECORATION_LEVELS[0];
+  return Math.round(dailyAvg * nivel.multiplier);
+}
 export const FAIXAS_AREA: SizeKey[] = ["20–25 m²", "26–35 m²", "36–50 m²"];
 
 /** Tudo o que a pessoa escolhe no simulador: é o que vai para o link, o rascunho e os cenários. */
@@ -333,6 +339,8 @@ export function lerPremissasDaQuery(search: string): { slugBairro: string | null
 export const CHAVE_RASCUNHO = "bwild:simulador:v1";
 /** Rascunho da versão anterior de /projecao (bairro, área, valor do imóvel, condomínio, diária e ocupação ajustadas). */
 export const CHAVE_RASCUNHO_PROJECAO = "bwild:projecao:v2";
+/** Custos da versão mais antiga do painel de projeção (valor do imóvel, gestão, impostos, condomínio). */
+export const CHAVE_CUSTOS_ANTIGA = "bwild:project-costs:projection";
 type Armazenamento = Pick<Storage, "getItem" | "setItem">;
 
 export function lerRascunho(armazenamento: Armazenamento | null | undefined): PremissasSimulador {
@@ -348,6 +356,11 @@ export function lerRascunho(armazenamento: Armazenamento | null | undefined): Pr
         imovel: { valorImovel: a.valorImovel, condominio: a.condominio },
         shortStay: { gestaoPct: a.gestao, impostosPct: a.impostos },
       });
+    }
+    const custos = armazenamento.getItem(CHAVE_CUSTOS_ANTIGA);
+    if (custos) {
+      const c = obj(JSON.parse(custos));
+      return normalizarPremissasSimulador({ imovel: { valorImovel: c.propertyValue, condominio: c.condoMonthly }, shortStay: { gestaoPct: c.managementPct, impostosPct: c.taxesPct } });
     }
   } catch { /* rascunho ilegível: segue com os padrões */ }
   return PREMISSAS_SIMULADOR_PADRAO;
@@ -424,7 +437,15 @@ export function lerCenarios(armazenamento: Armazenamento | null | undefined): Ce
     const atual = armazenamento.getItem(CHAVE_CENARIOS);
     if (atual) {
       const lista = JSON.parse(atual);
-      return Array.isArray(lista) ? lista.filter((c) => c && typeof c === "object" && typeof c.id === "string").map((c) => ({ ...c, premissas: normalizarPremissasSimulador(c.premissas) })) : [];
+      if (!Array.isArray(lista)) return [];
+      return lista.filter((c) => c && typeof c === "object" && typeof c.id === "string").map((c): CenarioSalvo => ({
+        id: c.id,
+        nome: typeof c.nome === "string" ? c.nome : "Cenário",
+        premissas: normalizarPremissasSimulador(c.premissas),
+        receitaBruta: Number.isFinite(c.receitaBruta) ? Number(c.receitaBruta) : 0,
+        liquido: Number.isFinite(c.liquido) ? Number(c.liquido) : 0,
+        criadoEm: Number.isFinite(c.criadoEm) ? Number(c.criadoEm) : 0,
+      }));
     }
     const antigo = armazenamento.getItem(CHAVE_CENARIOS_ANTIGA);
     if (antigo) {
@@ -439,4 +460,17 @@ export function lerCenarios(armazenamento: Armazenamento | null | undefined): Ce
 
 export function salvarCenarios(lista: CenarioSalvo[], armazenamento: Armazenamento | null | undefined) {
   try { armazenamento?.setItem(CHAVE_CENARIOS, JSON.stringify(lista)); } catch { /* armazenamento indisponível: segue só na tela */ }
+}
+
+/** Resultado de um cenário com a base atual (cenários migrados chegam sem líquido). */
+export function recalcularCenario(c: CenarioSalvo, bairros: { name: string; dailyAvg: number; avgOccupancy: number }[]): CenarioSalvo {
+  const p = c.premissas;
+  const bairro = bairros.find((b) => b.name === p.bairro);
+  if (!bairro) return c;
+  const diaria = p.diaria ?? diariaComDecoracao(bairro.dailyAvg, p.decoracao);
+  const ocupacao = p.ocupacao ?? bairro.avgOccupancy;
+  const r = p.modo === "tradicional"
+    ? resultadoTradicional(p.imovel, { ...p.tradicional, aluguel: p.aluguel ?? aluguelReferencia(p.imovel.valorImovel) })
+    : resultadoShortStay({ diaria, ocupacaoPct: ocupacao }, p.imovel, p.shortStay);
+  return { ...c, receitaBruta: r.receitaBruta, liquido: r.liquido };
 }

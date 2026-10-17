@@ -4,7 +4,7 @@ import { DEDUCOES_PADRAO_PCT } from "@/lib/bairroAjustes";
 import {
   CHAVE_CENARIOS, CHAVE_CENARIOS_ANTIGA, CHAVE_RASCUNHO, CHAVE_RASCUNHO_PROJECAO, IMOVEL_PADRAO, PREMISSAS_SIMULADOR_PADRAO, RENTABILIDADE_LOCACAO_SP_AA,
   SHORT_STAY_PADRAO, TRADICIONAL_PADRAO, aluguelReferencia, indicadores, lerCenarios, lerPremissasDaQuery, lerRascunho, mesAMes, normalizarPremissasSimulador,
-  premissasParaQuery, resultadoShortStay, resultadoTradicional, salvarRascunho, type PremissasSimulador,
+  premissasParaQuery, recalcularCenario, resultadoShortStay, resultadoTradicional, salvarRascunho, type PremissasSimulador,
 } from "@/lib/simuladorReceita";
 
 const pinheiros = getBairroCurado("Pinheiros")!;
@@ -169,5 +169,16 @@ describe("mês a mês", () => {
     // Fixos (condomínio + IPTU + contas = R$ 1.100) iguais todo mês; o resto acompanha a receita.
     const fixos = 500 + 100 + SHORT_STAY_PADRAO.contas;
     for (const m of meses) expect(m.custos - Math.round(m.bruta * 0.34)).toBe(fixos);
+  });
+});
+
+describe("cenário migrado recalculado com a base", () => {
+  it("usa diária × decoração e ocupação do cenário; cenário sem bairro na base fica como está", () => {
+    const base = [{ name: "Pinheiros", dailyAvg: 300, avgOccupancy: 62 }];
+    const c = { id: "x", nome: "Cenário", premissas: normalizarPremissasSimulador({ bairro: "Pinheiros", decoracao: "premium", ocupacao: 70 }), receitaBruta: 0, liquido: 0, criadoEm: 0 };
+    const r = recalcularCenario(c, base);
+    expect(r.receitaBruta).toBe(Math.round(360 * 30 * 0.7)); // R$ 7.560
+    expect(r.liquido).toBe(resultadoShortStay({ diaria: 360, ocupacaoPct: 70 }, c.premissas.imovel, c.premissas.shortStay).liquido);
+    expect(recalcularCenario({ ...c, premissas: { ...c.premissas, bairro: "Fora" } }, base).liquido).toBe(0);
   });
 });

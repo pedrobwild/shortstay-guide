@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ChevronDown } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import OrcamentoButton from "@/components/OrcamentoButton";
@@ -16,6 +16,7 @@ import { COLETA_GUESTFAVORITES } from "@/data/fontesGuia";
 import { DEFAULT_SP_SEASONALITY } from "@/lib/projectAnalytics";
 import { mesAMes, type MesSimulado, type Resultado } from "@/lib/simuladorReceita";
 import { formatBRL } from "@/lib/numberFormat";
+import { slugifyBairro } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 const mesAno = (m: MesSimulado) => `${m.rotulo}/${m.ano}`;
@@ -71,6 +72,15 @@ export default function ProjecaoStudio() {
   const { p, bairro, resultado, diaria, ocupacao } = sim;
   const navigate = useNavigate();
   const location = useLocation();
+  const [, setParams] = useSearchParams();
+  // A URL acompanha o bairro que a pessoa escolhe (o link do mapa continua válido ao recarregar).
+  const simPagina = useMemo(() => ({
+    ...sim,
+    escolherBairro: (nome: string) => {
+      sim.escolherBairro(nome);
+      setParams((atual) => { const n = new URLSearchParams(atual); n.set("bairro", slugifyBairro(nome)); return n; }, { replace: true });
+    },
+  }), [sim, setParams]);
   const desktop = useMediaQuery("(min-width: 1024px)");
   const [detalheAberto, setDetalheAberto] = useState(false);
   useDeslocamentoChat(desktop ? null : 104);
@@ -128,7 +138,7 @@ export default function ProjecaoStudio() {
       )}
 
       <div onChangeCapture={trackSimulationUsed} onPointerDownCapture={trackSimulationUsed} onKeyDownCapture={trackSimulationUsed}>
-        <SimuladorReceitaLiquida sim={sim} variante="pagina" extras={extras} />
+        <SimuladorReceitaLiquida sim={simPagina} variante="pagina" extras={extras} />
       </div>
 
       {/* Análises detalhadas da mesma projeção (calendário de 12 meses com sazonalidade) */}
@@ -137,7 +147,7 @@ export default function ProjecaoStudio() {
           <CollapsibleTrigger className="flex min-h-[56px] w-full items-center justify-between gap-3 py-3 text-left">
             <span>
               <span className="block font-display text-[22px] font-bold text-foreground">Análise detalhada da projeção</span>
-              <span className="block text-sm text-muted-foreground">Ocupação e receita por mês, sazonalidade, padrões de reserva, ponto de equilíbrio e retorno, com as mesmas premissas num calendário de 12 meses.</span>
+              <span className="block text-sm text-muted-foreground">Outro modelo, com as mesmas premissas: um calendário simulado de 12 meses (365 dias, estadias de 3 noites, sazonalidade). Os totais ficam perto dos de cima, não iguais.</span>
             </span>
             <ChevronDown className={cn("h-5 w-5 shrink-0 text-primary transition-transform", detalheAberto && "rotate-180")} aria-hidden="true" />
           </CollapsibleTrigger>
@@ -156,6 +166,7 @@ export default function ProjecaoStudio() {
                 },
                 occupancyPct: ocupacao,
                 avgStayNights: 3,
+                rotulos: { gestao: "Gestão, Airbnb e manutenção", condominio: "Condomínio, IPTU e contas" },
               }}
             />
           </CollapsibleContent>

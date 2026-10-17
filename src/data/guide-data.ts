@@ -177,46 +177,6 @@ export const SCORE_TIERS = [
   { min: 9, max: 10, label: "Pronto para investir", color: "bg-primary", desc: "Excelente! Seu planejamento está sólido. Hora de agir." },
 ];
 
-export type SavedScenario = {
-  id: string;
-  name: string;
-  bairro: string;
-  metragem: number;
-  ocupacao: number;
-  diariaAtual: string;
-  objetivo: string;
-  rateBoost: number;
-  reformaBudget: string;
-  boostedDaily: number;
-  receitaMensal: number;
-  receitaAnual: number;
-  paybackMonths: number | null;
-};
-
-export const SCENARIOS_KEY = "bwild_guide_scenarios";
-
-/**
- * Cenários do simulador ficam neste navegador (localStorage) para sobreviver a
- * novas visitas; quem tinha cenários na sessão antiga (sessionStorage) é migrado.
- * Só premissas e resultados da simulação — nenhum dado pessoal.
- */
-export function loadScenarios(): SavedScenario[] {
-  try {
-    const salvo = localStorage.getItem(SCENARIOS_KEY);
-    if (salvo) return JSON.parse(salvo);
-    const antigo = sessionStorage.getItem(SCENARIOS_KEY);
-    if (antigo) {
-      localStorage.setItem(SCENARIOS_KEY, antigo);
-      return JSON.parse(antigo);
-    }
-    return [];
-  } catch { return []; }
-}
-
-export function persistScenarios(scenarios: SavedScenario[]) {
-  try { localStorage.setItem(SCENARIOS_KEY, JSON.stringify(scenarios)); } catch { /* armazenamento indisponível: segue só na tela */ }
-}
-
 export const fmt = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
 
 export const TRUST_SIGNALS_DATA = [

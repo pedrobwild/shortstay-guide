@@ -235,7 +235,7 @@ export default function BwildVsDiySection({ controle }: { controle?: ControleCom
               Hipóteses de comparação, não resultados de mercado ou do case de Pinheiros
               (ocupação +{formatDecimal(((BWILD_VS_DIY_ASSUMPTIONS.bwild.occupancyMultiplier / BWILD_VS_DIY_ASSUMPTIONS.diy.occupancyMultiplier - 1) * 100), 0)}% e diária premium por reforma/decoração).
             </p>
-            <OrcamentoButton local="recomendacao" className="min-h-[44px] bg-accent text-accent-foreground shrink-0" />
+            <OrcamentoButton local="recomendacao" className="min-h-[44px] shrink-0" />
           </div>
         </CardContent>
       </Card>

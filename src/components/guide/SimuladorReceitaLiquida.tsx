@@ -393,7 +393,7 @@ export default function SimuladorReceitaLiquida({
               )}
 
               <p className="mt-4 text-xs leading-snug text-muted-foreground">
-                Não considera mobília além da reforma informada, financiamento nem sazonalidade. {modo === "short_stay" ? "Diária e ocupação são médias do bairro; o seu anúncio pode ficar acima ou abaixo." : "Reajuste, multa de rescisão e inadimplência ficam fora da conta."}
+                Não considera mobília além da reforma informada{pagina ? " nem financiamento" : ", financiamento nem sazonalidade"}. {modo === "short_stay" ? "Diária e ocupação são médias do bairro; o seu anúncio pode ficar acima ou abaixo." : "Reajuste, multa de rescisão e inadimplência ficam fora da conta."}
               </p>
             </>
           )}

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bookmark, Check, Columns2, Copy, FileText, FolderPlus, Info, Loader2, MessageCircle, Share2, Trash2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -17,7 +16,9 @@ import { criarProjetoDaSimulacao, savePendingProvision } from "@/lib/leadProvisi
 import { trackSimulationShared, trackSimulationUsed } from "@/lib/marketingConsent";
 import { formatBRL, formatDecimal, formatPercent } from "@/lib/numberFormat";
 import { lembrarSimulacao } from "@/lib/retomada";
+import { avisoAmostraBairro, descricaoNatureza } from "@/lib/radarUi";
 import { MAX_CENARIOS, armazenamentoLocal, lerCenarios, salvarCenarios, type CenarioSalvo } from "@/lib/simuladorReceita";
+import { recalcularCenario } from "@/lib/simuladorReceita";
 
 const rotuloModo = (modo: string) => (modo === "tradicional" ? "Locação tradicional" : "Short stay");
 
@@ -28,12 +29,14 @@ const rotuloModo = (modo: string) => (modo === "tradicional" ? "Locação tradic
  */
 export default function SimuladorSection() {
   const sim = useSimuladorReceita();
-  const { p, bairro, resultado, query, recebidaPorLink, carregar } = sim;
+  const { p, bairro, bairros, resultado, query, recebidaPorLink, carregar } = sim;
   const { user } = useAuth();
   const navigate = useNavigate();
   const [cenarios, setCenarios] = useState<CenarioSalvo[]>([]);
   // Começa vazio no SSR e carrega no navegador, para o HTML pré-renderizado e a hidratação coincidirem.
   useEffect(() => { const salvos = lerCenarios(armazenamentoLocal()); if (salvos.length) setCenarios(salvos); }, []);
+  // Cenários migrados do simulador anterior (ou com a base atualizada) mostram o resultado recalculado.
+  const cenariosExibidos = useMemo(() => cenarios.map((c) => recalcularCenario(c, bairros)), [cenarios, bairros]);
   const [exportOpen, setExportOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
@@ -50,25 +53,25 @@ export default function SimuladorSection() {
     const linhas = [
       `📊 Simulação de receita líquida — ${rotuloModo(p.modo)}`,
       "",
-      `Bairro: ${nomeBairro}`,
+      `Bairro: ${nomeBairro}${descricaoNatureza(bairro ?? { ocupacaoFonte: "guestfavorites" })}${bairro && avisoAmostraBairro(bairro) ? ` · ${avisoAmostraBairro(bairro)}` : ""}`,
       `Faixa de área: ${p.area}`,
       p.modo === "short_stay" ? `Diária média: ${formatBRL(sim.diaria)} · ocupação ${formatPercent(sim.ocupacao, 0)}` : `Aluguel mensal: ${formatBRL(sim.aluguel)} · ${p.tradicional.vacanciaMeses} ${p.tradicional.vacanciaMeses === 1 ? "mês vago" : "meses vagos"} por ano`,
       "",
       `Receita bruta: ${formatBRL(resultado.receitaBruta)}/mês`,
       ...resultado.deducoes.map((d) => `− ${d.rotulo}: ${formatBRL(d.valor)} (${d.base})`),
       `= Resultado líquido: ${formatBRL(resultado.liquido)}/mês · ${formatBRL(resultado.liquidoAnual)}/ano`,
-      sim.indicadores ? `Rentabilidade líquida: ${formatDecimal(sim.indicadores.rentabilidadeAA, 1)}% a.a.${sim.indicadores.paybackAnos != null ? ` · prazo de retorno ${formatDecimal(sim.indicadores.paybackAnos, 1)} anos` : ""}` : "",
+      ...(sim.indicadores ? [`Rentabilidade líquida: ${formatDecimal(sim.indicadores.rentabilidadeAA, 1)}% a.a.${sim.indicadores.paybackAnos != null ? ` · prazo de retorno ${formatDecimal(sim.indicadores.paybackAnos, 1)} anos` : ""}`] : []),
       "",
       "Hipótese de simulação, não retorno garantido.",
       `Abrir esta simulação: ${link()}`,
       "Gerado no Radar Bewild · radarbewild.com.br",
     ];
-    return linhas.filter((l) => l !== null).join("\n");
+    return linhas.join("\n");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resultado, p, nomeBairro, sim.diaria, sim.ocupacao, sim.aluguel, sim.indicadores, caminho]);
 
   const textoCompartilhar = resultado
-    ? `Simulação de studio em ${nomeBairro} no Radar Bewild: resultado líquido estimado de ${formatBRL(resultado.liquido)}/mês no ${rotuloModo(p.modo).toLowerCase()} (hipóteses editáveis, não é garantia de resultado).`
+    ? `Simulação de studio em ${nomeBairro}${bairro ? descricaoNatureza(bairro) : ""} no Radar Bewild: resultado líquido estimado de ${formatBRL(resultado.liquido)}/mês no ${rotuloModo(p.modo).toLowerCase()} (hipóteses editáveis, não é garantia de resultado).`
     : "";
   const registrarCompartilhamento = (canal: string) => {
     trackSimulationShared(canal);
@@ -170,8 +173,8 @@ export default function SimuladorSection() {
               <table className="w-full text-sm">
                 <thead><tr className="border-b border-border"><th className="px-2 py-2 text-left font-medium text-muted-foreground">Cenário</th><th className="px-2 py-2 text-left font-medium text-muted-foreground">Modelo</th><th className="px-2 py-2 text-right font-medium text-muted-foreground">Bruta/mês</th><th className="px-2 py-2 text-right font-medium text-muted-foreground">Líquido/mês</th><th className="px-2 py-2 text-right font-medium text-muted-foreground"><span className="sr-only">Ações</span></th></tr></thead>
                 <tbody>
-                  {cenarios.map((c) => {
-                    const maior = Math.max(...cenarios.map((x) => x.liquido));
+                  {cenariosExibidos.map((c) => {
+                    const maior = Math.max(...cenariosExibidos.map((x) => x.liquido));
                     return (
                       <tr key={c.id} className="border-b border-border/50">
                         <td className="px-2 py-2 text-foreground">{c.nome}</td>
@@ -212,7 +215,11 @@ export default function SimuladorSection() {
     <SectionBlock id="simulador" title="Simulador de receita líquida" takeaway="Da diária do bairro ao que sobra por mês, no short stay e na locação tradicional.">
       {cenarios.length > 0 && (
         <div className="mb-4 flex flex-wrap gap-2">
-          {cenarios.map((c) => <Badge key={c.id} variant="outline" className="cursor-pointer px-3 py-1.5 text-xs transition-colors hover:bg-primary/10" onClick={() => usarCenario(c)}>{c.nome}</Badge>)}
+          {cenariosExibidos.map((c) => (
+            <button key={c.id} type="button" onClick={() => usarCenario(c)} className="inline-flex min-h-[44px] items-center rounded-full border border-input bg-card px-3 text-xs font-medium text-foreground transition-colors hover:bg-accent-light">
+              {c.nome} · {formatBRL(c.liquido)}/mês
+            </button>
+          ))}
         </div>
       )}
       {recebidaPorLink && (
