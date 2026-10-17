@@ -79,7 +79,7 @@ export default function AdminMercado() {
           <BarChart data={coletasGrafico} layout="vertical" accessibilityLayer margin={{ left: 0, right: 20 }}>
             <CartesianGrid horizontal={false} stroke="hsl(var(--border))" />
             <XAxis type="number" tickLine={false} axisLine={false} tickFormatter={(v) => `R$ ${formatDecimal(Number(v), 0)}`} />
-            <YAxis type="category" dataKey="rotulo" width={115} tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
+            <YAxis type="category" dataKey="rotulo" width={115} tickLine={false} axisLine={false} tick={{ fontSize: 12 }} />
             <ChartTooltip content={({ active, payload }) => {
               const coleta = payload?.[0]?.payload as typeof coletasGrafico[number] | undefined;
               if (!active || !coleta) return null;
