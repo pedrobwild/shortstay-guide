@@ -27,7 +27,9 @@ const root = document.getElementById("root")!;
 const ssrPath = root.getAttribute("data-ssr-path");
 if (ssrPath && ssrPath === window.location.pathname) {
   // Só a home é pré-renderizada com React; carrega a página antes de hidratar (ver precarregarHome).
-  const pronto = ssrPath === "/" ? precarregarHome().catch(() => undefined) : Promise.resolve();
+  const pronto = ssrPath === "/"
+    ? precarregarHome().catch((err) => { if (ehFalhaDeChunk(err?.message ?? err)) recarregarVersaoNova(); })
+    : Promise.resolve();
   void pronto.then(() => hydrateRoot(root, <App />));
 } else {
   root.innerHTML = "";
