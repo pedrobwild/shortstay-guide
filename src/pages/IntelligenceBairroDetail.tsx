@@ -2,6 +2,7 @@ import FonteBairro from "@/components/guide/FonteBairro";
 import AppNavbar from "@/components/AppNavbar";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import ProximoPassoBairro from "@/components/intelligence/ProximoPassoBairro";
+import BlocoReformaBairro from "@/components/intelligence/BlocoReformaBairro";
 import { VariacaoColetaBairro } from "@/components/guide/VariacaoColeta";
 import FaixaQuartisBairro from "@/components/intelligence/FaixaQuartisBairro";
 import { lembrarBairro } from "@/lib/retomada";
@@ -609,6 +610,7 @@ const IntelligenceBairroDetail = () => {
         </div>
 
         {/* ── Próximo passo ──────────────────────────── */}
+        <BlocoReformaBairro bairro={b.bairro} />
         <ProximoPassoBairro bairro={b.bairro} />
 
         {/* ── Disclaimer ──────────────────────────────── */}

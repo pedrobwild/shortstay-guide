@@ -1,5 +1,7 @@
 import AppNavbar from "@/components/AppNavbar";
 import FonteBairro from "@/components/guide/FonteBairro";
+import LinkArtigoBewild from "@/components/guide/LinkArtigoBewild";
+import { ARTIGOS_BEWILD } from "@/data/artigosBewild";
 import { formatDecimal } from "@/lib/numberFormat";
 import { bairroPath } from "@/lib/seo";
 import { useState, useMemo } from "react";
@@ -111,7 +113,7 @@ const IntelligenceRanking = () => {
                   <ChevronRight className="h-3 w-3" />
                   <span className="text-primary-foreground/80">Ranking</span>
                 </div>
-                <h1 className="text-2xl md:text-3xl font-bold font-[var(--font-display)]">Ranking de Bairros</h1>
+                <h1 className="text-2xl md:text-3xl font-bold font-[var(--font-display)]">Comparador de bairros para short stay</h1>
                 <p className="text-sm text-primary-foreground/70 mt-1">
                   {allBairros.length} bairros comparados por Investment Score, yield, ocupação e mais
                 </p>
@@ -177,6 +179,8 @@ const IntelligenceRanking = () => {
           <ComparativeNarrativesSection bairros={allBairros} />
 
           <ContextualNote sectionKey="before_table" />
+
+          <LinkArtigoBewild artigo={ARTIGOS_BEWILD.melhoresBairros} prefixo="Quer a análise bairro a bairro? Leia" />
 
           {/* Table */}
           <Card className="overflow-hidden">

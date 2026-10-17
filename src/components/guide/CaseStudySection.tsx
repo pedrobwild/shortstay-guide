@@ -1,7 +1,7 @@
 import { useMemo, useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Calendar, MapPin, Ruler, DollarSign } from "lucide-react";
+import { TrendingUp, Calendar, MapPin, Ruler, DollarSign, Percent, Award, type LucideIcon } from "lucide-react";
 import SectionBlock from "./SectionBlock";
 import { useGuideDecision } from "@/hooks/useGuideDecision";
 import { loadPendingProvision } from "@/lib/leadProvisioning";
@@ -13,7 +13,7 @@ function relevanceCopy(matchLevel: MatchLevel, leadBairro: string | null, region
     case "bairro":
       return {
         label: "No seu bairro",
-        text: `Você demonstrou interesse em ${leadBairro}. Veja um case real que a Bewild operou aqui.`,
+        text: `Você demonstrou interesse em ${leadBairro}. Veja um case real de studio reformado pela Bewild aqui.`,
       };
     case "regiao":
       return {
@@ -25,7 +25,7 @@ function relevanceCopy(matchLevel: MatchLevel, leadBairro: string | null, region
         label: "Case real Bewild",
         text: leadBairro
           ? `Ainda não temos um case público em ${leadBairro}. Veja um de nossos cases de referência.`
-          : "Uma jornada real de investidor — do imóvel à receita recorrente.",
+          : "Um studio reformado pela Bewild e o que ele alcançou no Airbnb.",
       };
   }
 }
@@ -54,12 +54,21 @@ export default function CaseStudySection() {
   const { matchLevel, leadBairro, region } = selection;
   const copy = relevanceCopy(matchLevel, leadBairro, region ?? null);
   const isContextual = matchLevel !== "geral";
+  const brl = (v: number) => `R$ ${v.toLocaleString("pt-BR")}`;
+  const cartoes: { icone: LucideIcon; valor: string; rotulo: string }[] = [
+    { icone: MapPin, valor: caseData.bairro, rotulo: "Bairro" },
+    ...(caseData.metragem != null ? [{ icone: Ruler, valor: `${caseData.metragem}m²`, rotulo: "Metragem" }] : []),
+    ...(caseData.ocupacao != null ? [{ icone: Percent, valor: `${caseData.ocupacao}%`, rotulo: `Ocupação ${caseData.ocupacaoContexto ?? "média"}` }] : []),
+    ...(caseData.diaria != null ? [{ icone: DollarSign, valor: brl(caseData.diaria), rotulo: `Diária ${caseData.diariaContexto ?? ""}`.trim() }] : []),
+    ...(caseData.receitaMensal != null ? [{ icone: DollarSign, valor: `${brl(caseData.receitaMensal)}/mês`, rotulo: "Receita média" }] : []),
+    ...(caseData.yieldBruto ? [{ icone: TrendingUp, valor: caseData.yieldBruto, rotulo: "Yield bruto" }] : []),
+  ];
 
   return (
     <SectionBlock
       id="casestudy"
-      title={`Case Study: Studio em ${caseData.bairro}`}
-      takeaway="Jornada real de um investidor — do imóvel à receita recorrente."
+      title={`Case real: studio na ${caseData.bairro}`}
+      takeaway="Studio reformado pela Bewild: números publicados no depoimento da cliente."
     >
       {/* Banner de relevância contextual */}
       <div
@@ -90,38 +99,60 @@ export default function CaseStudySection() {
         </div>
       ) : null}
 
+      {caseData.destaques?.length ? (
+        <ul className="mb-6 space-y-2">
+          {caseData.destaques.map((d) => (
+            <li key={d} className="flex items-start gap-2 text-sm text-foreground"><Award size={16} className="text-primary mt-0.5 shrink-0" aria-hidden="true" />{d}</li>
+          ))}
+        </ul>
+      ) : null}
+
+      {/* Só cartões com dado publicado; campo vazio não aparece (nunca zero). */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-        <Card className="border-border"><CardContent className="p-4 text-center"><MapPin size={18} className="text-primary mx-auto mb-1" aria-hidden="true" /><p className="text-lg font-display font-bold text-foreground">{caseData.bairro}</p><p className="text-xs text-muted-foreground">Bairro</p></CardContent></Card>
-        <Card className="border-border"><CardContent className="p-4 text-center"><Ruler size={18} className="text-primary mx-auto mb-1" aria-hidden="true" /><p className="text-lg font-display font-bold text-foreground">{caseData.metragem}m²</p><p className="text-xs text-muted-foreground">Metragem</p></CardContent></Card>
-        <Card className="border-border"><CardContent className="p-4 text-center"><DollarSign size={18} className="text-primary mx-auto mb-1" aria-hidden="true" /><p className="text-lg font-display font-bold text-primary">R$ {caseData.receitaMensal.toLocaleString("pt-BR")}/mês</p><p className="text-xs text-muted-foreground">Receita média</p></CardContent></Card>
-        <Card className="border-border"><CardContent className="p-4 text-center"><TrendingUp size={18} className="text-primary mx-auto mb-1" aria-hidden="true" /><p className="text-lg font-display font-bold text-primary">{caseData.yieldBruto}</p><p className="text-xs text-muted-foreground">Yield bruto</p></CardContent></Card>
-      </div>
-
-      <h3 className="font-display text-xl font-bold text-foreground mb-4">Investimento</h3>
-      <div className="grid grid-cols-3 gap-3 mb-8">
-        <Card className="border-border"><CardContent className="p-4 text-center"><p className="text-sm text-muted-foreground">Imóvel</p><p className="font-display font-bold text-foreground">R$ {caseData.investimento.imovel.toLocaleString("pt-BR")}</p></CardContent></Card>
-        <Card className="border-border"><CardContent className="p-4 text-center"><p className="text-sm text-muted-foreground">Reforma</p><p className="font-display font-bold text-foreground">R$ {caseData.investimento.reforma.toLocaleString("pt-BR")}</p></CardContent></Card>
-        <Card className="border-border"><CardContent className="p-4 text-center"><p className="text-sm text-muted-foreground">Decoração</p><p className="font-display font-bold text-foreground">R$ {caseData.investimento.decoracao.toLocaleString("pt-BR")}</p></CardContent></Card>
-      </div>
-
-      <h3 className="font-display text-xl font-bold text-foreground mb-4">Timeline do Projeto</h3>
-      <div className="space-y-3">
-        {caseData.timeline.map((step, i) => (
-          <div key={step.month} className="flex items-start gap-4">
-            <div className="flex flex-col items-center">
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <Calendar size={14} className="text-primary" aria-hidden="true" />
-              </div>
-              {i < caseData.timeline.length - 1 && <div className="w-px h-6 bg-border" />}
-            </div>
-            <div>
-              <Badge variant="secondary" className="font-body text-xs mb-1">{step.month}</Badge>
-              <p className="font-semibold text-foreground text-sm">{step.label}</p>
-              <p className="text-sm text-muted-foreground">{step.desc}</p>
-            </div>
-          </div>
+        {cartoes.map((c) => (
+          <Card key={c.rotulo} className="border-border"><CardContent className="p-4 text-center"><c.icone size={18} className="text-primary mx-auto mb-1" aria-hidden="true" /><p className="text-lg font-display font-bold text-foreground">{c.valor}</p><p className="text-xs text-muted-foreground">{c.rotulo}</p></CardContent></Card>
         ))}
       </div>
+
+      {caseData.investimento && (
+        <>
+          <h3 className="font-display text-xl font-bold text-foreground mb-4">Investimento</h3>
+          <div className="grid grid-cols-3 gap-3 mb-8">
+            <Card className="border-border"><CardContent className="p-4 text-center"><p className="text-sm text-muted-foreground">Imóvel</p><p className="font-display font-bold text-foreground">R$ {caseData.investimento.imovel.toLocaleString("pt-BR")}</p></CardContent></Card>
+            <Card className="border-border"><CardContent className="p-4 text-center"><p className="text-sm text-muted-foreground">Reforma</p><p className="font-display font-bold text-foreground">R$ {caseData.investimento.reforma.toLocaleString("pt-BR")}</p></CardContent></Card>
+            <Card className="border-border"><CardContent className="p-4 text-center"><p className="text-sm text-muted-foreground">Decoração</p><p className="font-display font-bold text-foreground">R$ {caseData.investimento.decoracao.toLocaleString("pt-BR")}</p></CardContent></Card>
+          </div>
+        </>
+      )}
+
+      {caseData.timeline.length > 0 && (
+        <>
+          <h3 className="font-display text-xl font-bold text-foreground mb-4">Timeline do Projeto</h3>
+          <div className="space-y-3">
+            {caseData.timeline.map((step, i) => (
+              <div key={step.month} className="flex items-start gap-4">
+                <div className="flex flex-col items-center">
+                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Calendar size={14} className="text-primary" aria-hidden="true" />
+                  </div>
+                  {i < caseData.timeline.length - 1 && <div className="w-px h-6 bg-border" />}
+                </div>
+                <div>
+                  <Badge variant="secondary" className="font-body text-xs mb-1">{step.month}</Badge>
+                  <p className="font-semibold text-foreground text-sm">{step.label}</p>
+                  <p className="text-sm text-muted-foreground">{step.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {caseData.depoimentoUrl && (
+        <a href={caseData.depoimentoUrl} className="inline-flex min-h-[44px] items-center text-sm font-medium text-primary underline underline-offset-4">
+          Ver o depoimento{caseData.cliente ? ` da ${caseData.cliente}` : ""}
+        </a>
+      )}
     </SectionBlock>
   );
 }

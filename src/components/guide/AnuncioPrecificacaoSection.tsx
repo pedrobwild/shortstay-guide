@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { motion } from "framer-motion";
 import { Camera, FileText, DollarSign, CalendarCheck, TrendingUp, Star, ArrowRight, Lightbulb, Zap, BarChart3 } from "lucide-react";
 import SectionBlock from "./SectionBlock";
+import { ARTIGOS_BEWILD } from "@/data/artigosBewild";
 
 /* ── Listing anatomy ── */
 const LISTING_ANATOMY = [
@@ -95,6 +96,7 @@ const RATE_TIPS = [
 export default function AnuncioPrecificacaoSection() {
   return (
     <SectionBlock
+      artigo={ARTIGOS_BEWILD.precificacao}
       id="anuncio-pricing"
       title="Anúncio e Precificação"
       takeaway="O produto físico é metade da equação. A outra metade é como você captura a receita."

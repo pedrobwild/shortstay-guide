@@ -7,6 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { motion } from "framer-motion";
 import { ArrowDown, TrendingUp, TrendingDown, Minus, AlertCircle, Lightbulb, DollarSign, Percent, Building2, Zap } from "lucide-react";
 import SectionBlock from "./SectionBlock";
+import { ARTIGOS_BEWILD } from "@/data/artigosBewild";
 import { exemploRentabilidadePinheiros, retornoSobreInvestimentoExemplo } from "@/lib/rentabilidadeExample";
 import { ESTUDO_REFORMA_URL } from "@/data/provasBewild";
 import FonteLink from "@/components/guide/FonteLink";
@@ -77,6 +78,7 @@ export default function RentabilidadeSection() {
 
   return (
     <SectionBlock
+      artigo={ARTIGOS_BEWILD.custosOperacao}
       id="rentabilidade"
       title="A Matemática do Investimento"
       takeaway="Entenda como a conta é formada antes de abrir o simulador. Receita bruta ≠ o que vai para o bolso."

@@ -87,3 +87,26 @@ describe("selectCaseStudies", () => {
     expect(r.cases.map((c) => c.id)).toEqual(["high", "low"]);
   });
 });
+
+import { CASE_STUDIES } from "@/data/caseStudies";
+describe("case público em destaque", () => {
+  it("é o da Vivian na Vila Olímpia, só com os dados publicados", () => {
+    const c = CASE_STUDIES.find((x) => x.featured)!;
+    expect(c.bairro).toBe("Vila Olímpia");
+    expect(c.region).toBe("Zona Sul");
+    expect(c.ocupacao).toBe(98);
+    expect(c.diaria).toBe(275);
+    expect(c.ocupacaoContexto).toContain("setembro");
+    expect(c.investimento).toBeUndefined();
+    expect(c.yieldBruto).toBeUndefined();
+    expect(c.paybackMeses).toBeUndefined();
+    expect(c.receitaMensal).toBeUndefined();
+    expect(c.depoimentoUrl).toBe("https://bewild.com.br/videos/depoimento-vivian");
+  });
+  it("o case Pinheiros sem fonte não está na lista pública", () => {
+    expect(CASE_STUDIES.some((x) => x.bairro === "Pinheiros")).toBe(false);
+  });
+  it("lead da Zona Sul recebe o case por região", () => {
+    expect(selectCaseStudies({ bairro: "Moema" }).matchLevel).toBe("regiao");
+  });
+});

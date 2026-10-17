@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { AlertTriangle, Wrench, ShieldCheck, DollarSign } from "lucide-react";
 import SectionBlock from "./SectionBlock";
+import { ARTIGOS_BEWILD } from "@/data/artigosBewild";
 
 export default function AntiChecklistSection() {
   const warnings = [
@@ -12,7 +13,7 @@ export default function AntiChecklistSection() {
   ];
 
   return (
-    <SectionBlock id="antichecklist" title="Anti-checklist: O que NÃO fazer" takeaway="Erros que destroem rentabilidade — aprenda antes de cometer.">
+    <SectionBlock artigo={ARTIGOS_BEWILD.antiChecklist} id="antichecklist" title="Anti-checklist: O que NÃO fazer" takeaway="Erros que destroem rentabilidade — aprenda antes de cometer.">
       <p className="mb-4 text-sm text-muted-foreground">Custos e economias abaixo são hipóteses de exemplo, não médias do estudo de contratos. Confirme os valores na proposta.</p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {warnings.map((w) => (

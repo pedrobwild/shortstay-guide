@@ -8,6 +8,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { motion } from "framer-motion";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import SectionBlock from "./SectionBlock";
+import { ARTIGOS_BEWILD } from "@/data/artigosBewild";
 import { DECISION_DRIVERS, PERSONAS, type PersonaKey } from "@/data/guide-data";
 
 export default function ReservasSection() {
@@ -15,7 +16,7 @@ export default function ReservasSection() {
   const sortedDrivers = useMemo(() => [...DECISION_DRIVERS].sort((a, b) => a.priority[persona] - b.priority[persona]), [persona]);
 
   return (
-    <SectionBlock id="reservas" title="O que realmente move reservas" takeaway="Os 6 fatores que transformam um studio vazio em máquina de reservas.">
+    <SectionBlock artigo={ARTIGOS_BEWILD.reservas} id="reservas" title="O que realmente move reservas" takeaway="Os 6 fatores que transformam um studio vazio em máquina de reservas.">
       <div className="mb-6">
         <p className="text-sm font-medium text-foreground mb-3 font-body">Filtrar por perfil do hóspede:</p>
         <div className="flex flex-wrap gap-2">
