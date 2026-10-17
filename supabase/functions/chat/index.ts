@@ -57,6 +57,13 @@ async function loadBairrosContext(): Promise<string> {
     };
   };
   const sp = curado("São Paulo");
+  // Referência extra: estimativa Bewild ativa dos bairros cuja principal é a aproximação pelo Itaim Bibi.
+  const aproxNomes = (radar ?? []).filter((r) => r.fonte_id === "aproximacao_itaim_bibi" && r.indicador === "adr_medio_brl").map((r) => r.bairro);
+  const refs = new Map<string, Record<string, number>>();
+  if (aproxNomes.length) {
+    const { data: refRows } = await supabase.from("radar_observacoes").select("bairro, indicador, valor").eq("fonte_id", "estimativa_bewild").eq("ativo", true).in("bairro", aproxNomes);
+    for (const r of refRows ?? []) { const k = normNome(r.bairro); refs.set(k, { ...(refs.get(k) ?? {}), [r.indicador]: Number(r.valor) }); }
+  }
 
   const lines = bairros.map((b) => {
     const c = curado(b.bairro);
@@ -72,6 +79,7 @@ async function loadBairrosContext(): Promise<string> {
           `- Fonte: ${c.fonte}${c.periodo ? `, ${c.periodo}` : ""}${c.url ? ` (${c.url})` : ""}; coleta de ${fmtD(c.coleta)}; confiança ${c.confianca}${c.gf ? (c.licenciada ? " — dado licenciado (AirDNA, API paga), não estimativa" : " — dado público, não estimativa") : c.aproximacao ? " — aproximação pelo Itaim Bibi, distrito que inclui a Vila Olímpia e parte do Brooklin (sem dado público por bairro; não há anúncios ativos por bairro)" : " — estimativa (sem fonte pública atualizada)"}`,
           ...(c.anuncios != null ? [`- Amostra: ${c.anuncios} anúncios${c.amostraPequena ? " — amostra pequena" : ""}`] : []),
           ...(c.desatualizado ? [`- Dado desatualizado: coleta de ${fmtD(c.coleta)} (há mais de 240 dias).`] : []),
+          ...(c.aproximacao && refs.get(normNome(b.bairro))?.adr_medio_brl != null ? [`- Referência extra (NÃO é o número principal; não misture): Estimativa Bewild — diária R$${refs.get(normNome(b.bairro))!.adr_medio_brl} · ocupação ${refs.get(normNome(b.bairro))!.ocupacao_media_pct}% (dados anteriores da Bewild, sem fonte pública). Cite primeiro a aproximação pelo Itaim Bibi como número principal.`] : []),
           `- Receita mensal de referência (diária média × 30 × ocupação): R$${Math.round(c.media * 30 * c.ocupacao / 100)}`,
         ]
       : [

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { avisoAmostra, getBairroCurado } from "@/data/bairrosCurados";
 import FonteLink from "@/components/guide/FonteLink";
-import { alertasFonteRadar, bairrosReserva, rotuloFonteRadar, useRadarBase } from "@/lib/radarBase";
+import { alertasFonteRadar, bairrosReserva, rotuloReferenciaBewild, rotuloFonteRadar, useRadarBase } from "@/lib/radarBase";
 
 const norm = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
@@ -34,5 +34,6 @@ export default function FonteBairro({ nome, inverse = false }: { nome: string; i
     )}
     {bairro.sourceUrl ? <FonteLink fonte={{ title: titulo, url: bairro.sourceUrl }} /> : <span>{titulo}</span>}
     {aviso && <span className="block font-medium">{aviso}</span>}
+    {bairro.referenciaBewild && <span className="block opacity-80">{rotuloReferenciaBewild(bairro.referenciaBewild)}</span>}
   </span>;
 }

@@ -98,7 +98,13 @@ export async function carregarRadar(): Promise<{ bairros: BairroRadar[]; cidade:
   const { data, error } = await supabase.from("radar_bairro_atual").select("*").eq("cidade", CIDADE);
   if (error || !data?.length) return { bairros: bairrosReserva(), cidade: SAO_PAULO_REFERENCIA, offline: true };
   const linhas = data as unknown as LinhaRadar[];
-  const bairros = montarBairros(linhas);
+  let bairros = montarBairros(linhas);
+  const aprox = bairros.filter((b) => b.ocupacaoFonte === "aproximacao").map((b) => b.name);
+  if (aprox.length) {
+    const ref = await supabase.from("radar_observacoes").select("bairro, indicador, valor")
+      .eq("fonte_id", "estimativa_bewild").eq("ativo", true).eq("cidade", CIDADE).in("bairro", aprox);
+    if (!ref.error && ref.data) bairros = anexarReferencias(bairros, ref.data as LinhaRef[]);
+  }
   const sp = linhas.filter((l) => l.bairro === CIDADE);
   const val = (k: string) => sp.find((l) => l.indicador === k);
   const occ = val("ocupacao_media_pct"), adr = val("adr_medio_brl"), n = val("anuncios_ativos");
@@ -111,6 +117,24 @@ export async function carregarRadar(): Promise<{ bairros: BairroRadar[]; cidade:
 export function useRadarBase() {
   useRadarRealtime();
   return useQuery({ queryKey: ["radar_bairro_atual"], queryFn: carregarRadar, staleTime: 60 * 60 * 1000 });
+}
+
+/** "Estimativa Bewild: diária R$ 415 · ocupação 79% (dados anteriores da Bewild, sem fonte pública)" */
+export function rotuloReferenciaBewild(r: NonNullable<BairroCurado["referenciaBewild"]>): string {
+  const n = new Intl.NumberFormat("pt-BR");
+  return `Estimativa Bewild: diária R$ ${n.format(r.dailyAvg)} · ocupação ${n.format(r.avgOccupancy)}% (dados anteriores da Bewild, sem fonte pública)`;
+}
+
+type LinhaRef = { bairro: string; indicador: string; valor: number };
+/** Anexa a estimativa Bewild ativa como referência extra só aos bairros cuja principal é a aproximação. */
+export function anexarReferencias(bairros: BairroRadar[], linhas: LinhaRef[]): BairroRadar[] {
+  return bairros.map((b) => {
+    if (b.ocupacaoFonte !== "aproximacao") return b;
+    const v = (k: string) => { const l = linhas.find((x) => x.bairro === b.name && x.indicador === k); return l ? Number(l.valor) : null; };
+    const adr = v("adr_medio_brl"), occ = v("ocupacao_media_pct");
+    if (adr == null || occ == null) return b;
+    return { ...b, referenciaBewild: { dailyAvg: adr, avgOccupancy: occ, dailyMin: v("adr_p25_brl") ?? adr, dailyMax: v("adr_p75_brl") ?? adr } };
+  });
 }
 
 const juntar = (nomes: string[]) => nomes.length <= 1 ? nomes.join("") : `${nomes.slice(0, -1).join(", ")} e ${nomes[nomes.length - 1]}`;
@@ -126,7 +150,7 @@ export function notaFontesComplementares(bairros: Pick<BairroCurado, "name" | "o
   for (const b of airdna) { const k = b.period ?? ""; periodos.set(k, [...(periodos.get(k) ?? []), b.name]); }
   for (const [periodo, nomes] of periodos) partes.push(`${juntar(nomes)}: AirDNA (dado licenciado)${periodo ? `, ${periodo}` : ""}.`);
   const aprox = bairros.filter((b) => b.ocupacaoFonte === "aproximacao").map((b) => b.name);
-  if (aprox.length) partes.push(`${juntar(aprox)}: aproximação pelo Itaim Bibi, distrito que inclui a Vila Olímpia e parte do Brooklin (sem dado público por bairro).`);
+  if (aprox.length) partes.push(`${juntar(aprox)}: aproximação pelo Itaim Bibi, distrito que inclui a Vila Olímpia e parte do Brooklin (sem dado público por bairro). A estimativa Bewild (dados anteriores, sem fonte pública) aparece como referência extra.`);
   if (estimativa.length) partes.push(`${juntar(estimativa)}: estimativa Bewild (sem fonte pública atualizada).`);
   return partes.join(" ");
 }
