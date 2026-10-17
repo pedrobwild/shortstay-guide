@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { BAIRROS_CURADOS } from "@/data/bairrosCurados";
-import { alertasFonteRadar, montarBairros, rotuloFonteRadar, type LinhaRadar } from "@/lib/radarBase";
+import { alertasFonteRadar, anexarReferencias, rotuloReferenciaBewild, montarBairros, rotuloFonteRadar, type LinhaRadar } from "@/lib/radarBase";
 
 const periodos: Record<string, [string, string]> = { "jan–set/2026": ["2026-01-01", "2026-09-30"], "jan–jul/2026": ["2026-01-01", "2026-07-31"] };
 // Simula a view com a carga inicial (mesmos valores de bairrosCurados).
@@ -59,6 +59,13 @@ describe("base única radar_bairro_atual", () => {
   });
   it("Brooklin mostra fonte_nome de aproximação", () => {
     expect(rotuloFonteRadar(bairros.find((x) => x.name === "Brooklin")!)).toBe("GuestFavorites (aproximação pelo Itaim Bibi), jan–set/2026 · coleta 13/10/2026 · confiança baixa");
+  });
+  it("anexa estimativa Bewild só como referência, sem mudar o número principal", () => {
+    const ref = [["adr_medio_brl", 415], ["ocupacao_media_pct", 79], ["adr_p25_brl", 330], ["adr_p75_brl", 500]].map(([indicador, valor]) => ({ bairro: "Vila Olímpia", indicador: String(indicador), valor: Number(valor) }));
+    const vo = anexarReferencias(bairros, ref).find((b) => b.name === "Vila Olímpia")!;
+    expect(vo).toMatchObject({ dailyAvg: 359, avgOccupancy: 59, referenciaBewild: { dailyAvg: 415, avgOccupancy: 79, dailyMin: 330, dailyMax: 500 } });
+    expect(anexarReferencias(bairros, [{ ...ref[0], bairro: "Consolação" }]).find((b) => b.name === "Consolação")!.referenciaBewild).toBeUndefined();
+    expect(rotuloReferenciaBewild(vo.referenciaBewild!)).toBe("Estimativa Bewild: diária R$ 415 · ocupação 79% (dados anteriores da Bewild, sem fonte pública)");
   });
   it("monta o texto de fonte com período, coleta, n= e selo", () => {
     expect(rotuloFonteRadar(bairros.find((x) => x.name === "Pinheiros")!)).toBe("GuestFavorites, jan–set/2026 · coleta 13/10/2026 · n=2.424 · confiança alta");

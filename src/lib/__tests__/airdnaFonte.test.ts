@@ -28,8 +28,8 @@ describe("AirDNA nos bairros sem fonte pública", () => {
 
   it("nota de fontes reflete a base exibida", () => {
     const base = BAIRROS_CURADOS.map((b) => (b.name === "Brooklin" ? { ...b, ocupacaoFonte: "airdna" as const, period: "jan–set/2026" } : b));
-    expect(notaFontesComplementares(base)).toBe("Brooklin: AirDNA (dado licenciado), jan–set/2026. Vila Olímpia: aproximação pelo Itaim Bibi, distrito que inclui a Vila Olímpia e parte do Brooklin (sem dado público por bairro). Consolação: estimativa Bewild (sem fonte pública atualizada).");
-    expect(notaFontesComplementares(BAIRROS_CURADOS)).toBe("Brooklin e Vila Olímpia: aproximação pelo Itaim Bibi, distrito que inclui a Vila Olímpia e parte do Brooklin (sem dado público por bairro). Consolação: estimativa Bewild (sem fonte pública atualizada).");
+    expect(notaFontesComplementares(base)).toBe("Brooklin: AirDNA (dado licenciado), jan–set/2026. Vila Olímpia: aproximação pelo Itaim Bibi, distrito que inclui a Vila Olímpia e parte do Brooklin (sem dado público por bairro). A estimativa Bewild (dados anteriores, sem fonte pública) aparece como referência extra. Consolação: estimativa Bewild (sem fonte pública atualizada).");
+    expect(notaFontesComplementares(BAIRROS_CURADOS)).toBe("Brooklin e Vila Olímpia: aproximação pelo Itaim Bibi, distrito que inclui a Vila Olímpia e parte do Brooklin (sem dado público por bairro). A estimativa Bewild (dados anteriores, sem fonte pública) aparece como referência extra. Consolação: estimativa Bewild (sem fonte pública atualizada).");
   });
 });
 

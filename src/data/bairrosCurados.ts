@@ -16,6 +16,8 @@ export type BairroCurado = {
   activeListings: number | null;
   period: string | null;
   sourceUrl: string | null;
+  /** Referência extra (dados anteriores da Bewild, sem fonte pública); nunca usada em cálculos. */
+  referenciaBewild?: { dailyAvg: number; dailyMin: number; dailyMax: number; avgOccupancy: number };
 };
 export const FONTE_BAIRROS_CURADOS = "Ocupação e diária: GuestFavorites (coleta de 13/10/2026; jan–set/2026, exceto Liberdade e República, jan–jul/2026).";
 export const FONTE_ESTIMATIVA_BEWILD = "estimativa Bewild (sem fonte pública atualizada)";
@@ -36,13 +38,13 @@ const estimativa = (name: string, dailyMin: number, dailyMax: number, avgOccupan
 });
 // Origem: página GuestFavorites do Itaim Bibi (coleta 13/10/2026, jan–set/2026), distrito que inclui
 // a Vila Olímpia e parte do Brooklin; sem anúncios ativos por bairro (3.884 é do distrito).
-const aproximacaoItaim = (name: string): BairroCurado => ({
+const aproximacaoItaim = (name: string, referenciaBewild: BairroCurado["referenciaBewild"]): BairroCurado => ({ referenciaBewild,
   name, avgOccupancy: 59, dailyAvg: 359, dailyQuartiles: [180, 279, 404], dailyMin: 180, dailyMax: 404,
   activeListings: null, period: "jan–set/2026", ocupacaoFonte: "aproximacao", sourceUrl: URL_ITAIM_BIBI,
 });
 export const BAIRROS_CURADOS: BairroCurado[] = [
   gf("Bela Vista", 64, 237, [140, 198, 256], 1983, "jan–set/2026", "bela-vista"),
-  aproximacaoItaim("Brooklin"),
+  aproximacaoItaim("Brooklin", { dailyAvg: 360, dailyMin: 290, dailyMax: 430, avgOccupancy: 75 }),
   estimativa("Consolação", 260, 390, 63),
   gf("Itaim Bibi", 59, 359, [180, 279, 404], 3884, "jan–set/2026", "itaim-bibi"),
   gf("Jardim Paulista", 62, 319, [183, 251, 327], 3147, "jan–set/2026", "jardim-paulista"),
@@ -51,7 +53,7 @@ export const BAIRROS_CURADOS: BairroCurado[] = [
   gf("Pinheiros", 62, 300, [171, 232, 301], 2424, "jan–set/2026", "pinheiros"),
   gf("República", 63, 203, [117, 166, 210], 3079, "jan–jul/2026", "republica"),
   gf("Vila Mariana", 60, 226, [143, 194, 235], 2238, "jan–set/2026", "vila-mariana"),
-  aproximacaoItaim("Vila Olímpia"),
+  aproximacaoItaim("Vila Olímpia", { dailyAvg: 415, dailyMin: 330, dailyMax: 500, avgOccupancy: 79 }),
   gf("Mooca", 59, 241, [27, 195, 268], 85, "jan–set/2026", "mooca"),
   gf("Perdizes", 53, 254, [174, 217, 276], 1752, "jan–set/2026", "perdizes"),
 ];
