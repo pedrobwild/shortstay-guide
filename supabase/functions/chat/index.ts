@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 // Base única: diária, ocupação, quartis, amostra e fonte vêm da view radar_bairro_atual.
-type Curado = { media: number; ocupacao: number; quartis?: number[]; anuncios?: number; periodo?: string; url?: string; gf: boolean; licenciada: boolean; fonte: string; coleta: string; confianca: string; amostraPequena: boolean; desatualizado: boolean };
+type Curado = { media: number; ocupacao: number; quartis?: number[]; anuncios?: number; periodo?: string; url?: string; gf: boolean; licenciada: boolean; aproximacao: boolean; fonte: string; coleta: string; confianca: string; amostraPequena: boolean; desatualizado: boolean };
 const MESES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
 const periodo = (i?: string | null, f?: string | null) => i && f ? `${MESES[+i.slice(5,7)-1]}–${MESES[+f.slice(5,7)-1]}/${f.slice(0,4)}` : undefined;
 const fmtD = (d: string) => d.split("-").reverse().join("/");
