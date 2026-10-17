@@ -16,6 +16,7 @@ import { useRadarBase } from "@/lib/radarBase";
 import { useLocation } from "react-router-dom";
 import { registrarColetaAuditada, rotuloUtms, utmsAcessoColeta } from "@/lib/coletaAuditoria";
 import ColetaAuditoria from "@/components/admin/ColetaAuditoria";
+import ImportacaoAirdna from "@/components/admin/ImportacaoAirdna";
 
 const inicial = () => ({ bairro: "Mooca", fonte_id: "guestfavorites" as const, periodo_inicio: "", periodo_fim: "", coletado_em: new Date().toISOString().slice(0, 10), publicado_em: "", amostra_n: "", url_origem: "", observacao: "" });
 const dataBR = (v: string | null) => v ? v.split("-").reverse().join("/") : "Sem período";
@@ -52,6 +53,8 @@ export default function AdminColetas() {
   return <div className="min-h-screen bg-background"><AppNavbar /><main className="mx-auto max-w-5xl px-4 py-8 space-y-6"><AdminTabs />
     <h1 className="font-display text-2xl font-bold">Coletas de mercado</h1>
     <p className="break-all text-sm text-muted-foreground">UTMs deste acesso: {rotuloUtms(utms)}</p>
+    <ImportacaoAirdna utms={utms} />
+    <h2 className="font-display text-xl font-semibold">Coleta manual GuestFavorites</h2>
     <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); revisar(); }}>
       <div className="grid gap-4 md:grid-cols-2">
         <label className="space-y-1 text-sm"><span>Bairro / referência</span><Select value={form.bairro} onValueChange={(bairro) => setForm((f) => ({ ...f, bairro }))}><SelectTrigger className="min-h-[44px]"><SelectValue /></SelectTrigger><SelectContent>{[...BAIRROS_CURADOS.map((b) => b.name), "São Paulo"].map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent></Select></label>

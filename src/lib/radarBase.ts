@@ -18,12 +18,15 @@ export type BairroRadar = BairroCurado & {
   fonteNome: string; fonteTipo: string; coletadoEm: string | null; idadeDias: number | null; amostraN: number | null; confianca: Confianca | null; estimativa: boolean;
 };
 
+/** Fonte com dado observado: pública (GuestFavorites) ou licenciada (AirDNA, API paga). */
+export const fonteObservada = (tipo: string) => tipo === "publica" || tipo === "licenciada";
+
 /** Qualidade da amostra e idade não mudam o tipo da fonte nem a confiança da view. */
 export function alertasFonteRadar(b: BairroRadar) {
   return {
     estimativa: b.fonteTipo === "estimativa",
-    amostraPequena: b.fonteTipo === "publica" && b.confianca === "baixa" && b.amostraN != null && b.amostraN < 200,
-    desatualizado: b.fonteTipo === "publica" && b.idadeDias != null && b.idadeDias > 240,
+    amostraPequena: fonteObservada(b.fonteTipo) && b.confianca === "baixa" && b.amostraN != null && b.amostraN < 200,
+    desatualizado: fonteObservada(b.fonteTipo) && b.idadeDias != null && b.idadeDias > 240,
   };
 }
 
@@ -62,7 +65,7 @@ export function montarBairros(linhas: LinhaRadar[]): BairroRadar[] {
       dailyMin: p25 ?? dailyAvg, dailyMax: p75 ?? dailyAvg,
       dailyQuartiles: !estimativa && p25 != null && med != null && p75 != null ? [p25, med, p75] : null,
       activeListings: v("anuncios_ativos"),
-      ocupacaoFonte: estimativa ? "bewild" : "guestfavorites",
+      ocupacaoFonte: estimativa ? "bewild" : adr.fonte_id === "airdna" ? "airdna" : "guestfavorites",
       period: rotuloPeriodo(adr.periodo_inicio, adr.periodo_fim),
       sourceUrl: adr.url_origem,
       fonteNome: adr.fonte_nome, fonteTipo: adr.fonte_tipo, coletadoEm: adr.coletado_em, idadeDias: adr.idade_dias ?? null, amostraN: adr.amostra_n,
@@ -107,4 +110,20 @@ export async function carregarRadar(): Promise<{ bairros: BairroRadar[]; cidade:
 export function useRadarBase() {
   useRadarRealtime();
   return useQuery({ queryKey: ["radar_bairro_atual"], queryFn: carregarRadar, staleTime: 60 * 60 * 1000 });
+}
+
+const juntar = (nomes: string[]) => nomes.length <= 1 ? nomes.join("") : `${nomes.slice(0, -1).join(", ")} e ${nomes[nomes.length - 1]}`;
+/**
+ * Nota dos bairros fora da GuestFavorites, montada a partir da base exibida:
+ * "Brooklin: AirDNA (dado licenciado), jan–set/2026. Consolação e Vila Olímpia: estimativa Bewild (sem fonte pública atualizada)."
+ */
+export function notaFontesComplementares(bairros: Pick<BairroCurado, "name" | "ocupacaoFonte" | "period">[]): string {
+  const airdna = bairros.filter((b) => b.ocupacaoFonte === "airdna");
+  const estimativa = bairros.filter((b) => b.ocupacaoFonte === "bewild").map((b) => b.name);
+  const partes: string[] = [];
+  const periodos = new Map<string, string[]>();
+  for (const b of airdna) { const k = b.period ?? ""; periodos.set(k, [...(periodos.get(k) ?? []), b.name]); }
+  for (const [periodo, nomes] of periodos) partes.push(`${juntar(nomes)}: AirDNA (dado licenciado)${periodo ? `, ${periodo}` : ""}.`);
+  if (estimativa.length) partes.push(`${juntar(estimativa)}: estimativa Bewild (sem fonte pública atualizada).`);
+  return partes.join(" ");
 }
