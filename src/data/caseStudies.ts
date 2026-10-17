@@ -41,63 +41,64 @@ export interface CasePhoto {
 
 export interface CaseStudy {
   id: string;
+  /** Nome do cliente, quando o depoimento é público. */
+  cliente?: string;
   bairro: string;
   region: CaseRegion;
-  /** Metragem do studio (m²). */
-  metragem: number;
-  investimento: CaseInvestment;
-  investimentoTotal: number;
-  /** ADR alcançado (diária média, R$). */
-  diaria: number;
-  /** Ocupação média (%). */
-  ocupacao: number;
-  receitaMensal: number;
-  receitaAnual: number;
+  /** Metragem do studio (m²), só quando publicada. */
+  metragem?: number;
+  investimento?: CaseInvestment;
+  investimentoTotal?: number;
+  /** Diária (R$) publicada; ver `diariaContexto`. */
+  diaria?: number;
+  /** Ex.: "no calendário de setembro". */
+  diariaContexto?: string;
+  /** Ocupação (%) publicada; ver `ocupacaoContexto` (mês, não média anual). */
+  ocupacao?: number;
+  ocupacaoContexto?: string;
+  receitaMensal?: number;
+  receitaAnual?: number;
   /** Ex.: "29.1%". */
-  yieldBruto: string;
-  paybackMeses: number;
+  yieldBruto?: string;
+  paybackMeses?: number;
+  /** Marcos qualitativos publicados (ex.: selo do Airbnb). */
+  destaques?: string[];
   timeline: CaseTimelineStep[];
   /** Antes/depois — opcional. Só preencher com material real da Bewild. */
   fotos?: CasePhoto[];
+  /** Link para o depoimento publicado. */
+  depoimentoUrl?: string;
   /** Usado como fallback geral quando não há match de bairro/região. */
   featured?: boolean;
 }
 
 // ── Dados ────────────────────────────────────────────────────────
 
-const PINHEIROS_TIMELINE: CaseTimelineStep[] = [
-  { month: "Mês 1–2", label: "Compra + reforma", desc: "Aquisição, reforma inteligente e marcenaria planejada" },
-  { month: "Mês 3", label: "Decoração + fotos", desc: "Design premium, enxoval e sessão fotográfica profissional" },
-  { month: "Mês 4", label: "Lançamento", desc: "Anúncio otimizado + preço dinâmico + primeiras reservas" },
-  { month: "Mês 5–10", label: "Ramp-up", desc: "Construção de reviews, ajustes de preço, ocupação crescente" },
-  { month: "Mês 11+", label: "Cruzeiro", desc: "Operação estável, receita previsível, payback atingido" },
-];
-
 /**
- * Cases reais da Bewild.
- *
- * Hoje há um único case público (Studio em Pinheiros), os mesmos números que
- * já eram exibidos no guia. Para tornar a prova social mais contextual em mais
- * bairros, adicione novos cases REAIS aqui — o `selectCaseStudies` passa a
- * priorizá-los automaticamente pelo bairro do lead.
+ * Cases reais da Bewild. Só entram números publicados no bewild.com.br;
+ * campo sem dado fica vazio e o cartão correspondente não aparece.
  */
 export const CASE_STUDIES: CaseStudy[] = [
+  // Origem: case publicado no bewild.com.br (depoimento da Vivian). Só estes dados
+  // estão publicados; investimento, yield, payback e receita mensal não.
   {
-    id: "pinheiros-studio-28",
-    bairro: "Pinheiros",
-    region: "Zona Oeste",
-    metragem: 28,
-    investimento: { imovel: 325000, reforma: 32000, decoracao: 28000 },
-    investimentoTotal: 385000,
-    diaria: 380,
-    ocupacao: 82,
-    receitaMensal: 9348,
-    receitaAnual: 112176,
-    yieldBruto: "29.1%",
-    paybackMeses: 7,
-    timeline: PINHEIROS_TIMELINE,
+    id: "vila-olimpia-vivian",
+    cliente: "Vivian",
+    bairro: "Vila Olímpia",
+    region: "Zona Sul",
+    diaria: 275,
+    diariaContexto: "no calendário de setembro",
+    ocupacao: 98,
+    ocupacaoContexto: "em setembro (mês, não média anual)",
+    destaques: ["Preferida dos Hóspedes no Airbnb em menos de 2 meses", "Studio reformado pela Bewild"],
+    timeline: [],
+    depoimentoUrl: "https://bewild.com.br/videos/depoimento-vivian",
     featured: true,
   },
+  // Case Pinheiros (diária R$ 380, ocupação 82%, R$ 9.348/mês, yield 29,1%, payback 7 meses,
+  // reforma R$ 32 mil + decoração R$ 28 mil): retirado da lista pública porque os números
+  // não têm fonte registrada e contradizem a base do guia.
+  // Aguarda fonte documentada para voltar.
 ];
 
 // ── Mapa de regiões (geografia factual de São Paulo) ─────────────
@@ -182,13 +183,13 @@ function makeProfileSorter(profile?: InvestorProfile | null) {
   const metric = (c: CaseStudy): number => {
     switch (dominant) {
       case "retorno":
-        return parseFloat(c.yieldBruto) || 0;
+        return parseFloat(c.yieldBruto ?? "") || 0;
       case "demanda":
-        return c.ocupacao;
+        return c.ocupacao ?? 0;
       case "operacao":
-        return -c.paybackMeses; // payback menor = melhor
+        return c.paybackMeses != null ? -c.paybackMeses : 0; // payback menor = melhor
       case "futuro":
-        return c.receitaAnual;
+        return c.receitaAnual ?? 0;
       default:
         return 0;
     }
