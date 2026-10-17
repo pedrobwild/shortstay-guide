@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
+import LinkArtigoBewild from "./LinkArtigoBewild";
+import type { ArtigoBewild } from "@/data/artigosBewild";
 
 interface SectionBlockProps {
   id: string;
@@ -7,6 +9,8 @@ interface SectionBlockProps {
   takeaway: string;
   children: React.ReactNode;
   className?: string;
+  /** Análise completa no bewild.com.br, mostrada no fim da seção. */
+  artigo?: ArtigoBewild;
 }
 
 /** Registra "section_enter" (telemetria interna, só com consentimento) na primeira vez que a seção aparece. */
@@ -31,13 +35,14 @@ export function useRastrearSecao<T extends HTMLElement>(id: string) {
 }
 
 /** Seção do guia: título em Playfair, frase de apoio e conteúdo. Sem animação de entrada (só funcionais). */
-export default function SectionBlock({ id, title, takeaway, children, className }: SectionBlockProps) {
+export default function SectionBlock({ id, title, takeaway, children, className, artigo }: SectionBlockProps) {
   const sectionRef = useRastrearSecao<HTMLElement>(id);
   return (
     <section ref={sectionRef} id={id} className={`scroll-mt-24 py-14 md:py-[72px] ${className ?? ""}`}>
       <h2 className="mb-3 font-display text-[28px] font-bold leading-[1.15] text-foreground text-balance md:text-[36px]">{title}</h2>
       <p className="mb-8 max-w-[720px] text-[17px] leading-[1.55] text-muted-foreground">{takeaway}</p>
       {children}
+      {artigo && <LinkArtigoBewild artigo={artigo} className="mt-6" />}
     </section>
   );
 }

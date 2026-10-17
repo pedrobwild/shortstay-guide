@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { motion } from "framer-motion";
 import { Building2, Home, MapPin, ShieldCheck, ArrowRight, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import SectionBlock from "./SectionBlock";
+import { ARTIGOS_BEWILD } from "@/data/artigosBewild";
 import { useGuideDecision } from "@/hooks/useGuideDecision";
 
 /* ── Scoring checklist data ── */
@@ -130,6 +131,7 @@ export default function EscolhaAtivoSection() {
 
   return (
     <SectionBlock
+      artigo={ARTIGOS_BEWILD.avaliarUnidade}
       id="escolha-ativo"
       title="Como Avaliar a Unidade"
       takeaway="Nem todo studio é bom para short stay. Use este framework para avaliar antes de comprar."

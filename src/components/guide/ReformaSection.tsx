@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { Lightbulb, Wrench, Star } from "lucide-react";
 import sectionReforma from "@/assets/section-reforma.jpg";
 import SectionBlock from "./SectionBlock";
+import { ARTIGOS_BEWILD } from "@/data/artigosBewild";
 import { fmt } from "@/data/guide-data";
 import { PROPOSTA_REAL_PCT, PROPOSTA_REAL_VALOR, PROPOSTA_REAL_DATA, milReais, ORCAMENTO_MEDIANO, CONTRATOS_ANALISADOS, ESTUDO_REFORMA_URL, STUDIO_EXEMPLO_IMOVEL, STUDIO_EXEMPLO_ITBI, STUDIO_EXEMPLO_TOTAL, STUDIO_EXEMPLO_PCT_REFORMA, STUDIO_EXEMPLO_M2, FIPEZAP_M2, FIPEZAP_DATA } from "@/data/provasBewild";
 
@@ -19,7 +20,7 @@ export default function ReformaSection() {
   const diffPiso = totalPorcelanato - totalVinilico;
 
   return (
-    <SectionBlock id="reforma" title="Reforma Inteligente" takeaway="Quanto investir e como comparar escolhas de materiais e serviços.">
+    <SectionBlock artigo={ARTIGOS_BEWILD.piso} id="reforma" title="Reforma Inteligente" takeaway="Quanto investir e como comparar escolhas de materiais e serviços.">
       <div className="rounded-2xl overflow-hidden mb-8 shadow-sm ring-1 ring-border"><img src={sectionReforma} alt="Antes e depois de reforma de studio" className="w-full h-40 md:h-64 object-cover" loading="lazy" width={800} height={256} /></div>
       <div className="mb-6 space-y-2 font-body">
         <p className="text-sm text-foreground">Exemplo calculado com o estudo de {CONTRATOS_ANALISADOS} contratos: studio de {STUDIO_EXEMPLO_M2} m² × R$ {fmt(FIPEZAP_M2)}/m² (FipeZAP, {FIPEZAP_DATA}) = R$ {fmt(STUDIO_EXEMPLO_IMOVEL)} pelo imóvel. ITBI de 3% (hipótese): R$ {fmt(STUDIO_EXEMPLO_ITBI)}. Reforma completa mediana: R$ {fmt(ORCAMENTO_MEDIANO)}, já incluindo mobiliário e eletros. Total: R$ {fmt(STUDIO_EXEMPLO_TOTAL)}; reforma: {formatDecimal(STUDIO_EXEMPLO_PCT_REFORMA, 1)}% do investimento.</p>
