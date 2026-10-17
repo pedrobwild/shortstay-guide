@@ -1,4 +1,4 @@
-import { useEffect, useState, createContext, useContext } from "react";
+import { useEffect, useMemo, useState, createContext, useContext, startTransition } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
@@ -27,27 +27,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Listener FIRST, then getSession
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    // As atualizações vão como transição: chegam logo após a carga, muitas vezes antes de
+    // a home pré-renderizada terminar de hidratar. Como atualização urgente, o React
+    // descartaria o HTML pronto da página (erro #421); como transição, espera a hidratação.
+    const aplicar = (s: Session | null) => startTransition(() => {
+      setSession(s);
+      setUser(s?.user ?? null);
       setLoading(false);
     });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => aplicar(session));
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    supabase.auth.getSession().then(({ data: { session } }) => aplicar(session));
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-  };
+  const signOut = useMemo(() => async () => { await supabase.auth.signOut(); }, []);
+
+  // Valor estável: só muda quando o login muda (evita re-render de toda a árvore à toa).
+  const valor = useMemo(() => ({ user, session, loading, signOut }), [user, session, loading, signOut]);
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signOut }}>
+    <AuthContext.Provider value={valor}>
       {children}
     </AuthContext.Provider>
   );
