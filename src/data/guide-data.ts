@@ -37,7 +37,7 @@ export const SECTIONS = [
   // Bloco 2 — Como validar a conta
   { id: "escolha-ativo", label: "Escolha do Ativo", icon: Building2, phase: 2 },
   { id: "rentabilidade", label: "Matemática do Investimento", icon: PieChart, phase: 2 },
-  { id: "simulador", label: "Simulador de Receita", icon: Calculator, phase: 2 },
+  { id: "simulador", label: "Simulador de receita", icon: Calculator, phase: 2 },
   // Bloco 3 — O que faz um studio performar
   { id: "reservas", label: "O que move reservas", icon: TrendingUp, phase: 3 },
   { id: "reforma", label: "Reforma inteligente", icon: Paintbrush, phase: 3 },

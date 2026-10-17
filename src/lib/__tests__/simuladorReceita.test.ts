@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import { getBairroCurado } from "@/data/bairrosCurados";
 import { DEDUCOES_PADRAO_PCT } from "@/lib/bairroAjustes";
 import {
-  IMOVEL_PADRAO, RENTABILIDADE_LOCACAO_SP_AA, SHORT_STAY_PADRAO, TRADICIONAL_PADRAO, aluguelReferencia, indicadores, resultadoShortStay, resultadoTradicional,
+  CHAVE_CENARIOS, CHAVE_CENARIOS_ANTIGA, CHAVE_RASCUNHO, CHAVE_RASCUNHO_PROJECAO, IMOVEL_PADRAO, PREMISSAS_SIMULADOR_PADRAO, RENTABILIDADE_LOCACAO_SP_AA,
+  SHORT_STAY_PADRAO, TRADICIONAL_PADRAO, aluguelReferencia, indicadores, lerCenarios, lerPremissasDaQuery, lerRascunho, mesAMes, normalizarPremissasSimulador,
+  premissasParaQuery, resultadoShortStay, resultadoTradicional, salvarRascunho, type PremissasSimulador,
 } from "@/lib/simuladorReceita";
 
 const pinheiros = getBairroCurado("Pinheiros")!;
@@ -91,5 +93,81 @@ describe("indicadores sobre o valor do imóvel", () => {
     const i = indicadores(r, 500_000)!;
     expect(i.rentabilidadeAA).toBeCloseTo(6, 5);
     expect(i.paybackAnos).toBeCloseTo(500_000 / 30_000, 5);
+  });
+});
+
+describe("premissas completas: link, rascunho e cenários", () => {
+  const base = { ...PREMISSAS_SIMULADOR_PADRAO, bairro: "Vila Mariana" };
+
+  it("ida e volta: só o que difere do padrão vai na URL e volta igual", () => {
+    const p: PremissasSimulador = {
+      ...base, modo: "tradicional", area: "20–25 m²", decoracao: "premium", diaria: 260, ocupacao: 62,
+      imovel: { valorImovel: 500_000, condominio: 650, iptu: 120 }, reforma: 71_850,
+      shortStay: { ...SHORT_STAY_PADRAO, gestaoPct: 15 }, aluguel: 2_700,
+      tradicional: { ...TRADICIONAL_PADRAO, vacanciaMeses: 2, encargosPeloInquilino: false, irPct: 7.5 },
+    };
+    const query = premissasParaQuery(p, "vila-mariana");
+    expect(query).toBe("bairro=vila-mariana&modo=tradicional&area=20%E2%80%9325+m%C2%B2&dec=premium&diaria=260&occ=62&valor=500000&cond=650&iptu=120&reforma=71850&gestao=15&aluguel=2700&vac=2&enc=0&ir=7.5");
+    const lido = lerPremissasDaQuery(`?${query}`);
+    expect(lido.slugBairro).toBe("vila-mariana");
+    expect(lido.veioAlgo).toBe(true);
+    expect(normalizarPremissasSimulador({ ...base, ...lido.premissas })).toEqual(p);
+  });
+
+  it("padrões não vão na URL; só o bairro não conta como link compartilhado", () => {
+    expect(premissasParaQuery(base, "pinheiros")).toBe("bairro=pinheiros");
+    expect(lerPremissasDaQuery("?bairro=pinheiros")).toEqual({ slugBairro: "pinheiros", premissas: {}, veioAlgo: false });
+  });
+
+  it("lê o formato anterior do simulador da home (m, occ, diaria, boost, reforma)", () => {
+    const { premissas, veioAlgo } = lerPremissasDaQuery("?bairro=pinheiros&m=27&occ=62&diaria=260&obj=premium&boost=20&reforma=71850");
+    expect(veioAlgo).toBe(true);
+    expect(premissas).toMatchObject({ area: "26–35 m²", ocupacao: 62, diaria: 260, decoracao: "premium", reforma: 71850 });
+  });
+
+  it("ignora valores fora das faixas ou malformados", () => {
+    const { premissas } = lerPremissasDaQuery("?bairro=pinheiros&occ=20&diaria=-3&dec=hack&valor=abc&modo=x");
+    expect(premissas.ocupacao).toBeNull();
+    expect(premissas.diaria).toBeNull();
+    expect(premissas.decoracao).toBe("basico");
+    expect(premissas.modo).toBe("short_stay");
+    expect(premissas).not.toHaveProperty("imovel");
+  });
+
+  it("rascunho: lê o atual, migra o da /projecao anterior e cai no padrão se ilegível", () => {
+    const mem = new Map<string, string>();
+    const arm = { getItem: (k: string) => mem.get(k) ?? null, setItem: (k: string, v: string) => { mem.set(k, v); } };
+    expect(lerRascunho(arm)).toEqual(PREMISSAS_SIMULADOR_PADRAO);
+    mem.set(CHAVE_RASCUNHO_PROJECAO, JSON.stringify({ bairro: "Moema", area: "36–50 m²", valorImovel: 400_000, condominio: 700, diaria: 280, ocupacao: 70, gestao: 15, impostos: 6, limpeza: 120, estadia: 3 }));
+    expect(lerRascunho(arm)).toMatchObject({ bairro: "Moema", area: "36–50 m²", diaria: 280, ocupacao: 70, imovel: { valorImovel: 400_000, condominio: 700, iptu: 0 }, shortStay: { gestaoPct: 15 } });
+    salvarRascunho({ ...base, reforma: 50_000 }, arm);
+    expect(lerRascunho(arm).reforma).toBe(50_000);
+    mem.set(CHAVE_RASCUNHO, "{não é json");
+    expect(lerRascunho(arm)).toEqual(PREMISSAS_SIMULADOR_PADRAO);
+  });
+
+  it("cenários: migra os do simulador anterior uma vez", () => {
+    const mem = new Map<string, string>();
+    const arm = { getItem: (k: string) => mem.get(k) ?? null, setItem: (k: string, v: string) => { mem.set(k, v); } };
+    mem.set(CHAVE_CENARIOS_ANTIGA, JSON.stringify([{ id: "a", name: "Cenário 1 — Pinheiros 30m²", bairro: "Pinheiros", metragem: 30, ocupacao: 70, diariaAtual: "320", rateBoost: 30, reformaBudget: "72000", receitaMensal: 6720 }]));
+    const lista = lerCenarios(arm);
+    expect(lista).toHaveLength(1);
+    expect(lista[0].premissas).toMatchObject({ bairro: "Pinheiros", area: "26–35 m²", ocupacao: 70, diaria: 320, decoracao: "alto", reforma: 72000 });
+    expect(mem.has(CHAVE_CENARIOS)).toBe(true);
+  });
+});
+
+describe("mês a mês", () => {
+  it("reparte a receita anual pela sazonalidade e a soma bate com o ano", () => {
+    const r = resultadoShortStay({ diaria: 300, ocupacaoPct: 60 }, { valorImovel: 0, condominio: 500, iptu: 100 }, SHORT_STAY_PADRAO);
+    const meses = mesAMes(r, [0.85, 0.95, 1.1, 1.1, 1, 0.9, 0.95, 1, 1.05, 1.1, 1.15, 0.85], new Date(Date.UTC(2026, 10, 1)));
+    expect(meses).toHaveLength(12);
+    expect(meses[0]).toMatchObject({ chave: "2026-11", rotulo: "nov", ano: 2026 });
+    expect(meses[11]).toMatchObject({ chave: "2027-10", rotulo: "out", ano: 2027 });
+    const somaBruta = meses.reduce((s, m) => s + m.bruta, 0);
+    expect(Math.abs(somaBruta - r.receitaBruta * 12)).toBeLessThanOrEqual(12); // arredondamento por mês
+    // Fixos (condomínio + IPTU + contas = R$ 1.100) iguais todo mês; o resto acompanha a receita.
+    const fixos = 500 + 100 + SHORT_STAY_PADRAO.contas;
+    for (const m of meses) expect(m.custos - Math.round(m.bruta * 0.34)).toBe(fixos);
   });
 });

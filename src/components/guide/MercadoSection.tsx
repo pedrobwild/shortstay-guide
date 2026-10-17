@@ -3,7 +3,6 @@ import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useBairroData } from "@/hooks/useBairroData";
 import SectionBlock from "./SectionBlock";
-import SimuladorReceitaLiquida from "@/components/guide/SimuladorReceitaLiquida";
 import { VariacaoColetaResumo } from "@/components/guide/VariacaoColeta";
 import { FONTE_BAIRROS_CURADOS } from "@/data/bairrosCurados";
 import { notaFontesComplementares } from "@/lib/radarBase";
@@ -13,9 +12,10 @@ export default function MercadoSection() {
   return (
     <SectionBlock id="mercado" title="Mercado e Precificação — São Paulo" takeaway="Diárias médias, ocupação e receita por bairro atualizado.">
       <Badge variant="secondary" className="mb-4 text-xs font-body">Fonte: {FONTE_BAIRROS_CURADOS}</Badge>
-      <h3 className="font-display text-xl font-bold text-foreground mb-1">Simulador de receita líquida</h3>
-      <p className="mb-4 text-sm text-muted-foreground font-body">Da diária do bairro ao que sobra por mês, no short stay e na locação tradicional.</p>
-      <SimuladorReceitaLiquida />
+      <p className="mb-4 text-sm text-muted-foreground font-body">
+        Diária, ocupação e faixa de preço de cada bairro estão no ranking e no mapa acima. Para ver o que sobra por mês no seu imóvel,{" "}
+        <a href="#simulador" className="inline-flex min-h-[44px] items-center font-semibold text-primary underline underline-offset-4">use o simulador de receita líquida</a>.
+      </p>
       <VariacaoColetaResumo />
       <Accordion type="multiple" className="mt-4 font-body">
         <AccordionItem value="metodologia">
