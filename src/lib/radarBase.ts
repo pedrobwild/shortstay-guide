@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useRadarRealtime } from "@/hooks/useRadarRealtime";
 import { BAIRROS_CURADOS, SAO_PAULO_REFERENCIA, type BairroCurado } from "@/data/bairrosCurados";
 
 /**
@@ -104,5 +105,6 @@ export async function carregarRadar(): Promise<{ bairros: BairroRadar[]; cidade:
 }
 
 export function useRadarBase() {
+  useRadarRealtime();
   return useQuery({ queryKey: ["radar_bairro_atual"], queryFn: carregarRadar, staleTime: 60 * 60 * 1000 });
 }
