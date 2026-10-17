@@ -25,6 +25,17 @@ VALUES ('airdna', 'AirDNA', 'licenciada', 'https://www.airdna.co', true,
 
 `AIRDNA_API_KEY` é configurado no Lovable Cloud (Secrets). Nunca vai para o frontend nem para o repositório.
 
+## ⚠️ Antes de ativar: licença
+
+Os termos gerais da AirDNA (https://www.airdna.co/terms-of-service) limitam o dado a **uso interno** (§1.3), proíbem **distribuir/divulgar** (§1.3(i)), tratam o dado como confidencial (§3.1) e proíbem **expor o conteúdo a sistemas de IA** (§1.3(x) e §5.4). Exibir no site público e passar ao chat do Radar só é possível se o contrato Enterprise disser o contrário — confirmar por escrito com a AirDNA (api@airdna.co) antes de inserir a fonte `airdna`.
+
+## Pontos da API a confirmar no primeiro teste com o token
+
+- Caminho de métricas de **submercado**: a função usa `/market/{id}/metrics/*` com o id do submercado; a doc lista endpoints próprios de submercado sem expor o caminho no texto.
+- `currency: "brl"` aceito (doc só cita ISO 4217 com exemplos usd/eur).
+- A API não aceita data inicial: pede 12–60 meses e o período é filtrado por mês na função.
+- Percentis (quartis de diária) existem como parâmetro, mas o formato da resposta não está documentado — por isso a prévia não traz quartis.
+
 ## Pendências conhecidas
 
 - Telas que ainda leem a reserva offline (`getBairroCurado`) — mapa de bairros, ranking e detalhe da inteligência — continuam mostrando a estimativa até migrarem para `useBairroData`/`radar_bairro_atual`. Isso já acontece hoje com novas coletas GuestFavorites.
