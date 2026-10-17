@@ -48,11 +48,12 @@ async function loadBairrosContext(): Promise<string> {
       media: Number(adr.valor), ocupacao: Number(occ.valor), gf: gfOk, fonte: adr.fonte_nome, coleta: adr.coletado_em,
       confianca: adr.confianca === "baixa" || occ.confianca === "baixa" ? "baixa" : adr.confianca === "media" || occ.confianca === "media" ? "média" : "alta",
       licenciada: adr.fonte_tipo === "licenciada",
+      aproximacao: adr.fonte_id === "aproximacao_itaim_bibi",
       amostraPequena: ["publica", "licenciada"].includes(adr.fonte_tipo) && (adr.confianca === "baixa" || occ.confianca === "baixa") && adr.amostra_n != null && Number(adr.amostra_n) < 200,
       desatualizado: ["publica", "licenciada"].includes(adr.fonte_tipo) && Number(adr.idade_dias) > 240,
       anuncios: adr.amostra_n != null ? Number(adr.amostra_n) : undefined,
       periodo: periodo(adr.periodo_inicio, adr.periodo_fim), url: adr.url_origem,
-      ...(gfOk && q.every(Boolean) ? { quartis: q.map((x) => Number(x.valor)) } : {}),
+      ...((gfOk || adr.fonte_id === "aproximacao_itaim_bibi") && q.every(Boolean) ? { quartis: q.map((x) => Number(x.valor)) } : {}),
     };
   };
   const sp = curado("São Paulo");
@@ -68,7 +69,7 @@ async function loadBairrosContext(): Promise<string> {
           ...(c.quartis ? [
             `- Diária: 25% mais baratos / mediana / 25% mais caros: R$${c.quartis.join(" / R$")}`,
           ] : []),
-          `- Fonte: ${c.fonte}${c.periodo ? `, ${c.periodo}` : ""}${c.url ? ` (${c.url})` : ""}; coleta de ${fmtD(c.coleta)}; confiança ${c.confianca}${c.gf ? (c.licenciada ? " — dado licenciado (AirDNA, API paga), não estimativa" : " — dado público, não estimativa") : " — estimativa (sem fonte pública atualizada)"}`,
+          `- Fonte: ${c.fonte}${c.periodo ? `, ${c.periodo}` : ""}${c.url ? ` (${c.url})` : ""}; coleta de ${fmtD(c.coleta)}; confiança ${c.confianca}${c.gf ? (c.licenciada ? " — dado licenciado (AirDNA, API paga), não estimativa" : " — dado público, não estimativa") : c.aproximacao ? " — aproximação pelo Itaim Bibi, distrito que inclui a Vila Olímpia e parte do Brooklin (sem dado público por bairro; não há anúncios ativos por bairro)" : " — estimativa (sem fonte pública atualizada)"}`,
           ...(c.anuncios != null ? [`- Amostra: ${c.anuncios} anúncios${c.amostraPequena ? " — amostra pequena" : ""}`] : []),
           ...(c.desatualizado ? [`- Dado desatualizado: coleta de ${fmtD(c.coleta)} (há mais de 240 dias).`] : []),
           `- Receita mensal de referência (diária média × 30 × ocupação): R$${Math.round(c.media * 30 * c.ocupacao / 100)}`,
