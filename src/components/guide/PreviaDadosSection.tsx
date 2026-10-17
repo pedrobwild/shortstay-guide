@@ -1,6 +1,6 @@
 import { useMemo, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
-import { ChevronDown } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FonteBairro from "@/components/guide/FonteBairro";
 import FaixaQuartis from "@/components/guide/FaixaQuartis";
@@ -118,7 +118,9 @@ export default function PreviaDadosSection() {
 
         <div className="min-w-0">
           <p className="mb-2.5 text-[13px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Exploração por bairros</p>
-          <div className="mapa-esquema relative h-[320px] overflow-hidden rounded-[4px] sm:h-[440px]" style={{ "--grade": "44px" } as CSSProperties}>
+          {/* No celular o esquema fica baixo e vira um atalho único para o mapa (os pontos não têm nome
+              e ficariam pequenos para tocar); o ranking acima já leva a cada bairro. */}
+          <div className="mapa-esquema relative h-[200px] overflow-hidden rounded-[4px] sm:h-[440px]" style={{ "--grade": "44px" } as CSSProperties}>
             {bairros.map((b) => {
               const p = posicoes.get(b.name);
               if (!p) return null;
@@ -133,7 +135,16 @@ export default function PreviaDadosSection() {
                 />
               );
             })}
-            <span className="absolute bottom-2.5 left-3 text-xs text-muted-foreground">Esquema · tamanho = anúncios na amostra</span>
+            <Link
+              to="/mapa"
+              onClick={() => trackGlobal("cta_clicked", { cta_id: "abrir_mapa_esquema", section: "home_previa" })}
+              className="absolute inset-0 z-[1] flex items-end justify-start p-2.5 sm:hidden"
+            >
+              <span className="inline-flex min-h-[36px] items-center gap-1 rounded-full bg-card px-3 text-[13px] font-semibold text-primary shadow-marcador">
+                Toque para abrir o mapa<ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </span>
+            </Link>
+            <span className="absolute bottom-2.5 left-3 hidden text-xs text-muted-foreground sm:inline">Esquema · tamanho = anúncios na amostra</span>
           </div>
           <div className="mt-5 flex flex-wrap gap-2">
             <Button asChild className="min-h-[44px] px-[18px] text-[15px] font-semibold">

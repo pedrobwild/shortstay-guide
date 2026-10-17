@@ -4,7 +4,7 @@ import { GEO_BAIRROS } from "@/data/bairrosGeo";
 import { bairrosReserva } from "@/lib/radarBase";
 import { aplicarAjuste } from "@/lib/bairroAjustes";
 import {
-  FILTROS_INICIAIS, RECEITA_REFERENCIA_SP, ajusteManual, corEscalaReceita, descricaoNatureza, estiloMarcador, extremosLegendaReceita,
+  FILTROS_INICIAIS, RECEITA_REFERENCIA_SP, ajusteManual, corEscalaReceita, descricaoNatureza, diferencasAteOMaior, estiloMarcador, extremosLegendaReceita,
   fimEscalaQuartis, fonteCurtaBairro, lerNumeroDigitado, marcaNatureza, naturezaBairro, notaEstimativas, ordenarPorReceita, passaFiltros,
   passoEscalaReceita, posicoesEsquema, tamanhoMarcador, temFiltroAtivo, textoSemQuartis, textosFontes, avisoAmostraBairro,
 } from "@/lib/radarUi";
@@ -182,5 +182,35 @@ describe("mapa esquemático da home", () => {
   it("bairro sem posição conhecida fica de fora", () => {
     expect(posicoesEsquema(["Pinheiros", "Bairro inexistente"]).has("Bairro inexistente")).toBe(false);
     expect(Object.keys(GEO_BAIRROS).sort()).toEqual(BAIRROS_CURADOS.map((b) => b.name).sort());
+  });
+});
+
+describe("diferença até o maior valor na comparação", () => {
+  const linha = (nomes: string[], valor: (b: ReturnType<typeof porNome>) => number | null) => diferencasAteOMaior(nomes.map((n) => ({ nome: n, valor: valor(porNome(n)) })));
+
+  it("mostra quanto cada bairro fica abaixo do maior, com os números da base", () => {
+    expect(linha(["Pinheiros", "Itaim Bibi", "Bela Vista"], (b) => b.dailyAvg)).toEqual([
+      { ate: "Itaim Bibi", diferenca: 59 }, null, { ate: "Itaim Bibi", diferenca: 122 },
+    ]);
+    // Ocupação em pontos percentuais: 64% (Bela Vista) − 62% (Pinheiros).
+    expect(linha(["Pinheiros", "Bela Vista"], (b) => b.avgOccupancy)).toEqual([{ ate: "Bela Vista", diferenca: 2 }, null]);
+    // Receita de referência: R$ 6.354 (Itaim Bibi) − R$ 5.580 (Pinheiros).
+    expect(linha(["Pinheiros", "Itaim Bibi"], receitaMensalReferencia)).toEqual([{ ate: "Itaim Bibi", diferenca: 774 }, null]);
+  });
+
+  it("empate no maior valor junta os nomes; empate geral não tem diferença", () => {
+    // Brooklin usa os números do Itaim Bibi (aproximação): os dois empatam na diária.
+    expect(linha(["Pinheiros", "Itaim Bibi", "Brooklin"], (b) => b.dailyAvg)[0]).toEqual({ ate: "Itaim Bibi e Brooklin", diferenca: 59 });
+    expect(linha(["Itaim Bibi", "Brooklin"], (b) => b.dailyAvg)).toEqual([null, null]);
+  });
+
+  it("sem valor (anúncios da aproximação) não entra na conta; com menos de dois valores não há diferença", () => {
+    expect(linha(["Pinheiros", "Itaim Bibi", "Brooklin"], (b) => b.activeListings)).toEqual([{ ate: "Itaim Bibi", diferenca: 1460 }, null, null]);
+    expect(linha(["Pinheiros", "Brooklin"], (b) => b.activeListings)).toEqual([null, null]);
+    expect(linha(["Pinheiros"], (b) => b.dailyAvg)).toEqual([null]);
+  });
+
+  it("usa os números como aparecem na tela (inteiros)", () => {
+    expect(diferencasAteOMaior([{ nome: "A", valor: 61.6 }, { nome: "B", valor: 59.4 }])).toEqual([null, { ate: "A", diferenca: 3 }]);
   });
 });

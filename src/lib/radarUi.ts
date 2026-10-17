@@ -256,6 +256,22 @@ export function lerNumeroDigitado(texto: string): number | null {
 /** Cores das séries da comparação (até 3 bairros). */
 export const COR_SERIE = ["hsl(var(--serie-1))", "hsl(var(--serie-2))", "hsl(var(--serie-3))"] as const;
 
+export type DiferencaAteOMaior = { ate: string; diferenca: number } | null;
+/**
+ * Comparação de bairros: quanto cada valor fica abaixo do maior da linha (`ate` = quem tem o maior;
+ * empates aparecem juntos, "Brooklin e Itaim Bibi"). A conta usa os números como aparecem na tela
+ * (inteiros), para bater com o que se lê. Só existe com dois ou mais valores; quem tem o maior
+ * valor, e quem está sem valor, fica com null. Nenhum número novo: só a diferença entre exibidos.
+ */
+export function diferencasAteOMaior(itens: { nome: string; valor: number | null }[]): DiferencaAteOMaior[] {
+  const exibidos = itens.map((i) => (i.valor == null ? null : Math.round(i.valor)));
+  const comValor = exibidos.filter((v): v is number => v != null);
+  if (comValor.length < 2) return itens.map(() => null);
+  const maior = Math.max(...comValor);
+  const ate = juntarNomes(itens.filter((_, k) => exibidos[k] === maior).map((i) => i.nome));
+  return exibidos.map((v) => (v == null || v === maior ? null : { ate, diferenca: maior - v }));
+}
+
 /**
  * Posições do mapa esquemático (0–100% em x e y) a partir do centro de cada
  * bairro, com margem nas bordas. Bairros sem posição conhecida ficam de fora.
