@@ -11,6 +11,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { useRadarBase, rotuloPeriodo } from "@/lib/radarBase";
 import { CONFIANCAS, NOMES_CONFIANCA, resumirConfianca, TAMANHO_HISTORICO, useHistoricoMercado } from "@/lib/radarMonitoramento";
 import { formatDecimal, formatPercent } from "@/lib/numberFormat";
+import ColetaAuditoria from "@/components/admin/ColetaAuditoria";
 
 const config = {
   alta: { label: "Alta", color: "hsl(var(--primary))" },
@@ -75,6 +76,7 @@ export default function AdminMercado() {
         <p>{r.radar_fontes?.nome ?? r.fonte_id} · {rotuloPeriodo(r.periodo_inicio, r.periodo_fim) ?? "Sem período informado"}</p>
         <p className="tabular-nums">Diária média R$ {formatDecimal(Number(r.valor), 2)} · {r.amostra_n == null ? "Amostra não informada" : `n=${formatDecimal(r.amostra_n, 0)} anúncios`}</p>
         {r.publicado_em && <p className="text-muted-foreground">Publicação da fonte: {dataBR(r.publicado_em)}</p>}
+        <ColetaAuditoria auditoria={r.radar_coleta_auditoria} />
         {r.observacao && <p className="break-words text-muted-foreground">{r.observacao}</p>}
         {r.url_origem && <Button asChild variant="link" className="h-auto min-h-[44px] px-0"><a href={r.url_origem} target="_blank" rel="noopener noreferrer">Ver fonte<ExternalLink className="ml-2 h-4 w-4" /></a></Button>}
       </li>)}</ul>
