@@ -56,8 +56,12 @@ describe("locação tradicional", () => {
   it("vacância reduz a receita média e deixa condomínio e IPTU com o proprietário nesses meses", () => {
     const r = resultadoTradicional({ valorImovel: 0, condominio: 600, iptu: 120 }, { ...TRADICIONAL_PADRAO, aluguel: 2400, vacanciaMeses: 1 });
     expect(r.receitaBruta).toBe(2200); // 2.400 × 11 ÷ 12
-    expect(r.deducoes.find((d) => d.chave === "encargos")!.valor).toBe(60); // (600 + 120) × 1 ÷ 12
+    const encargos = r.deducoes.find((d) => d.chave === "encargos")!;
+    expect(encargos.valor).toBe(60); // (600 + 120) × 1 ÷ 12
+    expect(encargos.base).toBe("só no mês sem inquilino");
     expect(r.liquido).toBe(2140);
+    const dois = resultadoTradicional({ valorImovel: 0, condominio: 600, iptu: 120 }, { ...TRADICIONAL_PADRAO, aluguel: 2400, vacanciaMeses: 2 });
+    expect(dois.deducoes.find((d) => d.chave === "encargos")!.base).toBe("só nos 2 meses sem inquilino");
   });
 
   it("sem vacância e com encargos no inquilino, não há dedução de condomínio e IPTU", () => {
@@ -71,6 +75,7 @@ describe("locação tradicional", () => {
     expect(r.deducoes.find((d) => d.chave === "encargos")!.valor).toBe(720);
     expect(r.deducoes.find((d) => d.chave === "administracao")!.valor).toBe(240);
     expect(r.deducoes.find((d) => d.chave === "ir")!.valor).toBe(180);
+    expect(r.deducoes.find((d) => d.chave === "ir")!.base).toBe("7,5% do aluguel recebido"); // vírgula decimal (numberFormat)
     expect(r.liquido).toBe(2400 - 720 - 240 - 180);
   });
 });

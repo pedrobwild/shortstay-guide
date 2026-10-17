@@ -175,7 +175,7 @@ export default function SimuladorReceitaLiquida() {
             <Campo rotulo="Valor do imóvel" ajuda="Opcional: libera rentabilidade e prazo de retorno." largo>
               <Stepper rotulo="Valor do imóvel" valor={imovel.valorImovel} onChange={(v) => setImovel((i) => ({ ...i, valorImovel: v }))} formatar={brl} {...LIMITES.valorImovel} />
             </Campo>
-            <Campo rotulo="Condomínio por mês">
+            <Campo rotulo="Condomínio por mês" ajuda="Exemplo de partida; informe o do seu prédio.">
               <Stepper rotulo="Condomínio por mês" valor={imovel.condominio} onChange={(v) => setImovel((i) => ({ ...i, condominio: v }))} formatar={brl} {...LIMITES.condominio} />
             </Campo>
             <Campo rotulo="IPTU por mês" ajuda="Carnê anual dividido por 12.">
@@ -201,7 +201,10 @@ export default function SimuladorReceitaLiquida() {
                     </SelectContent>
                   </Select>
                   <p className="text-xs leading-snug text-muted-foreground">
-                    Faixa de diárias com esse nível: {brl(faixa.min)} a {brl(faixa.max)} (25% mais baratos a 25% mais caros{natureza === "aproximacao" ? " do Itaim Bibi" : ""}). A conta usa a diária média: {brl(Math.round(faixa.media))}.
+                    {natureza === "estimativa"
+                      ? `Sem quartis publicados: estimativa Bewild de ${brl(faixa.min)} a ${brl(faixa.max)} por diária com esse nível.`
+                      : `Faixa de diárias com esse nível: ${brl(faixa.min)} a ${brl(faixa.max)} (25% mais baratos a 25% mais caros${natureza === "aproximacao" ? " do Itaim Bibi" : ""}).`}
+                    {" "}A conta usa a diária média: {brl(Math.round(faixa.media))}.
                   </p>
                 </div>
                 <div className="grid gap-2">
@@ -252,16 +255,16 @@ export default function SimuladorReceitaLiquida() {
                     )}
                   </>
                 )}
-                <p className="text-xs leading-snug text-muted-foreground">Padrão do guia: Airbnb 3%, gestão 20%, impostos 6% e manutenção 5% da receita bruta. Limpeza costuma ser cobrada do hóspede e fica fora da conta.</p>
+                <p className="text-xs leading-snug text-muted-foreground">Padrão do guia (DRE de 45%): Airbnb 3%, gestão 20%, impostos 6% e manutenção 5% da receita bruta; os fixos (8%) e as contas (3%) do DRE entram aqui em reais, com o condomínio, o IPTU e as contas que você informar. Limpeza costuma ser cobrada do hóspede e fica fora da conta.</p>
               </Grupo>
             </>
           ) : (
             <Grupo titulo="Contrato de locação" tag={<NaturezaTag tipo="hipotese" tamanho="sm" />}>
               <Campo
                 rotulo="Aluguel mensal"
-                ajuda={aluguelEditado === null && imovel.valorImovel > 0
-                  ? `Partida: ${formatPercent(RENTABILIDADE_LOCACAO_SP_AA, 1)} ao ano do valor do imóvel (média de São Paulo).`
-                  : imovel.valorImovel > 0 ? "Valor informado por você." : "Informe o aluguel, ou o valor do imóvel para uma partida."}
+                ajuda={aluguelEditado !== null
+                  ? "Valor informado por você."
+                  : imovel.valorImovel > 0 ? `Partida: ${formatPercent(RENTABILIDADE_LOCACAO_SP_AA, 1)} ao ano do valor do imóvel (média de São Paulo).` : "Informe o aluguel, ou o valor do imóvel para uma partida."}
               >
                 <Stepper rotulo="Aluguel mensal" valor={aluguel} onChange={setAluguelEditado} formatar={brl} {...LIMITES.aluguel} />
               </Campo>
@@ -277,7 +280,7 @@ export default function SimuladorReceitaLiquida() {
               <Campo rotulo="Taxa de administração" ajuda="0% direto com o inquilino; com imobiliária, a taxa do contrato.">
                 <Stepper rotulo="Taxa de administração" valor={tradicional.administracaoPct} onChange={(v) => setTradicional((t) => ({ ...t, administracaoPct: v }))} formatar={pctTexto} casas={1} {...LIMITES.administracaoPct} />
               </Campo>
-              <Campo rotulo="Imposto de renda" ajuda="Carnê-leão: alíquota da sua faixa sobre o aluguel.">
+              <Campo rotulo="Imposto de renda" ajuda="Aproximação: % fixo sobre o aluguel recebido. O carnê-leão real é progressivo.">
                 <Stepper rotulo="Imposto de renda" valor={tradicional.irPct} onChange={(v) => setTradicional((t) => ({ ...t, irPct: v }))} formatar={pctTexto} casas={1} {...LIMITES.irPct} />
               </Campo>
               <Campo rotulo="Reparos entre contratos" ajuda="Pintura e consertos, como % do aluguel.">
@@ -302,7 +305,7 @@ export default function SimuladorReceitaLiquida() {
         {/* ─── Resultado ─── */}
         <div className="min-w-0 border-t border-border pt-6 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0" aria-live="polite">
           <div className="mb-4 flex flex-wrap items-center gap-2">
-            <NaturezaTag tipo="hipotese">Simulação · hipótese, não retorno garantido</NaturezaTag>
+            <NaturezaTag tipo="hipotese" className="whitespace-normal">Simulação · hipótese, não retorno garantido</NaturezaTag>
             <span className="text-[13px] text-muted-foreground">
               {modo === "short_stay"
                 ? `${selected.name} · diária ${brl(Math.round(faixa.media))} · ocupação ${formatPercent(ocupacao[0], 0)}`
@@ -329,11 +332,11 @@ export default function SimuladorReceitaLiquida() {
                 </div>
               </div>
               <dl className="regua grid gap-2 pb-4 pt-3 sm:hidden">
-                <div className="flex items-baseline justify-between gap-3"><dt className="text-sm text-foreground">Receita bruta · mês</dt><dd className="text-xl font-semibold tabular-nums text-foreground">{brl(resultado.receitaBruta)}</dd></div>
-                <div className="flex items-baseline justify-between gap-3"><dt className="text-sm text-foreground-medium">− Custos ({resultado.receitaBruta > 0 ? formatPercent(resultado.totalDeducoes / resultado.receitaBruta * 100, 0) : "—"})</dt><dd className="text-xl font-semibold tabular-nums text-foreground-medium">{brl(resultado.totalDeducoes)}</dd></div>
+                <div className="flex items-baseline justify-between gap-3"><dt className="text-sm text-foreground">Receita bruta · mês</dt><dd className="shrink-0 whitespace-nowrap text-xl font-semibold tabular-nums text-foreground">{brl(resultado.receitaBruta)}</dd></div>
+                <div className="flex items-baseline justify-between gap-3"><dt className="text-sm text-foreground-medium">− Custos ({resultado.receitaBruta > 0 ? formatPercent(resultado.totalDeducoes / resultado.receitaBruta * 100, 0) : "—"})</dt><dd className="shrink-0 whitespace-nowrap text-xl font-semibold tabular-nums text-foreground-medium">{brl(resultado.totalDeducoes)}</dd></div>
                 <div className="flex items-baseline justify-between gap-3 border-t border-border pt-2">
                   <dt className="text-sm font-semibold text-foreground">= Resultado líquido · mês</dt>
-                  <dd className="text-right"><span className={cn("block text-2xl font-bold tabular-nums", resultado.liquido < 0 ? "text-destructive" : "text-primary")}>{brl(resultado.liquido)}</span><span className="text-[11px] text-muted-foreground">{brl(resultado.liquidoAnual)} por ano</span></dd>
+                  <dd className="shrink-0 text-right"><span className={cn("block whitespace-nowrap text-2xl font-bold tabular-nums", resultado.liquido < 0 ? "text-destructive" : "text-primary")}>{brl(resultado.liquido)}</span><span className="block whitespace-nowrap text-[11px] text-muted-foreground">{brl(resultado.liquidoAnual)} por ano</span></dd>
                 </div>
               </dl>
 
@@ -365,9 +368,12 @@ export default function SimuladorReceitaLiquida() {
                 <div className="mt-5 grid gap-1 border-t border-border pt-4 text-sm">
                   <p className="font-semibold text-foreground">O mesmo imóvel nos dois modelos</p>
                   <div className="grid grid-cols-2 gap-3">
-                    {[{ nome: "Short stay", r: resultadoSS, ativo: modo === "short_stay" }, { nome: "Locação tradicional", r: resultadoTrad, ativo: modo === "tradicional" }].map((c) => (
+                    {[
+                      { nome: "Short stay", r: resultadoSS, ativo: modo === "short_stay", nota: [marcaNatureza(selected), aviso].filter(Boolean).join(" · ") },
+                      { nome: "Locação tradicional", r: resultadoTrad, ativo: modo === "tradicional", nota: "" },
+                    ].map((c) => (
                       <div key={c.nome} className={cn("rounded-md border px-3 py-2.5", c.ativo ? "border-primary bg-accent-light" : "border-border")}>
-                        <p className="text-xs text-muted-foreground">{c.nome}</p>
+                        <p className="text-xs text-muted-foreground">{c.nome}{c.nota ? <span className="text-estimate-text"> · {c.nota}</span> : null}</p>
                         <p className={cn("text-lg font-semibold leading-tight tabular-nums", c.r.liquido < 0 ? "text-destructive" : "text-foreground")}>{brl(c.r.liquido)}</p>
                         <p className="text-[11px] text-muted-foreground">líquido por mês</p>
                       </div>

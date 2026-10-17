@@ -13,6 +13,7 @@
  *    imóvel e a pessoa ajusta.
  */
 import { DEFAULT_PROJECTION_COSTS } from "@/lib/projectAnalytics";
+import { formatPercent } from "@/lib/numberFormat";
 
 export type ModoSimulacao = "short_stay" | "tradicional";
 
@@ -157,7 +158,7 @@ export function resultadoTradicional(imovel: Imovel, p: PremissasTradicional): R
   const encargos = imovel.condominio + imovel.iptu;
   const encargosMensais = p.encargosPeloInquilino ? encargos * p.vacanciaMeses / 12 : encargos;
   const baseEncargos = p.encargosPeloInquilino
-    ? (p.vacanciaMeses > 0 ? `só nos ${fmtMeses(p.vacanciaMeses)} sem inquilino` : "pagos pelo inquilino")
+    ? (p.vacanciaMeses === 1 ? "só no mês sem inquilino" : p.vacanciaMeses > 1 ? `só nos ${p.vacanciaMeses} meses sem inquilino` : "pagos pelo inquilino")
     : "pagos pelo proprietário o ano todo";
   const deducoes: LinhaResultado[] = [
     { chave: "administracao", rotulo: "Administração (imobiliária)", valor: pct(receitaBruta, p.administracaoPct), base: `${fmtPct(p.administracaoPct)} do aluguel recebido` },
@@ -180,5 +181,4 @@ export function indicadores(r: Resultado, valorImovel: number): { rentabilidadeA
   return { rentabilidadeAA: r.liquidoAnual / valorImovel * 100, paybackAnos: r.liquidoAnual > 0 ? valorImovel / r.liquidoAnual : null };
 }
 
-const fmtPct = (v: number) => `${String(v).replace(".", ",")}%`;
-const fmtMeses = (n: number) => (n === 1 ? "1 mês" : `${n} meses`);
+const fmtPct = (v: number) => formatPercent(v, Number.isInteger(v) ? 0 : 1);
