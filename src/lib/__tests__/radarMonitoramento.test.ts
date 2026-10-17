@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { montarGraficoColetas, resumirConfianca } from "@/lib/radarMonitoramento";
+import { montarGraficoColetas, resumirConfianca, statusColetaBase } from "@/lib/radarMonitoramento";
 import { bairrosReserva } from "@/lib/radarBase";
 
 describe("contagem de bairros por confiança", () => {
@@ -15,6 +15,12 @@ describe("contagem de bairros por confiança", () => {
 });
 
 describe("gráfico de coletas registradas", () => {
+  it("não presume recebimento no Bewild para uma coleta ativa na base", () => {
+    expect(statusColetaBase(true)).toEqual({ base: "ativa", bewild: "nao_verificada" });
+  });
+  it("preserva o status histórico sem presumir sincronização", () => {
+    expect(statusColetaBase(false)).toEqual({ base: "historica", bewild: "nao_verificada" });
+  });
   it("mantém cada coleta, inclusive inativas, com autor, horário e UTMs originais", () => {
     const auditoria = { autor_nome: "Administrador de teste", registrado_em: "2026-10-17T00:30:00Z", utms: { utm_source: "radar", utm_campaign: "coleta" } };
     const linhas = [
