@@ -69,7 +69,7 @@ function render(p, ssrHtml, estatico) {
     .replace(/\s*<meta (name="description"|property="og:(title|description|url|site_name|image)"|name="twitter:(title|description|image)")[^>]*>/g, "")
     .replace(/\s*<link rel="canonical"[^>]*>/g, "")
     .replace("</head>", `    ${head}\n  </head>`)
-    .replace('<div id="root"></div>', ssrHtml ? `<div id="root" data-ssr-path="${p.path}">${ssrHtml}</div>` : `<div id="root">${estatico ?? body}</div>`);
+    .replace('<div id="root"></div>', ssrHtml ? `<div id="root" data-ssr-path="${p.path}">${ssrHtml}</div>` : `<div id="root">${estatico ? estatico.replace(/<\/main>$/, `<nav aria-label="Radar Bewild"><ul>${nav.map(([h, l]) => `<li><a href="${h}">${l}</a></li>`).join("")}</ul></nav></main>`) : body}</div>`);
 }
 
 // Home: conteúdo completo do guia renderizado com React (hidratado no navegador).
