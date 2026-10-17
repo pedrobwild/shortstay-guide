@@ -1,10 +1,25 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { CIDADE, type BairroRadar, type Confianca } from "@/lib/radarBase";
+import type { AuditoriaColeta } from "@/lib/coletaAuditoria";
 
 export const CONFIANCAS: Confianca[] = ["alta", "media", "baixa"];
 export const NOMES_CONFIANCA = { alta: "Alta", media: "Média", baixa: "Baixa" };
 export const TAMANHO_HISTORICO = 20;
+
+type ColetaGrafico = {
+  id: string; bairro: string; valor: number | string; coletado_em: string;
+  ativo: boolean; radar_coleta_auditoria: AuditoriaColeta | null;
+};
+
+/** Preserva uma barra por coleta e a auditoria privada, sem inferir registros antigos. */
+export function montarGraficoColetas(linhas: ColetaGrafico[]) {
+  return linhas.map((linha) => ({
+    ...linha,
+    diaria: Number(linha.valor),
+    rotulo: `${linha.bairro} · ${linha.coletado_em.slice(0, 10).split("-").reverse().join("/")}`,
+  }));
+}
 
 /** Uma contagem por bairro; a referência da cidade não entra no gráfico. */
 export function resumirConfianca(bairros: BairroRadar[]) {

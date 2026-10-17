@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { useRadarBase, rotuloPeriodo } from "@/lib/radarBase";
-import { CONFIANCAS, NOMES_CONFIANCA, resumirConfianca, TAMANHO_HISTORICO, useHistoricoMercado } from "@/lib/radarMonitoramento";
+import { CONFIANCAS, NOMES_CONFIANCA, montarGraficoColetas, resumirConfianca, TAMANHO_HISTORICO, useHistoricoMercado } from "@/lib/radarMonitoramento";
 import { formatDecimal, formatPercent } from "@/lib/numberFormat";
 import ColetaAuditoria from "@/components/admin/ColetaAuditoria";
 
@@ -18,6 +18,7 @@ const config = {
   media: { label: "Média", color: "hsl(var(--accent))" },
   baixa: { label: "Baixa", color: "hsl(var(--muted-foreground))" },
   quantidade: { label: "Bairros" },
+  diaria: { label: "Diária média", color: "hsl(var(--primary))" },
 };
 const dataBR = (data: string | null) => data ? data.slice(0, 10).split("-").reverse().join("/") : "Não informada";
 
@@ -31,6 +32,7 @@ export default function AdminMercado() {
   const resumo = resumirConfianca(bairros);
   const filtrados = bairros.filter((b) => (confianca === "todas" || b.confianca === confianca) && (bairro === "todos" || b.name === bairro));
   const totalPaginas = Math.max(1, Math.ceil((historico.data?.total ?? 0) / TAMANHO_HISTORICO));
+  const coletasGrafico = montarGraficoColetas(historico.data?.linhas ?? []);
   return <div className="min-h-screen bg-background"><AppNavbar /><main className="mx-auto max-w-5xl space-y-8 px-4 py-8">
     <AdminTabs />
     <header className="flex flex-wrap items-center justify-between gap-3">
@@ -71,6 +73,26 @@ export default function AdminMercado() {
       {historico.isLoading && <p role="status">Carregando histórico…</p>}
       {historico.isError && <p role="alert" className="text-destructive">Não foi possível carregar o histórico. <Button variant="link" onClick={() => historico.refetch()}>Tentar novamente</Button></p>}
       {historico.data?.total === 0 && <p className="text-muted-foreground">Nenhuma coleta registrada.</p>}
+      {!historico.isLoading && !historico.isError && coletasGrafico.length > 0 && <div className="space-y-3">
+        <h3 className="font-semibold">Diária média das coletas · página {pagina + 1}</h3>
+        <ChartContainer config={config} className="w-full aspect-auto" style={{ height: Math.max(240, coletasGrafico.length * 48) }} aria-label="Diária média por coleta registrada">
+          <BarChart data={coletasGrafico} layout="vertical" accessibilityLayer margin={{ left: 0, right: 20 }}>
+            <CartesianGrid horizontal={false} stroke="hsl(var(--border))" />
+            <XAxis type="number" tickLine={false} axisLine={false} tickFormatter={(v) => `R$ ${formatDecimal(Number(v), 0)}`} />
+            <YAxis type="category" dataKey="rotulo" width={115} tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
+            <ChartTooltip content={({ active, payload }) => {
+              const coleta = payload?.[0]?.payload as typeof coletasGrafico[number] | undefined;
+              if (!active || !coleta) return null;
+              return <div className="max-w-[240px] space-y-2 rounded-md border border-border bg-background p-3 text-sm shadow-md">
+                <p className="font-semibold">{coleta.rotulo}</p>
+                <p className="tabular-nums">R$ {formatDecimal(coleta.diaria, 2)} · {coleta.ativo ? "Ativa" : "Inativa"}</p>
+                <ColetaAuditoria auditoria={coleta.radar_coleta_auditoria} />
+              </div>;
+            }} />
+            <Bar dataKey="diaria" fill="var(--color-diaria)" maxBarSize={24} radius={[0, 4, 4, 0]} isAnimationActive={false} />
+          </BarChart>
+        </ChartContainer>
+      </div>}
       <ul className="divide-y divide-border">{historico.data?.linhas.map((r) => <li key={r.id} className="space-y-2 py-4 text-sm">
         <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-semibold">{r.bairro} · {dataBR(r.coletado_em)}</h3><span className="rounded border border-border px-2 py-1">{r.ativo ? "Ativa" : "Inativa"}</span></div>
         <p>{r.radar_fontes?.nome ?? r.fonte_id} · {rotuloPeriodo(r.periodo_inicio, r.periodo_fim) ?? "Sem período informado"}</p>
