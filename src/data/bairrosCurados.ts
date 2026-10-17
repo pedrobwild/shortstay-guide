@@ -11,7 +11,7 @@ export type BairroCurado = {
   dailyMax: number;
   dailyAvg: number;
   avgOccupancy: number;
-  ocupacaoFonte: "guestfavorites" | "bewild";
+  ocupacaoFonte: "guestfavorites" | "airdna" | "bewild"; // "airdna": só via banco (radar_bairro_atual), para os bairros sem fonte pública
   dailyQuartiles: [number, number, number] | null;
   activeListings: number | null;
   period: string | null;
@@ -58,11 +58,13 @@ export function getBairroCurado(nome: string | null | undefined): BairroCurado |
 export function diariaPorMetragem(b: BairroCurado, _size: SizeKey): number { return b.dailyAvg; }
 export function receitaMensalReferencia(b: BairroCurado): number { return Math.round(b.dailyAvg * 30 * b.avgOccupancy / 100); }
 export function fonteBairro(b: BairroCurado): string {
-  return b.ocupacaoFonte === "guestfavorites" ? `GuestFavorites, ${b.period}` : FONTE_ESTIMATIVA_BEWILD;
+  if (b.ocupacaoFonte === "guestfavorites") return `GuestFavorites, ${b.period}`;
+  if (b.ocupacaoFonte === "airdna") return b.period ? `AirDNA, ${b.period}` : "AirDNA";
+  return FONTE_ESTIMATIVA_BEWILD;
 }
 export function avisoAmostra(b: BairroCurado): string | null {
   return b.name === "Mooca" ? "amostra pequena (85 anúncios)" : null;
 }
 export function rotuloOcupacao(b: BairroCurado): string {
-  return `${new Intl.NumberFormat("pt-BR").format(b.avgOccupancy)}%${b.ocupacaoFonte === "guestfavorites" ? " (GF)" : ""}`;
+  return `${new Intl.NumberFormat("pt-BR").format(b.avgOccupancy)}%${b.ocupacaoFonte === "guestfavorites" ? " (GF)" : b.ocupacaoFonte === "airdna" ? " (AirDNA)" : ""}`;
 }

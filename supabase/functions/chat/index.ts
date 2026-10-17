@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 // Base única: diária, ocupação, quartis, amostra e fonte vêm da view radar_bairro_atual.
-type Curado = { media: number; ocupacao: number; quartis?: number[]; anuncios?: number; periodo?: string; url?: string; gf: boolean; fonte: string; coleta: string; confianca: string; amostraPequena: boolean; desatualizado: boolean };
+type Curado = { media: number; ocupacao: number; quartis?: number[]; anuncios?: number; periodo?: string; url?: string; gf: boolean; licenciada: boolean; fonte: string; coleta: string; confianca: string; amostraPequena: boolean; desatualizado: boolean };
 const MESES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
 const periodo = (i?: string | null, f?: string | null) => i && f ? `${MESES[+i.slice(5,7)-1]}–${MESES[+f.slice(5,7)-1]}/${f.slice(0,4)}` : undefined;
 const fmtD = (d: string) => d.split("-").reverse().join("/");
@@ -47,8 +47,9 @@ async function loadBairrosContext(): Promise<string> {
     return {
       media: Number(adr.valor), ocupacao: Number(occ.valor), gf: gfOk, fonte: adr.fonte_nome, coleta: adr.coletado_em,
       confianca: adr.confianca === "baixa" || occ.confianca === "baixa" ? "baixa" : adr.confianca === "media" || occ.confianca === "media" ? "média" : "alta",
-      amostraPequena: adr.fonte_tipo === "publica" && (adr.confianca === "baixa" || occ.confianca === "baixa") && adr.amostra_n != null && Number(adr.amostra_n) < 200,
-      desatualizado: adr.fonte_tipo === "publica" && Number(adr.idade_dias) > 240,
+      licenciada: adr.fonte_tipo === "licenciada",
+      amostraPequena: ["publica", "licenciada"].includes(adr.fonte_tipo) && (adr.confianca === "baixa" || occ.confianca === "baixa") && adr.amostra_n != null && Number(adr.amostra_n) < 200,
+      desatualizado: ["publica", "licenciada"].includes(adr.fonte_tipo) && Number(adr.idade_dias) > 240,
       anuncios: adr.amostra_n != null ? Number(adr.amostra_n) : undefined,
       periodo: periodo(adr.periodo_inicio, adr.periodo_fim), url: adr.url_origem,
       ...(gfOk && q.every(Boolean) ? { quartis: q.map((x) => Number(x.valor)) } : {}),
@@ -67,7 +68,7 @@ async function loadBairrosContext(): Promise<string> {
           ...(c.quartis ? [
             `- Diária: 25% mais baratos / mediana / 25% mais caros: R$${c.quartis.join(" / R$")}`,
           ] : []),
-          `- Fonte: ${c.fonte}${c.periodo ? `, ${c.periodo}` : ""}${c.url ? ` (${c.url})` : ""}; coleta de ${fmtD(c.coleta)}; confiança ${c.confianca}${c.gf ? " — dado público, não estimativa" : " — estimativa (sem fonte pública atualizada)"}`,
+          `- Fonte: ${c.fonte}${c.periodo ? `, ${c.periodo}` : ""}${c.url ? ` (${c.url})` : ""}; coleta de ${fmtD(c.coleta)}; confiança ${c.confianca}${c.gf ? (c.licenciada ? " — dado licenciado (AirDNA, API paga), não estimativa" : " — dado público, não estimativa") : " — estimativa (sem fonte pública atualizada)"}`,
           ...(c.anuncios != null ? [`- Amostra: ${c.anuncios} anúncios${c.amostraPequena ? " — amostra pequena" : ""}`] : []),
           ...(c.desatualizado ? [`- Dado desatualizado: coleta de ${fmtD(c.coleta)} (há mais de 240 dias).`] : []),
           `- Receita mensal de referência (diária média × 30 × ocupação): R$${Math.round(c.media * 30 * c.ocupacao / 100)}`,
@@ -142,7 +143,7 @@ serve(async (req) => {
 
     const SYSTEM_PROMPT = `Você é um consultor especialista em investimento imobiliário para short-stay (aluguel de curta temporada) em São Paulo, Brasil. Seu foco é em studios e apartamentos compactos para plataformas como Airbnb.
 
-Você tem acesso à base única de dados de mercado do Radar Bewild (fonte, período, data de coleta, amostra e confiança por bairro) e a estimativas de mercado — base 2025 da plataforma Short Stay Intelligence. Diferencie sempre as fontes; cite o período e o link do bairro. Apenas fontes do tipo estimativa (Brooklin, Consolação e Vila Olímpia hoje) devem ser chamadas de estimativa. Confiança baixa NÃO transforma um dado público em estimativa: a Mooca é dado público GuestFavorites com amostra pequena (85 anúncios), não estimativa. Para fonte pública com confiança baixa e amostra menor que 200, informe "amostra pequena" e o número de anúncios, sem repetir o aviso. Para fonte pública com coleta há mais de 240 dias, informe "dado desatualizado" e a data da coleta. Use esses dados para fundamentar suas respostas com números precisos. Sempre que possível, cite os dados abaixo em vez de inventar números.
+Você tem acesso à base única de dados de mercado do Radar Bewild (fonte, período, data de coleta, amostra e confiança por bairro) e a estimativas de mercado — base 2025 da plataforma Short Stay Intelligence. Diferencie sempre as fontes; cite o período e o link do bairro. Apenas fontes do tipo estimativa devem ser chamadas de estimativa (veja a linha "Fonte" de cada bairro). Quando a fonte for AirDNA (dado licenciado), diga "AirDNA" e o período; nunca atribua GuestFavorites a esses bairros nem AirDNA aos demais. Confiança baixa NÃO transforma um dado público em estimativa: a Mooca é dado público GuestFavorites com amostra pequena (85 anúncios), não estimativa. Para fonte pública com confiança baixa e amostra menor que 200, informe "amostra pequena" e o número de anúncios, sem repetir o aviso. Para fonte pública com coleta há mais de 240 dias, informe "dado desatualizado" e a data da coleta. Use esses dados para fundamentar suas respostas com números precisos. Sempre que possível, cite os dados abaixo em vez de inventar números.
 
 # DADOS REAIS DOS BAIRROS (ordenados por Score Rentabilidade)
 

@@ -16,6 +16,7 @@ import { DECORATION_LEVELS, fmt } from "@/data/guide-data";
 import FonteBairro from "@/components/guide/FonteBairro";
 import { VariacaoColetaResumo } from "@/components/guide/VariacaoColeta";
 import { FONTE_BAIRROS_CURADOS } from "@/data/bairrosCurados";
+import { notaFontesComplementares } from "@/lib/radarBase";
 
 export default function MercadoSection() {
   const { bairros } = useBairroData();
@@ -97,7 +98,7 @@ export default function MercadoSection() {
         </AccordionItem>
         <AccordionItem value="coleta">
           <AccordionTrigger className="text-primary font-semibold">Como os dados são coletados</AccordionTrigger>
-          <AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">{FONTE_BAIRROS_CURADOS} Brooklin, Consolação e Vila Olímpia: estimativa Bewild (sem fonte pública atualizada).</p></AccordionContent>
+          <AccordionContent><p className="text-sm text-muted-foreground leading-relaxed">{FONTE_BAIRROS_CURADOS} {notaFontesComplementares(bairros)}</p></AccordionContent>
         </AccordionItem>
         <AccordionItem value="limitacoes">
           <AccordionTrigger className="text-primary font-semibold">Limitações</AccordionTrigger>

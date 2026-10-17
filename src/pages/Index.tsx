@@ -43,6 +43,7 @@ import FinalCTASection from "@/components/guide/FinalCTASection";
 import FonteBairro from "@/components/guide/FonteBairro";
 import FaixaQuartis from "@/components/guide/FaixaQuartis";
 import { FONTE_BAIRROS_CURADOS, rotuloOcupacao } from "@/data/bairrosCurados";
+import { notaFontesComplementares } from "@/lib/radarBase";
 
 const TendenciasSection = lazy(() => import("@/components/guide/TendenciasSection"));
 
@@ -155,7 +156,7 @@ function IndexInner() {
                       </table>
                     </div>
                     <div className="flex flex-col gap-1 px-4 py-3 border-t border-border sm:flex-row sm:items-center sm:justify-between">
-                      <p className="text-xs text-muted-foreground">{FONTE_BAIRROS_CURADOS}</p>
+                      <p className="text-xs text-muted-foreground">{FONTE_BAIRROS_CURADOS} {notaFontesComplementares(bairros)}</p>
                       <Link to="/comparar" className="inline-flex min-h-[44px] shrink-0 items-center text-sm font-medium text-primary underline underline-offset-4">Comparar bairros lado a lado</Link>
                     </div>
                   </CardContent>

@@ -1,15 +1,18 @@
 import { z } from "zod";
 
+/** Bairros sem fonte pública que a AirDNA (API Enterprise) pode cobrir. Os demais seguem só com GuestFavorites. */
+export const BAIRROS_AIRDNA = ["Brooklin", "Consolação", "Vila Olímpia"] as const;
+
 const data = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Informe uma data válida");
 export const coletaSchema = z.object({
   bairro: z.string().trim().min(2).max(100),
-  fonte_id: z.literal("guestfavorites"),
+  fonte_id: z.enum(["guestfavorites", "airdna"]),
   periodo_inicio: data,
   periodo_fim: data,
   coletado_em: data,
   publicado_em: z.union([data, z.literal("")]),
   amostra_n: z.number().int().nonnegative(),
-  url_origem: z.string().url().max(2000).refine((v) => /^https:\/\/(www\.)?guestfavorites\.com\//.test(v), "Use um link HTTPS da GuestFavorites"),
+  url_origem: z.string().url().max(2000),
   observacao: z.string().max(4000),
   indicadores: z.object({
     adr_medio_brl: z.number().positive(),
@@ -20,6 +23,10 @@ export const coletaSchema = z.object({
     receita_anual_brl: z.number().nonnegative().optional(),
   }),
 }).superRefine((v, ctx) => {
+  // Mesmas regras da RPC admin_registrar_coleta_radar: cada fonte com seu link; AirDNA só nos bairros sem fonte pública.
+  if (v.fonte_id === "guestfavorites" && !/^https:\/\/(www\.)?guestfavorites\.com\//.test(v.url_origem)) ctx.addIssue({ code: "custom", message: "Use um link HTTPS da GuestFavorites" });
+  if (v.fonte_id === "airdna" && !/^https:\/\/(app\.|www\.)?airdna\.co\//.test(v.url_origem)) ctx.addIssue({ code: "custom", message: "Use um link HTTPS da AirDNA" });
+  if (v.fonte_id === "airdna" && !BAIRROS_AIRDNA.includes(v.bairro as (typeof BAIRROS_AIRDNA)[number])) ctx.addIssue({ code: "custom", message: "AirDNA só cobre Brooklin, Consolação e Vila Olímpia" });
   const hoje = new Date().toISOString().slice(0, 10);
   if (v.periodo_inicio > v.periodo_fim || v.periodo_fim > v.coletado_em || v.coletado_em > hoje || (v.publicado_em && v.publicado_em > v.coletado_em)) ctx.addIssue({ code: "custom", message: "Revise o período e as datas de coleta/publicação" });
   const q = [v.indicadores.adr_p25_brl, v.indicadores.adr_mediana_brl, v.indicadores.adr_p75_brl];
