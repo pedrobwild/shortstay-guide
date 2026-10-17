@@ -2,6 +2,8 @@ import FonteBairro from "@/components/guide/FonteBairro";
 import AppNavbar from "@/components/AppNavbar";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import ProximoPassoBairro from "@/components/intelligence/ProximoPassoBairro";
+import { VariacaoColetaBairro } from "@/components/guide/VariacaoColeta";
+import FaixaQuartisBairro from "@/components/intelligence/FaixaQuartisBairro";
 import { lembrarBairro } from "@/lib/retomada";
 import { useEffect } from "react";
 import { formatPercent, formatDecimal } from "@/lib/numberFormat";
@@ -184,6 +186,8 @@ const IntelligenceBairroDetail = () => {
       </header>
 
       <main className="container mx-auto px-4 py-6 space-y-8">
+        <FaixaQuartisBairro bairro={b.bairro} />
+        <VariacaoColetaBairro bairro={b.bairro} />
 
         {/* ── Report intro ────────────────────────────────── */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>

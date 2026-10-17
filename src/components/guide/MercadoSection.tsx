@@ -14,6 +14,7 @@ import { useBairroData } from "@/hooks/useBairroData";
 import SectionBlock from "./SectionBlock";
 import { DECORATION_LEVELS, fmt } from "@/data/guide-data";
 import FonteBairro from "@/components/guide/FonteBairro";
+import { VariacaoColetaResumo } from "@/components/guide/VariacaoColeta";
 import { FONTE_BAIRROS_CURADOS } from "@/data/bairrosCurados";
 
 export default function MercadoSection() {
@@ -88,6 +89,7 @@ export default function MercadoSection() {
           </div>
         </CardContent>
       </Card>
+      <VariacaoColetaResumo />
       <Accordion type="multiple" className="mt-4 font-body">
         <AccordionItem value="metodologia">
           <AccordionTrigger className="text-primary font-semibold">Metodologia de cálculo</AccordionTrigger>

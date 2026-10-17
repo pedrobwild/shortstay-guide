@@ -13,7 +13,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import PostLoginProvision from "@/components/PostLoginProvision";
 
-const Index = lazy(() => import("./pages/Index"));
+import { rotaHome } from "./rotaHome";
 const MapaBairros = lazy(() => import("./pages/MapaBairros"));
 const CompararBairros = lazy(() => import("./pages/CompararBairros"));
 const IntelligenceDashboard = lazy(() => import("./pages/IntelligenceDashboard"));
@@ -140,6 +140,7 @@ export function AppShell({ children, helmetContext }: { children: React.ReactNod
 
 /** Rotas do app; o roteador (Browser/Static) é fornecido por quem renderiza. */
 export function AppRoutes() {
+  const IndexRota = rotaHome();
   return (
     <>
       <ScrollToHash />
@@ -148,7 +149,7 @@ export function AppRoutes() {
       <Suspense fallback={<PageFallback />}>
         <RouteSeo />
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<IndexRota />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
