@@ -23,8 +23,11 @@ describe("coleta GuestFavorites aprovada em 13/10/2026", () => {
     const slug = nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/ /g, "-");
     expect(b?.sourceUrl).toBe(`https://www.guestfavorites.com/airbnb-occupancy-rates-in-${slug}-sao-paulo-brazil`);
   });
-  it.each([["Brooklin", 360, 75], ["Consolação", 325, 63], ["Vila Olímpia", 415, 79]])("mantém estimativa %s", (nome, adr, occ) => {
-    expect(getBairroCurado(String(nome))).toMatchObject({ dailyAvg: adr, avgOccupancy: occ, ocupacaoFonte: "bewild", dailyQuartiles: null, sourceUrl: null });
+  it("mantém estimativa Consolação", () => {
+    expect(getBairroCurado("Consolação")).toMatchObject({ dailyAvg: 325, avgOccupancy: 63, ocupacaoFonte: "bewild", dailyQuartiles: null, sourceUrl: null });
+  });
+  it.each(["Brooklin", "Vila Olímpia"])("%s usa a aproximação pelo Itaim Bibi", (nome) => {
+    expect(getBairroCurado(nome)).toMatchObject({ dailyAvg: 359, avgOccupancy: 59, dailyQuartiles: [180, 279, 404], activeListings: null, ocupacaoFonte: "aproximacao", period: "jan–set/2026", sourceUrl: "https://www.guestfavorites.com/airbnb-occupancy-rates-in-itaim-bibi-sao-paulo-brazil" });
   });
   it("inclui Mooca e Perdizes e a referência da cidade", () => {
     expect(BAIRROS_CURADOS).toHaveLength(13);

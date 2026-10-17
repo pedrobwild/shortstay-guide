@@ -56,6 +56,7 @@ export function montarBairros(linhas: LinhaRadar[]): BairroRadar[] {
     if (!occ || !adr) continue;
     const v = (k: string) => { const linha = g.get(k); return linha ? Number(linha.valor) : null; };
     const estimativa = adr.fonte_tipo === "estimativa";
+    const aproximacao = adr.fonte_id === "aproximacao_itaim_bibi";
     const p25 = v("adr_p25_brl"), med = v("adr_mediana_brl"), p75 = v("adr_p75_brl");
     const dailyAvg = Number(adr.valor);
     const ordem: Confianca[] = ["baixa", "media", "alta"];
@@ -63,9 +64,9 @@ export function montarBairros(linhas: LinhaRadar[]): BairroRadar[] {
     out.push({
       name, dailyAvg, avgOccupancy: Number(occ.valor),
       dailyMin: p25 ?? dailyAvg, dailyMax: p75 ?? dailyAvg,
-      dailyQuartiles: !estimativa && p25 != null && med != null && p75 != null ? [p25, med, p75] : null,
+      dailyQuartiles: (!estimativa || aproximacao) && p25 != null && med != null && p75 != null ? [p25, med, p75] : null,
       activeListings: v("anuncios_ativos"),
-      ocupacaoFonte: estimativa ? "bewild" : adr.fonte_id === "airdna" ? "airdna" : "guestfavorites",
+      ocupacaoFonte: aproximacao ? "aproximacao" : estimativa ? "bewild" : adr.fonte_id === "airdna" ? "airdna" : "guestfavorites",
       period: rotuloPeriodo(adr.periodo_inicio, adr.periodo_fim),
       sourceUrl: adr.url_origem,
       fonteNome: adr.fonte_nome, fonteTipo: adr.fonte_tipo, coletadoEm: adr.coletado_em, idadeDias: adr.idade_dias ?? null, amostraN: adr.amostra_n,
@@ -78,9 +79,9 @@ export function montarBairros(linhas: LinhaRadar[]): BairroRadar[] {
 /** Reserva offline: a base aprovada no código, sem selo de confiança calculado. */
 export function bairrosReserva(): BairroRadar[] {
   return BAIRROS_CURADOS.map((b) => ({
-    ...b, fonteNome: b.ocupacaoFonte === "guestfavorites" ? "GuestFavorites" : "Estimativa Bewild",
+    ...b, fonteNome: b.ocupacaoFonte === "guestfavorites" ? "GuestFavorites" : b.ocupacaoFonte === "aproximacao" ? "GuestFavorites (aproximação pelo Itaim Bibi)" : "Estimativa Bewild",
     fonteTipo: b.ocupacaoFonte === "guestfavorites" ? "publica" : "estimativa",
-    coletadoEm: "2026-10-13", idadeDias: null, amostraN: b.activeListings, confianca: null, estimativa: b.ocupacaoFonte === "bewild",
+    coletadoEm: "2026-10-13", idadeDias: null, amostraN: b.activeListings, confianca: null, estimativa: b.ocupacaoFonte === "bewild" || b.ocupacaoFonte === "aproximacao",
   }));
 }
 
@@ -124,6 +125,8 @@ export function notaFontesComplementares(bairros: Pick<BairroCurado, "name" | "o
   const periodos = new Map<string, string[]>();
   for (const b of airdna) { const k = b.period ?? ""; periodos.set(k, [...(periodos.get(k) ?? []), b.name]); }
   for (const [periodo, nomes] of periodos) partes.push(`${juntar(nomes)}: AirDNA (dado licenciado)${periodo ? `, ${periodo}` : ""}.`);
+  const aprox = bairros.filter((b) => b.ocupacaoFonte === "aproximacao").map((b) => b.name);
+  if (aprox.length) partes.push(`${juntar(aprox)}: aproximação pelo Itaim Bibi, distrito que inclui a Vila Olímpia e parte do Brooklin (sem dado público por bairro).`);
   if (estimativa.length) partes.push(`${juntar(estimativa)}: estimativa Bewild (sem fonte pública atualizada).`);
   return partes.join(" ");
 }

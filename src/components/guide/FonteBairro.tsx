@@ -19,7 +19,7 @@ export default function FonteBairro({ nome, inverse = false }: { nome: string; i
   return <span className={inverse ? "block text-xs text-primary-foreground [&_a]:text-primary-foreground" : "block text-xs"}>
     {alertas.estimativa && (
       <span className={inverse ? "mr-1 inline-block rounded border border-primary-foreground px-1.5 py-0.5 font-semibold uppercase tracking-wide" : "mr-1 inline-block rounded border border-accent bg-accent px-1.5 py-0.5 font-semibold uppercase tracking-wide text-foreground"}>
-        estimativa
+        {bairro.ocupacaoFonte === "aproximacao" ? "aproximação" : "estimativa"}
       </span>
     )}
     {alertas.amostraPequena && (
