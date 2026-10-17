@@ -76,10 +76,11 @@ export default function BwildVsDiySection({ controle }: { controle?: ControleCom
   if (!selectedBairro || !comparison) return null;
 
   const { diy, bwild, delta } = comparison;
-  // Natureza do número de mercado: estimativa sem fonte pública ou amostra pequena (Mooca).
-  const rotuloBase = naturezaBairro(selectedBairro) === "estimativa"
+  // Natureza do número de mercado: estimativa sem fonte pública, aproximação ou amostra pequena (Mooca).
+  const natureza = naturezaBairro(selectedBairro);
+  const rotuloBase = natureza === "estimativa"
     ? "estimativa Bewild, sem fonte pública atualizada"
-    : avisoAmostraBairro(selectedBairro);
+    : natureza === "aproximacao" ? "aproximação pelo Itaim Bibi" : avisoAmostraBairro(selectedBairro);
 
   return (
     <section className="space-y-5" onChangeCapture={trackSimulationUsed} onPointerDownCapture={trackSimulationUsed} onKeyDownCapture={trackSimulationUsed}>

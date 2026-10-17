@@ -22,12 +22,17 @@ describe("leituras do /mapa com a base do Radar", () => {
     expect(porNome("Pinheiros").metrics).toMatchObject({ nightlyRate: 300, occupancy: 62, avgRevenueMo: 5580, activeListings: 2424 });
   });
 
-  it("estimativa não ganha número de anúncios nem fonte GuestFavorites", () => {
-    for (const nome of ["Brooklin", "Consolação"]) {
+  it("estimativa e aproximação não ganham número de anúncios; a fonte diz o que são", () => {
+    const consolacao = porNome("Consolação");
+    expect(consolacao.natureza).toBe("estimativa");
+    expect(consolacao.metrics.activeListings).toBeNull();
+    expect(consolacao.metrics.dataSource).toBe("Sem fonte pública atualizada");
+    for (const nome of ["Brooklin"]) {
       const n = porNome(nome);
-      expect(n.natureza).toBe("estimativa");
+      expect(n.natureza).toBe("aproximacao");
       expect(n.metrics.activeListings).toBeNull();
-      expect(n.metrics.dataSource).toBe("Sem fonte pública atualizada");
+      expect(n.metrics).toMatchObject({ nightlyRate: 359, occupancy: 59 });
+      expect(n.metrics.dataSource).toBe("GuestFavorites (aproximação pelo Itaim Bibi) · jan–set/2026 · coleta 13/10/2026");
     }
   });
 

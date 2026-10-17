@@ -22,7 +22,7 @@ import { DEFAULT_SP_SEASONALITY, projectionBreakdown, type ProjectionBreakdown }
 import {
   CAMPOS, FAIXAS_AREA, PREMISSAS_PADRAO, armazenamentoLocal, lerPremissasSalvas, salvarPremissas, type PremissasProjecao,
 } from "@/lib/projecaoPremissas";
-import { ajusteManual, avisoAmostraBairro, naturezaBairro } from "@/lib/radarUi";
+import { ajusteManual, avisoAmostraBairro, marcaNatureza, naturezaBairro } from "@/lib/radarUi";
 import { formatBRL, formatDecimal, formatPercent } from "@/lib/numberFormat";
 import { slugifyBairro } from "@/lib/seo";
 import { cn } from "@/lib/utils";
@@ -219,7 +219,7 @@ export default function ProjecaoStudio() {
         </SelectTrigger>
         <SelectContent>
           {bairros.map((b) => (
-            <SelectItem key={b.name} value={b.name} className="min-h-[44px]">{b.name}{naturezaBairro(b) === "estimativa" ? " (estimativa)" : ""}</SelectItem>
+            <SelectItem key={b.name} value={b.name} className="min-h-[44px]">{b.name}{marcaNatureza(b) ? ` (${marcaNatureza(b)})` : ""}</SelectItem>
           ))}
         </SelectContent>
       </Select>
@@ -232,6 +232,12 @@ export default function ProjecaoStudio() {
         <span className="flex flex-wrap items-center gap-2 text-xs font-normal leading-snug text-muted-foreground">
           <NaturezaTag tipo="estimativa" tamanho="sm" />
           {ajusteManual(bairro) ? "Diária e ocupação com ajuste manual da Bewild." : "Sem fonte pública atualizada: leia com cautela."}
+        </span>
+      )}
+      {bairro && naturezaMercado === "aproximacao" && (
+        <span className="flex flex-wrap items-center gap-2 text-xs font-normal leading-snug text-muted-foreground">
+          <NaturezaTag tipo="aproximacao" tamanho="sm" />
+          Sem dado público por bairro: diária e ocupação do Itaim Bibi (GuestFavorites).
         </span>
       )}
     </div>
@@ -273,7 +279,7 @@ export default function ProjecaoStudio() {
       <Rotulo extra={(diariaAjustada || ocupacaoAjustada) && (
         <button type="button" onClick={() => atualizar({ diaria: null, ocupacao: null })} className="inline-flex min-h-[44px] items-center text-[13px] font-semibold text-primary underline underline-offset-[3px]">Restaurar dados do bairro</button>
       )}>Mercado do bairro</Rotulo>
-      <CampoMercado rotulo="Diária média" tag={diariaAjustada ? "ajustado" : naturezaMercado} ajuda={`${bairro.name}: ${formatBRL(diariaBairro)} · média do bairro`}>
+      <CampoMercado rotulo="Diária média" tag={diariaAjustada ? "ajustado" : naturezaMercado} ajuda={`${bairro.name}: ${formatBRL(diariaBairro)} · ${naturezaMercado === "aproximacao" ? "média do Itaim Bibi" : "média do bairro"}`}>
         <Stepper rotulo="Diária média" valor={diaria} onChange={(v) => atualizar({ diaria: v })} passo={CAMPOS.diaria.passo} min={CAMPOS.diaria.min} max={CAMPOS.diaria.max} formatar={formatBRL} alto={desktop ? 44 : 48} />
       </CampoMercado>
       <CampoMercado rotulo="Ocupação média" tag={ocupacaoAjustada ? "ajustado" : naturezaMercado} ajuda={`${bairro.name}: ${formatPercent(ocupacaoBairro, 0)} · média anual, com sazonalidade de São Paulo aplicada mês a mês`}>

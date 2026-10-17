@@ -139,9 +139,9 @@ export default function ROIRanking({ neighborhoods, onSelectNeighborhood, select
                             {profile.emoji} {profile.label}
                           </Badge>
                         </div>
-                        {(n.natureza === "estimativa" || n.aviso) && (
+                        {(n.natureza !== "observado" || n.aviso) && (
                           <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                            {n.natureza === "estimativa" && <NaturezaTag tipo="estimativa" tamanho="sm" />}
+                            {n.natureza !== "observado" && <NaturezaTag tipo={n.natureza} tamanho="sm" />}
                             {n.aviso && <span className="text-[11px] font-medium text-estimate-text">{n.aviso}</span>}
                           </div>
                         )}
@@ -164,7 +164,7 @@ export default function ROIRanking({ neighborhoods, onSelectNeighborhood, select
                           </div>
                         </div>
                         <p className="text-[10px] text-muted-foreground mt-1.5 font-body tabular-nums">
-                          {n.natureza === "estimativa" ? "Faixa estimada" : "Faixa central (25% a 75%)"}: {formatBRL(n.metrics.nightlyRateRange[0])}–{formatBRL(n.metrics.nightlyRateRange[1])}
+                          {n.natureza === "estimativa" ? "Faixa estimada" : n.natureza === "aproximacao" ? "Faixa central do Itaim Bibi (25% a 75%)" : "Faixa central (25% a 75%)"}: {formatBRL(n.metrics.nightlyRateRange[0])}–{formatBRL(n.metrics.nightlyRateRange[1])}
                           {n.metrics.activeListings != null ? ` · ${formatDecimal(n.metrics.activeListings, 0)} anúncios` : ""}
                         </p>
                         <FonteBairro nome={n.name} semNatureza />

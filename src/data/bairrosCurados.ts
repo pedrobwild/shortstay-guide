@@ -11,14 +11,18 @@ export type BairroCurado = {
   dailyMax: number;
   dailyAvg: number;
   avgOccupancy: number;
-  ocupacaoFonte: "guestfavorites" | "airdna" | "bewild"; // "airdna": só via banco (radar_bairro_atual), para os bairros sem fonte pública
+  ocupacaoFonte: "guestfavorites" | "airdna" | "bewild" | "aproximacao"; // "aproximacao": valores do distrito Itaim Bibi (GuestFavorites) // "airdna": só via banco (radar_bairro_atual), para os bairros sem fonte pública
   dailyQuartiles: [number, number, number] | null;
   activeListings: number | null;
   period: string | null;
   sourceUrl: string | null;
+  /** Referência extra (dados anteriores da Bewild, sem fonte pública); nunca usada em cálculos. */
+  referenciaBewild?: { dailyAvg: number; dailyMin: number; dailyMax: number; avgOccupancy: number };
 };
 export const FONTE_BAIRROS_CURADOS = "Ocupação e diária: GuestFavorites (coleta de 13/10/2026; jan–set/2026, exceto Liberdade e República, jan–jul/2026).";
 export const FONTE_ESTIMATIVA_BEWILD = "estimativa Bewild (sem fonte pública atualizada)";
+export const FONTE_APROXIMACAO_ITAIM = "aproximação pelo Itaim Bibi (GuestFavorites, jan–set/2026)";
+export const URL_ITAIM_BIBI = "https://www.guestfavorites.com/airbnb-occupancy-rates-in-itaim-bibi-sao-paulo-brazil";
 export const ROTULO_ESTIMATIVA_MERCADO = "Estimativa de mercado — base 2025";
 
 // Origem de cada linha GF: respectiva página pública abaixo, coleta de 13/10/2026.
@@ -32,9 +36,15 @@ const estimativa = (name: string, dailyMin: number, dailyMax: number, avgOccupan
   name, dailyMin, dailyMax, dailyAvg: (dailyMin + dailyMax) / 2, avgOccupancy,
   ocupacaoFonte: "bewild", dailyQuartiles: null, activeListings: null, period: null, sourceUrl: null,
 });
+// Origem: página GuestFavorites do Itaim Bibi (coleta 13/10/2026, jan–set/2026), distrito que inclui
+// a Vila Olímpia e parte do Brooklin; sem anúncios ativos por bairro (3.884 é do distrito).
+const aproximacaoItaim = (name: string, referenciaBewild: BairroCurado["referenciaBewild"]): BairroCurado => ({ referenciaBewild,
+  name, avgOccupancy: 59, dailyAvg: 359, dailyQuartiles: [180, 279, 404], dailyMin: 180, dailyMax: 404,
+  activeListings: null, period: "jan–set/2026", ocupacaoFonte: "aproximacao", sourceUrl: URL_ITAIM_BIBI,
+});
 export const BAIRROS_CURADOS: BairroCurado[] = [
   gf("Bela Vista", 64, 237, [140, 198, 256], 1983, "jan–set/2026", "bela-vista"),
-  estimativa("Brooklin", 290, 430, 75),
+  aproximacaoItaim("Brooklin", { dailyAvg: 360, dailyMin: 290, dailyMax: 430, avgOccupancy: 75 }),
   estimativa("Consolação", 260, 390, 63),
   gf("Itaim Bibi", 59, 359, [180, 279, 404], 3884, "jan–set/2026", "itaim-bibi"),
   gf("Jardim Paulista", 62, 319, [183, 251, 327], 3147, "jan–set/2026", "jardim-paulista"),
@@ -43,7 +53,7 @@ export const BAIRROS_CURADOS: BairroCurado[] = [
   gf("Pinheiros", 62, 300, [171, 232, 301], 2424, "jan–set/2026", "pinheiros"),
   gf("República", 63, 203, [117, 166, 210], 3079, "jan–jul/2026", "republica"),
   gf("Vila Mariana", 60, 226, [143, 194, 235], 2238, "jan–set/2026", "vila-mariana"),
-  estimativa("Vila Olímpia", 330, 500, 79),
+  aproximacaoItaim("Vila Olímpia", { dailyAvg: 415, dailyMin: 330, dailyMax: 500, avgOccupancy: 79 }),
   gf("Mooca", 59, 241, [27, 195, 268], 85, "jan–set/2026", "mooca"),
   gf("Perdizes", 53, 254, [174, 217, 276], 1752, "jan–set/2026", "perdizes"),
 ];
@@ -60,11 +70,12 @@ export function receitaMensalReferencia(b: Pick<BairroCurado, "dailyAvg" | "avgO
 export function fonteBairro(b: BairroCurado): string {
   if (b.ocupacaoFonte === "guestfavorites") return `GuestFavorites, ${b.period}`;
   if (b.ocupacaoFonte === "airdna") return b.period ? `AirDNA, ${b.period}` : "AirDNA";
+  if (b.ocupacaoFonte === "aproximacao") return FONTE_APROXIMACAO_ITAIM;
   return FONTE_ESTIMATIVA_BEWILD;
 }
 export function avisoAmostra(b: BairroCurado): string | null {
   return b.name === "Mooca" ? "amostra pequena (85 anúncios)" : null;
 }
 export function rotuloOcupacao(b: BairroCurado): string {
-  return `${new Intl.NumberFormat("pt-BR").format(b.avgOccupancy)}%${b.ocupacaoFonte === "guestfavorites" ? " (GF)" : b.ocupacaoFonte === "airdna" ? " (AirDNA)" : ""}`;
+  return `${new Intl.NumberFormat("pt-BR").format(b.avgOccupancy)}%${b.ocupacaoFonte === "guestfavorites" ? " (GF)" : b.ocupacaoFonte === "airdna" ? " (AirDNA)" : b.ocupacaoFonte === "aproximacao" ? " (aprox. Itaim Bibi)" : ""}`;
 }

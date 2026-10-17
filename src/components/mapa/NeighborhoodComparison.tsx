@@ -113,7 +113,7 @@ export default function NeighborhoodComparison({ onClose, disponiveis, initialNe
                       onClick={() => addNeighborhood(n)}
                       className="flex min-h-[44px] w-full items-center justify-between gap-2 px-3 text-left text-sm transition-colors hover:bg-secondary"
                     >
-                      <span>{n.name}{n.natureza === "estimativa" ? " (estimativa)" : ""}{n.aviso ? " · amostra pequena" : ""}</span>
+                      <span>{n.name}{n.natureza === "estimativa" ? " (estimativa)" : n.natureza === "aproximacao" ? " (aproximação)" : ""}{n.aviso ? " · amostra pequena" : ""}</span>
                     </button>
                   ))}
                 </motion.div>
@@ -148,7 +148,7 @@ export default function NeighborhoodComparison({ onClose, disponiveis, initialNe
                     <th key={n.id} className="px-3 py-2 text-center align-top font-bold text-foreground">
                       <span className="mr-1.5 inline-block h-2 w-2 rounded-full" style={{ background: COR_SERIE[i] }} aria-hidden="true" />
                       {n.name}
-                      {n.natureza === "estimativa" && <span className="mt-1 block"><NaturezaTag tipo="estimativa" tamanho="sm" /></span>}
+                      {n.natureza !== "observado" && <span className="mt-1 block"><NaturezaTag tipo={n.natureza} tamanho="sm" /></span>}
                       {n.aviso && <span className="mt-1 block text-[11px] font-medium text-estimate-text">{n.aviso}</span>}
                     </th>
                   ))}

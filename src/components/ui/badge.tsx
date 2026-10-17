@@ -15,6 +15,7 @@ const badgeVariants = cva(
         /* Natureza do dado (legenda única do Radar): 12px/600, 3px 8px, raio 4px */
         observado: "gap-1.5 rounded-[4px] border-transparent bg-accent-light px-2 py-[3px] leading-4 text-primary",
         estimativa: "gap-1.5 rounded-[4px] border-dashed border-estimate-border bg-estimate-light px-2 py-[3px] leading-4 text-estimate",
+        aproximacao: "gap-1.5 rounded-[4px] border-dashed border-accent bg-accent-light px-2 py-[3px] leading-4 text-primary",
         hipotese: "bg-hipotese gap-1.5 rounded-[4px] border-transparent px-2 py-[3px] leading-4 text-foreground-medium",
         ajustado: "gap-1.5 rounded-[4px] border-foreground bg-foreground px-2 py-[3px] leading-4 text-background",
       },

@@ -127,9 +127,9 @@ export default function LeiturasComplementares({
                         <span className={cn("h-2.5 w-2.5 rounded-full", corScore(n.score))} aria-hidden="true" />Score {n.score}
                       </span>
                     </span>
-                    {(n.natureza === "estimativa" || n.aviso) && (
+                    {(n.natureza !== "observado" || n.aviso) && (
                       <span className="mb-1.5 flex flex-wrap items-center gap-1.5">
-                        {n.natureza === "estimativa" && <NaturezaTag tipo="estimativa" tamanho="sm" />}
+                        {n.natureza !== "observado" && <NaturezaTag tipo={n.natureza} tamanho="sm" />}
                         {n.aviso && <span className="text-[11px] font-medium text-estimate-text">{n.aviso}</span>}
                       </span>
                     )}
@@ -139,7 +139,7 @@ export default function LeiturasComplementares({
                       <span>{formatBRL(n.metrics.avgRevenueMo)}/mês ref.</span>
                     </span>
                     <span className="mb-2 block text-[11px] tabular-nums text-muted-foreground">
-                      {n.metrics.activeListings != null ? `${formatDecimal(n.metrics.activeListings, 0)} anúncios · ` : ""}{n.natureza === "estimativa" ? "faixa estimada" : "faixa central"} {formatBRL(n.metrics.nightlyRateRange[0])}–{formatBRL(n.metrics.nightlyRateRange[1])}/noite · {n.metrics.dataSource}
+                      {n.metrics.activeListings != null ? `${formatDecimal(n.metrics.activeListings, 0)} anúncios · ` : ""}{n.natureza === "estimativa" ? "faixa estimada" : n.natureza === "aproximacao" ? "faixa central do Itaim Bibi" : "faixa central"} {formatBRL(n.metrics.nightlyRateRange[0])}–{formatBRL(n.metrics.nightlyRateRange[1])}/noite · {n.metrics.dataSource}
                     </span>
                     <span className="flex flex-wrap gap-1">
                       {n.tags.slice(0, 4).map((tag) => {

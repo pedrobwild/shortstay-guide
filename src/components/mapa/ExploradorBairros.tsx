@@ -382,6 +382,7 @@ export default function ExploradorBairros({
             {extremos && <div className="flex justify-between tabular-nums"><span>{formatBRL(extremos[0])}</span><span>{formatBRL(extremos[1])}</span></div>}
             <div className="flex flex-wrap gap-x-3.5 gap-y-1">
               <span className="flex items-center gap-1.5"><span aria-hidden="true" className="h-2 w-2 rounded-full bg-foreground-medium" />tamanho = anúncios</span>
+              {bairros.some((b) => naturezaBairro(b) === "aproximacao") && <span className="flex items-center gap-1.5"><span aria-hidden="true" className="h-2.5 w-2.5 rounded-full border-[1.5px] border-dashed border-accent-text" />aproximação</span>}
               <span className="flex items-center gap-1.5"><span aria-hidden="true" className="h-2.5 w-2.5 rounded-full border-[1.5px] border-dashed border-estimate" />estimativa</span>
             </div>
             {camadas.pois.length > 0 && (
@@ -460,12 +461,12 @@ export default function ExploradorBairros({
                           <p className="text-xs text-muted-foreground">Receita de referência: {resumo.formula}</p>
                         </div>
                         <div className="border-t border-border py-3">
-                          <p className="mb-1.5 text-sm text-foreground">Faixa de diárias</p>
+                          <p className="mb-1.5 text-sm text-foreground">Faixa de diárias{resumo.natureza === "aproximacao" ? " do Itaim Bibi" : ""}</p>
                           {quartisOuTexto("frase")}
                         </div>
                         {resumo.aviso && <p className="mb-2 rounded-md bg-estimate-light px-3 py-2.5 text-[13px] text-estimate-text">Atenção: {resumo.aviso}. A faixa pode não representar o bairro.</p>}
                         <VariacaoColetaBairro bairro={selecionado.name} className="mb-2 p-3" />
-                        <p className="text-xs text-muted-foreground">Cor = receita mensal de referência · tamanho = anúncios na amostra · contorno tracejado = estimativa Bewild.</p>
+                        <p className="text-xs text-muted-foreground">Cor = receita mensal de referência · tamanho = anúncios na amostra · contorno tracejado azul = aproximação pelo Itaim Bibi · âmbar = estimativa Bewild.</p>
                       </div>
                     )}
                   </>
@@ -515,7 +516,7 @@ export default function ExploradorBairros({
                 <p className="mt-1 text-xs text-muted-foreground">{resumo.formula}</p>
               </div>
               <div className="pb-1 pt-4">
-                <p className="mb-2 text-sm text-foreground-medium">Faixa de diárias</p>
+                <p className="mb-2 text-sm text-foreground-medium">Faixa de diárias{resumo.natureza === "aproximacao" ? " do Itaim Bibi" : ""}</p>
                 {quartisOuTexto("padrao")}
                 {resumo.aviso && <p className="mt-3 rounded-md bg-estimate-light px-3 py-2.5 text-[13px] text-estimate-text">Atenção: {resumo.aviso}. A faixa pode não representar o bairro.</p>}
               </div>

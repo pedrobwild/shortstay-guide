@@ -15,16 +15,34 @@ export type BairroBase = BairroCurado & {
   coletadoEm?: string | null;
 };
 
-export type NaturezaBairro = "observado" | "estimativa";
+export type NaturezaBairro = "observado" | "estimativa" | "aproximacao";
 
-/** Observado = coleta GuestFavorites (pública) ou AirDNA (licenciada); estimativa = valores Bewild ou ajuste manual. */
+/**
+ * Observado = coleta GuestFavorites (pública) ou AirDNA (licenciada) do próprio bairro;
+ * aproximação = números de um distrito vizinho com fonte (Brooklin e Vila Olímpia pelo Itaim Bibi);
+ * estimativa = valores Bewild sem fonte pública ou ajuste manual.
+ */
 export function naturezaBairro(b: Pick<BairroCurado, "ocupacaoFonte">): NaturezaBairro {
-  return b.ocupacaoFonte === "bewild" ? "estimativa" : "observado";
+  if (b.ocupacaoFonte === "bewild") return "estimativa";
+  return b.ocupacaoFonte === "aproximacao" ? "aproximacao" : "observado";
 }
 
-/** Ajuste manual do admin (bairro_ajustes) sobre um bairro que tinha fonte observada. */
+/** Marca curta ao lado do nome: "estimativa", "aproximação" ou nada (dado observado). */
+export function marcaNatureza(b: Pick<BairroCurado, "ocupacaoFonte">): string | null {
+  const natureza = naturezaBairro(b);
+  return natureza === "estimativa" ? "estimativa" : natureza === "aproximacao" ? "aproximação" : null;
+}
+
+/** Complemento para leitores de tela: ", estimativa Bewild" / ", aproximação pelo Itaim Bibi". */
+export function descricaoNatureza(b: Pick<BairroCurado, "ocupacaoFonte">): string {
+  const natureza = naturezaBairro(b);
+  return natureza === "estimativa" ? ", estimativa Bewild" : natureza === "aproximacao" ? ", aproximação pelo Itaim Bibi" : "";
+}
+
+/** Ajuste manual do admin (bairro_ajustes) sobre um bairro que tinha fonte (observada ou aproximação). */
 export function ajusteManual(b: BairroBase): boolean {
-  return b.ocupacaoFonte === "bewild" && b.fonteTipo !== undefined && b.fonteTipo !== "estimativa";
+  if (b.ocupacaoFonte !== "bewild" || b.fonteTipo === undefined) return false;
+  return b.fonteTipo !== "estimativa" || /aproxima/i.test(b.fonteNome ?? "");
 }
 
 const dataBR = (iso: string) => iso.slice(0, 10).split("-").reverse().join("/");
@@ -76,12 +94,14 @@ export function tamanhoMarcador(b: Pick<BairroCurado, "ocupacaoFonte" | "activeL
  */
 export function estiloMarcador(b: BairroCurado, escala = 1) {
   const tamanho = Math.round(tamanhoMarcador(b) * escala);
-  const estimativa = naturezaBairro(b) === "estimativa";
+  const natureza = naturezaBairro(b);
   return {
     width: `${tamanho}px`,
     height: `${tamanho}px`,
-    background: estimativa ? "hsl(var(--card) / 0.9)" : corEscalaReceita(receitaMensalReferencia(b)),
-    border: estimativa ? "2px dashed hsl(var(--estimate))" : "2px solid hsl(var(--card))",
+    background: natureza === "observado" ? corEscalaReceita(receitaMensalReferencia(b)) : "hsl(var(--card) / 0.9)",
+    border: natureza === "estimativa" ? "2px dashed hsl(var(--estimate))"
+      : natureza === "aproximacao" ? "2px dashed hsl(var(--accent-text))"
+      : "2px solid hsl(var(--card))",
   };
 }
 
@@ -103,7 +123,7 @@ export const temFiltroAtivo = (f: FiltrosMapa) => normalizarTexto(f.busca) !== "
 export function passaFiltros(b: BairroCurado, f: FiltrosMapa): boolean {
   const q = normalizarTexto(f.busca);
   if (q && !normalizarTexto(b.name).includes(q)) return false;
-  if (f.fonte === "observados" && naturezaBairro(b) === "estimativa") return false;
+  if (f.fonte === "observados" && naturezaBairro(b) !== "observado") return false;
   return receitaMensalReferencia(b) >= f.receitaMin;
 }
 
@@ -116,21 +136,34 @@ export function ordenarPorReceita<T extends BairroCurado>(bairros: T[]): { bairr
 
 const POR_EXTENSO = ["", "A", "As duas", "As três", "As quatro", "As cinco"];
 
-/**
- * Nota das estimativas Bewild, montada a partir da base exibida
- * (ex.: "As três estimativas Bewild ficam acima da média e não têm fonte pública atualizada — leia com cautela.").
- */
-export function notaEstimativas(bairros: BairroCurado[]): string | null {
-  const estimativas = bairros.filter((b) => naturezaBairro(b) === "estimativa");
-  const n = estimativas.length;
-  if (!n) return null;
-  const sujeito = n === 1 ? "A estimativa Bewild" : `${POR_EXTENSO[n] ?? `As ${n}`} estimativas Bewild`;
-  const todasAcima = estimativas.every((b) => receitaMensalReferencia(b) > RECEITA_REFERENCIA_SP);
-  const posicao = todasAcima ? (n === 1 ? " fica acima da média e" : " ficam acima da média e") : "";
-  return `${sujeito}${posicao} ${n === 1 ? "não tem" : "não têm"} fonte pública atualizada — leia com cautela.`;
+const juntarNomes = (nomes: string[]) => (nomes.length <= 1 ? nomes.join("") : `${nomes.slice(0, -1).join(", ")} e ${nomes[nomes.length - 1]}`);
+
+/** Frase das aproximações: "Brooklin e Vila Olímpia usam a aproximação pelo Itaim Bibi (sem dado público por bairro)." */
+function fraseAproximacoes(bairros: BairroCurado[]): string | null {
+  const nomes = bairros.filter((b) => naturezaBairro(b) === "aproximacao").map((b) => b.name);
+  if (!nomes.length) return null;
+  return `${juntarNomes(nomes)} ${nomes.length === 1 ? "usa" : "usam"} a aproximação pelo Itaim Bibi (sem dado público por bairro).`;
 }
 
-const juntarNomes = (nomes: string[]) => (nomes.length <= 1 ? nomes.join("") : `${nomes.slice(0, -1).join(", ")} e ${nomes[nomes.length - 1]}`);
+/**
+ * Nota dos números que não são observados no próprio bairro, montada a partir da base exibida
+ * (ex.: "Brooklin e Vila Olímpia usam a aproximação pelo Itaim Bibi (sem dado público por bairro).
+ * A estimativa Bewild fica acima da média e não tem fonte pública atualizada — leia com cautela.").
+ */
+export function notaEstimativas(bairros: BairroCurado[]): string | null {
+  const partes: string[] = [];
+  const aproximacoes = fraseAproximacoes(bairros);
+  if (aproximacoes) partes.push(aproximacoes);
+  const estimativas = bairros.filter((b) => naturezaBairro(b) === "estimativa");
+  const n = estimativas.length;
+  if (n) {
+    const sujeito = n === 1 ? "A estimativa Bewild" : `${POR_EXTENSO[n] ?? `As ${n}`} estimativas Bewild`;
+    const todasAcima = estimativas.every((b) => receitaMensalReferencia(b) > RECEITA_REFERENCIA_SP);
+    const posicao = todasAcima ? (n === 1 ? " fica acima da média e" : " ficam acima da média e") : "";
+    partes.push(`${sujeito}${posicao} ${n === 1 ? "não tem" : "não têm"} fonte pública atualizada — leia com cautela.`);
+  }
+  return partes.length ? partes.join(" ") : null;
+}
 function maisFrequente(valores: string[]): string | null {
   const contagem = new Map<string, number>();
   for (const v of valores) if (v) contagem.set(v, (contagem.get(v) ?? 0) + 1);
@@ -142,9 +175,10 @@ function maisFrequente(valores: string[]): string | null {
  * ficarem desatualizados quando entra uma coleta nova (períodos, data da coleta,
  * bairros com AirDNA, estimativas e ajustes manuais).
  */
-export function textosFontes(bairros: BairroBase[]): { observado: string; estimativa: string; hipotese: string } {
+export function textosFontes(bairros: BairroBase[]): { observado: string; aproximacao: string | null; estimativa: string; hipotese: string } {
   const gf = bairros.filter((b) => b.ocupacaoFonte === "guestfavorites");
   const airdna = bairros.filter((b) => b.ocupacaoFonte === "airdna");
+  const aproximacoes = bairros.filter((b) => naturezaBairro(b) === "aproximacao");
   const ajustes = bairros.filter((b) => naturezaBairro(b) === "estimativa" && ajusteManual(b));
   const estimativas = bairros.filter((b) => naturezaBairro(b) === "estimativa" && !ajusteManual(b));
 
@@ -165,14 +199,22 @@ export function textosFontes(bairros: BairroBase[]): { observado: string; estima
   for (const b of airdna) porPeriodoAirdna.set(b.period ?? "", [...(porPeriodoAirdna.get(b.period ?? "") ?? []), b.name]);
   for (const [p, nomes] of porPeriodoAirdna) observado += ` ${juntarNomes(nomes)}: AirDNA (dado licenciado)${p ? `, ${p}` : ""}.`;
 
+  const nomesAprox = aproximacoes.map((b) => b.name);
+  const aproximacao = nomesAprox.length
+    ? `${juntarNomes(nomesAprox)} não ${nomesAprox.length === 1 ? "tem" : "têm"} dado público por bairro: ${nomesAprox.length === 1 ? "usa" : "usam"} os números do Itaim Bibi, mesma coleta da GuestFavorites.`
+    : null;
+  const comReferencia = aproximacoes.filter((b) => b.referenciaBewild).map((b) => b.name);
+
   const partesEstimativa = [
     estimativas.length
       ? `${juntarNomes(estimativas.map((b) => b.name))} ${estimativas.length === 1 ? "usa" : "usam"} valores Bewild anteriores, sem fonte pública atualizada.`
       : "Nenhum bairro desta base usa valores Bewild sem fonte pública.",
+    comReferencia.length ? `Em ${juntarNomes(comReferencia)}, a estimativa Bewild anterior aparece só como referência extra, fora das contas.` : "",
     ajustes.length ? `Ajustes manuais (${juntarNomes(ajustes.map((b) => b.name))}) também são sinalizados.` : "Ajustes manuais também são sinalizados.",
-  ];
+  ].filter(Boolean);
   return {
     observado,
+    aproximacao,
     estimativa: partesEstimativa.join(" "),
     hipotese: "Custos de limpeza, gestão, impostos e condomínio são premissas editáveis. Simulações são hipóteses, não retorno garantido.",
   };

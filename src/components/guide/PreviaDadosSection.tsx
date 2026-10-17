@@ -13,7 +13,7 @@ import { COLETA_GUESTFAVORITES, FONTES_GUIA } from "@/data/fontesGuia";
 import { fmt } from "@/data/guide-data";
 import { notaFontesComplementares } from "@/lib/radarBase";
 import {
-  RECEITA_REFERENCIA_SP, avisoAmostraBairro, corEscalaReceita, estiloMarcador, naturezaBairro, notaEstimativas, ordenarPorReceita, posicoesEsquema,
+  RECEITA_REFERENCIA_SP, avisoAmostraBairro, corEscalaReceita, descricaoNatureza, estiloMarcador, marcaNatureza, naturezaBairro, notaEstimativas, ordenarPorReceita, posicoesEsquema,
 } from "@/lib/radarUi";
 import { formatBRL, formatPercent } from "@/lib/numberFormat";
 import { slugifyBairro } from "@/lib/seo";
@@ -38,6 +38,8 @@ export default function PreviaDadosSection() {
   const posicoes = useMemo(() => posicoesEsquema(bairros.map((b) => b.name)), [bairros]);
   const nota = notaEstimativas(bairros);
   const fontesObservadas = [...new Set(bairros.filter((b) => naturezaBairro(b) === "observado").map((b) => (b.ocupacaoFonte === "airdna" ? "AirDNA" : "GuestFavorites")))].join(" e ");
+  const temAproximacao = bairros.some((b) => naturezaBairro(b) === "aproximacao");
+  const temEstimativa = bairros.some((b) => naturezaBairro(b) === "estimativa");
   const carregando = isLoading && !HOME_PRE_RENDERIZADA;
   const sp = SAO_PAULO_REFERENCIA;
 
@@ -52,7 +54,8 @@ export default function PreviaDadosSection() {
           </p>
           <div className="mb-5 flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-foreground-medium">
             <span className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-3 rounded-full bg-escala-4" />Dado observado{fontesObservadas ? ` (${fontesObservadas})` : ""}</span>
-            <span className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-3 rounded-full border-[1.5px] border-dashed border-estimate" />Estimativa Bewild (sem fonte pública atualizada)</span>
+            {temAproximacao && <span className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-3 rounded-full border-[1.5px] border-dashed border-accent-text" />Aproximação pelo Itaim Bibi</span>}
+            {temEstimativa && <span className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-3 rounded-full border-[1.5px] border-dashed border-estimate" />Estimativa Bewild (sem fonte pública atualizada)</span>}
           </div>
 
           {offline && (
@@ -69,29 +72,33 @@ export default function PreviaDadosSection() {
             <>
               <ol className="m-0 list-none p-0" aria-label="Bairros por receita mensal de referência, da maior para a menor">
                 {ranking.map(({ bairro: b, receita }) => {
-                  const estimativa = naturezaBairro(b) === "estimativa";
+                  const natureza = naturezaBairro(b);
                   const aviso = avisoAmostraBairro(b);
+                  const marca = marcaNatureza(b) ?? (aviso ? "amostra pequena" : null);
                   const largura = `${((receita / maior) * 100).toFixed(1)}%`;
                   return (
                     <li key={b.name}>
                       <Link
                         to={linkMapa(b.name)}
                         onClick={() => trackGlobal("cta_clicked", { cta_id: "ranking_bairro", section: "home_previa", bairro: b.name })}
-                        aria-label={`${b.name}: ${formatBRL(receita)} por mês${estimativa ? ", estimativa Bewild" : ""}${aviso ? `, ${aviso}` : ""}. Abrir no mapa`}
+                        aria-label={`${b.name}: ${formatBRL(receita)} por mês${descricaoNatureza(b)}${aviso ? `, ${aviso}` : ""}. Abrir no mapa`}
                         className="grid min-h-[44px] w-full grid-cols-[104px_minmax(0,1fr)_76px] items-center gap-3 border-b border-trilho px-1 text-left text-foreground transition-colors hover:bg-background sm:grid-cols-[150px_minmax(0,1fr)_92px] sm:gap-4 sm:px-2"
                       >
                         <span className="min-w-0">
                           <span className="block truncate text-sm font-medium sm:text-[15px]">{b.name}</span>
-                          {aviso && <span className="block truncate text-[11px] leading-tight text-estimate-text" title={aviso}>amostra pequena</span>}
+                          {marca && <span className={cn("block truncate text-[11px] leading-tight", natureza === "aproximacao" ? "text-accent-text" : "text-estimate-text")} title={aviso ?? undefined}>{marca}</span>}
                         </span>
                         <span className="relative h-3" aria-hidden="true">
-                          <span className={cn("absolute left-0 top-[5px] h-0.5", estimativa ? "bg-estimativa-tracejada" : "bg-escala-2")} style={{ width: largura }} />
+                          <span
+                            className={cn("absolute left-0 top-[5px] h-0.5", natureza === "estimativa" ? "bg-estimativa-tracejada" : natureza === "aproximacao" ? "bg-aproximacao-tracejada" : "bg-escala-2")}
+                            style={{ width: largura }}
+                          />
                           <span
                             className="absolute top-0 -ml-1.5 box-border h-3 w-3 rounded-full"
                             style={{
                               left: largura,
-                              background: estimativa ? "hsl(var(--card))" : corEscalaReceita(receita),
-                              border: estimativa ? "1.5px dashed hsl(var(--estimate))" : "none",
+                              background: natureza === "observado" ? corEscalaReceita(receita) : "hsl(var(--card))",
+                              border: natureza === "estimativa" ? "1.5px dashed hsl(var(--estimate))" : natureza === "aproximacao" ? "1.5px dashed hsl(var(--accent-text))" : "none",
                             }}
                           />
                         </span>
@@ -119,7 +126,7 @@ export default function PreviaDadosSection() {
                 <Link
                   key={b.name}
                   to={linkMapa(b.name)}
-                  aria-label={`${b.name}: diária ${formatBRL(b.dailyAvg)}, ocupação ${formatPercent(b.avgOccupancy, 0)}${naturezaBairro(b) === "estimativa" ? ", estimativa Bewild" : ""}${avisoAmostraBairro(b) ? `, ${avisoAmostraBairro(b)}` : ""}`}
+                  aria-label={`${b.name}: diária ${formatBRL(b.dailyAvg)}, ocupação ${formatPercent(b.avgOccupancy, 0)}${descricaoNatureza(b)}${avisoAmostraBairro(b) ? `, ${avisoAmostraBairro(b)}` : ""}`}
                   title={b.name}
                   className="absolute box-border -translate-x-1/2 -translate-y-1/2 rounded-full shadow-marcador transition-transform hover:scale-125 before:absolute before:left-1/2 before:top-1/2 before:h-11 before:w-11 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:content-['']"
                   style={{ left: `${p.x}%`, top: `${p.y}%`, ...estiloMarcador(b, 0.7) }}

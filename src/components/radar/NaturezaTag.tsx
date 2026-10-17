@@ -4,13 +4,15 @@ import { cn } from "@/lib/utils";
 
 /**
  * Legenda única do Radar para a natureza de cada número:
- * ● dado observado · ◌ estimativa Bewild · ▨ hipótese de simulação · ajustado por você.
+ * ● dado observado · ◌ aproximação (distrito vizinho com fonte) · ◌ estimativa Bewild ·
+ * ▨ hipótese de simulação · ajustado por você.
  * Os símbolos são formas em CSS (não dependem da fonte) e ficam fora da leitura de tela.
  */
-export type TipoNatureza = "observado" | "estimativa" | "hipotese" | "ajustado";
+export type TipoNatureza = "observado" | "aproximacao" | "estimativa" | "hipotese" | "ajustado";
 
 export const TEXTO_NATUREZA: Record<TipoNatureza, string> = {
   observado: "Dado observado",
+  aproximacao: "Aproximação",
   estimativa: "Estimativa Bewild",
   hipotese: "Hipótese",
   ajustado: "Ajustado por você",
@@ -18,7 +20,7 @@ export const TEXTO_NATUREZA: Record<TipoNatureza, string> = {
 
 export function SimboloNatureza({ tipo, className }: { tipo: TipoNatureza; className?: string }) {
   if (tipo === "observado") return <span aria-hidden="true" className={cn("inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-current", className)} />;
-  if (tipo === "estimativa") return <span aria-hidden="true" className={cn("inline-block h-2 w-2 shrink-0 rounded-full border border-dashed border-current", className)} />;
+  if (tipo === "estimativa" || tipo === "aproximacao") return <span aria-hidden="true" className={cn("inline-block h-2 w-2 shrink-0 rounded-full border border-dashed border-current", className)} />;
   if (tipo === "hipotese") {
     return (
       <span

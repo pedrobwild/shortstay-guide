@@ -6,7 +6,7 @@ import type { BairroItem } from "@/data/guide-data";
 import { geoBairro, type LadoRotulo } from "@/data/bairrosGeo";
 import { POI_CATEGORIES, type POICategoryKey } from "@/data/mapaBairrosData";
 import { receitaMensalReferencia } from "@/data/bairrosCurados";
-import { avisoAmostraBairro, estiloMarcador, naturezaBairro } from "@/lib/radarUi";
+import { avisoAmostraBairro, descricaoNatureza, estiloMarcador } from "@/lib/radarUi";
 import { formatBRL, formatPercent } from "@/lib/numberFormat";
 import { cn } from "@/lib/utils";
 
@@ -68,7 +68,14 @@ export interface MapaRadarProps {
 export default function MapaRadar({
   bairros, selecionado, visiveis, destaque = [], camadas, onSelecionar, compacto = false, centralizar, folga = { top: 48, bottom: 48, left: 48, right: 48 },
 }: MapaRadarProps) {
-  const mapRef = useRef<MapRef>(null);
+  const mapRef = useRef<MapRef | null>(null);
+  // O mapa nasce depois da primeira renderização (o MapLibre é importado sob demanda):
+  // efeitos que usam a câmera esperam o ref chegar.
+  const [mapaPronto, setMapaPronto] = useState(false);
+  const registrarMapa = useCallback((m: MapRef | null) => {
+    mapRef.current = m;
+    setMapaPronto(Boolean(m));
+  }, []);
   const [poisGeoJSON, setPoisGeoJSON] = useState<GeoJSON.FeatureCollection | null>(null);
   const [hoveredPOI, setHoveredPOI] = useState<{ name: string; category: string; neighborhood: string; lng: number; lat: number } | null>(null);
   const [hoveredStation, setHoveredStation] = useState<{ name: string; line: string; lng: number; lat: number } | null>(null);
@@ -76,9 +83,10 @@ export default function MapaRadar({
   // No celular os rótulos só aparecem com zoom suficiente para não se sobreporem (o selecionado sempre aparece).
   const [zoom, setZoom] = useState(0);
   useEffect(() => {
+    if (!mapaPronto) return;
     const id = window.setTimeout(() => { const z = mapRef.current?.getZoom(); if (z) setZoom(z); }, 0);
     return () => window.clearTimeout(id);
-  }, []);
+  }, [mapaPronto]);
   const ZOOM_ROTULOS_CELULAR = 12.2;
 
   const comGeo = useMemo(() => bairros.flatMap((b) => { const g = geoBairro(b.name); return g ? [{ b, g }] : []; }), [bairros]);
@@ -115,8 +123,9 @@ export default function MapaRadar({
     // Com o estilo ainda carregando (ou indisponível), a animação não roda: posiciona direto.
     if (mapa.isStyleLoaded()) mapa.easeTo({ ...camera, duration: 600 });
     else mapa.jumpTo(camera);
+    // Um pedido feito antes de o mapa existir (link com ?bairro=) é aplicado quando ele fica pronto.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [centralizar?.n]);
+  }, [centralizar?.n, mapaPronto]);
 
   const bairroDoPoligono = useCallback((nome: string) => {
     const alvo = POLIGONO_PARA_BAIRRO[nome] ?? nome;
@@ -161,7 +170,7 @@ export default function MapaRadar({
   return (
     <div className="radar-mapa mapa-esquema absolute inset-0" style={{ ["--grade" as string]: "48px" } as React.CSSProperties}>
       <ReactMap
-        ref={mapRef}
+        ref={registrarMapa}
         initialViewState={{ bounds: limites, fitBoundsOptions: { padding: folga } }}
         style={{ width: "100%", height: "100%" }}
         mapStyle={MAP_STYLE}
@@ -261,7 +270,6 @@ export default function MapaRadar({
           const ativo = visiveis.has(b.name);
           const emDestaque = destaque.includes(b.name);
           const estilo = estiloMarcador(b, compacto ? 0.8 : 1);
-          const estimativa = naturezaBairro(b) === "estimativa";
           const comRotulo = !compacto || sel || zoom >= ZOOM_ROTULOS_CELULAR;
           const anel = sel
             ? "0 0 0 3px hsl(var(--foreground))"
@@ -273,7 +281,7 @@ export default function MapaRadar({
                   type="button"
                   onClick={(e) => { e.stopPropagation(); onSelecionar(b.name); }}
                   aria-pressed={sel}
-                  aria-label={`${b.name}: diária ${formatBRL(b.dailyAvg)}, ocupação ${formatPercent(b.avgOccupancy, 0)}, receita de referência ${formatBRL(receitaMensalReferencia(b))}${estimativa ? ", estimativa Bewild" : ""}${avisoAmostraBairro(b) ? `, ${avisoAmostraBairro(b)}` : ""}`}
+                  aria-label={`${b.name}: diária ${formatBRL(b.dailyAvg)}, ocupação ${formatPercent(b.avgOccupancy, 0)}, receita de referência ${formatBRL(receitaMensalReferencia(b))}${descricaoNatureza(b)}${avisoAmostraBairro(b) ? `, ${avisoAmostraBairro(b)}` : ""}`}
                   className="relative block h-full w-full cursor-pointer rounded-full p-0 transition-transform hover:scale-110 before:absolute before:left-1/2 before:top-1/2 before:h-11 before:w-11 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:content-['']"
                   style={{ ...estilo, boxSizing: "border-box", boxShadow: anel }}
                 />

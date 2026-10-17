@@ -265,6 +265,13 @@
   .bg-estimativa-tracejada {
     background: repeating-linear-gradient(90deg, hsl(var(--estimate-border)) 0 4px, transparent 4px 7px);
   }
+  /* Aproximação (distrito vizinho com fonte) em barras: listrada azul ou tracejada (linha) */
+  .bg-aproximacao-listrada {
+    background: repeating-linear-gradient(90deg, hsl(var(--accent)) 0 5px, hsl(var(--accent-light)) 5px 8px);
+  }
+  .bg-aproximacao-tracejada {
+    background: repeating-linear-gradient(90deg, hsl(var(--accent)) 0 4px, transparent 4px 7px);
+  }
   /* Mapa esquemático: fundo com grade (tamanho via --grade) */
   .mapa-esquema {
     background-color: hsl(var(--mapa-fundo));

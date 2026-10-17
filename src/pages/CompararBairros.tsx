@@ -20,7 +20,7 @@ import { COLETA_GUESTFAVORITES } from "@/data/fontesGuia";
 import type { BairroItem } from "@/data/guide-data";
 import { linkProjecaoBairro } from "@/data/navegacao";
 import { formatBRL, formatDecimal, formatPercent } from "@/lib/numberFormat";
-import { COR_SERIE, avisoAmostraBairro, fimEscalaQuartis, naturezaBairro, textoSemQuartis } from "@/lib/radarUi";
+import { COR_SERIE, avisoAmostraBairro, fimEscalaQuartis, marcaNatureza, naturezaBairro, textoSemQuartis, type NaturezaBairro } from "@/lib/radarUi";
 import { slugifyBairro } from "@/lib/seo";
 import { MAX_COMPARAR, caminhoComparar, lerComparar } from "@/lib/comparar";
 import { cn } from "@/lib/utils";
@@ -50,19 +50,19 @@ const LINHAS: { rotulo: string; ajuda?: string; valor: (b: BairroItem) => number
   { rotulo: "Receita mensal de referência", ajuda: "diária × 30 × ocupação, antes de custos", valor: (b) => receitaMensalReferencia(b), texto: (v) => (v == null ? "—" : formatBRL(v)) },
 ];
 
-/** Barra proporcional ao maior valor da linha, na cor da série (estimativa listrada). */
-/** Marca curta ao lado do nome no celular: estimativa Bewild ou amostra pequena (Mooca). */
+/** Barra proporcional ao maior valor da linha, na cor da série (estimativa listrada em âmbar, aproximação em azul). */
+/** Marca curta ao lado do nome no celular: estimativa, aproximação ou amostra pequena (Mooca). */
 function marcaBairro(b: BairroItem): string | null {
-  if (naturezaBairro(b) === "estimativa") return "estimativa";
-  return avisoAmostraBairro(b) ? "amostra pequena" : null;
+  return marcaNatureza(b) ?? (avisoAmostraBairro(b) ? "amostra pequena" : null);
 }
 
-function Barra({ fracao, serie, estimativa, alto = 6 }: { fracao: number; serie: number; estimativa: boolean; alto?: 6 | 8 }) {
+function Barra({ fracao, serie, natureza, alto = 6 }: { fracao: number; serie: number; natureza: NaturezaBairro; alto?: 6 | 8 }) {
+  const listrada = natureza === "estimativa" ? "bg-estimativa-listrada" : natureza === "aproximacao" ? "bg-aproximacao-listrada" : null;
   return (
     <div className="rounded-full bg-trilho" style={{ height: alto }} aria-hidden="true">
       <div
-        className={cn("h-full rounded-full transition-[width] duration-300", estimativa && "bg-estimativa-listrada")}
-        style={{ width: `${(Math.max(0, Math.min(1, fracao)) * 100).toFixed(1)}%`, background: estimativa ? undefined : COR_SERIE[serie] }}
+        className={cn("h-full rounded-full transition-[width] duration-300", listrada)}
+        style={{ width: `${(Math.max(0, Math.min(1, fracao)) * 100).toFixed(1)}%`, background: listrada ? undefined : COR_SERIE[serie] }}
       />
     </div>
   );
@@ -165,7 +165,7 @@ function CompararConteudo() {
           {disponiveis.map((b) => (
             <button key={b.name} type="button" onClick={() => adicionar(b)} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-background px-3.5 text-sm font-medium text-foreground transition-colors hover:bg-accent-light">
               {b.name}
-              {naturezaBairro(b) === "estimativa" && <span className="text-xs font-medium text-estimate-text">estimativa</span>}
+              {marcaNatureza(b) && <span className={cn("text-xs font-medium", naturezaBairro(b) === "aproximacao" ? "text-accent-text" : "text-estimate-text")}>{marcaNatureza(b)}</span>}
               {avisoAmostraBairro(b) && <span className="text-xs font-medium text-estimate-text">amostra pequena</span>}
               <span className="tabular-nums text-muted-foreground">{formatBRL(receitaMensalReferencia(b))}</span>
             </button>
@@ -228,7 +228,7 @@ function CompararConteudo() {
                       <span className="text-[22px] font-semibold tabular-nums text-foreground lg:text-[26px]">{l.texto(bruto)}</span>
                       {ehMaior(v, l) && <span className="text-xs font-semibold text-accent-text">maior</span>}
                     </div>
-                    <div className="mt-2"><Barra fracao={v / l.maior} serie={i} estimativa={naturezaBairro(b) === "estimativa"} /></div>
+                    <div className="mt-2"><Barra fracao={v / l.maior} serie={i} natureza={naturezaBairro(b)} /></div>
                   </div>
                 );
               })}
@@ -297,10 +297,10 @@ function CompararConteudo() {
                       <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: COR_SERIE[i] }} aria-hidden="true" />
                       <span className="min-w-0">
                         <span className="block truncate">{b.name}</span>
-                        {marcaBairro(b) && <span className="block truncate text-[11px] leading-tight text-estimate-text">{marcaBairro(b)}</span>}
+                        {marcaBairro(b) && <span className={cn("block truncate text-[11px] leading-tight", naturezaBairro(b) === "aproximacao" ? "text-accent-text" : "text-estimate-text")}>{marcaBairro(b)}</span>}
                       </span>
                     </span>
-                    <Barra fracao={l.valores[i] / l.maior} serie={i} estimativa={naturezaBairro(b) === "estimativa"} alto={8} />
+                    <Barra fracao={l.valores[i] / l.maior} serie={i} natureza={naturezaBairro(b)} alto={8} />
                     <span className="text-right text-[15px] font-semibold tabular-nums">{l.texto(l.valor(b))}</span>
                   </li>
                 ))}
@@ -313,7 +313,7 @@ function CompararConteudo() {
             <ul className="mt-2.5 space-y-3">
               {selecionados.map((b, i) => (
                 <li key={b.name}>
-                  <span className="flex flex-wrap items-center gap-1.5 text-[13px]"><span className="h-2 w-2 rounded-full" style={{ background: COR_SERIE[i] }} aria-hidden="true" />{b.name}{marcaBairro(b) && <span className="text-[11px] text-estimate-text">· {marcaBairro(b)}</span>}</span>
+                  <span className="flex flex-wrap items-center gap-1.5 text-[13px]"><span className="h-2 w-2 rounded-full" style={{ background: COR_SERIE[i] }} aria-hidden="true" />{b.name}{marcaBairro(b) && <span className={cn("text-[11px]", naturezaBairro(b) === "aproximacao" ? "text-accent-text" : "text-estimate-text")}>· {marcaBairro(b)}</span>}</span>
                   {b.dailyQuartiles
                     ? <FaixaQuartis quartis={b.dailyQuartiles} escala={[0, fimEscala]} variante="linha" legendaMedia={false} />
                     : <p className="mt-1 text-[13px] text-muted-foreground">{textoSemQuartis(b)}</p>}
@@ -337,7 +337,7 @@ function CompararConteudo() {
               ))}
             </ul>
           </section>
-          <p className="mb-4 mt-2 text-xs text-muted-foreground">Receita de referência = diária média × 30 × ocupação média, antes de custos. Estimativas Bewild aparecem com contorno tracejado.</p>
+          <p className="mb-4 mt-2 text-xs text-muted-foreground">Receita de referência = diária média × 30 × ocupação média, antes de custos. Estimativas Bewild aparecem com listras âmbar; aproximações pelo Itaim Bibi, com listras azuis.</p>
           <div className="grid gap-2">
             <Button asChild className="min-h-[48px] text-[15px] font-semibold">
               <Link to={linkProjecaoBairro(slugifyBairro(selecionados[0].name))} onClick={() => simular(selecionados[0])}>Simular {selecionados[0].name}</Link>
