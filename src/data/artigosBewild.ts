@@ -15,7 +15,7 @@ export const ARTIGOS_BEWILD = {
   avaliarUnidade: a("Como avaliar um studio antes de comprar", "como-avaliar-studio-antes-de-comprar"),
   custosOperacao: a("Os custos de operar um studio de short stay", "custos-de-operar-studio-short-stay"),
   precificacao: a("Como precificar um studio no Airbnb em São Paulo", "como-precificar-studio-airbnb-sao-paulo"),
-  melhoresBairros: a("Os melhores bairros para short stay em São Paulo", "melhores-bairros-short-stay-sao-paulo"),
+  melhoresBairros: a("os melhores bairros para short stay em São Paulo", "melhores-bairros-short-stay-sao-paulo"),
   gestao: a("Gestão própria ou gestora", "gestao-propria-vs-gestora"),
   shortVsLong: a("Short stay ou long stay no studio compacto", "short-stay-ou-long-stay-studio-compacto"),
   custoReforma: a("Quanto custa reformar um studio de até 50 m²", "quanto-custa-reformar-apartamento-studio-ate-50-m2"),

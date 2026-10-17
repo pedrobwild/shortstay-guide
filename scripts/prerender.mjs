@@ -25,6 +25,7 @@ const pages = [
     title: `Studio para Airbnb em ${name}: diária, ocupação e receita | ${seo.siteName}`,
     description: `Diária média, ocupação, receita estimada e score de investimento para studios de short stay em ${name}, São Paulo.`,
     h1: `Studio para Airbnb em ${name}`,
+    bairro: name,
     priority: "0.8",
   })),
 ];
@@ -34,7 +35,15 @@ const nav = [
   ["/anuncios", "Anúncios"], ["/ferramentas", "Ferramentas"], ["/projecao", "Projeção"],
 ];
 
-function render(p, ssrHtml) {
+// Mesmo nó de organização do bewild.com.br (uma única "Bewild" para o Google).
+const ORG = {
+  "@context": "https://schema.org", "@type": "Organization", "@id": "https://bewild.com.br/#org", name: "Bewild",
+  url: "https://bewild.com.br/", logo: "https://bewild.com.br/brand/bewild-logo-512.png",
+  sameAs: ["https://instagram.com/bewild.oficial", "https://www.linkedin.com/company/bwil-d/", "https://maps.google.com/maps?cid=16329162499474686119", "https://www.youtube.com/@bewild.oficial"],
+};
+const WEBSITE = { "@context": "https://schema.org", "@type": "WebSite", "@id": `${seo.siteUrl}/#website`, name: seo.siteName, url: `${seo.siteUrl}/`, inLanguage: "pt-BR", publisher: { "@id": "https://bewild.com.br/#org" } };
+
+function render(p, ssrHtml, estatico) {
   const url = `${seo.siteUrl}${p.path}`;
   const head = [
     `<title>${esc(p.title)}</title>`,
@@ -48,7 +57,7 @@ function render(p, ssrHtml) {
     `<meta name="twitter:image" content="${seo.siteUrl}/og-radar-curados-20261013.jpg" data-rh="true" />`,
     `<meta name="twitter:title" content="${esc(p.title)}" data-rh="true" />`,
     `<meta name="twitter:description" content="${esc(p.description)}" data-rh="true" />`,
-    ...(p.jsonLd ? [`<script type="application/ld+json">${JSON.stringify(p.jsonLd).replace(/</g, "\\u003c")}</script>`] : []),
+    `<script type="application/ld+json">${JSON.stringify([ORG, WEBSITE, ...(p.jsonLd ?? [])]).replace(/</g, "\\u003c")}</script>`,
   ].join("\n    ");
   const isBairro = p.path.startsWith("/bairro/");
   const body = `<main><h1>${esc(p.h1)}</h1><p>${esc(p.description)}</p>${
@@ -60,20 +69,18 @@ function render(p, ssrHtml) {
     .replace(/\s*<meta (name="description"|property="og:(title|description|url|site_name|image)"|name="twitter:(title|description|image)")[^>]*>/g, "")
     .replace(/\s*<link rel="canonical"[^>]*>/g, "")
     .replace("</head>", `    ${head}\n  </head>`)
-    .replace('<div id="root"></div>', ssrHtml ? `<div id="root" data-ssr-path="${p.path}">${ssrHtml}</div>` : `<div id="root">${body}</div>`);
+    .replace('<div id="root"></div>', ssrHtml ? `<div id="root" data-ssr-path="${p.path}">${ssrHtml}</div>` : `<div id="root">${estatico ?? body}</div>`);
 }
 
 // Home: conteúdo completo do guia renderizado com React (hidratado no navegador).
 const home = pages.find((p) => p.path === "/");
 home.jsonLd = [
-  { "@context": "https://schema.org", "@type": "Organization", "@id": `${seo.siteUrl}/#org`, name: "Bewild", url: "https://bewild.com.br" },
-  { "@context": "https://schema.org", "@type": "WebSite", "@id": `${seo.siteUrl}/#website`, name: seo.siteName, url: `${seo.siteUrl}/`, inLanguage: "pt-BR", publisher: { "@id": `${seo.siteUrl}/#org` } },
   { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: ssr.FAQ_ITEMS.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) },
 ];
 const { html: homeHtml } = await ssr.render("/");
 
 for (const p of pages) {
-  const html = render(p, p.path === "/" ? homeHtml : null);
+  const html = render(p, p.path === "/" ? homeHtml : null, p.path === "/" ? null : ssr.renderEstatico(p));
   if (p.path === "/") {
     writeFileSync(resolve(DIST, "index.html"), html);
     continue;
