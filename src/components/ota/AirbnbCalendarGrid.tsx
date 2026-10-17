@@ -87,7 +87,7 @@ function EventPopover({
     <Popover>
       <PopoverTrigger asChild>
         <button
-          className={`text-[10px] leading-tight px-1 py-0.5 rounded border truncate w-full text-left cursor-pointer hover:opacity-80 transition-opacity ${colorClass}`}
+          className={`text-xs leading-tight px-1 py-0.5 rounded border truncate w-full text-left cursor-pointer hover:opacity-80 transition-opacity ${colorClass}`}
         >
           {label}
         </button>
@@ -366,7 +366,7 @@ export default function AirbnbCalendarGrid({
                       );
                     })}
                     {dayEvents.length > 2 && (
-                      <span className="text-[10px] text-muted-foreground pl-1">
+                      <span className="text-xs text-muted-foreground pl-1">
                         +{dayEvents.length - 2}
                       </span>
                     )}

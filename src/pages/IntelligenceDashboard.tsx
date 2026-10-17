@@ -96,15 +96,15 @@ const IntelligenceDashboard = () => {
       <AppNavbar fixo={false} />
       {/* ── HERO ──────────────────────────────────────────── */}
       <header className="bg-hero-gradient text-primary-foreground relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(200_60%_35%_/_0.3),_transparent_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(var(--accent)_/_0.3),_transparent_70%)]" />
         <div className="container mx-auto px-4 py-8 md:py-10 relative z-10">
           <div className="flex items-start justify-between">
             <div className="max-w-2xl">
               <div className="flex items-center gap-2 mb-3">
-                <Badge className="bg-primary-foreground/15 text-primary-foreground border-primary-foreground/20 text-[10px] uppercase tracking-wider">
+                <Badge className="bg-primary-foreground/15 text-primary-foreground border-primary-foreground/20 text-xs uppercase tracking-wider">
                   Guia de investimento
                 </Badge>
-                <Badge className="bg-primary-foreground/10 text-primary-foreground/70 border-primary-foreground/10 text-[10px]">
+                <Badge className="bg-primary-foreground/10 text-primary-foreground/70 border-primary-foreground/10 text-xs">
                   {bairros.length} bairros · 30+ variáveis
                 </Badge>
               </div>
@@ -127,7 +127,7 @@ const IntelligenceDashboard = () => {
                     style={{ width: `${(currentStep / 8) * 100}%` }}
                   />
                 </div>
-                <span className="text-[10px] text-primary-foreground/50 font-medium">
+                <span className="text-xs text-primary-foreground/50 font-medium">
                   Etapa {currentStep} de 8
                 </span>
               </div>
@@ -161,7 +161,7 @@ const IntelligenceDashboard = () => {
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   }`}
                 >
-                  <span className={`flex items-center justify-center h-5 w-5 rounded-full text-[10px] font-bold shrink-0 ${
+                  <span className={`flex items-center justify-center h-5 w-5 rounded-full text-xs font-bold shrink-0 ${
                     isActive ? "bg-primary-foreground/20" : isPast ? "bg-primary/10" : "bg-muted"
                   }`}>
                     {isPast ? "✓" : step.shortLabel}

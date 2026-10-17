@@ -12,7 +12,7 @@ const VARIABLE_GROUPS = [
   {
     label: "Retorno",
     icon: TrendingUp,
-    color: "bg-emerald-100 text-emerald-800",
+    color: "bg-success-soft text-success-strong",
     variables: [
       "Yield bruto Airbnb",
       "Yield bruto long-term",
@@ -25,7 +25,7 @@ const VARIABLE_GROUPS = [
   {
     label: "Demanda & Liquidez",
     icon: Activity,
-    color: "bg-blue-100 text-blue-800",
+    color: "bg-info-soft text-info-strong",
     variables: [
       "Ocupação média",
       "Estadia média (noites)",
@@ -38,7 +38,7 @@ const VARIABLE_GROUPS = [
   {
     label: "Mercado Imobiliário",
     icon: MapPin,
-    color: "bg-amber-100 text-amber-800",
+    color: "bg-warning-soft text-warning-strong",
     variables: [
       "Preço m² residencial",
       "Área média dos estúdios",
@@ -50,7 +50,7 @@ const VARIABLE_GROUPS = [
   {
     label: "Operação & Risco",
     icon: ShieldCheck,
-    color: "bg-red-100 text-red-800",
+    color: "bg-danger-soft text-danger-strong",
     variables: [
       "% superhost",
       "Rating médio",
@@ -63,7 +63,7 @@ const VARIABLE_GROUPS = [
   {
     label: "Crescimento",
     icon: Rocket,
-    color: "bg-purple-100 text-purple-800",
+    color: "bg-cat-1-soft text-cat-1-strong",
     variables: [
       "Score de crescimento potencial",
       "Reservas 30d+ (%)",
@@ -173,7 +173,7 @@ const MethodologySection: React.FC<Props> = ({ bairros }) => {
                     <div key={group.label} className="rounded-lg border border-border/60 p-3 space-y-2">
                       <div className="flex items-center gap-2">
                         <group.icon className="h-4 w-4 text-muted-foreground" />
-                        <Badge className={`${group.color} text-[10px]`}>{group.label}</Badge>
+                        <Badge className={`${group.color} text-xs`}>{group.label}</Badge>
                       </div>
                       <ul className="space-y-1">
                         {group.variables.map((v) => (
@@ -199,7 +199,7 @@ const MethodologySection: React.FC<Props> = ({ bairros }) => {
                       <div key={w.label} className="text-center p-2 rounded-md bg-muted/30">
                         <w.icon className="h-4 w-4 text-primary mx-auto mb-1" />
                         <p className="text-lg font-bold text-primary">{w.weight}</p>
-                        <p className="text-[10px] text-muted-foreground leading-tight">{w.label}</p>
+                        <p className="text-xs text-muted-foreground leading-tight">{w.label}</p>
                       </div>
                     ))}
                   </div>
@@ -227,7 +227,7 @@ const MethodologySection: React.FC<Props> = ({ bairros }) => {
                     Dados agregados a partir de plataformas de short stay (Airbnb via AirDNA/Airbtics), mercado imobiliário (FipeZap, registros públicos) e pesquisas proprietárias da Bewild.
                   </p>
                   {periodo && (
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       Período: {periodo.periodo_inicio} a {periodo.periodo_fim}
                     </p>
                   )}
@@ -239,7 +239,7 @@ const MethodologySection: React.FC<Props> = ({ bairros }) => {
                   <p className="text-xs text-foreground/70">
                     Cada bairro possui um nível de confiança (alto/médio/baixo) baseado no volume de dados disponíveis. Bairros com dados limitados são sinalizados e penalizados no score.
                   </p>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Esta análise não substitui consultoria profissional de investimento.
                   </p>
                 </div>

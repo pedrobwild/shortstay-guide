@@ -31,9 +31,9 @@ function getMetricColor(values: (number | string)[], idx: number, higherIsBetter
   if (typeof values[0] === "string") return "text-foreground";
   const nums = values as number[];
   const sorted = [...nums].sort((a, b) => higherIsBetter ? b - a : a - b);
-  if (nums[idx] === sorted[0]) return "text-emerald-600 dark:text-emerald-400 font-bold";
+  if (nums[idx] === sorted[0]) return "text-success-strong font-bold";
   if (nums[idx] === sorted[sorted.length - 1] && nums.length > 2) return "text-muted-foreground";
-  return "text-amber-600 dark:text-amber-400";
+  return "text-warning-strong";
 }
 
 const chartConfig = {
@@ -81,7 +81,7 @@ export default function NeighborhoodComparison({ onClose, initialNeighborhoods =
       <div className="flex flex-wrap gap-2 mb-4">
         {selected.map((n, i) => (
           <Badge key={n.id} variant="outline" className="gap-1.5 py-1 px-2.5 text-xs">
-            <span className={`w-2 h-2 rounded-full ${i === 0 ? "bg-emerald-500" : i === 1 ? "bg-primary" : "bg-amber-500"}`} />
+            <span className={`w-2 h-2 rounded-full ${i === 0 ? "bg-success" : i === 1 ? "bg-primary" : "bg-warning"}`} />
             {n.name}
             <button onClick={() => removeNeighborhood(n.id)} className="ml-1 hover:text-destructive">
               <X size={10} />
@@ -132,11 +132,11 @@ export default function NeighborhoodComparison({ onClose, initialNeighborhoods =
       ) : (
         <>
           {/* Color legend */}
-          <div className="flex flex-wrap items-center gap-3 mb-4 text-[10px] font-body text-muted-foreground">
-            <span className="font-semibold text-foreground text-[11px]">Legenda:</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Melhor valor</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> Intermediário</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-gray-400" /> Menor valor</span>
+          <div className="flex flex-wrap items-center gap-3 mb-4 text-xs font-body text-muted-foreground">
+            <span className="font-semibold text-foreground text-xs">Legenda:</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-success" /> Melhor valor</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-warning" /> Intermediário</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-muted-foreground" /> Menor valor</span>
             <span className="text-muted-foreground/50">|</span>
             <span>✓ = melhor na métrica</span>
           </div>
@@ -148,7 +148,7 @@ export default function NeighborhoodComparison({ onClose, initialNeighborhoods =
                   <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Métrica</th>
                   {selected.map((n, i) => (
                     <th key={n.id} className="text-center py-2 px-3 font-bold text-foreground">
-                      <span className={`inline-block w-2 h-2 rounded-full mr-1.5 ${i === 0 ? "bg-emerald-500" : i === 1 ? "bg-primary" : "bg-amber-500"}`} />
+                      <span className={`inline-block w-2 h-2 rounded-full mr-1.5 ${i === 0 ? "bg-success" : i === 1 ? "bg-primary" : "bg-warning"}`} />
                       {n.name}
                     </th>
                   ))}
@@ -164,7 +164,7 @@ export default function NeighborhoodComparison({ onClose, initialNeighborhoods =
                         <td key={n.id} className={`text-center py-2.5 px-3 ${getMetricColor(values, i, metric.higherIsBetter)}`}>
                           {metric.format(values[i])}
                           {typeof values[i] === "number" && values[i] === [...(values as number[])].sort((a, b) => metric.higherIsBetter ? b - a : a - b)[0] && (
-                            <Check size={10} className="inline ml-1 text-emerald-500" />
+                            <Check size={10} className="inline ml-1 text-success" />
                           )}
                         </td>
                       ))}
@@ -181,12 +181,12 @@ export default function NeighborhoodComparison({ onClose, initialNeighborhoods =
             <ChartContainer config={chartConfig} className="h-[160px] w-full">
               <BarChart data={chartData} layout="vertical" margin={{ left: 0, right: 20, top: 5, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                <XAxis type="number" tickFormatter={(v) => `R$${formatDecimal(Number(v) / 1000, 0)}k`} className="text-[10px]" />
-                <YAxis dataKey="name" type="category" width={90} className="text-[10px]" />
+                <XAxis type="number" tickFormatter={(v) => `R$${formatDecimal(Number(v) / 1000, 0)}k`} className="text-xs" />
+                <YAxis dataKey="name" type="category" width={90} className="text-xs" />
                 <ChartTooltip content={<ChartTooltipContent formatter={(value) => `R$${fmt(Number(value))}`} />} />
                 <Bar dataKey="revenue" radius={[0, 4, 4, 0]} barSize={20}>
                   {chartData.map((_, i) => (
-                    <Cell key={i} fill={i === 0 ? "hsl(152, 69%, 45%)" : i === 1 ? "hsl(var(--primary))" : "hsl(43, 96%, 56%)"} />
+                    <Cell key={i} fill={i === 0 ? "hsl(var(--success))" : i === 1 ? "hsl(var(--primary))" : "hsl(var(--warning))"} />
                   ))}
                 </Bar>
               </BarChart>
@@ -199,6 +199,6 @@ export default function NeighborhoodComparison({ onClose, initialNeighborhoods =
 }
 
 function MapPinDot({ score }: { score: number }) {
-  const color = score >= 88 ? "bg-emerald-500" : score >= 84 ? "bg-amber-500" : "bg-muted-foreground/40";
+  const color = score >= 88 ? "bg-success" : score >= 84 ? "bg-warning" : "bg-muted-foreground/40";
   return <span className={`w-2 h-2 rounded-full ${color}`} />;
 }

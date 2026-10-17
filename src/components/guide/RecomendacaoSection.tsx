@@ -129,7 +129,7 @@ function RecommendationCard({
   rec, rank, bairros,
 }: { rec: Recommendation; rank: number; bairros: BairroAirbnb[] }) {
   const profile = getBairroProfile(rec.bairro, bairros);
-  const medalColors = ["bg-amber-500", "bg-gray-400", "bg-amber-700"];
+  const medalColors = ["bg-warning", "bg-muted-foreground", "bg-warning-strong"];
 
   return (
     <motion.div
@@ -149,10 +149,10 @@ function RecommendationCard({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <h4 className="font-display font-bold text-foreground text-lg">{rec.bairro.bairro}</h4>
-                <Badge className={`${profile.color} ${profile.textColor} font-body text-[10px]`}>
+                <Badge className={`${profile.color} ${profile.textColor} font-body text-xs`}>
                   {profile.label}
                 </Badge>
-                <Badge variant="outline" className="font-body text-[10px]">
+                <Badge variant="outline" className="font-body text-xs">
                   <span className={rec.gradeColor}>{rec.grade}</span> · {formatDecimal(rec.personalizedScore, 0)}pts
                 </Badge>
               </div>
@@ -164,7 +164,7 @@ function RecommendationCard({
                 <MetricPill label="ADR" value={fmtBRL(Number(rec.bairro.adr_medio_studio))} />
                 <MetricPill label="Liquidez" value={formatDecimal(Number(rec.bairro.score_liquidez), 0)} />
               </div>
-              <p className="text-[11px] text-muted-foreground font-body mb-2">{rotuloFonteDiariaOcupacao(rec.bairro)}</p>
+              <p className="text-xs text-muted-foreground font-body mb-2">{rotuloFonteDiariaOcupacao(rec.bairro)}</p>
 
               {/* Reasons */}
               {rec.reasons.length > 0 && (
@@ -183,7 +183,7 @@ function RecommendationCard({
                 <div className="space-y-1">
                   {rec.cautions.map((c, i) => (
                     <div key={i} className="flex items-start gap-2 text-sm font-body">
-                      <AlertTriangle size={13} className="text-amber-500 mt-0.5 shrink-0" />
+                      <AlertTriangle size={13} className="text-warning mt-0.5 shrink-0" />
                       <span className="text-muted-foreground">{c}</span>
                     </div>
                   ))}
@@ -201,7 +201,7 @@ function MetricPill({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-muted/50 rounded-lg px-3 py-2 text-center">
       <p className="text-sm font-display font-bold text-foreground">{value}</p>
-      <p className="text-[10px] text-muted-foreground font-body">{label}</p>
+      <p className="text-xs text-muted-foreground font-body">{label}</p>
     </div>
   );
 }

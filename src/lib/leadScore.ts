@@ -166,7 +166,7 @@ export const TIER_META: Record<LeadTier, { label: string; className: string }> =
   },
   morno: {
     label: "Morno",
-    className: "bg-amber-500/15 text-amber-600 border-amber-500/30",
+    className: "bg-warning/15 text-warning-strong border-warning/30",
   },
   frio: {
     label: "Frio",

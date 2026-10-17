@@ -52,8 +52,8 @@ export const Step7Explore = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
                 <Card className="h-full hover:shadow-md transition-all group cursor-pointer">
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between mb-3">
-                      <Badge className={`${profile.color} ${profile.textColor} text-[10px]`}>{profile.label}</Badge>
-                      <Badge className={`${badgeStyle} text-[10px]`}>{s.grade}</Badge>
+                      <Badge className={`${profile.color} ${profile.textColor} text-xs`}>{profile.label}</Badge>
+                      <Badge className={`${badgeStyle} text-xs`}>{s.grade}</Badge>
                     </div>
                     <p className="text-lg font-bold group-hover:text-primary transition-colors">{b.bairro}</p>
                     <p className="text-2xl font-bold mt-1">{formatDecimal(s.score, 1)}</p>

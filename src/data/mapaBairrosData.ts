@@ -6,23 +6,17 @@ import {
 } from "lucide-react";
 
 /* ─── POI Categories ─── */
+// `token` = nome do token de cor em src/index.css (resolvido por src/lib/corToken.ts).
 export const POI_CATEGORIES = [
-  { key: "restaurant", label: "Restaurantes", icon: Utensils, color: "#f97316" },
-  { key: "corporate", label: "Corporativo", icon: Briefcase, color: "#3b82f6" },
-  { key: "tourist", label: "Pontos turísticos", icon: Camera, color: "#a855f7" },
-  { key: "events", label: "Eventos / Shows", icon: Music, color: "#ef4444" },
-  { key: "metro", label: "Metrô", icon: Train, color: "#10b981" },
+  { key: "restaurant", label: "Restaurantes", icon: Utensils, token: "cat-4" },
+  { key: "corporate", label: "Corporativo", icon: Briefcase, token: "info" },
+  { key: "tourist", label: "Pontos turísticos", icon: Camera, token: "cat-1" },
+  { key: "events", label: "Eventos / Shows", icon: Music, token: "danger" },
+  { key: "metro", label: "Metrô", icon: Train, token: "success" },
 ] as const;
 
 export type POICategoryKey = typeof POI_CATEGORIES[number]["key"];
 
-export const POI_COLORS: Record<string, string> = {
-  restaurant: "#f97316",
-  corporate: "#3b82f6",
-  tourist: "#a855f7",
-  events: "#ef4444",
-  metro: "#10b981",
-};
 import { getBairroCurado, receitaMensalReferencia, fonteBairro } from "@/data/bairrosCurados";
 import { DISTRICTS_MOCK, type DistrictRow } from "@/data/districtMetrics";
 
@@ -224,7 +218,7 @@ export const EVENT_ICONS: Record<string, typeof Music> = {
 
 export const IMPACT_STYLES: Record<string, { bg: string; text: string; label: string }> = {
   high: { bg: "bg-destructive/10", text: "text-destructive", label: "Alta demanda" },
-  medium: { bg: "bg-amber-100 dark:bg-amber-900/20", text: "text-amber-700 dark:text-amber-300", label: "Média demanda" },
+  medium: { bg: "bg-warning-soft", text: "text-warning-strong", label: "Média demanda" },
   low: { bg: "bg-muted", text: "text-muted-foreground", label: "Baixa demanda" },
 };
 
@@ -259,14 +253,14 @@ export const DEMAND_PROFILE_LABELS: Record<string, { label: string; emoji: strin
 export const fmt = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
 
 export function scoreColor(score: number) {
-  if (score >= 88) return "bg-emerald-500";
-  if (score >= 84) return "bg-amber-500";
+  if (score >= 88) return "bg-success";
+  if (score >= 84) return "bg-warning";
   return "bg-muted-foreground/40";
 }
 
 export function scoreBorder(score: number) {
-  if (score >= 88) return "border-emerald-500/40";
-  if (score >= 84) return "border-amber-500/40";
+  if (score >= 88) return "border-success/40";
+  if (score >= 84) return "border-warning/40";
   return "border-border";
 }
 

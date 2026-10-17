@@ -141,24 +141,24 @@ const PROFILES: Record<string, InvestorProfile> = {
     description: "Você busca um investimento previsível, com fluxo de caixa constante e risco controlado. Bairros com alta ocupação e boa liquidez são ideais para você.",
     weights: { retorno: 0.20, demanda: 0.35, operacao: 0.30, futuro: 0.15 },
     icon: "Shield",
-    color: "bg-blue-100",
-    textColor: "text-blue-800",
+    color: "bg-info-soft",
+    textColor: "text-info-strong",
   },
   "renda-arrojado-retorno": {
     name: "Investidor agressivo de yield",
     description: "Você quer extrair o máximo de retorno do capital investido e aceita os riscos envolvidos. Bairros com yield alto, mesmo que menos previsíveis, são seus candidatos.",
     weights: { retorno: 0.50, demanda: 0.15, operacao: 0.20, futuro: 0.15 },
     icon: "Rocket",
-    color: "bg-emerald-100",
-    textColor: "text-emerald-800",
+    color: "bg-success-soft",
+    textColor: "text-success-strong",
   },
   "valorizacao-conservador-facilidade": {
     name: "Investidor patrimonial",
     description: "Você pensa no longo prazo: quer um imóvel que valorize, em bairro consolidado, com operação tranquila. Crescimento e liquidez são suas prioridades.",
     weights: { retorno: 0.15, demanda: 0.25, operacao: 0.20, futuro: 0.40 },
     icon: "TrendingUp",
-    color: "bg-amber-100",
-    textColor: "text-amber-800",
+    color: "bg-warning-soft",
+    textColor: "text-warning-strong",
   },
 };
 
@@ -244,10 +244,10 @@ export function resolveProfile(answers: QuizAnswers): InvestorProfile {
   };
 
   const colorMap: Record<string, { color: string; textColor: string }> = {
-    retorno: { color: "bg-emerald-100", textColor: "text-emerald-800" },
-    demanda: { color: "bg-blue-100", textColor: "text-blue-800" },
-    operacao: { color: "bg-violet-100", textColor: "text-violet-800" },
-    futuro: { color: "bg-amber-100", textColor: "text-amber-800" },
+    retorno: { color: "bg-success-soft", textColor: "text-success-strong" },
+    demanda: { color: "bg-info-soft", textColor: "text-info-strong" },
+    operacao: { color: "bg-cat-1-soft", textColor: "text-cat-1-strong" },
+    futuro: { color: "bg-warning-soft", textColor: "text-warning-strong" },
   };
 
   return {

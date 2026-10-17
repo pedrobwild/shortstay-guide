@@ -88,9 +88,9 @@ export default function ROIRanking({ neighborhoods, onSelectNeighborhood, select
       </div>
 
       {/* Ranking list */}
-      <div className="flex flex-wrap items-center gap-3 mb-2 text-[10px] text-muted-foreground font-body p-2 rounded-md bg-muted/30">
+      <div className="flex flex-wrap items-center gap-3 mb-2 text-xs text-muted-foreground font-body p-2 rounded-md bg-muted/30">
         <span className="font-semibold text-foreground">Legenda:</span>
-        <span><strong className="text-emerald-600">ROI est.</strong> = retorno anual sobre investimento</span>
+        <span><strong className="text-success-strong">ROI est.</strong> = retorno anual sobre investimento</span>
         <span><strong>Diária</strong> = preço médio/noite</span>
         <span><strong>Ocupação</strong> = % de dias reservados</span>
         <span><strong>Receita/mês</strong> = faturamento mensal estimado</span>
@@ -118,36 +118,36 @@ export default function ROIRanking({ neighborhoods, onSelectNeighborhood, select
                   <CardContent className="p-3">
                     <div className="flex items-start gap-3">
                       <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                        i === 0 ? "bg-emerald-500 text-white" : i === 1 ? "bg-emerald-400 text-white" : i === 2 ? "bg-amber-500 text-white" : "bg-muted text-muted-foreground"
+                        i === 0 ? "bg-success text-white" : i === 1 ? "bg-success text-white" : i === 2 ? "bg-warning text-white" : "bg-muted text-muted-foreground"
                       }`}>
                         #{i + 1}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
                           <h4 className="font-display text-sm font-bold text-foreground truncate">{n.name}</h4>
-                          <Badge variant="outline" className="text-[9px] shrink-0">
+                          <Badge variant="outline" className="text-xs shrink-0">
                             {profile.emoji} {profile.label}
                           </Badge>
                         </div>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
                           <div>
-                            <p className="text-[10px] text-muted-foreground">ROI est.</p>
-                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{formatDecimal(n.metrics.estimatedROI)}%</p>
+                            <p className="text-xs text-muted-foreground">ROI est.</p>
+                            <p className="text-xs font-bold text-success-strong">{formatDecimal(n.metrics.estimatedROI)}%</p>
                           </div>
                           <div>
-                            <p className="text-[10px] text-muted-foreground">Diária média</p>
+                            <p className="text-xs text-muted-foreground">Diária média</p>
                             <p className="text-xs font-bold text-foreground">R${fmt(n.metrics.nightlyRate)}</p>
                           </div>
                           <div>
-                            <p className="text-[10px] text-muted-foreground">Ocupação</p>
+                            <p className="text-xs text-muted-foreground">Ocupação</p>
                             <p className="text-xs font-bold text-foreground">{formatDecimal(n.metrics.occupancy, 0)}%</p>
                           </div>
                           <div>
-                            <p className="text-[10px] text-muted-foreground">Receita/mês</p>
+                            <p className="text-xs text-muted-foreground">Receita/mês</p>
                             <p className="text-xs font-bold text-foreground">R${fmt(n.metrics.avgRevenueMo)}</p>
                           </div>
                         </div>
-                        <p className="text-[9px] text-muted-foreground mt-1.5 font-body">
+                        <p className="text-xs text-muted-foreground mt-1.5 font-body">
                           Faixa: R${fmt(n.metrics.nightlyRateRange[0])}–R${fmt(n.metrics.nightlyRateRange[1])} · {n.metrics.activeListings} anúncios · Fonte: {n.metrics.dataSource}
                         </p>
                         <FonteBairro nome={n.name} />
@@ -176,7 +176,7 @@ export default function ROIRanking({ neighborhoods, onSelectNeighborhood, select
           >
             <div className="flex items-start gap-2 p-2.5 rounded-lg bg-primary/5 border border-primary/10">
               <insight.icon size={14} className="text-primary shrink-0 mt-0.5" />
-              <div className="min-w-0"><p className="text-[11px] text-foreground/80 font-body leading-relaxed">{insight.text}</p>{insight.source && <FonteLink fonte={insight.source} />}</div>
+              <div className="min-w-0"><p className="text-xs text-foreground/80 font-body leading-relaxed">{insight.text}</p>{insight.source && <FonteLink fonte={insight.source} />}</div>
             </div>
           </motion.div>
         ))}

@@ -50,6 +50,36 @@
     --gold: 200 65% 45%;
     --gold-light: 200 40% 92%;
 
+    /* Cores semânticas (Onda 4). DEFAULT = ícones, barras, pontos e bordas;
+       strong = texto (contraste AA sobre fundo claro e sobre soft);
+       soft = fundo de selo/alerta. Toda cor de status ou categoria sai daqui —
+       nunca da paleta padrão do Tailwind (teste: designTokens.test.ts). */
+    --success: 161 94% 30%;
+    --success-strong: 164 86% 20%;
+    --success-soft: 149 80% 90%;
+    --warning: 38 92% 50%;
+    --warning-strong: 23 83% 31%;
+    --warning-soft: 48 96% 89%;
+    --danger: 0 72% 51%;
+    --danger-strong: 0 70% 35%;
+    --danger-soft: 0 93% 94%;
+    --info: 221 83% 53%;
+    --info-strong: 226 71% 40%;
+    --info-soft: 214 95% 93%;
+    /* Categorias sem significado de status (tipos de dica, perfis, POIs). */
+    --cat-1: 262 83% 58%;
+    --cat-1-strong: 263 69% 42%;
+    --cat-1-soft: 251 91% 95%;
+    --cat-2: 347 77% 50%;
+    --cat-2-strong: 343 80% 35%;
+    --cat-2-soft: 356 100% 95%;
+    --cat-3: 192 91% 36%;
+    --cat-3-strong: 194 70% 27%;
+    --cat-3-soft: 185 96% 90%;
+    --cat-4: 21 90% 48%;
+    --cat-4-strong: 15 79% 34%;
+    --cat-4-soft: 34 100% 92%;
+
     --font-display: 'Playfair Display', serif;
     --font-body: 'DM Sans', sans-serif;
 
@@ -87,6 +117,32 @@
     --sidebar-border: 215 20% 16%;
     --sidebar-ring: 200 65% 50%;
 
+    /* Par escuro dos tokens semânticos (tema escuro fora do escopo; mantido pela regra do projeto). */
+    --success: 158 64% 52%;
+    --success-strong: 156 72% 67%;
+    --success-soft: 164 60% 14%;
+    --warning: 43 96% 56%;
+    --warning-strong: 46 97% 65%;
+    --warning-soft: 32 70% 15%;
+    --danger: 0 91% 71%;
+    --danger-strong: 0 94% 82%;
+    --danger-soft: 0 55% 17%;
+    --info: 213 94% 68%;
+    --info-strong: 212 96% 78%;
+    --info-soft: 224 55% 18%;
+    --cat-1: 255 92% 76%;
+    --cat-1-strong: 252 95% 85%;
+    --cat-1-soft: 263 50% 18%;
+    --cat-2: 351 95% 71%;
+    --cat-2-strong: 352 96% 82%;
+    --cat-2-soft: 343 55% 17%;
+    --cat-3: 187 92% 69%;
+    --cat-3-strong: 186 94% 82%;
+    --cat-3-soft: 194 55% 15%;
+    --cat-4: 27 96% 61%;
+    --cat-4-strong: 31 97% 72%;
+    --cat-4-soft: 15 55% 16%;
+
     --shadow-card: 0 1px 3px 0 hsl(0 0% 0% / 0.2);
     --shadow-card-hover: 0 4px 12px -2px hsl(0 0% 0% / 0.3);
     --shadow-elevated: 0 10px 30px -8px hsl(0 0% 0% / 0.4);
@@ -109,6 +165,22 @@
   }
   html {
     scroll-behavior: smooth;
+  }
+
+  /* "Reduzir movimento" do sistema: sem rolagem suave nem animações CSS longas.
+     As animações do framer-motion são tratadas pelo MotionConfig em App.tsx. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 
   /* Global transition for interactive elements */

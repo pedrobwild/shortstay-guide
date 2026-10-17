@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import RouteSeo from "@/components/RouteSeo";
 import { slugifyBairro } from "@/lib/seo";
 import { lazy, Suspense, useEffect } from "react";
+import { MotionConfig } from "framer-motion";
 import { AuthProvider } from "@/hooks/useAuth";
 import bwildLogo from "@/assets/bewild-logo.webp";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -129,9 +130,12 @@ export function AppShell({ children, helmetContext }: { children: React.ReactNod
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            {children}
+            {/* Respeita "reduzir movimento" do sistema: sem deslocamentos/escala, só opacidade. */}
+            <MotionConfig reducedMotion="user">
+              <Toaster />
+              <Sonner />
+              {children}
+            </MotionConfig>
           </TooltipProvider>
         </AuthProvider>
       </QueryClientProvider>

@@ -187,8 +187,8 @@ export default function TendenciasSection() {
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-bold text-primary">{trend.numberLabel}</span>
                     <div className="flex gap-1.5">
-                      <Badge className={`text-[10px] px-1.5 py-0 ${trendDiffColor[trend.difficulty]}`}>{trendDiffLabel[trend.difficulty]}</Badge>
-                      <Badge className={`text-[10px] px-1.5 py-0 ${trendImpactColor[trend.impact]}`}>{trendImpactLabel[trend.impact]}</Badge>
+                      <Badge className={`text-xs px-1.5 py-0 ${trendDiffColor[trend.difficulty]}`}>{trendDiffLabel[trend.difficulty]}</Badge>
+                      <Badge className={`text-xs px-1.5 py-0 ${trendImpactColor[trend.impact]}`}>{trendImpactLabel[trend.impact]}</Badge>
                     </div>
                   </div>
                   <p className="font-bold text-foreground text-base mb-1.5">{trend.title}</p>
@@ -219,8 +219,8 @@ export default function TendenciasSection() {
               <DialogHeader>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-sm font-bold text-primary">{detailTrend.numberLabel}</span>
-                  <Badge className={`text-[10px] px-1.5 py-0 ${trendDiffColor[detailTrend.difficulty]}`}>{trendDiffLabel[detailTrend.difficulty]}</Badge>
-                  <Badge className={`text-[10px] px-1.5 py-0 ${trendImpactColor[detailTrend.impact]}`}>{trendImpactLabel[detailTrend.impact]}</Badge>
+                  <Badge className={`text-xs px-1.5 py-0 ${trendDiffColor[detailTrend.difficulty]}`}>{trendDiffLabel[detailTrend.difficulty]}</Badge>
+                  <Badge className={`text-xs px-1.5 py-0 ${trendImpactColor[detailTrend.impact]}`}>{trendImpactLabel[detailTrend.impact]}</Badge>
                 </div>
                 <DialogTitle className="font-display text-xl">{detailTrend.title}</DialogTitle>
               </DialogHeader>

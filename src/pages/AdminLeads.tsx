@@ -39,10 +39,10 @@ type SortKey = "name" | "neighborhood" | "score" | "property_value" | "event_cou
 
 const STAGE_META: Record<ScoredLead["stage"], { label: string; className: string }> = {
   lead: { label: "Lead", className: "bg-muted text-muted-foreground border-transparent" },
-  projecao: { label: "Projeção", className: "bg-blue-100 text-blue-800 border-transparent dark:bg-blue-950 dark:text-blue-200" },
-  valor: { label: "Valor do imóvel", className: "bg-amber-100 text-amber-800 border-transparent dark:bg-amber-950 dark:text-amber-200" },
-  conexao: { label: "Conexão", className: "bg-purple-100 text-purple-800 border-transparent dark:bg-purple-950 dark:text-purple-200" },
-  operando: { label: "Operando", className: "bg-emerald-100 text-emerald-800 border-transparent dark:bg-emerald-950 dark:text-emerald-200" },
+  projecao: { label: "Projeção", className: "bg-info-soft text-info-strong border-transparent" },
+  valor: { label: "Valor do imóvel", className: "bg-warning-soft text-warning-strong border-transparent" },
+  conexao: { label: "Conexão", className: "bg-cat-1-soft text-cat-1-strong border-transparent" },
+  operando: { label: "Operando", className: "bg-success-soft text-success-strong border-transparent" },
 };
 
 /** Dias inteiros desde a entrada na etapa atual. Null se não houver timestamp. */
@@ -146,7 +146,7 @@ export default function AdminLeads() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <StatCard icon={Users} label="Total" value={stats.total} />
           <StatCard icon={Flame} label="Quentes" value={stats.quente} tone="text-primary" />
-          <StatCard icon={Flame} label="Mornos" value={stats.morno} tone="text-amber-600" />
+          <StatCard icon={Flame} label="Mornos" value={stats.morno} tone="text-warning-strong" />
           <StatCard icon={Flame} label="Frios" value={stats.frio} tone="text-muted-foreground" />
         </div>
 
@@ -260,7 +260,7 @@ export default function AdminLeads() {
                           <Badge variant="outline" className={STAGE_META[lead.stage].className}>
                             {STAGE_META[lead.stage].label}
                           </Badge>
-                          <span className="text-[11px] text-muted-foreground tabular-nums">
+                          <span className="text-xs text-muted-foreground tabular-nums">
                             {(() => {
                               const d = daysInStage(lead.stage_entered_at);
                               if (d === null) return "—";
@@ -363,7 +363,7 @@ function StatCard({
 }) {
   return (
     <div className="rounded-lg border border-border bg-card p-3 shadow-card">
-      <p className="text-[11px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+      <p className="text-xs uppercase tracking-wide text-muted-foreground flex items-center gap-1">
         <Icon className="h-3 w-3" /> {label}
       </p>
       <p className={`text-2xl font-semibold tabular-nums ${tone}`}>{value}</p>

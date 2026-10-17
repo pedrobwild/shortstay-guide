@@ -74,7 +74,7 @@ export const PILLARS: ScorePillar[] = [
     weight: 0.35,
     description: "Quanto o imóvel pode render por ano no Airbnb em relação ao capital investido.",
     icon: "TrendingUp",
-    color: "text-emerald-600",
+    color: "text-success-strong",
   },
   {
     key: "demanda",
@@ -83,7 +83,7 @@ export const PILLARS: ScorePillar[] = [
     weight: 0.25,
     description: "Facilidade de manter reservas constantes e gerar fluxo de caixa previsível.",
     icon: "Zap",
-    color: "text-blue-600",
+    color: "text-info-strong",
   },
   {
     key: "operacao",
@@ -92,7 +92,7 @@ export const PILLARS: ScorePillar[] = [
     weight: 0.20,
     description: "Percentual de dias em que o imóvel fica efetivamente alugado.",
     icon: "CalendarCheck",
-    color: "text-violet-600",
+    color: "text-cat-1-strong",
   },
   {
     key: "futuro",
@@ -101,7 +101,7 @@ export const PILLARS: ScorePillar[] = [
     weight: 0.20,
     description: "Sinais de valorização e expansão futura da demanda no bairro.",
     icon: "Sprout",
-    color: "text-amber-600",
+    color: "text-warning-strong",
   },
 ];
 
@@ -210,11 +210,11 @@ export function calculateInvestmentScore(
 // ── Grade system ─────────────────────────────────────────────────
 
 function getGrade(score: number): { grade: string; gradeColor: string; gradeLabel: string } {
-  if (score >= 90) return { grade: "A+", gradeColor: "text-emerald-600", gradeLabel: "Excelente investimento" };
-  if (score >= 80) return { grade: "A", gradeColor: "text-emerald-600", gradeLabel: "Muito bom" };
-  if (score >= 70) return { grade: "B", gradeColor: "text-blue-600", gradeLabel: "Bom" };
-  if (score >= 60) return { grade: "C", gradeColor: "text-amber-600", gradeLabel: "Moderado" };
-  return { grade: "D", gradeColor: "text-red-600", gradeLabel: "Arriscado" };
+  if (score >= 90) return { grade: "A+", gradeColor: "text-success-strong", gradeLabel: "Excelente investimento" };
+  if (score >= 80) return { grade: "A", gradeColor: "text-success-strong", gradeLabel: "Muito bom" };
+  if (score >= 70) return { grade: "B", gradeColor: "text-info-strong", gradeLabel: "Bom" };
+  if (score >= 60) return { grade: "C", gradeColor: "text-warning-strong", gradeLabel: "Moderado" };
+  return { grade: "D", gradeColor: "text-danger-strong", gradeLabel: "Arriscado" };
 }
 
 export function getGradeExplanation(grade: string): string {

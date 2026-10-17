@@ -150,7 +150,7 @@ export default function LeadDetailSheet({
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-border p-2.5">
-      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
       <p className="text-sm font-medium text-foreground">{value}</p>
     </div>
   );

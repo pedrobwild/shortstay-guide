@@ -82,7 +82,7 @@ export const Step4Learnings = ({ bairros, onNext }: { bairros: BairroAirbnb[]; o
                         <div className="mt-4 pt-4 border-t border-border/50 space-y-3">
                           {example && (
                             <div className="bg-primary/[0.04] rounded-lg p-3 border border-primary/10">
-                              <p className="text-[11px] font-semibold text-primary mb-1">📊 Nos dados reais</p>
+                              <p className="text-xs font-semibold text-primary mb-1">📊 Nos dados reais</p>
                               <p className="text-xs text-foreground/80 leading-relaxed">{example}</p>
                             </div>
                           )}

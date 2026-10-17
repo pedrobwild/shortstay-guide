@@ -26,7 +26,7 @@ export const InvestmentScoreHero = ({ result, bairro }: { result: InvestmentScor
         <div className="flex flex-col sm:flex-row">
           {/* Score circle */}
           <div className="flex flex-col items-center justify-center p-6 sm:p-8 bg-primary/[0.04] sm:min-w-[200px]">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">Investment Score</p>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-2">Investment Score</p>
             <div className="relative">
               <svg viewBox="0 0 120 120" className="h-28 w-28">
                 <circle cx="60" cy="60" r="52" fill="none" stroke="hsl(var(--border))" strokeWidth="8" />
@@ -46,7 +46,7 @@ export const InvestmentScoreHero = ({ result, bairro }: { result: InvestmentScor
                 <span className={`text-lg font-bold ${result.gradeColor}`}>{result.grade}</span>
               </div>
             </div>
-            <p className="text-[10px] font-semibold text-muted-foreground mt-1">{result.gradeLabel}</p>
+            <p className="text-xs font-semibold text-muted-foreground mt-1">{result.gradeLabel}</p>
             <p className="text-xs text-muted-foreground mt-1 text-center max-w-[160px]">
               {getGradeExplanation(result.grade).split(".")[0]}.
             </p>
@@ -87,7 +87,7 @@ export const InvestmentScoreHero = ({ result, bairro }: { result: InvestmentScor
                             <p className="mt-1 font-medium">Peso: {formatDecimal((pillar.weight * 100), 0)}%</p>
                           </TooltipContent>
                         </Tooltip>
-                        <Badge variant="outline" className="text-[9px] px-1.5 py-0">{formatDecimal((pillar.weight * 100), 0)}%</Badge>
+                        <Badge variant="outline" className="text-xs px-1.5 py-0">{formatDecimal((pillar.weight * 100), 0)}%</Badge>
                       </div>
                       <span className="text-xs font-bold">{formatDecimal(data.normalized, 0)}</span>
                     </div>
@@ -103,16 +103,16 @@ export const InvestmentScoreHero = ({ result, bairro }: { result: InvestmentScor
             {(result.confidenceFactor < 1 || result.liquidityRiskFactor < 1) && (
               <div className="flex flex-wrap gap-2 pt-1">
                 {result.confidenceFactor < 1 && (
-                  <Badge variant="outline" className="text-[9px] text-amber-700 border-amber-300 bg-amber-50">
+                  <Badge variant="outline" className="text-xs text-warning-strong border-warning/30 bg-warning-soft">
                     Confiança: {formatDecimal((result.confidenceFactor * 100), 0)}%
                   </Badge>
                 )}
                 {result.liquidityRiskFactor < 1 && (
-                  <Badge variant="outline" className="text-[9px] text-orange-700 border-orange-300 bg-orange-50">
+                  <Badge variant="outline" className="text-xs text-cat-4-strong border-cat-4/30 bg-cat-4-soft">
                     Risco liquidez: −{formatDecimal(((1 - result.liquidityRiskFactor) * 100), 0)}%
                   </Badge>
                 )}
-                <Badge variant="outline" className="text-[9px] text-muted-foreground">
+                <Badge variant="outline" className="text-xs text-muted-foreground">
                   Score bruto: {formatDecimal(result.rawScore, 1)}
                 </Badge>
               </div>
@@ -138,7 +138,7 @@ export const InvestmentScoreMini = ({ bairro, score, grade, gradeColor }: { bair
     <span className="text-sm font-medium">{bairro}</span>
     <div className="flex items-center gap-2">
       <span className="text-lg font-bold">{formatDecimal(score, 1)}</span>
-      <Badge className={`${gradeColor === "text-emerald-600" ? "bg-emerald-100 text-emerald-800" : gradeColor === "text-blue-600" ? "bg-blue-100 text-blue-800" : gradeColor === "text-amber-600" ? "bg-amber-100 text-amber-800" : "bg-red-100 text-red-800"} text-xs`}>
+      <Badge className={`${gradeColor === "text-success-strong" ? "bg-success-soft text-success-strong" : gradeColor === "text-info-strong" ? "bg-info-soft text-info-strong" : gradeColor === "text-warning-strong" ? "bg-warning-soft text-warning-strong" : "bg-danger-soft text-danger-strong"} text-xs`}>
         {grade}
       </Badge>
     </div>

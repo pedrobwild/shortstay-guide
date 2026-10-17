@@ -32,8 +32,8 @@ const NARRATIVE_ICON: Record<string, React.ElementType> = {
 
 const NARRATIVE_STYLE: Record<string, { border: string; bg: string; dot: string }> = {
   insight: { border: "border-l-primary", bg: "bg-primary/[0.03]", dot: "bg-primary" },
-  comparison: { border: "border-l-blue-500", bg: "bg-blue-50/50", dot: "bg-blue-500" },
-  caution: { border: "border-l-amber-500", bg: "bg-amber-50/50", dot: "bg-amber-500" },
+  comparison: { border: "border-l-info", bg: "bg-info-soft/50", dot: "bg-info" },
+  caution: { border: "border-l-warning", bg: "bg-warning-soft/50", dot: "bg-warning" },
 };
 
 // ── Strategic Lessons Section ────────────────────────────────────
@@ -70,7 +70,7 @@ export const StrategicLessonsSection = ({ bairros }: { bairros: BairroAirbnb[] }
                   <p className="text-xs text-foreground/70 leading-relaxed">{lesson.explanation}</p>
                   {example && (
                     <div className="bg-muted/40 rounded-md p-2.5 mt-1">
-                      <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      <p className="text-xs text-muted-foreground leading-relaxed">
                         📊 <span className="font-medium">Na prática:</span> {example}
                       </p>
                     </div>
@@ -127,9 +127,9 @@ export const ComparativeNarrativesSection = ({ bairros }: { bairros: BairroAirbn
 // ── Bairro Story Blocks (for detail page) ────────────────────────
 export const BairroStoryCard = ({ title, text, type }: { title: string; text: string; type: "positive" | "neutral" | "caution" }) => {
   const styles = {
-    positive: { icon: TrendingUp, border: "border-l-emerald-500", bg: "bg-emerald-50/50", iconColor: "text-emerald-600" },
-    neutral: { icon: Lightbulb, border: "border-l-blue-400", bg: "bg-blue-50/30", iconColor: "text-blue-500" },
-    caution: { icon: AlertTriangle, border: "border-l-amber-500", bg: "bg-amber-50/50", iconColor: "text-amber-600" },
+    positive: { icon: TrendingUp, border: "border-l-success", bg: "bg-success-soft/50", iconColor: "text-success-strong" },
+    neutral: { icon: Lightbulb, border: "border-l-info", bg: "bg-info-soft/30", iconColor: "text-info" },
+    caution: { icon: AlertTriangle, border: "border-l-warning", bg: "bg-warning-soft/50", iconColor: "text-warning-strong" },
   };
   const s = styles[type];
   return (
@@ -150,8 +150,8 @@ export const EducationalBanner = ({ message, type = "neutral" }: { message: stri
   const styles = {
     neutral: "text-muted-foreground",
     insight: "text-primary/70",
-    caution: "text-amber-600/80",
-    opportunity: "text-emerald-600/80",
+    caution: "text-warning-strong/80",
+    opportunity: "text-success-strong/80",
   };
   const icons = {
     neutral: null,
@@ -226,7 +226,7 @@ export const AnalysisSummarySection = ({ bairros }: { bairros: BairroAirbnb[] })
                     <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/40 hover:bg-muted/70 transition-colors cursor-pointer">
                       <Icon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{h.category}</p>
+                        <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">{h.category}</p>
                         <p className="font-bold text-sm">{h.bairro}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">{h.value}</p>
                         <p className="text-xs text-foreground/70 mt-1 leading-relaxed">{h.narrative}</p>
@@ -259,7 +259,7 @@ export const AnalysisSummarySection = ({ bairros }: { bairros: BairroAirbnb[] })
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-lg font-bold">{formatDecimal(item.investmentScore.score, 1)}</span>
-                        <Badge className={`${badgeStyle} text-[10px]`}>
+                        <Badge className={`${badgeStyle} text-xs`}>
                           {item.investmentScore.grade}
                         </Badge>
                       </div>
@@ -277,7 +277,7 @@ export const AnalysisSummarySection = ({ bairros }: { bairros: BairroAirbnb[] })
           <div className="flex flex-wrap gap-2">
             {Array.from(profileGroups.entries()).map(([key, { profile, bairros: names }]) => (
               <div key={key} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/40">
-                <Badge className={`${profile.color} ${profile.textColor} text-[10px]`}>{profile.label}</Badge>
+                <Badge className={`${profile.color} ${profile.textColor} text-xs`}>{profile.label}</Badge>
                 <span className="text-xs text-muted-foreground">{names.join(", ")}</span>
               </div>
             ))}

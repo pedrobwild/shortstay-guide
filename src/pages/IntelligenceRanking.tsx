@@ -27,9 +27,9 @@ import {
 type SortKey = "investment_score" | "score_rentabilidade" | "score_liquidez" | "score_crescimento_potencial" | "adr_medio_studio" | "ocupacao_media_studio" | "yield_bruto_airbnb" | "delta_yield";
 
 const confBadge = (nivel: string) => {
-  if (nivel === "alto") return <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100 text-[10px]">Alto</Badge>;
-  if (nivel === "medio") return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 text-[10px]">Médio</Badge>;
-  return <Badge variant="destructive" className="text-[10px]">Baixo</Badge>;
+  if (nivel === "alto") return <Badge className="bg-success-soft text-success-strong hover:bg-success-soft text-xs">Alto</Badge>;
+  if (nivel === "medio") return <Badge className="bg-warning-soft text-warning-strong hover:bg-warning-soft text-xs">Médio</Badge>;
+  return <Badge variant="destructive" className="text-xs">Baixo</Badge>;
 };
 
 const HeaderTooltip = ({ colKey }: { colKey: string }) => {
@@ -163,7 +163,7 @@ const IntelligenceRanking = () => {
                 </Select>
               </div>
               <div className="flex-1" />
-              <Badge variant="secondary" className="text-[10px]">{sorted.length} bairros</Badge>
+              <Badge variant="secondary" className="text-xs">{sorted.length} bairros</Badge>
               <Button variant="outline" size="sm" className="h-8 text-xs" onClick={exportCSV}>
                 <Download className="h-3.5 w-3.5 mr-1" /> CSV
               </Button>
@@ -234,21 +234,21 @@ const IntelligenceRanking = () => {
                                       <span className="font-medium">{formatDecimal(p.normalized, 0)}/100</span>
                                     </div>
                                   ))}
-                                  {invScore.confidenceFactor < 1 && <p className="text-amber-600 pt-1">Ajuste confiança: −{formatDecimal(((1 - invScore.confidenceFactor) * 100), 0)}%</p>}
-                                  {invScore.liquidityRiskFactor < 1 && <p className="text-orange-600">Ajuste liquidez: −{formatDecimal(((1 - invScore.liquidityRiskFactor) * 100), 0)}%</p>}
+                                  {invScore.confidenceFactor < 1 && <p className="text-warning-strong pt-1">Ajuste confiança: −{formatDecimal(((1 - invScore.confidenceFactor) * 100), 0)}%</p>}
+                                  {invScore.liquidityRiskFactor < 1 && <p className="text-cat-4-strong">Ajuste liquidez: −{formatDecimal(((1 - invScore.liquidityRiskFactor) * 100), 0)}%</p>}
                                 </TooltipContent>
                               </Tooltip>
                             )}
                           </TableCell>
                           <TableCell className="text-center">
                             {invScore && (
-                              <Badge className={`${badgeStyle} text-[10px] px-1.5`}>{invScore.grade}</Badge>
+                              <Badge className={`${badgeStyle} text-xs px-1.5`}>{invScore.grade}</Badge>
                             )}
                           </TableCell>
                           <TableCell className="text-center">
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Badge className={`${profile.color} ${profile.textColor} hover:${profile.color} text-[10px] cursor-help`}>{profile.label}</Badge>
+                                <Badge className={`${profile.color} ${profile.textColor} hover:${profile.color} text-xs cursor-help`}>{profile.label}</Badge>
                               </TooltipTrigger>
                               <TooltipContent side="bottom" className="max-w-[220px] text-xs">
                                 <p className="font-semibold mb-0.5">{profile.label}</p>
@@ -258,17 +258,17 @@ const IntelligenceRanking = () => {
                           </TableCell>
                           <TableCell className={`text-right tabular-nums ${isHighlighted(b.bairro, "max-adr") ? "font-bold text-primary" : ""}`}>
                             {fmtBRL(b.adr_medio_studio)}{b.diaria_ocupacao_curadas ? "*" : ""}
-                            {isHighlighted(b.bairro, "max-adr") && <span className="ml-0.5 text-[9px] text-primary">★</span>}
+                            {isHighlighted(b.bairro, "max-adr") && <span className="ml-0.5 text-xs text-primary">★</span>}
                           </TableCell>
                           <TableCell className={`text-right tabular-nums ${isHighlighted(b.bairro, "max-occ") ? "font-bold text-primary" : ""}`}>
                             {fmtPct(b.ocupacao_media_studio)}{b.diaria_ocupacao_curadas ? "*" : ""}
-                            {isHighlighted(b.bairro, "max-occ") && <span className="ml-0.5 text-[9px] text-primary">★</span>}
+                            {isHighlighted(b.bairro, "max-occ") && <span className="ml-0.5 text-xs text-primary">★</span>}
                           </TableCell>
-                          <TableCell className={`text-right tabular-nums ${isHighlighted(b.bairro, "max-yield") ? "font-bold text-emerald-600" : ""}`}>
+                          <TableCell className={`text-right tabular-nums ${isHighlighted(b.bairro, "max-yield") ? "font-bold text-success-strong" : ""}`}>
                             {fmtPct(b.yield_bruto_airbnb)}
-                            {isHighlighted(b.bairro, "max-yield") && <span className="ml-0.5 text-[9px] text-emerald-600">★</span>}
+                            {isHighlighted(b.bairro, "max-yield") && <span className="ml-0.5 text-xs text-success-strong">★</span>}
                           </TableCell>
-                          <TableCell className="text-right tabular-nums font-medium text-emerald-600">{fmtPct(b.delta_yield)}</TableCell>
+                          <TableCell className="text-right tabular-nums font-medium text-success-strong">{fmtPct(b.delta_yield)}</TableCell>
                           <TableCell className="text-right tabular-nums font-bold">{fmtScore(b.score_rentabilidade)}</TableCell>
                           <TableCell className="text-right tabular-nums">{fmtScore(b.score_liquidez)}</TableCell>
                           <TableCell className="text-right tabular-nums">{fmtScore(b.score_crescimento_potencial)}</TableCell>
@@ -287,7 +287,7 @@ const IntelligenceRanking = () => {
             <p className="text-xs text-foreground/60 leading-relaxed max-w-2xl mx-auto mb-3">
               O melhor investimento não é só o bairro mais famoso ou a diária mais alta — é aquele que melhor equilibra preço, ocupação, liquidez e potencial.
             </p>
-            <p className="text-[11px] text-muted-foreground/60 leading-relaxed max-w-2xl mx-auto">{FOOTER_DISCLAIMER}</p>
+            <p className="text-xs text-muted-foreground/60 leading-relaxed max-w-2xl mx-auto">{FOOTER_DISCLAIMER}</p>
           </footer>
         </main>
       </div>

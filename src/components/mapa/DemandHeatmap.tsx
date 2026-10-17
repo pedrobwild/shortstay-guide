@@ -99,9 +99,9 @@ export default function DemandHeatmap({ heatPoints, visible }: DemandHeatmapProp
                 >
                   <div className="flex items-center gap-2 mb-1.5">
                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: `rgb(${rgb})` }} />
-                    <p className="text-[11px] font-bold text-foreground">{hp.areaName}</p>
+                    <p className="text-xs font-bold text-foreground">{hp.areaName}</p>
                   </div>
-                  <div className="grid grid-cols-3 gap-3 text-[9px]">
+                  <div className="grid grid-cols-3 gap-3 text-xs">
                     <div>
                       <p className="text-muted-foreground">Demanda</p>
                       <p className="font-bold text-foreground">{hp.demandScore}</p>

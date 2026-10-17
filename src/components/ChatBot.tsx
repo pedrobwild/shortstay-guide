@@ -219,7 +219,7 @@ export default function ChatBot() {
             <div className="relative flex items-center gap-3 px-5 py-4 overflow-hidden">
               {/* Gradient bg */}
               <div className="absolute inset-0 bg-hero-gradient" />
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[hsl(200,60%,30%)]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-primary" />
 
               <motion.div
                 initial={{ rotate: -20, scale: 0 }}
@@ -231,7 +231,7 @@ export default function ChatBot() {
               </motion.div>
               <div className="relative z-10 flex-1">
                 <p className="text-sm font-bold font-display text-primary-foreground tracking-wide">Consultor Short-Stay</p>
-                <p className="text-[11px] text-primary-foreground/70 font-body">Especialista em investimento imobiliário</p>
+                <p className="text-xs text-primary-foreground/70 font-body">Especialista em investimento imobiliário</p>
               </div>
               <motion.button
                 whileHover={{ scale: 1.1, rotate: 90 }}

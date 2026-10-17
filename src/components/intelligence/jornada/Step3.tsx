@@ -151,7 +151,7 @@ export const Step3Learn = ({ onNext }: { onNext: () => void }) => {
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-foreground">{ind.friendlyName}</p>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{ind.technicalName}</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">{ind.technicalName}</p>
                       </div>
                     </div>
                     {isOpen
@@ -170,11 +170,11 @@ export const Step3Learn = ({ onNext }: { onNext: () => void }) => {
                         <div className="mt-3 space-y-2.5 pt-3 border-t border-border/50">
                           <p className="text-xs text-foreground/80 leading-relaxed">{ind.explanation}</p>
                           <div className="bg-primary/[0.04] rounded-lg p-3">
-                            <p className="text-[11px] font-semibold text-primary mb-0.5">Por que importa</p>
-                            <p className="text-[11px] text-foreground/70 leading-relaxed">{ind.whyItMatters}</p>
+                            <p className="text-xs font-semibold text-primary mb-0.5">Por que importa</p>
+                            <p className="text-xs text-foreground/70 leading-relaxed">{ind.whyItMatters}</p>
                           </div>
                           <div className="bg-muted/40 rounded-lg p-2.5">
-                            <p className="text-[11px] text-muted-foreground italic">💡 {ind.example}</p>
+                            <p className="text-xs text-muted-foreground italic">💡 {ind.example}</p>
                           </div>
                           <p className="text-xs font-medium text-foreground/80 flex items-start gap-1.5">
                             <CheckCircle className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
@@ -211,7 +211,7 @@ export const Step3Learn = ({ onNext }: { onNext: () => void }) => {
                       <PillarIcon className={`h-5 w-5 ${p.color} mx-auto mb-1.5`} />
                       <p className="text-lg font-bold text-primary">{formatDecimal((p.weight * 100), 0)}%</p>
                       <p className="text-xs font-medium">{p.label}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{p.friendlyName}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{p.friendlyName}</p>
                     </div>
                   </motion.div>
                 );
@@ -283,15 +283,15 @@ export const Step3Learn = ({ onNext }: { onNext: () => void }) => {
                       </p>
                     </div>
                     <div className="bg-primary/[0.04] rounded-lg p-3">
-                      <p className="text-[11px] font-semibold text-primary mb-1">Por que é útil?</p>
-                      <p className="text-[11px] text-foreground/70 leading-relaxed">
+                      <p className="text-xs font-semibold text-primary mb-1">Por que é útil?</p>
+                      <p className="text-xs text-foreground/70 leading-relaxed">
                         Enquanto o Yield Airbnb usa a receita reportada pela plataforma, o True Yield recalcula 
                         o retorno a partir dos dados operacionais reais (diária e ocupação). A diferença entre os dois 
                         pode revelar oportunidades ocultas ou alertar sobre inconsistências.
                       </p>
                     </div>
                     <div className="bg-muted/30 rounded p-2">
-                      <p className="text-[11px] text-muted-foreground italic">
+                      <p className="text-xs text-muted-foreground italic">
                         💡 Exemplo: se o True Yield é 2pp acima do Yield Airbnb, pode indicar que o bairro tem 
                         potencial de retorno maior do que o estimado pela plataforma.
                       </p>

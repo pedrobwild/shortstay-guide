@@ -57,7 +57,7 @@ const IntelligenceListings = () => {
               </SelectContent>
             </Select>
             <div className="flex-1" />
-            <Badge variant="secondary" className="text-[10px]">
+            <Badge variant="secondary" className="text-xs">
               <Database className="h-3 w-3 mr-1" />
               {listings?.length ?? 0} registros
             </Badge>
@@ -105,7 +105,7 @@ const IntelligenceListings = () => {
                   <TableBody>
                     {listings.map(l => (
                       <TableRow key={l.listing_id} className="group hover:bg-muted/40">
-                        <TableCell className="font-mono text-[11px] text-muted-foreground">{l.listing_id}</TableCell>
+                        <TableCell className="font-mono text-xs text-muted-foreground">{l.listing_id}</TableCell>
                         <TableCell className="font-medium">
                           <Link
                             to={bairroPath(l.bairro)}
@@ -118,14 +118,14 @@ const IntelligenceListings = () => {
                         <TableCell className="max-w-[200px]">
                           <span className="truncate block text-sm">{l.titulo || "—"}</span>
                         </TableCell>
-                        <TableCell><Badge variant="outline" className="text-[10px]">{l.unit_type}</Badge></TableCell>
+                        <TableCell><Badge variant="outline" className="text-xs">{l.unit_type}</Badge></TableCell>
                         <TableCell className="text-right tabular-nums">{fmtBRL(l.preco_noite_atual)}</TableCell>
                         <TableCell className="text-right tabular-nums">{fmtPct(l.ocupacao_estimada)}</TableCell>
                         <TableCell className="text-right tabular-nums">{fmtBRL(l.receita_anual_estimada)}</TableCell>
                         <TableCell className="text-right tabular-nums">{formatDecimal(Number(l.rating_geral), 2)}</TableCell>
                         <TableCell className="text-right tabular-nums">{l.n_reviews}</TableCell>
-                        <TableCell className="text-center">{l.is_superhost ? <Badge className="bg-amber-100 text-amber-800 text-[10px]">⭐ SH</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
-                        <TableCell className="text-[11px] text-muted-foreground">{l.fonte}</TableCell>
+                        <TableCell className="text-center">{l.is_superhost ? <Badge className="bg-warning-soft text-warning-strong text-xs">⭐ SH</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{l.fonte}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

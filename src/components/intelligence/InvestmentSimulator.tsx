@@ -177,7 +177,7 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
               step={10_000}
               className="w-full"
             />
-            <div className="flex justify-between text-[10px] text-muted-foreground">
+            <div className="flex justify-between text-xs text-muted-foreground">
               <span>R$ 200k</span><span>R$ 1,5M</span>
             </div>
           </div>
@@ -198,7 +198,7 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
               step={5}
               className="w-full"
             />
-            <div className="flex justify-between text-[10px] text-muted-foreground">
+            <div className="flex justify-between text-xs text-muted-foreground">
               <span>20%</span><span>100% (à vista)</span>
             </div>
           </div>
@@ -217,7 +217,7 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
               step={0.5}
               className="w-full"
             />
-            <div className="flex justify-between text-[10px] text-muted-foreground">
+            <div className="flex justify-between text-xs text-muted-foreground">
               <span>7%</span><span>15%</span>
             </div>
           </div>
@@ -236,7 +236,7 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
               step={1}
               className="w-full"
             />
-            <div className="flex justify-between text-[10px] text-muted-foreground">
+            <div className="flex justify-between text-xs text-muted-foreground">
               <span>5 anos</span><span>35 anos</span>
             </div>
           </div>
@@ -255,7 +255,7 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
               step={5_000}
               className="w-full"
             />
-            <div className="flex justify-between text-[10px] text-muted-foreground">
+            <div className="flex justify-between text-xs text-muted-foreground">
               <span>R$ 10k</span><span>R$ 80k</span>
             </div>
           </div>
@@ -304,23 +304,23 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
           </div>
 
           {/* Cash flow indicator */}
-          <Card className={`${isPositiveCashFlow ? "bg-emerald-500/5 border-emerald-500/20" : "bg-amber-500/5 border-amber-500/20"}`}>
+          <Card className={`${isPositiveCashFlow ? "bg-success/5 border-success/20" : "bg-warning/5 border-warning/20"}`}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     Fluxo de caixa mensal {downPaymentPct < 100 ? "(após parcela)" : "(sem financiamento)"}
                   </p>
-                  <p className={`text-2xl font-bold mt-1 ${isPositiveCashFlow ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
+                  <p className={`text-2xl font-bold mt-1 ${isPositiveCashFlow ? "text-success-strong" : "text-warning-strong"}`}>
                     {isPositiveCashFlow ? "+" : ""}{fmtBRL(results.monthlyCashFlow)}
                   </p>
                 </div>
-                <Badge className={`text-xs ${isPositiveCashFlow ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" : "bg-amber-500/10 text-amber-700 dark:text-amber-300"}`}>
+                <Badge className={`text-xs ${isPositiveCashFlow ? "bg-success/10 text-success-strong" : "bg-warning/10 text-warning-strong"}`}>
                   {isPositiveCashFlow ? "Cash flow positivo" : "Cash flow negativo"}
                 </Badge>
               </div>
               {!isPositiveCashFlow && downPaymentPct < 100 && (
-                <p className="text-xs text-amber-600/80 dark:text-amber-400/80 mt-2">
+                <p className="text-xs text-warning-strong/80 mt-2">
                   A parcela do financiamento supera a receita líquida. Considere aumentar a entrada ou buscar taxa menor.
                 </p>
               )}
@@ -330,19 +330,19 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
           {/* Yield on capital */}
           <div className="grid grid-cols-3 gap-3">
             <div className="text-center p-3 rounded-lg bg-muted/40">
-              <p className="text-[10px] text-muted-foreground uppercase">Yield sobre capital</p>
+              <p className="text-xs text-muted-foreground uppercase">Yield sobre capital</p>
               <p className="text-lg font-bold text-primary">{formatDecimal((results.yieldOnCapital * 100), 1)}%</p>
-              <p className="text-[10px] text-muted-foreground">ao ano</p>
+              <p className="text-xs text-muted-foreground">ao ano</p>
             </div>
             <div className="text-center p-3 rounded-lg bg-muted/40">
-              <p className="text-[10px] text-muted-foreground uppercase">Receita anual líq.</p>
+              <p className="text-xs text-muted-foreground uppercase">Receita anual líq.</p>
               <p className="text-lg font-bold">{fmtBRL(results.netAnnualRevenue)}</p>
-              <p className="text-[10px] text-muted-foreground">{TOTAL_OPERATIONAL_PCT}% de custo operacional</p>
+              <p className="text-xs text-muted-foreground">{TOTAL_OPERATIONAL_PCT}% de custo operacional</p>
             </div>
             <div className="text-center p-3 rounded-lg bg-muted/40">
-              <p className="text-[10px] text-muted-foreground uppercase">Juros totais</p>
+              <p className="text-xs text-muted-foreground uppercase">Juros totais</p>
               <p className="text-lg font-bold">{downPaymentPct === 100 ? "—" : fmtBRL(results.totalInterestPaid)}</p>
-              <p className="text-[10px] text-muted-foreground">{downPaymentPct === 100 ? "À vista" : `em ${financingYears} anos`}</p>
+              <p className="text-xs text-muted-foreground">{downPaymentPct === 100 ? "À vista" : `em ${financingYears} anos`}</p>
             </div>
           </div>
 
@@ -374,10 +374,10 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
                       <div key={i} className="flex items-center justify-between py-1.5 px-3 text-sm rounded-md hover:bg-muted/30">
                         <div className="flex items-center gap-2">
                           <span className="text-foreground/80">{line.label}</span>
-                          <span className="text-[10px] text-muted-foreground hidden sm:inline">· {line.note}</span>
+                          <span className="text-xs text-muted-foreground hidden sm:inline">· {line.note}</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          {line.pct > 0 && <span className="text-[10px] text-muted-foreground">{line.pct}%</span>}
+                          {line.pct > 0 && <span className="text-xs text-muted-foreground">{line.pct}%</span>}
                           <span className="font-mono text-xs">{fmtBRL(line.value)}</span>
                         </div>
                       </div>
@@ -386,7 +386,7 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
                     <div className="flex items-center justify-between py-1.5 px-3 text-sm rounded-md hover:bg-muted/30">
                       <div className="flex items-center gap-2">
                         <span className="text-foreground/80">Decoração e mobília</span>
-                        <span className="text-[10px] text-muted-foreground hidden sm:inline">· Setup do studio</span>
+                        <span className="text-xs text-muted-foreground hidden sm:inline">· Setup do studio</span>
                       </div>
                       <span className="font-mono text-xs">{fmtBRL(decorationBudget)}</span>
                     </div>
@@ -408,10 +408,10 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
                     {OPERATIONAL_COSTS.map((cost, i) => (
                       <div key={i} className="flex items-center justify-between py-1.5 px-3 text-sm rounded-md hover:bg-muted/30">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs w-10 text-right text-red-500">−{cost.pct}%</span>
+                          <span className="font-mono text-xs w-10 text-right text-danger">−{cost.pct}%</span>
                           <span className="text-foreground/80">{cost.label}</span>
                         </div>
-                        <span className="font-mono text-xs text-red-500">
+                        <span className="font-mono text-xs text-danger">
                           −{fmtBRL(results.grossMonthlyRevenue * cost.pct / 100)}/mês
                         </span>
                       </div>
@@ -419,7 +419,7 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
                     <div className="border-t border-dashed border-border/50 mt-1 pt-1">
                       <div className="flex items-center justify-between py-1.5 px-3 text-sm font-semibold">
                         <span>Total deduções: {TOTAL_OPERATIONAL_PCT}%</span>
-                        <span className="font-mono text-red-500">
+                        <span className="font-mono text-danger">
                           −{fmtBRL(results.grossMonthlyRevenue * TOTAL_OPERATIONAL_PCT / 100)}/mês
                         </span>
                       </div>
@@ -435,19 +435,19 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
                     </p>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div className="p-2.5 rounded-lg bg-muted/30">
-                        <p className="text-[10px] text-muted-foreground">Valor financiado</p>
+                        <p className="text-xs text-muted-foreground">Valor financiado</p>
                         <p className="font-bold">{fmtBRL(results.financedAmount)}</p>
                       </div>
                       <div className="p-2.5 rounded-lg bg-muted/30">
-                        <p className="text-[10px] text-muted-foreground">Total pago ao banco</p>
+                        <p className="text-xs text-muted-foreground">Total pago ao banco</p>
                         <p className="font-bold">{fmtBRL(results.totalFinancingCost)}</p>
                       </div>
                       <div className="p-2.5 rounded-lg bg-muted/30">
-                        <p className="text-[10px] text-muted-foreground">Total juros pagos</p>
-                        <p className="font-bold text-amber-600 dark:text-amber-400">{fmtBRL(results.totalInterestPaid)}</p>
+                        <p className="text-xs text-muted-foreground">Total juros pagos</p>
+                        <p className="font-bold text-warning-strong">{fmtBRL(results.totalInterestPaid)}</p>
                       </div>
                       <div className="p-2.5 rounded-lg bg-muted/30">
-                        <p className="text-[10px] text-muted-foreground">Parcela mensal (Price)</p>
+                        <p className="text-xs text-muted-foreground">Parcela mensal (Price)</p>
                         <p className="font-bold">{fmtBRL(results.monthlyPayment)}</p>
                       </div>
                     </div>
@@ -461,7 +461,7 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
           {refBairro && (
             <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/30 border border-border/30">
               <Info className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 Receita baseada nos dados de <strong>{refBairro.bairro}</strong>: diária média {fmtBRL(avgADR)}, 
                 ocupação {fmtPct(avgOcc)}. Custos operacionais estimados em {TOTAL_OPERATIONAL_PCT}% da receita bruta. 
                 Valores são ilustrativos e podem variar.
@@ -470,9 +470,9 @@ export default function InvestmentSimulator({ bairros, selectedBairro }: Simulat
           )}
 
           {/* Disclaimer */}
-          <div className="flex items-start gap-2 p-3 rounded-lg border border-amber-500/20 bg-amber-500/[0.03]">
-            <AlertTriangle className="h-3.5 w-3.5 text-amber-500 mt-0.5 shrink-0" />
-            <p className="text-[11px] text-foreground/60 leading-relaxed">
+          <div className="flex items-start gap-2 p-3 rounded-lg border border-warning/20 bg-warning/[0.03]">
+            <AlertTriangle className="h-3.5 w-3.5 text-warning mt-0.5 shrink-0" />
+            <p className="text-xs text-foreground/60 leading-relaxed">
               Simulação ilustrativa. Não constitui recomendação de investimento. Consulte um profissional 
               qualificado antes de tomar decisões financeiras. Taxas, custos e receitas reais podem variar significativamente.
             </p>
@@ -491,10 +491,10 @@ function ResultCard({ label, value, sub, icon, highlight }: {
     <div className={`p-3 rounded-lg border ${highlight ? "bg-primary/[0.04] border-primary/20" : "bg-muted/30 border-border/30"}`}>
       <div className="flex items-center gap-1.5 mb-1.5">
         {icon}
-        <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{label}</p>
+        <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">{label}</p>
       </div>
       <p className={`text-base font-bold ${highlight ? "text-primary" : "text-foreground"}`}>{value}</p>
-      <p className="text-[10px] text-muted-foreground mt-0.5">{sub}</p>
+      <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>
     </div>
   );
 }

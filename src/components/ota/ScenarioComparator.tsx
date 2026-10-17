@@ -104,7 +104,7 @@ function DeltaChip({
   const isFlat = Math.abs(value) < 0.05;
   if (isFlat) {
     return (
-      <span className="inline-flex items-center gap-0.5 text-[11px] text-muted-foreground">
+      <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground">
         <Minus className="h-3 w-3" /> igual
       </span>
     );
@@ -113,7 +113,7 @@ function DeltaChip({
   const Icon = value > 0 ? ArrowUpRight : ArrowDownRight;
   return (
     <span
-      className={`inline-flex items-center gap-0.5 text-[11px] font-medium ${
+      className={`inline-flex items-center gap-0.5 text-xs font-medium ${
         improved ? "text-primary" : "text-destructive"
       }`}
     >
@@ -371,7 +371,7 @@ export default function ScenarioComparator({ projectId }: ScenarioComparatorProp
                               <div className="space-y-0.5">
                                 <p className="font-medium text-foreground tabular-nums">{row.format(val)}</p>
                                 {isBaseline ? (
-                                  <span className="text-[11px] text-muted-foreground">base</span>
+                                  <span className="text-xs text-muted-foreground">base</span>
                                 ) : baseVal !== null ? (
                                   <DeltaChip
                                     kind={row.delta}
@@ -397,7 +397,7 @@ export default function ScenarioComparator({ projectId }: ScenarioComparatorProp
         </CardContent>
       </Card>
 
-      <p className="text-[11px] text-muted-foreground">
+      <p className="text-xs text-muted-foreground">
         Deltas comparados ao cenário <span className="font-medium text-foreground">
           {computed[baselineIdx]?.scenario.name ?? "base"}
         </span>. Projeção de 12 meses com sazonalidade de São Paulo. Premissas salvas
@@ -455,10 +455,10 @@ function ScenarioHeader({
       </div>
       <div className="flex items-center gap-1.5">
         {scenario.kind !== "custom" && (
-          <Badge variant="secondary" className="text-[10px] capitalize">{scenario.kind}</Badge>
+          <Badge variant="secondary" className="text-xs capitalize">{scenario.kind}</Badge>
         )}
         {isBaseline && (
-          <Badge className="text-[10px] bg-primary/10 text-primary border-primary/20 hover:bg-primary/10">
+          <Badge className="text-xs bg-primary/10 text-primary border-primary/20 hover:bg-primary/10">
             Baseline
           </Badge>
         )}
@@ -471,7 +471,7 @@ function ScenarioHeader({
 function SectionRow({ label, span }: { label: string; span: number }) {
   return (
     <tr className="bg-muted/40">
-      <td colSpan={span} className="px-3 py-1.5 text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
+      <td colSpan={span} className="px-3 py-1.5 text-xs uppercase tracking-wide text-muted-foreground font-medium">
         {label}
       </td>
     </tr>

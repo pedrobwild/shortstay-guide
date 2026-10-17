@@ -52,6 +52,17 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Tokens semânticos da Onda 4 (definidos em src/index.css, com par .dark).
+        ...Object.fromEntries(
+          ["success", "warning", "danger", "info", "cat-1", "cat-2", "cat-3", "cat-4"].map((nome) => [
+            nome,
+            {
+              DEFAULT: `hsl(var(--${nome}))`,
+              strong: `hsl(var(--${nome}-strong))`,
+              soft: `hsl(var(--${nome}-soft))`,
+            },
+          ]),
+        ),
         gold: {
           DEFAULT: "hsl(var(--gold))",
           light: "hsl(var(--gold-light))",

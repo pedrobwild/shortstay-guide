@@ -35,10 +35,10 @@ export const Step1Context = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/[0.04] rounded-full -translate-y-1/2 translate-x-1/2" />
           <CardContent className="p-6 md:p-8 relative z-10">
             <div className="flex items-center gap-2 mb-4">
-              <Badge className="bg-primary/10 text-primary text-[10px] uppercase tracking-wider">
+              <Badge className="bg-primary/10 text-primary text-xs uppercase tracking-wider">
                 Guia de investimento
               </Badge>
-              <Badge className="bg-muted text-muted-foreground text-[10px]">
+              <Badge className="bg-muted text-muted-foreground text-xs">
                 {bairros.length} bairros · 30+ variáveis
               </Badge>
             </div>
@@ -173,22 +173,22 @@ export const Step1Context = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
                         )}
                         <div className={`flex items-center justify-between py-2 px-3 rounded-md text-sm ${
                           line.isGross ? "bg-primary/5 font-semibold text-foreground" :
-                          line.isNet ? "bg-emerald-500/10 font-bold text-emerald-700 dark:text-emerald-400" :
+                          line.isNet ? "bg-success/10 font-bold text-success-strong" :
                           "text-foreground/80"
                         }`}>
                           <div className="flex items-center gap-2 min-w-0">
                             <span className={`font-mono text-xs w-12 text-right shrink-0 ${
-                              isDeduction ? "text-red-500" : line.isNet ? "text-emerald-600 dark:text-emerald-400" : "text-foreground"
+                              isDeduction ? "text-danger" : line.isNet ? "text-success-strong" : "text-foreground"
                             }`}>
                               {displayPct}
                             </span>
                             <span className="truncate">{line.label}</span>
                             {line.note && (
-                              <span className="text-[10px] text-muted-foreground hidden sm:inline">· {line.note}</span>
+                              <span className="text-xs text-muted-foreground hidden sm:inline">· {line.note}</span>
                             )}
                           </div>
                           <span className={`font-mono text-xs shrink-0 ${
-                            isDeduction ? "text-red-500" : line.isNet ? "text-emerald-600 dark:text-emerald-400 text-sm" : ""
+                            isDeduction ? "text-danger" : line.isNet ? "text-success-strong text-sm" : ""
                           }`}>
                             {isDeduction ? "−" : ""} R$ {Math.round(value).toLocaleString("pt-BR")}
                           </span>
@@ -203,8 +203,8 @@ export const Step1Context = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
                       <span>Receita</span>
                       <div className="flex-1 h-5 bg-muted rounded-full overflow-hidden relative">
                         <div className="absolute inset-y-0 left-0 bg-primary/20 rounded-full" style={{ width: "100%" }} />
-                        <div className="absolute inset-y-0 left-0 bg-emerald-500/60 rounded-full transition-all" style={{ width: `${netPct}%` }} />
-                        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-foreground">
+                        <div className="absolute inset-y-0 left-0 bg-success/60 rounded-full transition-all" style={{ width: `${netPct}%` }} />
+                        <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-foreground">
                           {netPct}% fica com você
                         </span>
                       </div>
@@ -212,9 +212,9 @@ export const Step1Context = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
                     </div>
                   </div>
 
-                  <div className="mt-3 flex items-start gap-2 p-3 rounded-lg border border-amber-500/20 bg-amber-500/[0.03]">
-                    <AlertTriangle className="h-3.5 w-3.5 text-amber-500 mt-0.5 shrink-0" />
-                    <p className="text-[11px] text-foreground/70 leading-relaxed">
+                  <div className="mt-3 flex items-start gap-2 p-3 rounded-lg border border-warning/20 bg-warning/[0.03]">
+                    <AlertTriangle className="h-3.5 w-3.5 text-warning mt-0.5 shrink-0" />
+                    <p className="text-xs text-foreground/70 leading-relaxed">
                       Este é um exemplo ilustrativo. Os percentuais reais variam conforme o regime tributário, 
                       modelo de gestão (própria vs terceirizada) e perfil do imóvel. Use como referência para 
                       entender a <strong>estrutura de custos</strong>, não como projeção.
@@ -242,7 +242,7 @@ export const Step1Context = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
             <motion.div key={kpi.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={stagger(i, 0.15)}>
               <Card>
                 <CardContent className="p-4 text-center">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold">{kpi.label}</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">{kpi.label}</p>
                   <p className="text-xl font-bold mt-1">{kpi.value}</p>
                   <p className="text-xs text-muted-foreground">{kpi.sub}</p>
                 </CardContent>

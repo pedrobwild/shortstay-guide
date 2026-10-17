@@ -177,25 +177,25 @@ function ProjectionCard({
             <Sparkles className="h-4 w-4 text-primary" />
             <h3 className="text-sm font-medium text-foreground">Projeção do studio</h3>
           </div>
-          <Badge variant="secondary" className="text-[10px] truncate max-w-[40%]">{projectName}</Badge>
+          <Badge variant="secondary" className="text-xs truncate max-w-[40%]">{projectName}</Badge>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-lg border border-primary/30 bg-primary/[0.04] p-3 space-y-0.5">
-            <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
               <Wallet className="h-3 w-3" /> Receita líquida anual
             </p>
             <p className="text-xl font-semibold text-primary">{brl(projection.annualNetRevenueBrl)}</p>
-            <p className="text-[11px] text-muted-foreground">Margem {formatDecimal(projection.netMarginPct, 0)}%</p>
+            <p className="text-xs text-muted-foreground">Margem {formatDecimal(projection.netMarginPct, 0)}%</p>
           </div>
           <div className="rounded-lg border border-border p-3 space-y-0.5">
-            <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
               <TrendingUp className="h-3 w-3" /> ROI (cap rate)
             </p>
             {hasPropertyValue ? (
               <>
                 <p className="text-xl font-semibold text-foreground">{formatDecimal(projection.capRatePct, 1)}%</p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {projection.paybackYears !== null
                     ? `Payback ~${formatDecimal(projection.paybackYears, 1)} anos`
                     : "ao ano"}
@@ -204,13 +204,13 @@ function ProjectionCard({
             ) : (
               <>
                 <p className="text-base font-medium text-muted-foreground">—</p>
-                <p className="text-[11px] text-muted-foreground">Informe o valor do imóvel</p>
+                <p className="text-xs text-muted-foreground">Informe o valor do imóvel</p>
               </>
             )}
           </div>
         </div>
 
-        <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
             <Building2 className="h-3 w-3" />
             {formatDecimal(projection.occupancyPct, 0)}% ocupação · {brl(projection.adr)}/noite
@@ -235,7 +235,7 @@ function StatusCard({ deal }: { deal: DealStatus }) {
       <CardContent className="p-5 space-y-4">
         <div className="flex items-center justify-between gap-2">
           <h3 className="text-sm font-medium text-foreground">Status da negociação</h3>
-          <Badge className="text-[10px] bg-primary/10 text-primary border-primary/20 hover:bg-primary/10">
+          <Badge className="text-xs bg-primary/10 text-primary border-primary/20 hover:bg-primary/10">
             {deal.label}
           </Badge>
         </div>
@@ -247,7 +247,7 @@ function StatusCard({ deal }: { deal: DealStatus }) {
               style={{ width: `${deal.progressPct}%` }}
             />
           </div>
-          <p className="text-[11px] text-muted-foreground">{formatDecimal(deal.progressPct, 0)}% concluído</p>
+          <p className="text-xs text-muted-foreground">{formatDecimal(deal.progressPct, 0)}% concluído</p>
         </div>
 
         <ul className="space-y-2">

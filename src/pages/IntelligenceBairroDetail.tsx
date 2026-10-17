@@ -54,7 +54,7 @@ const ScoreCard = ({ label, friendlyLabel, value, icon: Icon, color }: { label: 
         <span className="text-xs text-muted-foreground uppercase tracking-wide">{label}</span>
         <Icon className={`h-4 w-4 ${color}`} />
       </div>
-      <p className="text-[11px] text-muted-foreground mb-1">{friendlyLabel}</p>
+      <p className="text-xs text-muted-foreground mb-1">{friendlyLabel}</p>
       <p className={`text-3xl font-bold ${color}`}>{fmtScore(value)}</p>
       <Progress value={value} className="mt-2 h-1.5" />
     </CardContent>
@@ -193,7 +193,7 @@ const IntelligenceBairroDetail = () => {
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="border-primary/15 bg-gradient-to-br from-primary/[0.03] to-transparent">
             <CardContent className="p-5">
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-3">Relatório consultivo</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-3">Relatório consultivo</p>
               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
@@ -207,7 +207,7 @@ const IntelligenceBairroDetail = () => {
                   <div className="text-center">
                     <p className="text-3xl font-bold">{formatDecimal(investmentScore.score, 1)}</p>
                     <p className={`text-sm font-bold ${investmentScore.gradeColor}`}>{investmentScore.grade}</p>
-                    <p className={`text-[10px] font-semibold ${investmentScore.gradeColor}`}>{investmentScore.gradeLabel}</p>
+                    <p className={`text-xs font-semibold ${investmentScore.gradeColor}`}>{investmentScore.gradeLabel}</p>
                   </div>
                 </div>
               </div>
@@ -223,7 +223,7 @@ const IntelligenceBairroDetail = () => {
               <ul className="space-y-2 ml-10">
                 {leigosResumo.map((item, i) => (
                   <li key={i} className="flex gap-2 items-start text-sm">
-                    <CheckCircle className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" />
+                    <CheckCircle className="h-4 w-4 text-success mt-0.5 shrink-0" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -254,7 +254,7 @@ const IntelligenceBairroDetail = () => {
                 <ul className="space-y-2 ml-10">
                   {explicacao.map((item, i) => (
                     <li key={i} className="flex gap-2 items-start text-sm">
-                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-success shrink-0" />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -264,13 +264,13 @@ const IntelligenceBairroDetail = () => {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-            <Card className="h-full border-amber-200/50">
+            <Card className="h-full border-warning/50">
               <CardContent className="p-5">
                 <SectionHeader number="4" title="Pontos de atenção" subtitle="Riscos e limitações a considerar antes de investir" icon={AlertTriangle} />
                 <ul className="space-y-2 ml-10">
                   {pontosAtencao.map((item, i) => (
                     <li key={i} className="flex gap-2 items-start text-sm">
-                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
+                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-warning shrink-0" />
                       <span className="text-foreground/80">{item}</span>
                     </li>
                   ))}
@@ -288,17 +288,17 @@ const IntelligenceBairroDetail = () => {
               <SectionHeader number="5" title="Short stay ou aluguel tradicional?" subtitle="Comparativo direto de retorno entre as duas estratégias" icon={BarChart3} />
               <div className="ml-10 space-y-4">
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="text-center p-3 bg-emerald-50 rounded-lg">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Yield Airbnb</p>
-                    <p className="text-xl font-bold text-emerald-600">{fmtPct(b.yield_bruto_airbnb)}</p>
+                  <div className="text-center p-3 bg-success-soft rounded-lg">
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Yield Airbnb</p>
+                    <p className="text-xl font-bold text-success-strong">{fmtPct(b.yield_bruto_airbnb)}</p>
                   </div>
-                  <div className="text-center p-3 bg-blue-50 rounded-lg">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Yield Aluguel</p>
-                    <p className="text-xl font-bold text-blue-600">{fmtPct(b.yield_bruto_long_term)}</p>
+                  <div className="text-center p-3 bg-info-soft rounded-lg">
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Yield Aluguel</p>
+                    <p className="text-xl font-bold text-info-strong">{fmtPct(b.yield_bruto_long_term)}</p>
                   </div>
-                  <div className="text-center p-3 bg-amber-50 rounded-lg">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Delta</p>
-                    <p className="text-xl font-bold text-amber-600">+{fmtPct(b.delta_yield)}</p>
+                  <div className="text-center p-3 bg-warning-soft rounded-lg">
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Delta</p>
+                    <p className="text-xl font-bold text-warning-strong">+{fmtPct(b.delta_yield)}</p>
                   </div>
                 </div>
                 <p className="text-sm text-foreground/80 leading-relaxed">{shortVsLong}</p>
@@ -313,7 +313,7 @@ const IntelligenceBairroDetail = () => {
           <Card className="border-dashed border-primary/20">
             <CardContent className="p-5">
               <div className="flex items-start gap-3 mb-4">
-                <Badge variant="outline" className="text-[9px] shrink-0 mt-1">Avançado</Badge>
+                <Badge variant="outline" className="text-xs shrink-0 mt-1">Avançado</Badge>
                 <div>
                   <h2 className="text-base font-semibold flex items-center gap-2">
                     <Zap className="h-4 w-4 text-primary" />
@@ -325,19 +325,19 @@ const IntelligenceBairroDetail = () => {
               <div className="ml-10 space-y-4">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="text-center p-3 rounded-lg bg-primary/[0.04]">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">True Yield</p>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">True Yield</p>
                     <p className="text-xl font-bold text-primary">{formatDecimal((trueYield.trueYield * 100), 2)}%</p>
                   </div>
-                  <div className="text-center p-3 rounded-lg bg-emerald-50">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Yield Airbnb</p>
-                    <p className="text-xl font-bold text-emerald-600">{fmtPct(b.yield_bruto_airbnb)}</p>
+                  <div className="text-center p-3 rounded-lg bg-success-soft">
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Yield Airbnb</p>
+                    <p className="text-xl font-bold text-success-strong">{fmtPct(b.yield_bruto_airbnb)}</p>
                   </div>
                   <div className="text-center p-3 rounded-lg bg-muted/50">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Receita anual</p>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Receita anual</p>
                     <p className="text-lg font-bold">{fmtBRL(trueYield.annualRevenue)}</p>
                   </div>
                   <div className="text-center p-3 rounded-lg bg-muted/50">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Preço studio</p>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Preço studio</p>
                     <p className="text-lg font-bold">{fmtBRL(trueYield.propertyPrice)}</p>
                   </div>
                 </div>
@@ -392,9 +392,9 @@ const IntelligenceBairroDetail = () => {
 
         {/* ── Scores cards ────────────────────────────────── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <ScoreCard label="Rentabilidade" friendlyLabel="Score geral de retorno" value={b.score_rentabilidade} icon={TrendingUp} color="text-emerald-600" />
-          <ScoreCard label="Liquidez" friendlyLabel="Facilidade de operar" value={b.score_liquidez} icon={BarChart3} color="text-blue-600" />
-          <ScoreCard label="Crescimento" friendlyLabel="Potencial futuro" value={b.score_crescimento_potencial} icon={Target} color="text-amber-600" />
+          <ScoreCard label="Rentabilidade" friendlyLabel="Score geral de retorno" value={b.score_rentabilidade} icon={TrendingUp} color="text-success-strong" />
+          <ScoreCard label="Liquidez" friendlyLabel="Facilidade de operar" value={b.score_liquidez} icon={BarChart3} color="text-info-strong" />
+          <ScoreCard label="Crescimento" friendlyLabel="Potencial futuro" value={b.score_crescimento_potencial} icon={Target} color="text-warning-strong" />
         </motion.div>
 
         {/* ── Charts ─────────────────────────────────────── */}
@@ -414,7 +414,7 @@ const IntelligenceBairroDetail = () => {
                   { metric: "Segurança", value: Math.max(0, 100 - (Number(b.indice_criminalidade) * 100)), fullMark: 100 },
                 ]}>
                   <PolarGrid stroke="hsl(var(--border))" />
-                  <PolarAngleAxis dataKey="metric" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+                  <PolarAngleAxis dataKey="metric" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
                   <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
                   <Radar name="Score" dataKey="value" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.25} strokeWidth={2} />
                 </RadarChart>
@@ -427,17 +427,17 @@ const IntelligenceBairroDetail = () => {
             <CardHeader><CardTitle className="text-base">Comparativo de Yields</CardTitle></CardHeader>
             <CardContent>
               <ChartContainer config={{
-                airbnb: { label: "Yield Airbnb", color: "hsl(142 76% 36%)" },
-                longTerm: { label: "Yield Long Term", color: "hsl(221 83% 53%)" },
-                delta: { label: "Delta", color: "hsl(45 93% 47%)" },
+                airbnb: { label: "Yield Airbnb", color: "hsl(var(--success))" },
+                longTerm: { label: "Yield Long Term", color: "hsl(var(--info))" },
+                delta: { label: "Delta", color: "hsl(var(--warning))" },
               }} className="max-h-[300px]">
                 <BarChart data={[
-                  { name: "Airbnb", value: (b.yield_bruto_airbnb ?? 0) * 100, fill: "hsl(142 76% 36%)" },
-                  { name: "Long Term", value: (b.yield_bruto_long_term ?? 0) * 100, fill: "hsl(221 83% 53%)" },
-                  { name: "Delta", value: (b.delta_yield ?? 0) * 100, fill: "hsl(45 93% 47%)" },
+                  { name: "Airbnb", value: (b.yield_bruto_airbnb ?? 0) * 100, fill: "hsl(var(--success))" },
+                  { name: "Long Term", value: (b.yield_bruto_long_term ?? 0) * 100, fill: "hsl(var(--info))" },
+                  { name: "Delta", value: (b.delta_yield ?? 0) * 100, fill: "hsl(var(--warning))" },
                 ]}>
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${formatDecimal(v, 1)}%`} />
+                  <YAxis tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${formatDecimal(v, 1)}%`} />
                   <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${formatDecimal(Number(value), 2)}%`} />} />
                   <Bar dataKey="value" radius={[6, 6, 0, 0]} />
                 </BarChart>
@@ -449,15 +449,15 @@ const IntelligenceBairroDetail = () => {
           <Card>
             <CardHeader><CardTitle className="text-base">Indicadores de Risco</CardTitle></CardHeader>
             <CardContent>
-              <ChartContainer config={{ risk: { label: "Risco", color: "hsl(0 84% 60%)" } }} className="max-h-[300px]">
+              <ChartContainer config={{ risk: { label: "Risco", color: "hsl(var(--danger))" } }} className="max-h-[300px]">
                 <BarChart data={[
-                  { name: "Saturação", value: (b.grau_saturacao_index ?? 0) * 100, fill: "hsl(0 84% 60%)" },
-                  { name: "Reg.", value: (b.risco_regulatorio ?? 0) * 100, fill: "hsl(25 95% 53%)" },
-                  { name: "Condomínio", value: (b.risco_condominio ?? 0) * 100, fill: "hsl(45 93% 47%)" },
-                  { name: "Crime", value: Number(b.indice_criminalidade) * 100, fill: "hsl(0 72% 51%)" },
+                  { name: "Saturação", value: (b.grau_saturacao_index ?? 0) * 100, fill: "hsl(var(--danger))" },
+                  { name: "Reg.", value: (b.risco_regulatorio ?? 0) * 100, fill: "hsl(var(--cat-4))" },
+                  { name: "Condomínio", value: (b.risco_condominio ?? 0) * 100, fill: "hsl(var(--warning))" },
+                  { name: "Crime", value: Number(b.indice_criminalidade) * 100, fill: "hsl(var(--danger-strong))" },
                 ]}>
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} domain={[0, 100]} tickFormatter={(v) => formatPercent(Number(v))} />
+                  <YAxis tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} domain={[0, 100]} tickFormatter={(v) => formatPercent(Number(v))} />
                   <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${formatDecimal(Number(value), 1)}%`} />} />
                   <Bar dataKey="value" radius={[6, 6, 0, 0]} />
                 </BarChart>
@@ -472,12 +472,12 @@ const IntelligenceBairroDetail = () => {
               <ChartContainer config={{ metric: { label: "Valor", color: "hsl(var(--primary))" } }} className="max-h-[300px]">
                 <BarChart data={[
                   { name: "ADR (R$)", value: Number(b.adr_medio_studio), fill: "hsl(var(--primary))" },
-                  { name: "Receita/mês (R$k)", value: Number(b.receita_anual_media_studio) / 12000, fill: "hsl(262 83% 58%)" },
+                  { name: "Receita/mês (R$k)", value: Number(b.receita_anual_media_studio) / 12000, fill: "hsl(var(--cat-1))" },
                   { name: "Reviews/listing", value: Number(b.media_reviews_por_listing), fill: "hsl(var(--accent-foreground))" },
-                  { name: "Estadia (noites)", value: Number(b.estadia_media_noites), fill: "hsl(45 93% 47%)" },
+                  { name: "Estadia (noites)", value: Number(b.estadia_media_noites), fill: "hsl(var(--warning))" },
                 ]} layout="vertical">
-                  <XAxis type="number" tickFormatter={(v) => formatDecimal(Number(v))} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={110} />
+                  <XAxis type="number" tickFormatter={(v) => formatDecimal(Number(v))} tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={110} />
                   <ChartTooltip content={<ChartTooltipContent formatter={(value) => formatDecimal(Number(value))} />} />
                   <Bar dataKey="value" radius={[0, 6, 6, 0]} />
                 </BarChart>
@@ -488,9 +488,9 @@ const IntelligenceBairroDetail = () => {
 
         {/* ── Temporal evolution ──────────────────────────── */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="space-y-2">
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50/60 border border-amber-200/40">
-            <Info className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
-            <p className="text-xs text-amber-800 leading-relaxed">
+          <div className="flex items-start gap-2 p-3 rounded-lg bg-warning-soft/60 border border-warning/40">
+            <Info className="h-4 w-4 text-warning-strong mt-0.5 shrink-0" />
+            <p className="text-xs text-warning-strong leading-relaxed">
               <strong>Projeções estimadas:</strong> Os gráficos abaixo utilizam sazonalidade estimada aplicada sobre a média atual. Não representam dados históricos reais — são projeções para auxiliar na análise de tendências.
             </p>
           </div>
@@ -501,8 +501,8 @@ const IntelligenceBairroDetail = () => {
                 <ChartContainer config={{ adr: { label: "ADR (R$)", color: "hsl(var(--primary))" } }} className="max-h-[280px]">
                   <LineChart data={monthlyData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => fmtBRL(Number(v))} domain={['dataMin - 20', 'dataMax + 20']} />
+                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => fmtBRL(Number(v))} domain={['dataMin - 20', 'dataMax + 20']} />
                     <ChartTooltip content={<ChartTooltipContent formatter={(value) => fmtBRL(Number(value))} />} />
                     <Line type="monotone" dataKey="adr" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ r: 4, fill: "hsl(var(--primary))" }} activeDot={{ r: 6 }} />
                   </LineChart>
@@ -514,13 +514,13 @@ const IntelligenceBairroDetail = () => {
             <Card>
               <CardHeader><CardTitle className="text-base flex items-center gap-2"><BarChart3 className="h-4 w-4" /> Sazonalidade ilustrativa (modelo, não dado observado)</CardTitle></CardHeader>
               <CardContent>
-                <ChartContainer config={{ ocupacao: { label: "Ocupação (%)", color: "hsl(142 76% 36%)" } }} className="max-h-[280px]">
+                <ChartContainer config={{ ocupacao: { label: "Ocupação (%)", color: "hsl(var(--success))" } }} className="max-h-[280px]">
                   <LineChart data={monthlyData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => formatPercent(Number(v))} domain={['dataMin - 5', 'dataMax + 5']} />
+                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => formatPercent(Number(v))} domain={['dataMin - 5', 'dataMax + 5']} />
                     <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${formatDecimal(Number(value), 1)}%`} />} />
-                    <Line type="monotone" dataKey="ocupacao" stroke="hsl(142 76% 36%)" strokeWidth={2.5} dot={{ r: 4, fill: "hsl(142 76% 36%)" }} activeDot={{ r: 6 }} />
+                    <Line type="monotone" dataKey="ocupacao" stroke="hsl(var(--success))" strokeWidth={2.5} dot={{ r: 4, fill: "hsl(var(--success))" }} activeDot={{ r: 6 }} />
                   </LineChart>
                 </ChartContainer>
                 <p className="text-xs text-muted-foreground mt-3">Ocupação: sazonalidade ilustrativa (modelo, não dado observado). Curva gerada por fatores mensais fixos aplicados à diária e à ocupação de referência do bairro; não há série mensal observada.</p>
@@ -530,13 +530,13 @@ const IntelligenceBairroDetail = () => {
             <Card className="md:col-span-2">
               <CardHeader><CardTitle className="text-base flex items-center gap-2"><Target className="h-4 w-4" /> Sazonalidade ilustrativa (modelo, não dado observado)</CardTitle></CardHeader>
               <CardContent>
-                <ChartContainer config={{ receita: { label: "Receita (R$)", color: "hsl(262 83% 58%)" } }} className="max-h-[280px]">
+                <ChartContainer config={{ receita: { label: "Receita (R$)", color: "hsl(var(--cat-1))" } }} className="max-h-[280px]">
                   <BarChart data={monthlyData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `R$${formatDecimal(Number(v) / 1000)}k`} />
+                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `R$${formatDecimal(Number(v) / 1000)}k`} />
                     <ChartTooltip content={<ChartTooltipContent formatter={(value) => `R$ ${Number(value).toLocaleString("pt-BR")}`} />} />
-                    <Bar dataKey="receita" fill="hsl(262 83% 58%)" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="receita" fill="hsl(var(--cat-1))" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ChartContainer>
                 <p className="text-xs text-muted-foreground mt-3">Receita: sazonalidade ilustrativa (modelo, não dado observado). Curva gerada por fatores mensais fixos aplicados à diária e à ocupação de referência do bairro; não há série mensal observada.</p>
@@ -613,7 +613,7 @@ const IntelligenceBairroDetail = () => {
 
         {/* ── Disclaimer ──────────────────────────────── */}
         <footer className="border-t border-border/40 pt-6 pb-2 text-center">
-          <p className="text-[11px] text-muted-foreground/70 leading-relaxed max-w-2xl mx-auto">{FOOTER_DISCLAIMER}</p>
+          <p className="text-xs text-muted-foreground/70 leading-relaxed max-w-2xl mx-auto">{FOOTER_DISCLAIMER}</p>
         </footer>
       </main>
     </div>

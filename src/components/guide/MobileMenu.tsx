@@ -125,7 +125,7 @@ export default function MobileMenu({ activeId, sectionIndex, sectionCount }: Pro
                       <PhaseIcon size={16} className={`shrink-0 ${isPhaseActive ? "text-primary" : "text-muted-foreground"}`} />
                     )}
                     <div className="flex flex-col items-start min-w-0 flex-1">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 leading-none mb-0.5">
+                      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/60 leading-none mb-0.5">
                         Fase {phase.number}
                       </span>
                       <span className="truncate leading-tight">{phase.label}</span>
@@ -187,7 +187,7 @@ export default function MobileMenu({ activeId, sectionIndex, sectionCount }: Pro
             <div className="h-px bg-border/40 mx-1 my-3" />
 
             {/* Telas do Radar fora do guia (mesmos links da navbar) */}
-            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Explorar o Radar</p>
+            <p className="px-3 pb-1 text-xs font-bold uppercase tracking-wider text-muted-foreground/60">Explorar o Radar</p>
             <ul className="space-y-0.5">
               {LINKS_PUBLICOS.filter((l) => l.to !== "/" && !l.to.startsWith("/#")).map((l) => (
                 <li key={l.id}>

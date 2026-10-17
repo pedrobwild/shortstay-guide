@@ -106,13 +106,13 @@ export const TREND_TAG_ICONS: Record<string, typeof Camera> = {
 };
 
 export const TREND_TAG_COLORS: Record<string, string> = {
-  Fotos: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
-  Design: "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300",
-  Operação: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-  Precificação: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300",
-  "Experiência": "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300",
-  Automação: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300",
-  Escala: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+  Fotos: "bg-warning-soft text-warning-strong",
+  Design: "bg-cat-1-soft text-cat-1-strong",
+  Operação: "bg-info-soft text-info-strong",
+  Precificação: "bg-success-soft text-success-strong",
+  "Experiência": "bg-cat-2-soft text-cat-2-strong",
+  Automação: "bg-cat-3-soft text-cat-3-strong",
+  Escala: "bg-cat-4-soft text-cat-4-strong",
 };
 
 export const TRENDS_2026: TrendItem[] = [
@@ -144,9 +144,9 @@ export const TREND_IMPACT_ORDER: Record<TrendImpact, number> = { high: 0, medium
 export const TREND_DIFF_ORDER: Record<TrendDifficulty, number> = { easy: 0, medium: 1, advanced: 2 };
 export const trendDiffLabel: Record<TrendDifficulty, string> = { easy: "Fácil", medium: "Médio", advanced: "Avançado" };
 export const trendDiffColor: Record<TrendDifficulty, string> = {
-  easy: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
-  medium: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
-  advanced: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
+  easy: "bg-success-soft text-success-strong",
+  medium: "bg-warning-soft text-warning-strong",
+  advanced: "bg-danger-soft text-danger-strong",
 };
 export const trendImpactLabel: Record<TrendImpact, string> = { high: "Alto impacto", medium: "Médio impacto", low: "Baixo impacto" };
 export const trendImpactColor: Record<TrendImpact, string> = {

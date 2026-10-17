@@ -142,7 +142,7 @@ export default function AirbnbEventsList({ connectionId }: AirbnbEventsListProps
               </div>
 
               {/* Sync info */}
-              <span className="text-[10px] text-muted-foreground shrink-0 hidden sm:block">
+              <span className="text-xs text-muted-foreground shrink-0 hidden sm:block">
                 sync {new Date(event.synced_at).toLocaleDateString("pt-BR")}
               </span>
             </div>

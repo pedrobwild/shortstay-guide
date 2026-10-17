@@ -131,7 +131,7 @@ export default function TableOfContents({ activeId, visitedSections }: Props) {
                 {expanded && (
                   <>
                     <div className="flex flex-col items-start min-w-0 flex-1">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 leading-none mb-0.5">
+                      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground/60 leading-none mb-0.5">
                         Fase {phase.number}
                       </span>
                       <span className="truncate text-sm whitespace-nowrap leading-tight">
@@ -141,7 +141,7 @@ export default function TableOfContents({ activeId, visitedSections }: Props) {
                     {/* Progress indicator */}
                     <div className="flex items-center gap-1.5 shrink-0">
                       {progress.visited > 0 && (
-                        <span className="text-[10px] text-muted-foreground/50 tabular-nums">
+                        <span className="text-xs text-muted-foreground/50 tabular-nums">
                           {progress.visited}/{progress.total}
                         </span>
                       )}

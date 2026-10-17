@@ -51,7 +51,7 @@ const EVAL_CATEGORIES = [
 
 const SCORE_TIERS = [
   { min: 0, max: 5, label: "Alto risco", color: "bg-destructive", textColor: "text-destructive", desc: "A unidade tem gaps importantes. Revise antes de avançar." },
-  { min: 6, max: 9, label: "Potencial com ressalvas", color: "bg-amber-500", textColor: "text-amber-600", desc: "Há oportunidade, mas itens críticos precisam de atenção." },
+  { min: 6, max: 9, label: "Potencial com ressalvas", color: "bg-warning", textColor: "text-warning-strong", desc: "Há oportunidade, mas itens críticos precisam de atenção." },
   { min: 10, max: 13, label: "Boa oportunidade", color: "bg-primary/70", textColor: "text-primary", desc: "Ativo sólido. Foque nos itens pendentes para maximizar retorno." },
   { min: 14, max: 16, label: "Excelente ativo", color: "bg-primary", textColor: "text-primary", desc: "Perfil ideal para short stay. Avance com confiança." },
 ];
@@ -75,9 +75,9 @@ const COMPARISON = [
   {
     title: "Bom para revenda",
     subtitle: "Valoriza no longo prazo mas pode render pouco",
-    color: "border-amber-500/30 bg-amber-500/[0.03]",
+    color: "border-warning/30 bg-warning/[0.03]",
     icon: AlertTriangle,
-    iconColor: "text-amber-600",
+    iconColor: "text-warning-strong",
     items: [
       "Localização premium com valorização histórica",
       "Acabamento de alto padrão e marca do incorporador",

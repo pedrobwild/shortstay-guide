@@ -40,10 +40,10 @@ const RANKING_COLUMNS = [
 ];
 
 const CONFIDENCE_BADGE: Record<string, string> = {
-  alto: "bg-emerald-100 text-emerald-700",
-  médio: "bg-amber-100 text-amber-700",
-  medio: "bg-amber-100 text-amber-700",
-  baixo: "bg-red-100 text-red-700",
+  alto: "bg-success-soft text-success-strong",
+  médio: "bg-warning-soft text-warning-strong",
+  medio: "bg-warning-soft text-warning-strong",
+  baixo: "bg-danger-soft text-danger-strong",
 };
 
 export const Step5Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onNext: () => void }) => {
@@ -106,7 +106,7 @@ export const Step5Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-[220px]">
                           <p className="font-semibold text-xs mb-0.5">{col.tooltip.friendly}</p>
-                          <p className="text-[11px] text-muted-foreground">{col.tooltip.tip}</p>
+                          <p className="text-xs text-muted-foreground">{col.tooltip.tip}</p>
                         </TooltipContent>
                       </Tooltip>
                     </th>
@@ -121,7 +121,7 @@ export const Step5Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-[220px]">
                           <p className="font-semibold text-xs mb-0.5">{COLUMN_TOOLTIPS.true_yield.friendly}</p>
-                          <p className="text-[11px] text-muted-foreground">{COLUMN_TOOLTIPS.true_yield.tip}</p>
+                          <p className="text-xs text-muted-foreground">{COLUMN_TOOLTIPS.true_yield.tip}</p>
                         </TooltipContent>
                       </Tooltip>
                     </th>
@@ -154,25 +154,25 @@ export const Step5Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
                           <p className="font-semibold text-foreground group-hover:text-primary transition-colors text-[13px]">
                             {b.bairro}
                           </p>
-                          <Badge className={`${profile.color} ${profile.textColor} text-[8px] mt-0.5`}>{profile.label}</Badge>
+                          <Badge className={`${profile.color} ${profile.textColor} text-xs mt-0.5`}>{profile.label}</Badge>
                         </Link>
                       </td>
                       <td className="p-3 text-center font-bold text-[13px]">{formatDecimal(s.score, 1)}</td>
                       <td className="p-3 text-center">
-                        <Badge className={`${badgeStyle} text-[9px]`}>{s.grade}</Badge>
+                        <Badge className={`${badgeStyle} text-xs`}>{s.grade}</Badge>
                       </td>
                       <td className="p-3 text-center font-medium">{fmtBRL(b.adr_medio_studio)}</td>
                       <td className="p-3 text-center font-medium">{fmtPct(b.ocupacao_media_studio)}</td>
                       <td className="p-3 text-center font-medium">{fmtPct(b.yield_bruto_airbnb)}</td>
                       <td className="p-3 text-center">
-                        <span className={Number(b.delta_yield) > 0 ? "text-emerald-600 font-medium" : "text-muted-foreground"}>
+                        <span className={Number(b.delta_yield) > 0 ? "text-success-strong font-medium" : "text-muted-foreground"}>
                           {Number(b.delta_yield) > 0 ? "+" : ""}{fmtPct(b.delta_yield)}
                         </span>
                       </td>
                       <td className="p-3 text-center font-medium">{fmtScore(b.score_liquidez)}</td>
                       <td className="p-3 text-center font-medium">{fmtScore(b.score_crescimento_potencial)}</td>
                       <td className="p-3 text-center">
-                        <span className={`inline-block px-1.5 py-0.5 rounded text-[8px] font-semibold uppercase ${confBadge}`}>
+                        <span className={`inline-block px-1.5 py-0.5 rounded text-xs font-semibold uppercase ${confBadge}`}>
                           {b.nivel_confianca_dados}
                         </span>
                       </td>
@@ -182,7 +182,7 @@ export const Step5Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
                         </td>
                       )}
                       <td className="p-3">
-                        <p className="text-[11px] text-foreground/70 leading-snug italic">{profile.quickRead}</p>
+                        <p className="text-xs text-foreground/70 leading-snug italic">{profile.quickRead}</p>
                       </td>
                     </motion.tr>
                   );
@@ -207,19 +207,19 @@ export const Step5Compare = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
               const isRisky = h.icon === "AlertTriangle";
               return (
                 <motion.div key={h.category} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={stagger(i, 0.06)}>
-                  <Card className={`h-full ${isRisky ? "border-amber-500/20 bg-amber-500/[0.02]" : "border-border/50"}`}>
+                  <Card className={`h-full ${isRisky ? "border-warning/20 bg-warning/[0.02]" : "border-border/50"}`}>
                     <CardContent className="p-4 space-y-2">
                       <div className="flex items-center gap-2">
-                        <div className={`h-7 w-7 rounded-lg flex items-center justify-center ${isRisky ? "bg-amber-100 text-amber-700" : "bg-primary/10 text-primary"}`}>
+                        <div className={`h-7 w-7 rounded-lg flex items-center justify-center ${isRisky ? "bg-warning-soft text-warning-strong" : "bg-primary/10 text-primary"}`}>
                           <Icon className="h-3.5 w-3.5" />
                         </div>
                         <div>
-                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{h.category}</p>
+                          <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">{h.category}</p>
                           <p className="text-sm font-bold">{h.bairro}</p>
                         </div>
                       </div>
-                      <p className="text-[10px] text-muted-foreground font-medium">{h.value}</p>
-                      <p className="text-[11px] text-foreground/70 leading-relaxed">{h.narrative}</p>
+                      <p className="text-xs text-muted-foreground font-medium">{h.value}</p>
+                      <p className="text-xs text-foreground/70 leading-relaxed">{h.narrative}</p>
                     </CardContent>
                   </Card>
                 </motion.div>

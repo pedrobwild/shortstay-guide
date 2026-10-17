@@ -142,7 +142,7 @@ export default function PlanoAcaoSection() {
           const Icon = step.icon;
           const statusConfig = {
             done: { badge: "Concluído", badgeClass: "bg-primary/10 text-primary", iconClass: "text-primary bg-primary/10", dot: <CheckCircle2 size={14} className="text-primary" /> },
-            action: { badge: "Próximo passo", badgeClass: "bg-amber-100 text-amber-800", iconClass: "text-amber-600 bg-amber-50", dot: <ArrowRight size={14} className="text-amber-600" /> },
+            action: { badge: "Próximo passo", badgeClass: "bg-warning-soft text-warning-strong", iconClass: "text-warning-strong bg-warning-soft", dot: <ArrowRight size={14} className="text-warning-strong" /> },
             warning: { badge: "Atenção", badgeClass: "bg-destructive/10 text-destructive", iconClass: "text-destructive bg-destructive/5", dot: <AlertCircle size={14} className="text-destructive" /> },
             pending: { badge: "Pendente", badgeClass: "bg-muted text-muted-foreground", iconClass: "text-muted-foreground bg-muted", dot: <span className="h-2 w-2 rounded-full bg-muted-foreground/30" /> },
           };
@@ -158,7 +158,7 @@ export default function PlanoAcaoSection() {
             >
               <a href={step.href} className="block">
                 <Card className={`border-border transition-all hover:shadow-md ${
-                  step.status === "action" ? "border-amber-300/50" :
+                  step.status === "action" ? "border-warning/50" :
                   step.status === "warning" ? "border-destructive/30" : ""
                 }`}>
                   <CardContent className="p-4 flex items-start gap-3">
@@ -168,7 +168,7 @@ export default function PlanoAcaoSection() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
                         <p className="font-display font-bold text-foreground text-sm">{step.title}</p>
-                        <Badge className={`${cfg.badgeClass} font-body text-[10px]`}>{cfg.badge}</Badge>
+                        <Badge className={`${cfg.badgeClass} font-body text-xs`}>{cfg.badge}</Badge>
                       </div>
                       <p className="text-xs text-muted-foreground font-body leading-relaxed">{step.description}</p>
                     </div>

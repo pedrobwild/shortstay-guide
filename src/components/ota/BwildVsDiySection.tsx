@@ -87,7 +87,7 @@ export default function BwildVsDiySection() {
         <CardContent className="p-4 space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="space-y-1">
-              <Label className="text-[11px] text-muted-foreground flex items-center gap-1">
+              <Label className="text-xs text-muted-foreground flex items-center gap-1">
                 <MapPin className="h-3 w-3" /> Bairro
               </Label>
               <Select value={selectedBairro.name} onValueChange={setBairroName}>
@@ -102,7 +102,7 @@ export default function BwildVsDiySection() {
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-[11px] text-muted-foreground flex items-center gap-1">
+              <Label className="text-xs text-muted-foreground flex items-center gap-1">
                 <Ruler className="h-3 w-3" /> Faixa de área
               </Label>
               <Select value={sizeKey} onValueChange={(v) => setSizeKey(v as SizeKey)}>
@@ -117,7 +117,7 @@ export default function BwildVsDiySection() {
               </Select>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="bwild-diy-property-value" className="text-[11px] text-muted-foreground">
+              <Label htmlFor="bwild-diy-property-value" className="text-xs text-muted-foreground">
                 Valor do imóvel (opcional)
               </Label>
               <div className="relative">
@@ -137,7 +137,7 @@ export default function BwildVsDiySection() {
               </div>
             </div>
           </div>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Base de mercado do bairro/faixa: {formatDecimal(selectedBairro.avgOccupancy, 0)}% de ocupação ·{" "}
             {brl(diariaPorMetragem(selectedBairro, sizeKey))}/noite. Informe o valor do imóvel para ver o
             payback de cada cenário.
@@ -267,12 +267,12 @@ function ScenarioColumn({
             <span className={isBwild ? "text-primary" : "text-muted-foreground"}>{icon}</span>
             <div>
               <h3 className="text-sm font-semibold text-foreground">{scenario.label}</h3>
-              <p className="text-[11px] text-muted-foreground">{subtitle}</p>
+              <p className="text-xs text-muted-foreground">{subtitle}</p>
             </div>
           </div>
           <Badge
             variant={isBwild ? "default" : "outline"}
-            className="text-[10px] shrink-0"
+            className="text-xs shrink-0"
           >
             {isBwild ? "Recomendado" : "Referência"}
           </Badge>
@@ -290,7 +290,7 @@ function ScenarioColumn({
                   </span>
                   {/* Indicador textual + ícone (não depende de cor) */}
                   {isWinner ? (
-                    <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-primary">
+                    <span className="inline-flex items-center gap-0.5 text-xs font-medium text-primary">
                       <Check className="h-3 w-3" /> melhor
                     </span>
                   ) : (
@@ -319,13 +319,13 @@ function DeltaCard({
     <div className={`rounded-lg border p-3 space-y-1 ${emphasis ? "border-primary/40 bg-background" : "border-border bg-background/60"}`}>
       <div className="flex items-center gap-1.5 text-muted-foreground">
         {icon}
-        <span className="text-[11px]">{label}</span>
+        <span className="text-xs">{label}</span>
       </div>
       <p className={`text-lg font-bold ${emphasis ? "text-primary" : "text-foreground"} flex items-center gap-1`}>
         <TrendingUp className="h-4 w-4 shrink-0" aria-hidden />
         {value}
       </p>
-      <p className="text-[11px] text-muted-foreground">{hint}</p>
+      <p className="text-xs text-muted-foreground">{hint}</p>
     </div>
   );
 }

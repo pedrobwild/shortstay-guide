@@ -19,18 +19,18 @@ export const Step2Highlights = ({ bairros, onNext }: { bairros: BairroAirbnb[]; 
 
   const NARRATIVE_STYLE: Record<string, { border: string; bg: string; icon: React.ElementType }> = {
     insight: { border: "border-l-primary", bg: "bg-primary/[0.03]", icon: Lightbulb },
-    comparison: { border: "border-l-blue-500", bg: "bg-blue-500/[0.04]", icon: BarChart3 },
-    caution: { border: "border-l-amber-500", bg: "bg-amber-500/[0.04]", icon: AlertTriangle },
+    comparison: { border: "border-l-info", bg: "bg-info/[0.04]", icon: BarChart3 },
+    caution: { border: "border-l-warning", bg: "bg-warning/[0.04]", icon: AlertTriangle },
   };
 
   // Map category icons with distinct accent colors for visual triaging
   const CATEGORY_ACCENT: Record<string, string> = {
     "Melhor equilíbrio": "border-l-primary",
-    "Bairro premium": "border-l-violet-500",
-    "Maior retorno": "border-l-emerald-500",
-    "Maior ocupação": "border-l-blue-500",
-    "Crescimento consistente": "border-l-amber-500",
-    "Alerta de risco": "border-l-red-400",
+    "Bairro premium": "border-l-cat-1",
+    "Maior retorno": "border-l-success",
+    "Maior ocupação": "border-l-info",
+    "Crescimento consistente": "border-l-warning",
+    "Alerta de risco": "border-l-danger",
   };
 
   return (
@@ -75,7 +75,7 @@ export const Step2Highlights = ({ bairros, onNext }: { bairros: BairroAirbnb[]; 
                       <div className="h-6 w-6 rounded-md bg-primary/10 flex items-center justify-center">
                         <Icon className="h-3.5 w-3.5 text-primary" />
                       </div>
-                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{h.category}</span>
+                      <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">{h.category}</span>
                     </div>
                     <p className="font-bold text-base text-foreground">{h.bairro}</p>
                     <p className="text-xs text-muted-foreground mt-0.5 font-medium">{h.value}</p>
@@ -118,7 +118,7 @@ export const Step2Highlights = ({ bairros, onNext }: { bairros: BairroAirbnb[]; 
                   return (
                     <div key={i} className="flex items-start gap-2 p-2.5 rounded-lg bg-muted/40">
                       <ItemIcon className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-                      <p className="text-[11px] text-foreground/70 leading-relaxed">{item.text}</p>
+                      <p className="text-xs text-foreground/70 leading-relaxed">{item.text}</p>
                     </div>
                   );
                 })}

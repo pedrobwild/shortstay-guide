@@ -9,6 +9,7 @@ import { CHECKLIST_ITEMS, SCORE_TIERS } from "@/data/guide-data";
 import { useToast } from "@/hooks/use-toast";
 import SectionBlock from "./SectionBlock";
 import OrcamentoButton from "@/components/OrcamentoButton";
+import { corCss } from "@/lib/corToken";
 
 const TIER_DESCRIPTIONS: Record<string, string> = {
   Iniciante: "Você precisa amadurecer o projeto antes de investir.",
@@ -18,17 +19,17 @@ const TIER_DESCRIPTIONS: Record<string, string> = {
 };
 
 function getTierColor(score: number) {
-  if (score <= 3) return "bg-red-400";
-  if (score <= 6) return "bg-amber-400";
-  if (score <= 8) return "bg-blue-400";
-  return "bg-emerald-400";
+  if (score <= 3) return "bg-danger";
+  if (score <= 6) return "bg-warning";
+  if (score <= 8) return "bg-info";
+  return "bg-success";
 }
 
 function getTierBadgeColor(score: number) {
-  if (score <= 3) return "bg-red-400 text-white";
-  if (score <= 6) return "bg-amber-400 text-white";
-  if (score <= 8) return "bg-blue-400 text-white";
-  return "bg-emerald-400 text-white";
+  if (score <= 3) return "bg-danger text-white";
+  if (score <= 6) return "bg-warning text-white";
+  if (score <= 8) return "bg-info text-white";
+  return "bg-success text-white";
 }
 
 // Mini confetti component
@@ -38,7 +39,7 @@ function Confetti() {
     x: (Math.random() - 0.5) * 120,
     y: -(Math.random() * 80 + 40),
     rotate: Math.random() * 360,
-    color: ["#10b981", "#f59e0b", "#3b82f6", "#ef4444"][i],
+    color: corCss((["success", "warning", "info", "danger"] as const)[i]),
   }));
 
   return (
@@ -115,13 +116,13 @@ export default function ChecklistSection() {
             <Card
               className={`border-border cursor-pointer transition-all duration-300 ${
                 checked[i] ? "bg-primary/5 border-primary/30" : ""
-              } ${flashIndex === i ? "!bg-emerald-500/10" : ""}`}
+              } ${flashIndex === i ? "!bg-success/10" : ""}`}
               onClick={() => toggle(i)}
             >
               <CardContent className="p-4 flex items-center gap-3 min-h-[48px]">
                 <Checkbox checked={checked[i]} onCheckedChange={() => toggle(i)} />
                 <span className={`text-sm font-body flex-1 transition-colors duration-300 ${
-                  checked[i] ? "text-emerald-600 font-medium" : "text-muted-foreground"
+                  checked[i] ? "text-success-strong font-medium" : "text-muted-foreground"
                 }`}>
                   {item}
                 </span>
@@ -133,7 +134,7 @@ export default function ChecklistSection() {
                       exit={{ opacity: 0, scale: 0.5 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <Check size={16} className="text-emerald-500 flex-shrink-0" />
+                      <Check size={16} className="text-success flex-shrink-0" />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -190,10 +191,10 @@ export default function ChecklistSection() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 12 }}
                 transition={{ duration: 0.4, delay: 0.2 }}
-                className="mt-6 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4"
+                className="mt-6 bg-success/10 border border-success/20 rounded-xl p-4"
               >
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <PartyPopper size={20} className="text-emerald-500" />
+                  <PartyPopper size={20} className="text-success" />
                   <p className="text-sm font-semibold text-foreground font-body">
                     Você completou o checklist! Seu projeto parece pronto para o próximo passo.
                   </p>

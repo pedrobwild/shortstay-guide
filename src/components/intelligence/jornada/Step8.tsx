@@ -48,7 +48,7 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
                 <ProfileIcon className={`h-6 w-6 ${finalProfile.textColor}`} />
               </div>
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Seu perfil</p>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Seu perfil</p>
                 <h2 className="text-lg font-bold font-[var(--font-display)]">{finalProfile.name}</h2>
                 <p className="text-sm text-foreground/70 leading-relaxed mt-1">{finalProfile.description}</p>
               </div>
@@ -93,11 +93,11 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
                     return answerExplanations.map((exp, i) => (
                       <div key={i} className="flex items-start gap-3">
                         <div className="shrink-0 mt-0.5">
-                          <Badge variant="outline" className="text-[9px] font-semibold px-1.5 py-0">{exp.question}</Badge>
+                          <Badge variant="outline" className="text-xs font-semibold px-1.5 py-0">{exp.question}</Badge>
                         </div>
                         <div>
                           <p className="text-xs font-medium text-foreground">{exp.answer}</p>
-                          <p className="text-[11px] text-muted-foreground leading-relaxed">{exp.impact}</p>
+                          <p className="text-xs text-muted-foreground leading-relaxed">{exp.impact}</p>
                         </div>
                       </div>
                     ));
@@ -108,7 +108,7 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
 
             {/* Weight visualization */}
             <div className="mt-5">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-3">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-3">
                 Pesos aplicados no seu ranking personalizado
               </p>
               <div className="grid grid-cols-4 gap-2">
@@ -121,12 +121,12 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
                     <div key={p.key} className={`text-center p-2.5 rounded-lg transition-colors ${dominant ? "bg-primary/[0.06] ring-1 ring-primary/20" : "bg-muted/30"}`}>
                       <Icon className={`h-4 w-4 ${p.color} mx-auto mb-1`} />
                       <p className={`text-sm font-bold ${dominant ? "text-primary" : ""}`}>{pctValue}%</p>
-                      <p className="text-[10px] text-muted-foreground">{p.label}</p>
+                      <p className="text-xs text-muted-foreground">{p.label}</p>
                     </div>
                   );
                 })}
               </div>
-              <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">
+              <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
                 Esses pesos determinam como os bairros são ranqueados para você. O pilar com maior peso tem mais influência 
                 no score personalizado — bairros fortes nesse critério sobem no ranking.
               </p>
@@ -201,8 +201,8 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
                             <th key={p.key} className={`text-center py-2 px-1.5 font-medium ${p.isCurrent ? "text-primary" : "text-muted-foreground"}`}>
                               <div className="flex flex-col items-center gap-0.5">
                                 <PIcon className="h-3.5 w-3.5" />
-                                <span className="text-[9px] leading-tight">{p.shortName}</span>
-                                {p.isCurrent && <span className="text-[8px] text-primary font-bold">(você)</span>}
+                                <span className="text-xs leading-tight">{p.shortName}</span>
+                                {p.isCurrent && <span className="text-xs text-primary font-bold">(você)</span>}
                               </div>
                             </th>
                           );
@@ -223,7 +223,7 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
                               <td key={p.key} className={`text-center py-2 px-1.5 ${p.isCurrent ? "bg-primary/[0.03]" : ""}`}>
                                 <span className="font-bold">#{altRank}</span>
                                 {!p.isCurrent && diff !== 0 && (
-                                  <span className={`ml-1 text-[10px] font-medium ${diff > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500"}`}>
+                                  <span className={`ml-1 text-xs font-medium ${diff > 0 ? "text-success-strong" : "text-danger"}`}>
                                     {diff > 0 ? `↑${diff}` : `↓${Math.abs(diff)}`}
                                   </span>
                                 )}
@@ -266,7 +266,7 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
                     return (
                       <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/[0.04] border border-primary/10">
                         <Lightbulb className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-                        <p className="text-[11px] text-foreground/70 leading-relaxed">
+                        <p className="text-xs text-foreground/70 leading-relaxed">
                           <strong>{swingBairro}</strong> é o bairro que mais muda de posição entre os perfis — 
                           variação de até <strong>{maxSwing} posições</strong>. Isso indica que ele performa muito bem 
                           em alguns critérios mas não em outros. {swingDiff > 0 
@@ -303,7 +303,7 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
         </p>
         <button
           onClick={() => setShowTrueYield(!showTrueYield)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-dashed border-primary/30 bg-primary/[0.02] hover:bg-primary/[0.05] transition-colors text-[10px]"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-dashed border-primary/30 bg-primary/[0.02] hover:bg-primary/[0.05] transition-colors text-xs"
         >
           <FlaskConical className="h-3 w-3 text-primary" />
           <span className="text-muted-foreground font-medium">
@@ -328,38 +328,38 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
                       <div>
                         <p className="text-lg font-bold">{rec.bairro.bairro}</p>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <Badge className={`${badgeStyle} text-[10px]`}>{rec.grade}</Badge>
-                          <Badge variant="outline" className="text-[10px]">{rec.profileLabel}</Badge>
+                          <Badge className={`${badgeStyle} text-xs`}>{rec.grade}</Badge>
+                          <Badge variant="outline" className="text-xs">{rec.profileLabel}</Badge>
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-bold">{formatDecimal(rec.personalizedScore, 1)}</p>
-                      <p className="text-[10px] text-muted-foreground">Score personalizado</p>
+                      <p className="text-xs text-muted-foreground">Score personalizado</p>
                     </div>
                   </div>
 
                   {/* Key metrics */}
                   <div className={`grid ${showTrueYield ? "grid-cols-4" : "grid-cols-3"} gap-3 mb-4`}>
                     <div className="text-center p-2 rounded-lg bg-muted/40">
-                      <p className="text-[10px] text-muted-foreground">Yield</p>
+                      <p className="text-xs text-muted-foreground">Yield</p>
                       <p className="text-sm font-bold">{fmtPct(rec.bairro.yield_bruto_airbnb)}</p>
                     </div>
                     <div className="text-center p-2 rounded-lg bg-muted/40">
-                      <p className="text-[10px] text-muted-foreground">Ocupação</p>
+                      <p className="text-xs text-muted-foreground">Ocupação</p>
                       <p className="text-sm font-bold">{fmtPct(rec.bairro.ocupacao_media_studio)}</p>
                     </div>
                     <div className="text-center p-2 rounded-lg bg-muted/40">
-                      <p className="text-[10px] text-muted-foreground">Diária</p>
+                      <p className="text-xs text-muted-foreground">Diária</p>
                       <p className="text-sm font-bold">{fmtBRL(rec.bairro.adr_medio_studio)}</p>
                     </div>
                     {trueYield && (
                       <div className="text-center p-2 rounded-lg bg-primary/[0.06] border border-primary/10">
-                        <p className="text-[10px] text-primary/70 flex items-center justify-center gap-0.5">
+                        <p className="text-xs text-primary/70 flex items-center justify-center gap-0.5">
                           <FlaskConical className="h-2.5 w-2.5" /> True Yield
                         </p>
                         <p className="text-sm font-bold text-primary">{fmtPct(trueYield.trueYield)}</p>
-                        <p className={`text-[9px] font-medium ${trueYield.delta > 0 ? "text-emerald-600" : trueYield.delta < -0.005 ? "text-amber-600" : "text-muted-foreground"}`}>
+                        <p className={`text-xs font-medium ${trueYield.delta > 0 ? "text-success-strong" : trueYield.delta < -0.005 ? "text-warning-strong" : "text-muted-foreground"}`}>
                           {trueYield.delta > 0 ? "+" : ""}{formatDecimal((trueYield.delta * 100), 1)}pp vs Yield
                         </p>
                       </div>
@@ -369,7 +369,7 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
                   {/* True Yield insight */}
                   {trueYield && (
                     <div className="mb-3 p-2.5 rounded-lg bg-muted/30 border border-dashed border-primary/15">
-                      <p className="text-[11px] text-foreground/70 leading-relaxed">
+                      <p className="text-xs text-foreground/70 leading-relaxed">
                         <FlaskConical className="h-3 w-3 text-primary inline mr-1" />
                         {trueYield.comparison}
                       </p>
@@ -378,10 +378,10 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
 
                   {/* Reasons */}
                   <div className="space-y-1.5 mb-3">
-                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Por que este bairro</p>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Por que este bairro</p>
                     {rec.reasons.map((r, j) => (
                       <div key={j} className="flex items-start gap-2">
-                        <CheckCircle className="h-3.5 w-3.5 text-emerald-500 mt-0.5 shrink-0" />
+                        <CheckCircle className="h-3.5 w-3.5 text-success mt-0.5 shrink-0" />
                         <p className="text-xs text-foreground/80">{r}</p>
                       </div>
                     ))}
@@ -390,10 +390,10 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
                   {/* Cautions */}
                   {rec.cautions.length > 0 && (
                     <div className="space-y-1.5">
-                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Pontos de atenção</p>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pontos de atenção</p>
                       {rec.cautions.map((c, j) => (
                         <div key={j} className="flex items-start gap-2">
-                          <AlertTriangle className="h-3.5 w-3.5 text-amber-500 mt-0.5 shrink-0" />
+                          <AlertTriangle className="h-3.5 w-3.5 text-warning mt-0.5 shrink-0" />
                           <p className="text-xs text-foreground/60">{c}</p>
                         </div>
                       ))}
@@ -433,16 +433,16 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
                 return (
                   <motion.div key={w.category} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={stagger(i, 0.05)}>
                     <Link to={bairroPath(w.bairro)}>
-                      <Card className={`h-full hover:shadow-md transition-all group cursor-pointer ${isRisky ? "border-amber-500/20" : "border-border/50"}`}>
+                      <Card className={`h-full hover:shadow-md transition-all group cursor-pointer ${isRisky ? "border-warning/20" : "border-border/50"}`}>
                         <CardContent className="p-4 space-y-1.5">
                           <div className="flex items-center gap-2">
-                            <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${isRisky ? "bg-amber-100 text-amber-700" : "bg-primary/10 text-primary"}`}>
+                            <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${isRisky ? "bg-warning-soft text-warning-strong" : "bg-primary/10 text-primary"}`}>
                               <Icon className="h-3.5 w-3.5" />
                             </div>
-                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{w.category}</p>
+                            <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">{w.category}</p>
                           </div>
                           <p className="text-sm font-bold group-hover:text-primary transition-colors">{w.bairro}</p>
-                          <p className="text-[10px] text-muted-foreground">{w.value}</p>
+                          <p className="text-xs text-muted-foreground">{w.value}</p>
                         </CardContent>
                       </Card>
                     </Link>
@@ -488,10 +488,10 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
                           <Icon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                           <div>
                             <p className="text-xs font-semibold text-foreground">{a.label}</p>
-                            <p className="text-[11px] text-foreground/70 leading-relaxed mt-0.5">{a.text}</p>
+                            <p className="text-xs text-foreground/70 leading-relaxed mt-0.5">{a.text}</p>
                           </div>
                           <Link to={bairroPath(a.bairro)} className="shrink-0 ml-auto self-center">
-                            <Button variant="ghost" size="sm" className="text-[10px] h-7 px-2 gap-0.5">
+                            <Button variant="ghost" size="sm" className="text-xs h-7 px-2 gap-0.5">
                               Ver <ChevronRight className="h-3 w-3" />
                             </Button>
                           </Link>
@@ -522,7 +522,7 @@ export const Step8Recommendation = ({ bairros, profile, answers }: Step8Props) =
                   </p>
                 );
               })()}
-              <p className="text-[11px] text-muted-foreground">{FOOTER_DISCLAIMER}</p>
+              <p className="text-xs text-muted-foreground">{FOOTER_DISCLAIMER}</p>
             </CardContent>
           </Card>
         </motion.div>

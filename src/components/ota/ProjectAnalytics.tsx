@@ -504,12 +504,12 @@ export default function ProjectAnalytics({
           </h2>
           <div className="mt-1 flex items-center gap-2 flex-wrap">
             {isProjection ? (
-              <Badge className="text-xs gap-1 bg-amber-500/15 text-amber-700 hover:bg-amber-500/15 border-amber-500/30 dark:text-amber-400">
+              <Badge className="text-xs gap-1 bg-warning/15 text-warning-strong hover:bg-warning/15 border-warning/30">
                 <LineChartIcon className="h-3 w-3" />
                 Projeção de mercado
               </Badge>
             ) : (
-              <Badge className="text-xs gap-1 bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500/15 border-emerald-500/30 dark:text-emerald-400">
+              <Badge className="text-xs gap-1 bg-success/15 text-success-strong hover:bg-success/15 border-success/30">
                 <Activity className="h-3 w-3" />
                 Dados reais
               </Badge>
@@ -528,15 +528,15 @@ export default function ProjectAnalytics({
 
       {/* Inputs do lead — modo projeção */}
       {isProjection && (
-        <Card className="border-amber-500/30 bg-amber-500/[0.03]">
+        <Card className="border-warning/30 bg-warning/[0.03]">
           <CardContent className="p-4 space-y-3">
             <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              <MapPin className="h-4 w-4 text-warning-strong" />
               <h3 className="text-sm font-medium text-foreground">Seu imóvel</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="space-y-1">
-                <Label className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <Label className="text-xs text-muted-foreground flex items-center gap-1">
                   <MapPin className="h-3 w-3" /> Bairro
                 </Label>
                 <Select
@@ -554,7 +554,7 @@ export default function ProjectAnalytics({
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <Label className="text-xs text-muted-foreground flex items-center gap-1">
                   <Ruler className="h-3 w-3" /> Faixa de área
                 </Label>
                 <Select
@@ -584,7 +584,7 @@ export default function ProjectAnalytics({
                 onChange={(v) => updateCost("propertyValue", v)}
               />
             </div>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Premissas de ADR e ocupação são preenchidas com a média de mercado do bairro/faixa de área
               ({formatDecimal(selectedBairro?.avgOccupancy ?? 0, 0)}% ocupação · {brl((selectedBairro ? diariaPorMetragem(selectedBairro, sizeKey as SizeKey) : undefined) ?? 0)}/noite).
               Ajuste tudo nas premissas abaixo — os números recalculam em tempo real.
@@ -603,7 +603,7 @@ export default function ProjectAnalytics({
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <Label className="text-xs text-muted-foreground flex items-center gap-1">
                   <MapPin className="h-3 w-3" /> Bairro
                 </Label>
                 <Select value={propertyNeighborhood} onValueChange={setPropertyNeighborhood}>
@@ -618,7 +618,7 @@ export default function ProjectAnalytics({
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <Label className="text-xs text-muted-foreground flex items-center gap-1">
                   <Ruler className="h-3 w-3" /> Faixa de área
                 </Label>
                 <Select value={propertyAreaSqm} onValueChange={setPropertyAreaSqm}>
@@ -633,7 +633,7 @@ export default function ProjectAnalytics({
                 </Select>
               </div>
             </div>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Bairro e faixa de área qualificam o lead no painel comercial da Bewild. Salvos automaticamente.
             </p>
           </CardContent>
@@ -681,7 +681,7 @@ export default function ProjectAnalytics({
                 value={costs.propertyValue} onChange={(v) => updateCost("propertyValue", v)} />
             )}
           </div>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             {isProjection
               ? "Premissas de mercado pré-preenchidas pelo bairro. Ajuste a ocupação alvo e a diária para simular cenários — a projeção recalcula automaticamente."
               : "Premissas salvas automaticamente na nuvem por projeto (com cache offline). Valor do imóvel destrava cap rate, yield e payback."}
@@ -768,8 +768,8 @@ export default function ProjectAnalytics({
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthly} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                <XAxis dataKey="monthLabel" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => formatDecimal(Number(v))} unit="%" domain={[0, 100]} />
+                <XAxis dataKey="monthLabel" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
+                <YAxis tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => formatDecimal(Number(v))} unit="%" domain={[0, 100]} />
                 <Tooltip content={<MonthlyTooltip />} />
                 <Bar dataKey="occupancyPct" radius={[4, 4, 0, 0]}>
                   {monthly.map((m) => (
@@ -790,7 +790,7 @@ export default function ProjectAnalytics({
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
               <h3 className="text-sm font-medium text-foreground">Receita por mês</h3>
             </div>
-            <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <span className="h-2 w-2 rounded-full bg-primary" /> Bruta
               </span>
@@ -803,9 +803,9 @@ export default function ProjectAnalytics({
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={monthly} margin={{ top: 8, right: 8, left: -10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                <XAxis dataKey="monthLabel" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                <XAxis dataKey="monthLabel" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
                 <YAxis
-                  tick={{ fontSize: 11 }}
+                  tick={{ fontSize: 12 }}
                   stroke="hsl(var(--muted-foreground))"
                   tickFormatter={(v) => `R$${formatDecimal(Math.round(v / 1000), 0)}k`}
                 />
@@ -849,8 +849,8 @@ export default function ProjectAnalytics({
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={stays} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis dataKey="bucket" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" allowDecimals={false} tickFormatter={(v) => formatDecimal(Number(v), 0)} />
+                  <XAxis dataKey="bucket" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
+                  <YAxis tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" allowDecimals={false} tickFormatter={(v) => formatDecimal(Number(v), 0)} />
                   <Tooltip
                     contentStyle={{
                       background: "hsl(var(--background))",
@@ -873,8 +873,8 @@ export default function ProjectAnalytics({
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={weekday} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis dataKey="label" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" allowDecimals={false} tickFormatter={(v) => formatDecimal(Number(v), 0)} />
+                  <XAxis dataKey="label" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
+                  <YAxis tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" allowDecimals={false} tickFormatter={(v) => formatDecimal(Number(v), 0)} />
                   <Tooltip
                     contentStyle={{
                       background: "hsl(var(--background))",
@@ -900,7 +900,7 @@ export default function ProjectAnalytics({
                 <CalendarRange className="h-4 w-4 text-muted-foreground" />
                 <h3 className="text-sm font-medium text-foreground">Sazonalidade</h3>
               </div>
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 Índice {formatDecimal(1)} = média do período observado
               </span>
             </div>
@@ -908,8 +908,8 @@ export default function ProjectAnalytics({
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={seasonality} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis dataKey="monthLabel" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                  <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))"
+                  <XAxis dataKey="monthLabel" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
+                  <YAxis tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))"
                     tickFormatter={(v) => formatDecimal(v, 1)} />
                   <Tooltip
                     contentStyle={{
@@ -934,7 +934,7 @@ export default function ProjectAnalytics({
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Meses acima da linha tracejada performam acima da média; abaixo são oportunidades para campanhas e ajustes de preço.
             </p>
           </CardContent>
@@ -1025,17 +1025,17 @@ export default function ProjectAnalytics({
               />
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-md border border-border p-2 space-y-0.5">
-                  <p className="text-[11px] text-muted-foreground">Ocupação fim de semana</p>
+                  <p className="text-xs text-muted-foreground">Ocupação fim de semana</p>
                   <p className="text-sm font-medium text-foreground">{formatDecimal(weekendSplit.weekendOccupancyPct, 1)}%</p>
-                  <p className="text-[10px] text-muted-foreground">{brl(weekendSplit.weekendRevenueBrl)}</p>
+                  <p className="text-xs text-muted-foreground">{brl(weekendSplit.weekendRevenueBrl)}</p>
                 </div>
                 <div className="rounded-md border border-border p-2 space-y-0.5">
-                  <p className="text-[11px] text-muted-foreground">Ocupação dia de semana</p>
+                  <p className="text-xs text-muted-foreground">Ocupação dia de semana</p>
                   <p className="text-sm font-medium text-foreground">{formatDecimal(weekendSplit.weekdayOccupancyPct, 1)}%</p>
-                  <p className="text-[10px] text-muted-foreground">{brl(weekendSplit.weekdayRevenueBrl)}</p>
+                  <p className="text-xs text-muted-foreground">{brl(weekendSplit.weekdayRevenueBrl)}</p>
                 </div>
               </div>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Compare a ocupação efetiva de cada categoria — útil para decidir descontos em dias de semana ou prêmio em finais de semana.
               </p>
             </div>
@@ -1073,13 +1073,13 @@ export default function ProjectAnalytics({
                 <span className="text-muted-foreground">Margem vs break-even</span>
                 <Badge
                   variant={breakEven.marginVsBreakEvenPct >= 0 ? "default" : "destructive"}
-                  className="text-[10px]"
+                  className="text-xs"
                 >
                   {breakEven.marginVsBreakEvenPct >= 0 ? "+" : ""}{formatDecimal(breakEven.marginVsBreakEvenPct, 1)}pp
                 </Badge>
               </div>
             </div>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Considera contribuição por noite após gestão, impostos e limpeza, contra custo fixo mensal informado.
             </p>
           </CardContent>
@@ -1121,7 +1121,7 @@ export default function ProjectAnalytics({
                     {returns.paybackYears !== null ? `${formatDecimal(returns.paybackYears, 1)} anos` : "—"}
                   </span>
                 </div>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Anualizado a partir de {monthsCount} {monthsCount === 1 ? "mês observado" : "meses observados"}.
                 </p>
               </div>
@@ -1155,7 +1155,7 @@ export default function ProjectAnalytics({
                       <span className="font-medium truncate">{s.summary || (s.type === "blocked" ? "Bloqueado" : "Reserva")}</span>
                       <span className="shrink-0">{s.nights}n</span>
                     </div>
-                    <div className="text-[11px] opacity-80">
+                    <div className="text-xs opacity-80">
                       {formatDate(s.start)} → {formatDate(s.end)}
                     </div>
                   </li>
@@ -1179,9 +1179,9 @@ export default function ProjectAnalytics({
                   <li key={i} className="rounded-md border border-border px-3 py-2 text-xs">
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-medium">{g.nights} noites vagas</span>
-                      <Badge variant="outline" className="text-[10px]">#{i + 1}</Badge>
+                      <Badge variant="outline" className="text-xs">#{i + 1}</Badge>
                     </div>
-                    <div className="text-[11px] text-muted-foreground">
+                    <div className="text-xs text-muted-foreground">
                       {formatDate(g.from)} → {formatDate(g.to)}
                     </div>
                   </li>
@@ -1212,7 +1212,7 @@ function KpiCard({
           <span className="text-xs">{label}</span>
         </div>
         <p className={`text-xl font-semibold ${accent ? "text-primary" : "text-foreground"}`}>{value}</p>
-        {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
+        {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
       </CardContent>
     </Card>
   );
@@ -1231,7 +1231,7 @@ function CostInput({
 }) {
   return (
     <div className="space-y-1">
-      <Label htmlFor={id} className="text-[11px] text-muted-foreground">{label}</Label>
+      <Label htmlFor={id} className="text-xs text-muted-foreground">{label}</Label>
       <div className="relative">
         {prefix && (
           <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
@@ -1295,7 +1295,7 @@ function OtbCard({ label, otb }: { label: string; otb: ReturnType<typeof forward
       <CardContent className="p-4 space-y-2">
         <div className="flex items-center justify-between">
           <p className="text-xs text-muted-foreground">{label}</p>
-          <Badge variant="secondary" className="text-[10px]">{otb.bookedNights}n</Badge>
+          <Badge variant="secondary" className="text-xs">{otb.bookedNights}n</Badge>
         </div>
         <p className="text-xl font-semibold text-foreground">{formatDecimal(pct, 1)}%</p>
         <div className="h-1.5 rounded-full bg-muted overflow-hidden">
@@ -1304,7 +1304,7 @@ function OtbCard({ label, otb }: { label: string; otb: ReturnType<typeof forward
             style={{ width: `${Math.min(100, pct)}%` }}
           />
         </div>
-        <div className="flex justify-between text-[11px] text-muted-foreground">
+        <div className="flex justify-between text-xs text-muted-foreground">
           <span>Disponível: {otb.availableNights}n</span>
           <span>Receita: {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(otb.estimatedRevenueBrl)}</span>
         </div>
@@ -1316,9 +1316,9 @@ function OtbCard({ label, otb }: { label: string; otb: ReturnType<typeof forward
 function PatternStat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div className="rounded-md border border-border p-2.5 space-y-0.5">
-      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
       <p className="text-sm font-medium text-foreground">{value}</p>
-      {hint && <p className="text-[10px] text-muted-foreground">{hint}</p>}
+      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
 }
@@ -1338,7 +1338,7 @@ function SplitBar({
   const rightPct = total > 0 ? (rightValue / total) * 100 : 0;
   return (
     <div className="space-y-1.5">
-      <div className="flex justify-between text-[11px]">
+      <div className="flex justify-between text-xs">
         <span className="text-muted-foreground">{leftLabel}</span>
         <span className="text-muted-foreground">{rightLabel}</span>
       </div>
@@ -1346,7 +1346,7 @@ function SplitBar({
         <div style={{ width: `${leftPct}%`, background: leftColor }} className="transition-all" />
         <div style={{ width: `${rightPct}%`, background: rightColor }} className="transition-all" />
       </div>
-      <div className="flex justify-between text-[11px] text-foreground font-medium">
+      <div className="flex justify-between text-xs text-foreground font-medium">
         <span>{leftValue}n · {formatDecimal(leftPct, 0)}%</span>
         <span>{rightValue}n · {formatDecimal(rightPct, 0)}%</span>
       </div>

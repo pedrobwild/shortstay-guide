@@ -172,7 +172,7 @@ export const Step6Profile = ({ bairros, onComplete }: Step6Props) => {
                   </div>
                   <div>
                     <p className="text-sm font-semibold">{opt.label}</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">{opt.description}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{opt.description}</p>
                   </div>
                 </div>
               </button>
@@ -198,9 +198,9 @@ export const Step6Profile = ({ bairros, onComplete }: Step6Props) => {
 
             {/* Caution banner if applicable */}
             {intent.caution && (
-              <Card className="bg-amber-500/[0.05] border-amber-500/20">
+              <Card className="bg-warning/[0.05] border-warning/20">
                 <CardContent className="p-3 flex items-start gap-2">
-                  <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                  <AlertTriangle className="h-4 w-4 text-warning-strong mt-0.5 shrink-0" />
                   <p className="text-xs text-foreground/70 leading-relaxed">{intent.caution}</p>
                 </CardContent>
               </Card>
@@ -230,20 +230,20 @@ export const Step6Profile = ({ bairros, onComplete }: Step6Props) => {
                               <div className="min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <p className="font-semibold group-hover:text-primary transition-colors">{b.bairro}</p>
-                                  <Badge className={`${item.profile.color} ${item.profile.textColor} text-[9px]`}>
+                                  <Badge className={`${item.profile.color} ${item.profile.textColor} text-xs`}>
                                     {item.profile.label}
                                   </Badge>
                                 </div>
                                 <p className="text-xs text-muted-foreground mt-0.5">
                                   Diária {fmtBRL(b.adr_medio_studio)} · Ocupação {fmtPct(b.ocupacao_media_studio)} · Yield {fmtPct(b.yield_bruto_airbnb)}
                                 </p>
-                                <p className="text-[11px] text-foreground/60 mt-1 italic">{item.profile.quickRead}</p>
+                                <p className="text-xs text-foreground/60 mt-1 italic">{item.profile.quickRead}</p>
                               </div>
                             </div>
                             <div className="flex items-center gap-2 shrink-0 ml-2">
                               <div className="text-right">
                                 <p className="text-lg font-bold">{formatDecimal(s.score, 1)}</p>
-                                <Badge className={`${badgeStyle} text-[10px]`}>{s.grade}</Badge>
+                                <Badge className={`${badgeStyle} text-xs`}>{s.grade}</Badge>
                               </div>
                               <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                             </div>

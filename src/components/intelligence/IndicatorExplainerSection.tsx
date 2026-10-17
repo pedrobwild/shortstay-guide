@@ -58,7 +58,7 @@ const IndicatorExplainerSection = ({ defaultOpen = false, compact = false }: Pro
                           <Icon className="h-3.5 w-3.5 text-primary" />
                         </div>
                         <div>
-                          <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{ind.title}</p>
+                          <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{ind.title}</p>
                           <p className="text-sm font-semibold text-foreground">{ind.friendlyTitle}</p>
                         </div>
                       </div>
@@ -68,28 +68,28 @@ const IndicatorExplainerSection = ({ defaultOpen = false, compact = false }: Pro
 
                       {/* Why it matters */}
                       <div className="bg-primary/[0.04] rounded-md p-2.5">
-                        <p className="text-[11px] font-semibold text-primary mb-0.5">Por que importa</p>
-                        <p className="text-[11px] text-foreground/70 leading-relaxed">{ind.whyItMatters}</p>
+                        <p className="text-xs font-semibold text-primary mb-0.5">Por que importa</p>
+                        <p className="text-xs text-foreground/70 leading-relaxed">{ind.whyItMatters}</p>
                       </div>
 
                       {/* How to read (non-compact only) */}
                       {!compact && (
                         <div className="bg-muted/40 rounded-md p-2.5">
-                          <p className="text-[11px] font-semibold text-foreground mb-0.5">Como ler</p>
-                          <p className="text-[11px] text-muted-foreground leading-relaxed">{ind.howToRead}</p>
+                          <p className="text-xs font-semibold text-foreground mb-0.5">Como ler</p>
+                          <p className="text-xs text-muted-foreground leading-relaxed">{ind.howToRead}</p>
                         </div>
                       )}
 
                       {/* Example */}
                       <div className="bg-muted/40 rounded p-2">
-                        <p className="text-[11px] text-muted-foreground italic">💡 {ind.example}</p>
+                        <p className="text-xs text-muted-foreground italic">💡 {ind.example}</p>
                       </div>
 
                       {/* Common mistake (non-compact only) */}
                       {!compact && (
                         <div className="flex gap-1.5 items-start">
-                          <AlertTriangle className="h-3 w-3 text-amber-500 mt-0.5 shrink-0" />
-                          <p className="text-[11px] text-amber-700 leading-relaxed">{ind.commonMistake}</p>
+                          <AlertTriangle className="h-3 w-3 text-warning mt-0.5 shrink-0" />
+                          <p className="text-xs text-warning-strong leading-relaxed">{ind.commonMistake}</p>
                         </div>
                       )}
 

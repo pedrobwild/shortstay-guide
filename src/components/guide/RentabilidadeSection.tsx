@@ -36,8 +36,8 @@ const SCENARIOS = [
     key: "conservador",
     label: "Conservador",
     icon: TrendingDown,
-    color: "border-amber-500/30 bg-amber-500/[0.03]",
-    badgeColor: "bg-amber-100 text-amber-800",
+    color: "border-warning/30 bg-warning/[0.03]",
+    badgeColor: "bg-warning-soft text-warning-strong",
     metrics: { ocupacao: "65%", adr: "R$ 280", receitaBruta: "R$ 5.460", receitaLiquida: "R$ 2.000", ...retornoCenario(2000) },
     desc: "Primeiros meses, baixa temporada ou bairro menos aquecido.",
   },
@@ -54,8 +54,8 @@ const SCENARIOS = [
     key: "agressivo",
     label: "Otimista",
     icon: TrendingUp,
-    color: "border-emerald-500/30 bg-emerald-500/[0.03]",
-    badgeColor: "bg-emerald-100 text-emerald-800",
+    color: "border-success/30 bg-success/[0.03]",
+    badgeColor: "bg-success-soft text-success-strong",
     metrics: { ocupacao: "85%", adr: "R$ 420", receitaBruta: "R$ 10.710", receitaLiquida: "R$ 4.900", ...retornoCenario(4900) },
     desc: "Studio premium, fotos profissionais, preço dinâmico e localização top.",
   },
@@ -65,8 +65,8 @@ const SCENARIOS = [
 const SENSITIVITY = [
   { driver: "Ocupação", impact: "Alto", desc: `Cada 5pp de ocupação = ~${brlExemplo(exemplo.impactoOcupacao)}/mês de receita bruta`, icon: Percent, color: "text-primary" },
   { driver: "Diária média (ADR)", impact: "Alto", desc: `Cada R$ 50 a mais na diária = ~${brlExemplo(exemplo.impactoDiaria)}/mês bruto a ${formatPercent(exemplo.bairro.avgOccupancy, 0)} de ocupação`, icon: DollarSign, color: "text-primary" },
-  { driver: "Condomínio", impact: "Médio", desc: "Custo fixo que não escala — condomínios > R$ 1.200 comprimem margem", icon: Building2, color: "text-amber-600" },
-  { driver: "Gestão operacional", impact: "Médio", desc: "Na hipótese de gestão de 18%, a operação própria evita essa comissão, mas exige tempo e processo", icon: Zap, color: "text-amber-600" },
+  { driver: "Condomínio", impact: "Médio", desc: "Custo fixo que não escala — condomínios > R$ 1.200 comprimem margem", icon: Building2, color: "text-warning-strong" },
+  { driver: "Gestão operacional", impact: "Médio", desc: "Na hipótese de gestão de 18%, a operação própria evita essa comissão, mas exige tempo e processo", icon: Zap, color: "text-warning-strong" },
 ];
 
 type ActiveScenario = "conservador" | "base" | "agressivo";
@@ -193,7 +193,7 @@ export default function RentabilidadeSection() {
                 <div>
                   <div className="flex items-center gap-2 mb-0.5">
                     <p className="font-semibold text-foreground text-sm font-body">{s.driver}</p>
-                    <Badge variant="secondary" className="text-[10px] font-body">{s.impact}</Badge>
+                    <Badge variant="secondary" className="text-xs font-body">{s.impact}</Badge>
                   </div>
                   <p className="text-sm text-muted-foreground font-body leading-snug">{s.desc}</p>
                 </div>

@@ -52,7 +52,7 @@ const PRICING_PHASES = [
     period: "Mês 1–2",
     strategy: "Entrada agressiva: -20% do mercado",
     desc: "Priorize volume de reservas e reviews. Acompanhe as avaliações e a resposta dos hóspedes, sem assumir um limiar fixo de posicionamento.",
-    color: "bg-amber-500",
+    color: "bg-warning",
   },
   {
     phase: "Estabilização",
@@ -73,7 +73,7 @@ const PRICING_PHASES = [
     period: "Eventos e feriados",
     strategy: "+30% a +50% sobre base",
     desc: "Carnaval, F1, Lollapalooza, feriados prolongados e eventos corporativos. Antecipe a precificação.",
-    color: "bg-emerald-500",
+    color: "bg-success",
   },
 ];
 
@@ -81,7 +81,7 @@ const PRICING_PHASES = [
 const SEASONALITY = [
   { period: "Alta", months: "Mar, Jun, Jul, Out, Nov, Dez", occupancy: "Demanda potencialmente maior", pricing: "Revisar conforme procura", color: "bg-primary/10 text-primary" },
   { period: "Média", months: "Fev, Abr, Mai, Ago, Set", occupancy: "Demanda variável", pricing: "Base", color: "bg-muted text-muted-foreground" },
-  { period: "Baixa", months: "Jan (pós-feriados)", occupancy: "Demanda potencialmente menor", pricing: "Revisar conforme procura", color: "bg-amber-100 text-amber-800" },
+  { period: "Baixa", months: "Jan (pós-feriados)", occupancy: "Demanda potencialmente menor", pricing: "Revisar conforme procura", color: "bg-warning-soft text-warning-strong" },
 ];
 
 /* ── Rate optimization tips ── */
@@ -119,7 +119,7 @@ export default function AnuncioPrecificacaoSection() {
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-1">
                       <Badge variant="secondary" className="font-body text-xs">#{item.step}</Badge>
-                      <Badge className="bg-primary/10 text-primary font-body text-[10px]">{item.impact}</Badge>
+                      <Badge className="bg-primary/10 text-primary font-body text-xs">{item.impact}</Badge>
                     </div>
                     <p className="font-semibold text-foreground text-sm font-body mb-1">{item.title}</p>
                     <p className="text-sm text-muted-foreground font-body leading-snug mb-3">{item.desc}</p>
@@ -224,7 +224,7 @@ export default function AnuncioPrecificacaoSection() {
                 <div>
                   <div className="flex items-center gap-2 mb-0.5">
                     <p className="font-semibold text-foreground text-sm font-body">{tip.title}</p>
-                    <Badge variant="secondary" className="text-[10px] font-body">{tip.impact}</Badge>
+                    <Badge variant="secondary" className="text-xs font-body">{tip.impact}</Badge>
                   </div>
                   <p className="text-sm text-muted-foreground font-body leading-snug">{tip.desc}</p>
                   {tip.source && <FonteLink fonte={tip.source} />}
