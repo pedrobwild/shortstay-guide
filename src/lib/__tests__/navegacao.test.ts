@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { LINKS_PUBLICOS, linkSimuladorBairro } from "@/data/navegacao";
+import { ATALHOS_CELULAR, LINKS_PUBLICOS, linkProjecaoBairro, linkSimuladorBairro } from "@/data/navegacao";
 import { orcamentoUrl } from "@/lib/orcamento";
 
 const rotasApp = readFileSync("src/App.tsx", "utf8");
@@ -13,12 +13,20 @@ describe("navegação pública", () => {
     }
   });
 
-  it("o atalho Simular aponta para o simulador da home", () => {
-    expect(LINKS_PUBLICOS.find((l) => l.id === "simular")?.to).toBe("/#simulador");
+  it("o atalho Simular aponta para a projeção do studio (fluxo explorar → comparar → simular)", () => {
+    expect(LINKS_PUBLICOS.find((l) => l.id === "simular")?.to).toBe("/projecao");
   });
 
-  it("monta o link do simulador com o bairro pré-selecionado", () => {
+  it("os atalhos do celular existem entre os links públicos", () => {
+    for (const id of ATALHOS_CELULAR) expect(LINKS_PUBLICOS.some((l) => l.id === id), id).toBe(true);
+  });
+
+  it("monta o link do simulador da home com o bairro pré-selecionado", () => {
     expect(linkSimuladorBairro("vila-mariana")).toBe("/?bairro=vila-mariana#simulador");
+  });
+
+  it("monta o link da projeção com o bairro pré-selecionado", () => {
+    expect(linkProjecaoBairro("vila-mariana")).toBe("/projecao?bairro=vila-mariana");
   });
 
   it("os novos locais de orçamento usam a mesma URL com UTM próprio", () => {

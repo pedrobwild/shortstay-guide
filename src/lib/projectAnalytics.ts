@@ -770,22 +770,54 @@ export interface ProjectionSummary {
   paybackYears: number | null;
 }
 
+/** Um mês da janela projetada, com custos e resultado do mês (gráfico mês a mês). */
+export interface ProjectionMonth {
+  monthKey: string;            // "YYYY-MM"
+  monthLabel: string;          // "out"
+  year: number;
+  nights: number;              // noites reservadas no mês
+  stays: number;               // reservas que começam no mês
+  grossBrl: number;            // noites × diária
+  cleaningBrl: number;         // reservas × limpeza
+  managementBrl: number;
+  taxesBrl: number;
+  condoBrl: number;
+  costsBrl: number;
+  netBrl: number;
+}
+
+/** Resumo + componentes da mesma cadeia de cálculo (para a equação, a cascata e o mês a mês). */
+export interface ProjectionBreakdown extends ProjectionSummary {
+  bookedNights: number;
+  reservationsCount: number;
+  cleaningTotalBrl: number;
+  managementTotalBrl: number;
+  taxesTotalBrl: number;
+  condoTotalBrl: number;
+  totalCostsBrl: number;
+  windowStart: Date | null;
+  windowEnd: Date | null;
+  /** Meses da janela projetada (sempre `months` itens, a partir do mês de início). */
+  months: ProjectionMonth[];
+}
+
+const MONTH_SHORT = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+
 /**
- * Resumo de projeção pronto para o painel: gera os eventos sintéticos de mercado,
- * aplica as premissas de custo e devolve receita líquida anual + ROI (cap rate).
- *
- * Reúne, num único ponto, a mesma cadeia de cálculo usada pelo dashboard
- * (`generateProjectionEvents` → `computeKpis` → custos → `investmentReturn`),
- * para que o card de resumo e o dashboard nunca divirjam.
+ * Mesma cadeia do resumo (`generateProjectionEvents` → `computeKpis` → custos →
+ * `investmentReturn`), devolvendo também os totais de cada custo e a agregação
+ * por mês da janela projetada. `projectionSummary` usa esta função: os números
+ * do painel e do resumo nunca divergem.
  */
-export function projectionSummary(p: ProjectionSummaryParams): ProjectionSummary {
+export function projectionBreakdown(p: ProjectionSummaryParams): ProjectionBreakdown {
   const months = Math.max(1, Math.round(p.months ?? 12));
+  const start = p.startDate ?? new Date();
   const events = generateProjectionEvents({
     occupancyPct: p.occupancyPct,
     avgStayNights: p.avgStayNights ?? 3,
     months,
     seasonality: p.seasonality ?? DEFAULT_SP_SEASONALITY,
-    startDate: p.startDate,
+    startDate: start,
   });
   const kpis = computeKpis(events, p.adr);
   const monthly = occupancyByMonth(events, p.adr);
@@ -796,7 +828,8 @@ export function projectionSummary(p: ProjectionSummaryParams): ProjectionSummary
   const managementTotal = gross * (p.managementPct / 100);
   const taxesTotal = gross * (p.taxesPct / 100);
   const condoTotal = p.condoMonthly * monthsCount;
-  const net = gross - (cleaningTotal + managementTotal + taxesTotal + condoTotal);
+  const totalCosts = cleaningTotal + managementTotal + taxesTotal + condoTotal;
+  const net = gross - totalCosts;
 
   const ret = investmentReturn({
     propertyValueBrl: p.propertyValue,
@@ -804,6 +837,37 @@ export function projectionSummary(p: ProjectionSummaryParams): ProjectionSummary
     observedNetBrl: net,
     monthsObserved: monthsCount,
   });
+
+  // Agregação mensal: as estadias projetadas nunca cruzam o mês, então cada
+  // reserva conta noites e limpeza no mês em que começa.
+  const porMes = new Map<string, { nights: number; stays: number }>();
+  for (const e of events) {
+    if (e.type !== "reservation") continue;
+    const key = `${e.start.getUTCFullYear()}-${String(e.start.getUTCMonth() + 1).padStart(2, "0")}`;
+    const ref = porMes.get(key) ?? { nights: 0, stays: 0 };
+    ref.nights += e.nights;
+    ref.stays += 1;
+    porMes.set(key, ref);
+  }
+  const projected: ProjectionMonth[] = [];
+  let year = start.getUTCFullYear();
+  let month = start.getUTCMonth();
+  for (let i = 0; i < months; i++) {
+    const key = `${year}-${String(month + 1).padStart(2, "0")}`;
+    const { nights = 0, stays = 0 } = porMes.get(key) ?? {};
+    const g = nights * p.adr;
+    const cleaning = stays * p.cleaningPerStay;
+    const management = g * (p.managementPct / 100);
+    const taxes = g * (p.taxesPct / 100);
+    const costs = cleaning + management + taxes + p.condoMonthly;
+    projected.push({
+      monthKey: key, monthLabel: MONTH_SHORT[month], year, nights, stays,
+      grossBrl: g, cleaningBrl: cleaning, managementBrl: management, taxesBrl: taxes, condoBrl: p.condoMonthly,
+      costsBrl: costs, netBrl: g - costs,
+    });
+    month++;
+    if (month > 11) { month = 0; year++; }
+  }
 
   return {
     occupancyPct: p.occupancyPct,
@@ -817,6 +881,41 @@ export function projectionSummary(p: ProjectionSummaryParams): ProjectionSummary
     grossYieldPct: ret.grossYieldPct,
     capRatePct: ret.capRatePct,
     paybackYears: ret.paybackYears,
+    bookedNights: kpis.bookedNights,
+    reservationsCount: kpis.reservationsCount,
+    cleaningTotalBrl: cleaningTotal,
+    managementTotalBrl: managementTotal,
+    taxesTotalBrl: taxesTotal,
+    condoTotalBrl: condoTotal,
+    totalCostsBrl: totalCosts,
+    windowStart: kpis.windowStart,
+    windowEnd: kpis.windowEnd,
+    months: projected,
+  };
+}
+
+/**
+ * Resumo de projeção pronto para o painel: gera os eventos sintéticos de mercado,
+ * aplica as premissas de custo e devolve receita líquida anual + ROI (cap rate).
+ *
+ * Reúne, num único ponto, a mesma cadeia de cálculo usada pelo dashboard
+ * (`generateProjectionEvents` → `computeKpis` → custos → `investmentReturn`),
+ * para que o card de resumo e o dashboard nunca divirjam.
+ */
+export function projectionSummary(p: ProjectionSummaryParams): ProjectionSummary {
+  const b = projectionBreakdown(p);
+  return {
+    occupancyPct: b.occupancyPct,
+    adr: b.adr,
+    monthsObserved: b.monthsObserved,
+    grossRevenueBrl: b.grossRevenueBrl,
+    netRevenueBrl: b.netRevenueBrl,
+    netMarginPct: b.netMarginPct,
+    annualGrossRevenueBrl: b.annualGrossRevenueBrl,
+    annualNetRevenueBrl: b.annualNetRevenueBrl,
+    grossYieldPct: b.grossYieldPct,
+    capRatePct: b.capRatePct,
+    paybackYears: b.paybackYears,
   };
 }
 

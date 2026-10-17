@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { motion } from "framer-motion";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
 
 interface SectionBlockProps {
@@ -10,12 +9,12 @@ interface SectionBlockProps {
   className?: string;
 }
 
-export default function SectionBlock({ id, title, takeaway, children, className }: SectionBlockProps) {
-  const sectionRef = useRef<HTMLElement>(null);
-
+/** Registra "section_enter" (telemetria interna, só com consentimento) na primeira vez que a seção aparece. */
+export function useRastrearSecao<T extends HTMLElement>(id: string) {
+  const ref = useRef<T>(null);
   useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
     const obs = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
@@ -28,19 +27,17 @@ export default function SectionBlock({ id, title, takeaway, children, className 
     obs.observe(el);
     return () => obs.disconnect();
   }, [id]);
+  return ref;
+}
 
+/** Seção do guia: título em Playfair, frase de apoio e conteúdo. Sem animação de entrada (só funcionais). */
+export default function SectionBlock({ id, title, takeaway, children, className }: SectionBlockProps) {
+  const sectionRef = useRastrearSecao<HTMLElement>(id);
   return (
-    <section ref={sectionRef} id={id} className={`scroll-mt-24 py-16 md:py-20 ${className ?? ""}`}>
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.5 }}
-      >
-        <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">{title}</h2>
-        <p className="text-muted-foreground text-lg mb-6">{takeaway}</p>
-        {children}
-      </motion.div>
+    <section ref={sectionRef} id={id} className={`scroll-mt-24 py-14 md:py-[72px] ${className ?? ""}`}>
+      <h2 className="mb-3 font-display text-[28px] font-bold leading-[1.15] text-foreground text-balance md:text-[36px]">{title}</h2>
+      <p className="mb-8 max-w-[720px] text-[17px] leading-[1.55] text-muted-foreground">{takeaway}</p>
+      {children}
     </section>
   );
 }

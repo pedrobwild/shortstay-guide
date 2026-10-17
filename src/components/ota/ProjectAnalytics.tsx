@@ -41,6 +41,18 @@ interface ProjectAnalyticsProps {
   refreshKey?: number;
   /** "real" usa eventos do iCal (Supabase); "projection" gera eventos sintéticos de mercado. */
   mode?: ProjectAnalyticsMode;
+  /**
+   * Projeção controlada por fora (tela /projecao): as premissas vêm do formulário
+   * da página e este painel mostra só as análises detalhadas (sem os próprios
+   * campos, sem gravar rascunho).
+   */
+  controle?: ControleProjecao;
+}
+
+export interface ControleProjecao {
+  costs: CostSettings;
+  occupancyPct: number;
+  avgStayNights: number;
 }
 
 const SIZE_KEYS: SizeKey[] = ["20–25 m²", "26–35 m²", "36–50 m²"];
@@ -63,7 +75,7 @@ function occupancyColor(pct: number) {
   return "hsl(var(--primary) / 0.3)";
 }
 
-interface CostSettings {
+export interface CostSettings {
   adr: number;
   cleaningPerStay: number;   // BRL por reserva
   managementPct: number;     // 0-100
@@ -145,19 +157,24 @@ export default function ProjectAnalytics({
   projectId,
   refreshKey = 0,
   mode = "real",
+  controle,
 }: ProjectAnalyticsProps) {
-  const isProjection = mode === "projection";
+  const isProjection = mode === "projection" || Boolean(controle);
   const costsKey = projectId ?? "projection";
 
   const [realEvents, setRealEvents] = useState<NormalizedEvent[]>([]);
   const [loading, setLoading] = useState(!isProjection);
-  const [costs, setCosts] = useState<CostSettings>(() => loadCostsCache(costsKey));
+  const [costsEstado, setCosts] = useState<CostSettings>(() => loadCostsCache(costsKey));
+  // Com controle externo, as premissas são as do formulário da página.
+  const costs = controle?.costs ?? costsEstado;
 
   // --- Inputs do lead (modo projeção) ---
   const { bairros } = useBairroData();
   const [bairroName, setBairroName] = useState<string>("");
   const [sizeKey, setSizeKey] = useState<SizeKey>("26–35 m²");
-  const [occupancyPct, setOccupancyPct] = useState<number>(0);
+  const [occupancyEstado, setOccupancyPct] = useState<number>(0);
+  const occupancyPct = controle ? controle.occupancyPct : occupancyEstado;
+  const avgStayNights = controle?.avgStayNights ?? 3;
 
   // --- Dados do imóvel (modo real) — metadados para o painel comercial ---
   const [propertyNeighborhood, setPropertyNeighborhood] = useState<string>("");
@@ -240,10 +257,11 @@ export default function ProjectAnalytics({
 
   // Cache otimista local — escreve a cada mudança (offline-first, sem flicker).
   useEffect(() => {
+    if (controle) return; // a página controla e guarda o próprio rascunho
     try {
       window.localStorage.setItem(storageKey(costsKey), JSON.stringify(costs));
     } catch { /* ignore */ }
-  }, [costsKey, costs]);
+  }, [costsKey, costs, controle]);
 
   // Hidratação: cache local imediato + leitura autoritativa do Supabase.
   useEffect(() => {
@@ -367,12 +385,12 @@ export default function ProjectAnalytics({
       isProjection
         ? generateProjectionEvents({
             occupancyPct,
-            avgStayNights: 3,
+            avgStayNights,
             months: 12,
             seasonality: DEFAULT_SP_SEASONALITY,
           })
         : [],
-    [isProjection, occupancyPct],
+    [isProjection, occupancyPct, avgStayNights],
   );
 
   const events = isProjection ? projectionEvents : realEvents;
@@ -496,7 +514,7 @@ export default function ProjectAnalytics({
   return (
     <section className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      {!controle && <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" />
@@ -524,10 +542,10 @@ export default function ProjectAnalytics({
             </span>
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* Inputs do lead — modo projeção */}
-      {isProjection && (
+      {isProjection && !controle && (
         <Card className="border-amber-500/30 bg-amber-500/[0.03]">
           <CardContent className="p-4 space-y-3">
             <div className="flex items-center gap-2">
@@ -641,7 +659,7 @@ export default function ProjectAnalytics({
       )}
 
       {/* Painel de custos editáveis */}
-      <Card className="border-primary/20 bg-primary/[0.02]">
+      {!controle && <Card className="border-primary/20 bg-primary/[0.02]">
         <CardContent className="p-4 space-y-3">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
@@ -687,7 +705,7 @@ export default function ProjectAnalytics({
               : "Premissas salvas automaticamente na nuvem por projeto (com cache offline). Valor do imóvel destrava cap rate, yield e payback."}
           </p>
         </CardContent>
-      </Card>
+      </Card>}
 
       {/* KPIs principais */}
       <div>
@@ -769,7 +787,7 @@ export default function ProjectAnalytics({
               <BarChart data={monthly} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                 <XAxis dataKey="monthLabel" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => formatDecimal(Number(v))} unit="%" domain={[0, 100]} />
+                <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => formatDecimal(Number(v), 0)} unit="%" domain={[0, 100]} />
                 <Tooltip content={<MonthlyTooltip />} />
                 <Bar dataKey="occupancyPct" radius={[4, 4, 0, 0]}>
                   {monthly.map((m) => (

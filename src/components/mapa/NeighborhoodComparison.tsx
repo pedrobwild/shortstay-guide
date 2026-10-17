@@ -1,65 +1,66 @@
-import { formatDecimal } from "@/lib/numberFormat";
+import { formatBRL, formatDecimal, formatPercent } from "@/lib/numberFormat";
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Plus, ArrowUpDown, Check } from "lucide-react";
-import { Neighborhood, NEIGHBORHOODS, DEMAND_PROFILE_LABELS, fmt } from "@/data/mapaBairrosData";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell } from "recharts";
+import { X, Plus, ArrowUpDown, Check, ArrowRight } from "lucide-react";
+import { DEMAND_PROFILE_LABELS } from "@/data/mapaBairrosData";
+import NaturezaTag from "@/components/radar/NaturezaTag";
+import { COR_SERIE } from "@/lib/radarUi";
+import { caminhoComparar } from "@/lib/comparar";
+import { slugifyBairro } from "@/lib/seo";
+import type { LeituraBairro } from "@/lib/leiturasBairros";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
 interface ComparisonProps {
   onClose: () => void;
-  initialNeighborhoods?: Neighborhood[];
+  /** Bairros que podem entrar na comparação (só os da base do Radar têm números). */
+  disponiveis: LeituraBairro[];
+  initialNeighborhoods?: LeituraBairro[];
 }
 
-const METRICS: { key: string; label: string; getValue: (n: Neighborhood) => number | string; format: (v: number | string) => string; higherIsBetter: boolean }[] = [
-  { key: "nightly", label: "Diária média", getValue: (n) => n.metrics.nightlyRate, format: (v) => `R$${fmt(v as number)}`, higherIsBetter: true },
-  { key: "nightlyRange", label: "Faixa de diária", getValue: (n) => `R$${fmt(n.metrics.nightlyRateRange[0])}–R$${fmt(n.metrics.nightlyRateRange[1])}`, format: (v) => `${v}`, higherIsBetter: false },
-  { key: "occupancy", label: "Ocupação", getValue: (n) => n.metrics.occupancy, format: (v) => `${formatDecimal(Number(v))}%`, higherIsBetter: true },
-  { key: "roi", label: "ROI estimado", getValue: (n) => n.metrics.estimatedROI, format: (v) => `${formatDecimal(Number(v))}%`, higherIsBetter: true },
-  { key: "revenue", label: "Receita mensal", getValue: (n) => n.metrics.avgRevenueMo, format: (v) => `R$${fmt(v as number)}`, higherIsBetter: true },
-  { key: "listings", label: "Anúncios ativos", getValue: (n) => n.metrics.activeListings, format: (v) => `${fmt(v as number)}`, higherIsBetter: false },
-  { key: "seasonality", label: "Sazonalidade", getValue: (n) => n.metrics.seasonalityIndex, format: (v) => Number(v) > 1.2 ? "Alta" : Number(v) > 0.9 ? "Moderada" : "Estável", higherIsBetter: false },
-  { key: "profile", label: "Perfil de demanda", getValue: (n) => DEMAND_PROFILE_LABELS[n.demandProfile]?.label || n.demandProfile, format: (v) => `${v}`, higherIsBetter: false },
-  { key: "competition", label: "Competição", getValue: (n) => n.metrics.competitionLevel, format: (v) => `${v}`, higherIsBetter: false },
+type Metrica = { key: string; label: string; getValue: (n: LeituraBairro) => number | string | null; format: (v: number | string) => string; numerica: boolean };
+
+// Diária, faixa, ocupação, receita e anúncios: base do Radar. Perfil e concorrência: critérios internos.
+const METRICS: Metrica[] = [
+  { key: "nightly", label: "Diária média", getValue: (n) => n.metrics.nightlyRate, format: (v) => formatBRL(Number(v)), numerica: true },
+  { key: "nightlyRange", label: "Faixa de diária", getValue: (n) => `${formatBRL(n.metrics.nightlyRateRange[0])}–${formatBRL(n.metrics.nightlyRateRange[1])}`, format: (v) => `${v}`, numerica: false },
+  { key: "occupancy", label: "Ocupação", getValue: (n) => n.metrics.occupancy, format: (v) => formatPercent(Number(v), 0), numerica: true },
+  { key: "revenue", label: "Receita mensal de referência", getValue: (n) => n.metrics.avgRevenueMo, format: (v) => formatBRL(Number(v)), numerica: true },
+  { key: "listings", label: "Anúncios na amostra", getValue: (n) => n.metrics.activeListings, format: (v) => formatDecimal(Number(v), 0), numerica: true },
+  { key: "profile", label: "Perfil de demanda (critério interno)", getValue: (n) => DEMAND_PROFILE_LABELS[n.demandProfile]?.label || n.demandProfile, format: (v) => `${v}`, numerica: false },
+  { key: "competition", label: "Concorrência (critério interno)", getValue: (n) => n.metrics.competitionLevel, format: (v) => `${v}`, numerica: false },
 ];
 
-function getMetricColor(values: (number | string)[], idx: number, higherIsBetter: boolean): string {
-  if (typeof values[0] === "string") return "text-foreground";
-  const nums = values as number[];
-  const sorted = [...nums].sort((a, b) => higherIsBetter ? b - a : a - b);
-  if (nums[idx] === sorted[0]) return "text-emerald-600 dark:text-emerald-400 font-bold";
-  if (nums[idx] === sorted[sorted.length - 1] && nums.length > 2) return "text-muted-foreground";
-  return "text-amber-600 dark:text-amber-400";
-}
-
 const chartConfig = {
-  revenue: { label: "Receita potencial", color: "hsl(var(--primary))" },
+  revenue: { label: "Receita mensal de referência", color: "hsl(var(--primary))" },
 };
 
-export default function NeighborhoodComparison({ onClose, initialNeighborhoods = [] }: ComparisonProps) {
-  const [selected, setSelected] = useState<Neighborhood[]>(initialNeighborhoods.slice(0, 3));
+/** Comparação rápida das leituras do mapa; a comparação completa fica em /comparar. */
+export default function NeighborhoodComparison({ onClose, disponiveis, initialNeighborhoods = [] }: ComparisonProps) {
+  const naBase = disponiveis.filter((n) => n.naBase);
+  const [selected, setSelected] = useState<LeituraBairro[]>(initialNeighborhoods.filter((n) => n.naBase).slice(0, 3));
   const [showPicker, setShowPicker] = useState(false);
 
-  const available = NEIGHBORHOODS.filter((n) => !selected.some((s) => s.id === n.id));
+  // Mantém a seleção com os números atuais da base (eles podem chegar depois da reserva offline).
+  const atuais = selected.map((s) => naBase.find((n) => n.id === s.id) ?? s);
+  const available = naBase.filter((n) => !atuais.some((s) => s.id === n.id));
 
-  const addNeighborhood = (n: Neighborhood) => {
-    if (selected.length < 3) {
-      setSelected([...selected, n]);
+  const addNeighborhood = (n: LeituraBairro) => {
+    if (atuais.length < 3) {
+      setSelected([...atuais, n]);
       setShowPicker(false);
     }
   };
 
   const removeNeighborhood = (id: string) => {
-    setSelected(selected.filter((n) => n.id !== id));
+    setSelected(atuais.filter((n) => n.id !== id));
   };
 
-  const chartData = selected.map((n) => ({
+  const chartData = atuais.map((n) => ({
     name: n.name.length > 12 ? n.name.slice(0, 12) + "…" : n.name,
-    revenue: Math.round(n.metrics.nightlyRate * 30 * (n.metrics.occupancy / 100)),
+    revenue: n.metrics.avgRevenueMo,
   }));
 
   return (
@@ -67,36 +68,36 @@ export default function NeighborhoodComparison({ onClose, initialNeighborhoods =
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
-      className="bg-card border border-border rounded-xl shadow-lg p-6"
+      className="rounded-md border border-border bg-card p-5 md:p-6"
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-start justify-between gap-3">
         <div>
           <h3 className="font-display text-lg font-bold text-foreground">Comparar bairros</h3>
-          <p className="text-xs text-muted-foreground font-body">Selecione até 3 bairros</p>
+          <p className="text-xs text-muted-foreground font-body">Até 3 bairros da base do Radar, com o perfil de demanda de cada um.</p>
         </div>
-        <Button size="icon" variant="ghost" onClick={onClose}><X size={16} /></Button>
+        <Button size="icon" variant="ghost" onClick={onClose} aria-label="Fechar comparação" className="min-h-[44px] min-w-[44px]"><X size={16} /></Button>
       </div>
 
-      {/* Selected neighborhoods chips */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        {selected.map((n, i) => (
-          <Badge key={n.id} variant="outline" className="gap-1.5 py-1 px-2.5 text-xs">
-            <span className={`w-2 h-2 rounded-full ${i === 0 ? "bg-emerald-500" : i === 1 ? "bg-primary" : "bg-amber-500"}`} />
+      {/* Bairros escolhidos */}
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        {atuais.map((n, i) => (
+          <span key={n.id} className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-input bg-card pl-3.5 text-sm text-foreground">
+            <span className="h-2 w-2 rounded-full" style={{ background: COR_SERIE[i] }} aria-hidden="true" />
             {n.name}
-            <button onClick={() => removeNeighborhood(n.id)} className="ml-1 hover:text-destructive">
-              <X size={10} />
+            <button type="button" onClick={() => removeNeighborhood(n.id)} aria-label={`Remover ${n.name}`} className="inline-flex h-11 w-11 items-center justify-center rounded-full hover:bg-secondary">
+              <X size={14} />
             </button>
-          </Badge>
+          </span>
         ))}
-        {selected.length < 3 && (
+        {atuais.length < 3 && available.length > 0 && (
           <div className="relative">
             <Button
               variant="outline"
-              size="sm"
-              className="text-xs gap-1 h-7"
+              className="min-h-[44px] gap-1 rounded-full border-dashed text-sm"
               onClick={() => setShowPicker(!showPicker)}
+              aria-expanded={showPicker}
             >
-              <Plus size={12} />
+              <Plus size={14} />
               Adicionar
             </Button>
             <AnimatePresence>
@@ -105,16 +106,15 @@ export default function NeighborhoodComparison({ onClose, initialNeighborhoods =
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
-                  className="absolute left-0 top-full mt-1 bg-card border border-border rounded-lg shadow-lg z-50 min-w-[180px] max-h-[200px] overflow-y-auto"
+                  className="absolute left-0 top-full z-50 mt-1 max-h-[264px] min-w-[220px] overflow-y-auto rounded-lg border border-border bg-card shadow-dialog"
                 >
                   {available.map((n) => (
                     <button
                       key={n.id}
                       onClick={() => addNeighborhood(n)}
-                      className="w-full flex items-center gap-2 text-xs px-3 py-2 hover:bg-muted transition-colors text-left"
+                      className="flex min-h-[44px] w-full items-center justify-between gap-2 px-3 text-left text-sm transition-colors hover:bg-secondary"
                     >
-                      <MapPinDot score={n.score} />
-                      {n.name}
+                      <span>{n.name}{n.natureza === "estimativa" ? " (estimativa)" : ""}{n.aviso ? " · amostra pequena" : ""}</span>
                     </button>
                   ))}
                 </motion.div>
@@ -122,52 +122,57 @@ export default function NeighborhoodComparison({ onClose, initialNeighborhoods =
             </AnimatePresence>
           </div>
         )}
+        {atuais.length > 0 && (
+          <Link
+            to={caminhoComparar(atuais.map((n) => slugifyBairro(n.name)))}
+            className="inline-flex min-h-[44px] items-center gap-1 px-2 text-sm font-semibold text-primary underline underline-offset-[3px]"
+          >
+            Abrir a comparação completa<ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        )}
       </div>
 
-      {selected.length < 2 ? (
+      {atuais.length < 2 ? (
         <div className="text-center py-12 text-muted-foreground">
           <ArrowUpDown size={24} className="mx-auto mb-2 opacity-30" />
           <p className="text-sm font-body">Selecione pelo menos 2 bairros para comparar</p>
         </div>
       ) : (
         <>
-          {/* Color legend */}
-          <div className="flex flex-wrap items-center gap-3 mb-4 text-[10px] font-body text-muted-foreground">
-            <span className="font-semibold text-foreground text-[11px]">Legenda:</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Melhor valor</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> Intermediário</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-gray-400" /> Menor valor</span>
-            <span className="text-muted-foreground/50">|</span>
-            <span>✓ = melhor na métrica</span>
-          </div>
-          {/* Comparison table */}
-          <div className="overflow-x-auto mb-6">
+          <p className="mb-3 text-xs text-muted-foreground">✓ = maior valor na linha. Bairros fora da base do Radar não entram: não há diária nem ocupação com fonte para eles.</p>
+          <div className="mb-6 overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Métrica</th>
-                  {selected.map((n, i) => (
-                    <th key={n.id} className="text-center py-2 px-3 font-bold text-foreground">
-                      <span className={`inline-block w-2 h-2 rounded-full mr-1.5 ${i === 0 ? "bg-emerald-500" : i === 1 ? "bg-primary" : "bg-amber-500"}`} />
+                <tr className="border-b-2 border-foreground">
+                  <th className="py-2 pr-4 text-left font-medium text-muted-foreground">Indicador</th>
+                  {atuais.map((n, i) => (
+                    <th key={n.id} className="px-3 py-2 text-center align-top font-bold text-foreground">
+                      <span className="mr-1.5 inline-block h-2 w-2 rounded-full" style={{ background: COR_SERIE[i] }} aria-hidden="true" />
                       {n.name}
+                      {n.natureza === "estimativa" && <span className="mt-1 block"><NaturezaTag tipo="estimativa" tamanho="sm" /></span>}
+                      {n.aviso && <span className="mt-1 block text-[11px] font-medium text-estimate-text">{n.aviso}</span>}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {METRICS.map((metric) => {
-                  const values = selected.map((n) => metric.getValue(n));
+                  const values = atuais.map((n) => metric.getValue(n));
+                  const numeros = values.filter((v): v is number => typeof v === "number");
+                  const maior = metric.numerica && numeros.length >= 2 ? Math.max(...numeros) : null;
                   return (
-                    <tr key={metric.key} className="border-b border-border/50">
-                      <td className="py-2.5 pr-4 text-muted-foreground font-medium">{metric.label}</td>
-                      {selected.map((n, i) => (
-                        <td key={n.id} className={`text-center py-2.5 px-3 ${getMetricColor(values, i, metric.higherIsBetter)}`}>
-                          {metric.format(values[i])}
-                          {typeof values[i] === "number" && values[i] === [...(values as number[])].sort((a, b) => metric.higherIsBetter ? b - a : a - b)[0] && (
-                            <Check size={10} className="inline ml-1 text-emerald-500" />
-                          )}
-                        </td>
-                      ))}
+                    <tr key={metric.key} className="border-b border-border">
+                      <td className="py-2.5 pr-4 font-medium text-muted-foreground">{metric.label}</td>
+                      {atuais.map((n, i) => {
+                        const v = values[i];
+                        const destaque = maior !== null && v === maior;
+                        return (
+                          <td key={n.id} className={`px-3 py-2.5 text-center tabular-nums ${destaque ? "font-bold text-primary" : "text-foreground"}`}>
+                            {v === null ? "—" : metric.format(v)}
+                            {destaque && <Check size={10} className="ml-1 inline text-primary" aria-label="maior" />}
+                          </td>
+                        );
+                      })}
                     </tr>
                   );
                 })}
@@ -175,18 +180,17 @@ export default function NeighborhoodComparison({ onClose, initialNeighborhoods =
             </table>
           </div>
 
-          {/* Revenue chart */}
           <div>
-            <h4 className="text-xs font-semibold text-muted-foreground mb-3">Receita mensal potencial</h4>
+            <h4 className="mb-3 text-xs font-semibold text-muted-foreground">Receita mensal de referência (diária × 30 × ocupação)</h4>
             <ChartContainer config={chartConfig} className="h-[160px] w-full">
               <BarChart data={chartData} layout="vertical" margin={{ left: 0, right: 20, top: 5, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                <XAxis type="number" tickFormatter={(v) => `R$${formatDecimal(Number(v) / 1000, 0)}k`} className="text-[10px]" />
+                <XAxis type="number" tickFormatter={(v) => `R$ ${formatDecimal(Number(v) / 1000, 0)} mil`} className="text-[10px]" />
                 <YAxis dataKey="name" type="category" width={90} className="text-[10px]" />
-                <ChartTooltip content={<ChartTooltipContent formatter={(value) => `R$${fmt(Number(value))}`} />} />
+                <ChartTooltip content={<ChartTooltipContent formatter={(value) => formatBRL(Number(value))} />} />
                 <Bar dataKey="revenue" radius={[0, 4, 4, 0]} barSize={20}>
                   {chartData.map((_, i) => (
-                    <Cell key={i} fill={i === 0 ? "hsl(152, 69%, 45%)" : i === 1 ? "hsl(var(--primary))" : "hsl(43, 96%, 56%)"} />
+                    <Cell key={i} fill={COR_SERIE[i]} />
                   ))}
                 </Bar>
               </BarChart>
@@ -196,9 +200,4 @@ export default function NeighborhoodComparison({ onClose, initialNeighborhoods =
       )}
     </motion.div>
   );
-}
-
-function MapPinDot({ score }: { score: number }) {
-  const color = score >= 88 ? "bg-emerald-500" : score >= 84 ? "bg-amber-500" : "bg-muted-foreground/40";
-  return <span className={`w-2 h-2 rounded-full ${color}`} />;
 }

@@ -12,3 +12,13 @@ export function formatDecimal(value: number, digits = 1): string {
 
 /** Recebe pontos percentuais (62), não a fração (0,62). */
 export const formatPercent = (value: number, digits = 1) => `${formatDecimal(value, digits)}%`;
+
+/**
+ * Reais inteiros para exibição: "R$ 5.580". Negativos usam o sinal de menos
+ * tipográfico antes do símbolo: "−R$ 31.392". Só apresentação.
+ */
+export function formatBRL(value: number): string {
+  const inteiro = Math.round(value);
+  const sinal = inteiro < 0 ? "−" : "";
+  return `${sinal}R$ ${formatDecimal(Math.abs(inteiro), 0)}`;
+}
