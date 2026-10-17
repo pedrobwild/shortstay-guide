@@ -6,15 +6,18 @@ import "./index.css";
 // Após uma nova versão, a aba aberta pode pedir arquivos que já não existem.
 // Recarrega uma única vez (guarda de 10s) para buscar a versão atual.
 const CHAVE_RECARGA = "bw-chunk-reload";
-function recarregarVersaoNova() {
+function recarregarVersaoNova(): boolean {
   const ultima = Number(sessionStorage.getItem(CHAVE_RECARGA) || 0);
-  if (Date.now() - ultima < 10_000) return;
+  if (Date.now() - ultima < 10_000) return false;
   sessionStorage.setItem(CHAVE_RECARGA, String(Date.now()));
   window.location.reload();
+  return true;
 }
 const ehFalhaDeChunk = (msg: unknown) =>
   /Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module/i.test(String(msg));
-window.addEventListener("vite:preloadError", (e) => { e.preventDefault(); recarregarVersaoNova(); });
+// Só suprime o erro quando de fato recarrega. Se o erro for suprimido sem recarga,
+// o import resolve como undefined e o lazy quebra lendo ".default" (tela em branco).
+window.addEventListener("vite:preloadError", (e) => { if (recarregarVersaoNova()) e.preventDefault(); });
 window.addEventListener("unhandledrejection", (e) => {
   if (ehFalhaDeChunk((e.reason as Error)?.message ?? e.reason)) recarregarVersaoNova();
 });
