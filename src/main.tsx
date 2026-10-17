@@ -15,9 +15,9 @@ function recarregarVersaoNova(): boolean {
 }
 const ehFalhaDeChunk = (msg: unknown) =>
   /Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module/i.test(String(msg));
-// Só suprime o erro quando de fato recarrega. Se o erro for suprimido sem recarga,
-// o import resolve como undefined e o lazy quebra lendo ".default" (tela em branco).
-window.addEventListener("vite:preloadError", (e) => { if (recarregarVersaoNova()) e.preventDefault(); });
+// Nunca suprimir o erro (preventDefault): o import passaria a resolver como
+// undefined e o lazy quebraria lendo ".default" antes da recarga terminar.
+window.addEventListener("vite:preloadError", () => { recarregarVersaoNova(); });
 window.addEventListener("unhandledrejection", (e) => {
   if (ehFalhaDeChunk((e.reason as Error)?.message ?? e.reason)) recarregarVersaoNova();
 });
