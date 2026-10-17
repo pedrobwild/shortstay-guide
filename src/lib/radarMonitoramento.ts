@@ -7,6 +7,27 @@ export const CONFIANCAS: Confianca[] = ["alta", "media", "baixa"];
 export const NOMES_CONFIANCA = { alta: "Alta", media: "Média", baixa: "Baixa" };
 export const TAMANHO_HISTORICO = 20;
 
+/** O registro na base não comprova consulta ou recebimento pelo outro site. */
+export function statusColetaBase(ativo: boolean) {
+  return { base: ativo ? "ativa" : "historica", bewild: "nao_verificada" } as const;
+}
+
+export function useUltimaColetaBase() {
+  return useQuery({
+    queryKey: ["radar_ultima_coleta_base"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("radar_observacoes")
+        .select("id,bairro,created_at,coletado_em,ativo,radar_coleta_auditoria(autor_nome,registrado_em,utms)")
+        .eq("cidade", CIDADE).eq("indicador", "adr_medio_brl")
+        .order("created_at", { ascending: false }).order("id", { ascending: true }).limit(1);
+      if (error) throw error;
+      return data?.[0] ?? null;
+    },
+    staleTime: 60_000,
+    retry: 1,
+  });
+}
+
 type ColetaGrafico = {
   id: string; bairro: string; valor: number | string; coletado_em: string;
   ativo: boolean; radar_coleta_auditoria: AuditoriaColeta | null;

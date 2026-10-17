@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { useRadarBase, rotuloPeriodo } from "@/lib/radarBase";
-import { CONFIANCAS, NOMES_CONFIANCA, montarGraficoColetas, resumirConfianca, TAMANHO_HISTORICO, useHistoricoMercado } from "@/lib/radarMonitoramento";
+import { CONFIANCAS, NOMES_CONFIANCA, montarGraficoColetas, resumirConfianca, statusColetaBase, TAMANHO_HISTORICO, useHistoricoMercado, useUltimaColetaBase } from "@/lib/radarMonitoramento";
 import { formatDecimal, formatPercent } from "@/lib/numberFormat";
 import ColetaAuditoria from "@/components/admin/ColetaAuditoria";
 
@@ -21,9 +21,11 @@ const config = {
   diaria: { label: "Diária média", color: "hsl(var(--primary))" },
 };
 const dataBR = (data: string | null) => data ? data.slice(0, 10).split("-").reverse().join("/") : "Não informada";
+const horarioBR = (data: string) => new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(new Date(data));
 
 export default function AdminMercado() {
   const radar = useRadarBase();
+  const ultima = useUltimaColetaBase();
   const [confianca, setConfianca] = useState("todas");
   const [bairro, setBairro] = useState("todos");
   const [pagina, setPagina] = useState(0);
@@ -38,10 +40,29 @@ export default function AdminMercado() {
     <header className="flex flex-wrap items-center justify-between gap-3">
       <h1 className="font-display text-2xl font-bold">Acompanhamento do mercado</h1>
       <div className="flex flex-wrap gap-2">
-        <Button variant="outline" disabled={radar.isFetching || historico.isFetching} onClick={() => { void radar.refetch(); void historico.refetch(); }}><RefreshCw className="mr-2 h-4 w-4" />Atualizar</Button>
+        <Button variant="outline" disabled={radar.isFetching || historico.isFetching || ultima.isFetching} onClick={() => { void radar.refetch(); void historico.refetch(); void ultima.refetch(); }}><RefreshCw className="mr-2 h-4 w-4" />Atualizar</Button>
         <Button asChild><Link to="/admin/coletas"><Plus className="mr-2 h-4 w-4" />Nova coleta</Link></Button>
       </div>
     </header>
+    <section className="space-y-4 border-b border-border pb-6" aria-labelledby="base-titulo">
+      <h2 id="base-titulo" className="font-display text-xl font-semibold">Atualização da base compartilhada</h2>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="min-w-0 space-y-2">
+          <h3 className="font-semibold">Radar Bewild · última coleta registrada</h3>
+          {ultima.isLoading ? <p role="status">Consultando última atualização…</p> : ultima.isError ? <p role="alert" className="text-destructive">Última atualização indisponível. <Button variant="link" onClick={() => ultima.refetch()}>Tentar novamente</Button></p> : ultima.data ? <>
+            <p>{ultima.data.bairro} · coleta {dataBR(ultima.data.coletado_em)}</p>
+            <p className="text-sm tabular-nums">Registro na base: {horarioBR(ultima.data.created_at)} (Brasília)</p>
+            <p className="text-sm">{statusColetaBase(ultima.data.ativo).base === "ativa" ? "Ativa na base" : "Preservada no histórico"}</p>
+            <ColetaAuditoria auditoria={ultima.data.radar_coleta_auditoria} />
+          </> : <p className="text-muted-foreground">Nenhuma coleta registrada.</p>}
+        </div>
+        <div className="min-w-0 space-y-2">
+          <h3 className="font-semibold">Site Bewild · conexão não verificada</h3>
+          <p className="text-sm text-muted-foreground">Última leitura pelo site: não confirmada. Os registros abaixo pertencem à base; não comprovam envio ou recebimento entre os sites.</p>
+          <p className="text-sm text-muted-foreground">Origem do site não registrada; UTMs indicam o acesso, não a origem da gravação.</p>
+        </div>
+      </div>
+    </section>
     <section className="space-y-4" aria-labelledby="confianca-titulo">
       <h2 id="confianca-titulo" className="font-display text-xl font-semibold">Bairros por confiança</h2>
       {radar.isLoading ? <p role="status">Carregando dados de mercado…</p> : radar.isError || radar.data?.offline ? <p role="alert" className="text-destructive">Dados de mercado indisponíveis. <Button variant="link" onClick={() => radar.refetch()}>Tentar novamente</Button></p> : bairros.length === 0 ? <p className="text-muted-foreground">Nenhum bairro disponível.</p> : <>
@@ -99,6 +120,7 @@ export default function AdminMercado() {
         <p className="tabular-nums">Diária média R$ {formatDecimal(Number(r.valor), 2)} · {r.amostra_n == null ? "Amostra não informada" : `n=${formatDecimal(r.amostra_n, 0)} anúncios`}</p>
         {r.publicado_em && <p className="text-muted-foreground">Publicação da fonte: {dataBR(r.publicado_em)}</p>}
         <ColetaAuditoria auditoria={r.radar_coleta_auditoria} />
+        <p className="text-muted-foreground">Site Bewild: {statusColetaBase(r.ativo).bewild === "nao_verificada" ? "leitura não confirmada" : ""} · origem do registro não informada</p>
         {r.observacao && <p className="break-words text-muted-foreground">{r.observacao}</p>}
         {r.url_origem && <Button asChild variant="link" className="h-auto min-h-[44px] px-0"><a href={r.url_origem} target="_blank" rel="noopener noreferrer">Ver fonte<ExternalLink className="ml-2 h-4 w-4" /></a></Button>}
       </li>)}</ul>
