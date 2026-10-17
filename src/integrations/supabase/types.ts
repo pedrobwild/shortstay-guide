@@ -479,6 +479,48 @@ export type Database = {
         }
         Relationships: []
       }
+      radar_coleta_auditoria: {
+        Row: {
+          autor_nome: string
+          id: string
+          observacao_id: string
+          registrado_em: string
+          registrado_por: string
+          utms: Json
+        }
+        Insert: {
+          autor_nome: string
+          id?: string
+          observacao_id: string
+          registrado_em?: string
+          registrado_por: string
+          utms?: Json
+        }
+        Update: {
+          autor_nome?: string
+          id?: string
+          observacao_id?: string
+          registrado_em?: string
+          registrado_por?: string
+          utms?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "radar_coleta_auditoria_observacao_id_fkey"
+            columns: ["observacao_id"]
+            isOneToOne: true
+            referencedRelation: "radar_bairro_atual"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "radar_coleta_auditoria_observacao_id_fkey"
+            columns: ["observacao_id"]
+            isOneToOne: true
+            referencedRelation: "radar_observacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       radar_fontes: {
         Row: {
           id: string
@@ -770,6 +812,10 @@ export type Database = {
       }
       admin_registrar_coleta_radar: {
         Args: { p_coleta: Json }
+        Returns: number
+      }
+      admin_registrar_coleta_radar_auditada: {
+        Args: { p_coleta: Json; p_utms?: Json }
         Returns: number
       }
       has_role: {

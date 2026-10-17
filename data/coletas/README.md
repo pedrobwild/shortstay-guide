@@ -40,6 +40,8 @@ trilha de auditoria.
 
 ## Atualização (sem editar código)
 
+Novas coletas registradas por administradores têm autoria autenticada e horário do servidor guardados em `radar_coleta_auditoria`, com leitura somente para admins. As UTMs são os cinco parâmetros (`utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`) presentes no endereço da tela `/admin/coletas` ao registrar: não são extraídas da fonte GuestFavorites, não há cookies/persistência ou envio a GA4/Meta. Sem parâmetros, fica "Sem UTMs no acesso". Autoria/horário antigos não são inventados. Históricos de Coletas e Mercado mostram a auditoria; horário apresentado em Brasília. A tela chama `admin_registrar_coleta_radar_auditada`, que usa a RPC existente e registra auditoria na mesma transação.
+
 No admin, abra **Coletas** (`/admin/coletas`), selecione o bairro (ou São Paulo), preencha fonte GuestFavorites, período, data de coleta/publicação, amostra, link, indicadores e observação. Confirme **Registrar nova coleta**. O salvamento é exclusivo de admin e registra os novos indicadores/desativa os anteriores na mesma transação, preservando o histórico. Não reaproveita quartis/receita opcionais vazios da coleta antiga. Períodos já registrados são recusados para não sobrescrever o histórico. Ajustes manuais de Bairros continuam independentes e podem prevalecer nas telas. A confiança é calculada pela view, não pelo formulário. O histórico da tela lista as últimas 100 coletas do bairro.
 
 1. Refaça a coleta e salve um novo `guestfavorites-AAAA-MM-DD.csv` aqui.

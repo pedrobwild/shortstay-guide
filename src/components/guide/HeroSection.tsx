@@ -20,8 +20,7 @@ export default function HeroSection() {
           alt="Interior de um studio para short stay em São Paulo"
           className="absolute inset-0 -z-20 h-full w-full object-cover object-[center_30%]"
           loading="eager"
-          // React 18 não reconhece fetchPriority em <img>; o atributo HTML em minúsculas funciona igual.
-          {...{ fetchpriority: "high" }}
+          fetchPriority="high"
           width={1440}
           height={600}
         />

@@ -1,4 +1,4 @@
-import { useEffect, useRef, Suspense } from "react";
+import { useEffect, useRef, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import AppNavbar from "@/components/AppNavbar";
@@ -44,7 +44,7 @@ import FonteBairro from "@/components/guide/FonteBairro";
 import FaixaQuartis from "@/components/guide/FaixaQuartis";
 import { FONTE_BAIRROS_CURADOS, rotuloOcupacao } from "@/data/bairrosCurados";
 
-import { secaoTendencias } from "@/components/guide/tendenciasCarga";
+const TendenciasSection = lazy(() => import("@/components/guide/TendenciasSection"));
 
 export default function Index() {
   return (
@@ -57,7 +57,6 @@ export default function Index() {
 }
 
 function IndexInner() {
-  const TendenciasSection = secaoTendencias();
   const sectionIds = SECTIONS.map((s) => s.id);
   const activeId = useScrollspy(sectionIds);
   const { trackEvent, sessionId } = useGuideAnalytics();

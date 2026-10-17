@@ -1,5 +1,4 @@
 import { lazy, type ComponentType } from "react";
-import { precarregarTendencias } from "@/components/guide/tendenciasCarga";
 
 /**
  * Componente da rota "/" (home).
@@ -16,7 +15,5 @@ let componente: ComponentType = lazy(carregar);
 export const rotaHome = () => componente;
 
 export async function precarregarHome() {
-  // A página e a seção sob demanda dentro dela (Tendências) chegam juntas antes de hidratar.
-  const [pagina] = await Promise.all([carregar(), precarregarTendencias()]);
-  componente = pagina.default;
+  componente = (await carregar()).default;
 }

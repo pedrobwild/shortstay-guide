@@ -21,7 +21,7 @@ export function useHistoricoMercado(bairro: string, pagina: number) {
     queryKey: ["radar_historico", "monitoramento", bairro, pagina],
     queryFn: async () => {
       let consulta = supabase.from("radar_observacoes")
-        .select("id,bairro,valor,coletado_em,publicado_em,periodo_inicio,periodo_fim,amostra_n,ativo,fonte_id,url_origem,observacao,radar_fontes(nome)", { count: "exact" })
+        .select("id,bairro,valor,coletado_em,publicado_em,periodo_inicio,periodo_fim,amostra_n,ativo,fonte_id,url_origem,observacao,radar_fontes(nome),radar_coleta_auditoria(autor_nome,registrado_em,utms)", { count: "exact" })
         .eq("cidade", CIDADE).eq("indicador", "adr_medio_brl");
       if (bairro !== "todos") consulta = consulta.eq("bairro", bairro);
       const { data, error, count } = await consulta.order("coletado_em", { ascending: false }).order("id", { ascending: true })

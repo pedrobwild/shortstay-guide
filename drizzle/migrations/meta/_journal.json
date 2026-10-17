@@ -29,6 +29,20 @@
       "when": 1791928362453,
       "tag": "0003_radar_admin_registrar_coleta",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792196912234,
+      "tag": "0004_radar_coletas_auditoria_privada",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792197007899,
+      "tag": "0005_radar_auditoria_restringir_grants",
+      "breakpoints": true
     }
   ]
 }
