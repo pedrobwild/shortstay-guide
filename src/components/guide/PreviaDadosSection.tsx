@@ -1,4 +1,4 @@
-import { useMemo, type CSSProperties } from "react";
+import { Fragment, useMemo, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -118,32 +118,40 @@ export default function PreviaDadosSection() {
 
         <div className="min-w-0">
           <p className="mb-2.5 text-[13px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Exploração por bairros</p>
-          {/* No celular o esquema fica baixo e vira um atalho único para o mapa (os pontos não têm nome
-              e ficariam pequenos para tocar); o ranking acima já leva a cada bairro. */}
+          {/* No celular o esquema fica baixo e vira um atalho único para o mapa: os pontos não têm nome
+              e ficariam pequenos para tocar, e o ranking acima já leva a cada bairro. Ali os pontos são só
+              desenho (fora do teclado e do leitor de tela); a partir de 640px cada ponto volta a ser link. */}
           <div className="mapa-esquema relative h-[200px] overflow-hidden rounded-[4px] sm:h-[440px]" style={{ "--grade": "44px" } as CSSProperties}>
-            {bairros.map((b) => {
-              const p = posicoes.get(b.name);
-              if (!p) return null;
-              return (
-                <Link
-                  key={b.name}
-                  to={linkMapa(b.name)}
-                  aria-label={`${b.name}: diária ${formatBRL(b.dailyAvg)}, ocupação ${formatPercent(b.avgOccupancy, 0)}${descricaoNatureza(b)}${avisoAmostraBairro(b) ? `, ${avisoAmostraBairro(b)}` : ""}`}
-                  title={b.name}
-                  className="absolute box-border -translate-x-1/2 -translate-y-1/2 rounded-full shadow-marcador transition-transform hover:scale-125 before:absolute before:left-1/2 before:top-1/2 before:h-11 before:w-11 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:content-['']"
-                  style={{ left: `${p.x}%`, top: `${p.y}%`, ...estiloMarcador(b, 0.7) }}
-                />
-              );
-            })}
+            {/* No celular os pontos ficam acima de uma faixa de 44px com o atalho e a legenda. */}
+            <div className="absolute inset-x-0 bottom-11 top-0 sm:bottom-0">
+              {bairros.map((b) => {
+                const p = posicoes.get(b.name);
+                if (!p) return null;
+                const estilo = { left: `${p.x}%`, top: `${p.y}%`, ...estiloMarcador(b, 0.7) };
+                return (
+                  <Fragment key={b.name}>
+                    <Link
+                      to={linkMapa(b.name)}
+                      aria-label={`${b.name}: diária ${formatBRL(b.dailyAvg)}, ocupação ${formatPercent(b.avgOccupancy, 0)}${descricaoNatureza(b)}${avisoAmostraBairro(b) ? `, ${avisoAmostraBairro(b)}` : ""}`}
+                      title={b.name}
+                      className="absolute box-border hidden -translate-x-1/2 -translate-y-1/2 rounded-full shadow-marcador transition-transform hover:scale-125 before:absolute before:left-1/2 before:top-1/2 before:h-11 before:w-11 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:content-[''] sm:block"
+                      style={estilo}
+                    />
+                    <span aria-hidden="true" className="absolute box-border -translate-x-1/2 -translate-y-1/2 rounded-full shadow-marcador sm:hidden" style={estilo} />
+                  </Fragment>
+                );
+              })}
+            </div>
             <Link
               to="/mapa"
               onClick={() => trackGlobal("cta_clicked", { cta_id: "abrir_mapa_esquema", section: "home_previa" })}
-              className="absolute inset-0 z-[1] flex items-end justify-start p-2.5 sm:hidden"
+              className="absolute inset-0 z-[1] flex items-end justify-start p-1.5 sm:hidden"
             >
-              <span className="inline-flex min-h-[36px] items-center gap-1 rounded-full bg-card px-3 text-[13px] font-semibold text-primary shadow-marcador">
+              <span className="inline-flex min-h-[32px] items-center gap-1 rounded-full bg-card px-3 text-[13px] font-semibold text-primary shadow-marcador">
                 Toque para abrir o mapa<ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
               </span>
             </Link>
+            <span aria-hidden="true" className="pointer-events-none absolute bottom-3 right-3 text-xs text-muted-foreground sm:hidden">Esquema</span>
             <span className="absolute bottom-2.5 left-3 hidden text-xs text-muted-foreground sm:inline">Esquema · tamanho = anúncios na amostra</span>
           </div>
           <div className="mt-5 flex flex-wrap gap-2">

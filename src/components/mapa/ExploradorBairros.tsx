@@ -410,7 +410,7 @@ export default function ExploradorBairros({
           {nomesComparacao.length > 0 && !isLoading && (
             <Link
               to={caminhoComparar(comparacao)}
-              className="absolute left-3 z-[6] inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-foreground px-4 text-sm font-semibold text-background shadow-sheet transition-[bottom] duration-[250ms] lg:hidden"
+              className="absolute left-3 z-[6] inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-foreground px-4 text-sm font-semibold text-background shadow-sheet transition-[bottom] [transition-duration:250ms] lg:hidden"
               style={{ bottom: alturaFolha + 12 }}
             >
               Comparando {nomesComparacao.length} · Abrir<ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -421,7 +421,7 @@ export default function ExploradorBairros({
           {selecionado && resumo && (
             <section
               aria-label="Bairro selecionado"
-              className="absolute inset-x-0 bottom-0 z-[6] flex flex-col rounded-t-2xl bg-card shadow-sheet transition-[height] duration-[250ms] ease-out lg:hidden"
+              className="absolute inset-x-0 bottom-0 z-[6] flex flex-col rounded-t-2xl bg-card shadow-sheet transition-[height] [transition-duration:250ms] ease-out lg:hidden"
               style={{ height: alturaFolha }}
             >
               <button
