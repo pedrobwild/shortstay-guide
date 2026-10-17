@@ -66,7 +66,7 @@ export function getBairroCurado(nome: string | null | undefined): BairroCurado |
 }
 /** Compatibilidade com seletores existentes: não há diária por metragem com fonte. */
 export function diariaPorMetragem(b: BairroCurado, _size: SizeKey): number { return b.dailyAvg; }
-export function receitaMensalReferencia(b: BairroCurado): number { return Math.round(b.dailyAvg * 30 * b.avgOccupancy / 100); }
+export function receitaMensalReferencia(b: Pick<BairroCurado, "dailyAvg" | "avgOccupancy">): number { return Math.round(b.dailyAvg * 30 * b.avgOccupancy / 100); }
 export function fonteBairro(b: BairroCurado): string {
   if (b.ocupacaoFonte === "guestfavorites") return `GuestFavorites, ${b.period}`;
   if (b.ocupacaoFonte === "airdna") return b.period ? `AirDNA, ${b.period}` : "AirDNA";

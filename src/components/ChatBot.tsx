@@ -188,7 +188,7 @@ export default function ChatBot() {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-[60]"
+            className="fixed bottom-[var(--chat-fab-bottom,5rem)] right-4 lg:bottom-6 lg:right-6 z-[60] transition-[bottom] duration-200"
           >
             <div className="relative">
               {/* Pulse ring */}

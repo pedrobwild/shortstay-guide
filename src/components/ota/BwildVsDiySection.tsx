@@ -1,6 +1,6 @@
 import OrcamentoButton from "@/components/OrcamentoButton";
 import { trackSimulationUsed } from "@/lib/marketingConsent";
-import { formatDecimal } from "@/lib/numberFormat";
+import { formatBRL, formatDecimal } from "@/lib/numberFormat";
 import { diariaPorMetragem, type SizeKey } from "@/data/bairrosCurados";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -17,6 +17,7 @@ import {
   TrendingUp, Wallet, Percent, CalendarClock, Check, Minus,
 } from "lucide-react";
 import { useBairroData } from "@/hooks/useBairroData";
+import { avisoAmostraBairro, naturezaBairro } from "@/lib/radarUi";
 import type { BairroItem } from "@/data/guide-data";
 import {
   buildBwildVsDiyComparison,
@@ -27,8 +28,8 @@ import { trackGlobal } from "@/hooks/useGuideAnalytics";
 
 const SIZE_KEYS: SizeKey[] = ["20–25 m²", "26–35 m²", "36–50 m²"];
 
-const brl = (v: number) =>
-  new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(v);
+/** Moeda via numberFormat (mesma grafia do resto do Radar: "R$ 71.850"). */
+const brl = formatBRL;
 
 /**
  * Comparativo lado a lado "fazer sozinho (DIY) vs. com a Bewild" do MESMO studio.
@@ -42,11 +43,21 @@ const brl = (v: number) =>
  * ícone, o vencedor de cada métrica recebe um "✓ melhor" textual, e o delta é
  * sempre acompanhado de sinal (+) e rótulo. Empilha no mobile.
  */
-export default function BwildVsDiySection() {
+/** Bairro, faixa e valor vindos de fora (ex.: formulário da /projecao): a seção não repete os campos. */
+export interface ControleComparativo {
+  bairro: string;
+  area: SizeKey;
+  valorImovel: number;
+}
+
+export default function BwildVsDiySection({ controle }: { controle?: ControleComparativo } = {}) {
   const { bairros } = useBairroData();
-  const [bairroName, setBairroName] = useState<string>("");
-  const [sizeKey, setSizeKey] = useState<SizeKey>("26–35 m²");
-  const [propertyValue, setPropertyValue] = useState<number>(0);
+  const [bairroEstado, setBairroName] = useState<string>("");
+  const [sizeEstado, setSizeKey] = useState<SizeKey>("26–35 m²");
+  const [valorEstado, setPropertyValue] = useState<number>(0);
+  const bairroName = controle?.bairro ?? bairroEstado;
+  const sizeKey = controle?.area ?? sizeEstado;
+  const propertyValue = controle?.valorImovel ?? valorEstado;
 
   const selectedBairro = useMemo<BairroItem | undefined>(
     () => bairros.find((b) => b.name === bairroName) ?? bairros[0],
@@ -65,13 +76,18 @@ export default function BwildVsDiySection() {
   if (!selectedBairro || !comparison) return null;
 
   const { diy, bwild, delta } = comparison;
+  // Natureza do número de mercado: estimativa sem fonte pública, aproximação ou amostra pequena (Mooca).
+  const natureza = naturezaBairro(selectedBairro);
+  const rotuloBase = natureza === "estimativa"
+    ? "estimativa Bewild, sem fonte pública atualizada"
+    : natureza === "aproximacao" ? "aproximação pelo Itaim Bibi" : avisoAmostraBairro(selectedBairro);
 
   return (
     <section className="space-y-5" onChangeCapture={trackSimulationUsed} onPointerDownCapture={trackSimulationUsed} onKeyDownCapture={trackSimulationUsed}>
-      <p className="text-sm text-muted-foreground">Hipótese comparativa: multiplicadores de diária e ocupação, teto de ocupação e gestão são premissas fixas, não desempenho observado. O valor do imóvel é uma premissa editável no campo abaixo.</p>
+      {!controle && <p className="text-sm text-muted-foreground">Hipótese comparativa: multiplicadores de diária e ocupação, teto de ocupação e gestão são premissas fixas, não desempenho observado. O valor do imóvel é uma premissa editável no campo abaixo.</p>}
       {/* Header */}
       <div>
-        <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+        <h2 className={controle ? "flex items-center gap-2 font-display text-[22px] font-bold text-foreground" : "text-lg font-semibold text-foreground flex items-center gap-2"}>
           <GitCompareArrows className="h-4 w-4 text-primary" />
           Fazer sozinho vs. com a Bewild
         </h2>
@@ -82,7 +98,15 @@ export default function BwildVsDiySection() {
         </p>
       </div>
 
-      {/* Inputs */}
+      {/* Inputs (com controle externo, só o resumo do que veio do formulário) */}
+      {controle ? (
+        <p className="text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">Hipótese comparativa</span>, com o mesmo bairro, faixa de área e valor do imóvel da projeção:{" "}
+          {selectedBairro.name} · {sizeKey} · {propertyValue > 0 ? `imóvel de ${brl(propertyValue)}` : "valor do imóvel não informado"}.
+          Base de mercado: {formatDecimal(selectedBairro.avgOccupancy, 0)}% de ocupação · {brl(diariaPorMetragem(selectedBairro, sizeKey))}/noite{rotuloBase ? ` (${rotuloBase})` : ""}.
+          Multiplicadores de diária e ocupação, teto de ocupação e gestão são premissas fixas, não desempenho observado.
+        </p>
+      ) : (
       <Card className="border-primary/15 bg-primary/[0.02]">
         <CardContent className="p-4 space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -139,11 +163,12 @@ export default function BwildVsDiySection() {
           </div>
           <p className="text-[11px] text-muted-foreground">
             Base de mercado do bairro/faixa: {formatDecimal(selectedBairro.avgOccupancy, 0)}% de ocupação ·{" "}
-            {brl(diariaPorMetragem(selectedBairro, sizeKey))}/noite. Informe o valor do imóvel para ver o
+            {brl(diariaPorMetragem(selectedBairro, sizeKey))}/noite{rotuloBase ? ` (${rotuloBase})` : ""}. Informe o valor do imóvel para ver o
             payback de cada cenário.
           </p>
         </CardContent>
       </Card>
+      )}
 
       {/* Duas colunas: DIY vs Bewild */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

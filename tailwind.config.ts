@@ -23,10 +23,16 @@ export default {
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        foreground: {
+          DEFAULT: "hsl(var(--foreground))",
+          medium: "hsl(var(--foreground-medium))",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          hover: "hsl(var(--primary-hover))",
+          label: "hsl(var(--primary-label))",
+          soft: "hsl(var(--primary-soft))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -35,6 +41,9 @@ export default {
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
+          light: "hsl(var(--destructive-light))",
+          border: "hsl(var(--destructive-border))",
+          text: "hsl(var(--destructive-text))",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
@@ -43,6 +52,32 @@ export default {
         accent: {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
+          text: "hsl(var(--accent-text))",
+          light: "hsl(var(--accent-light))",
+        },
+        estimate: {
+          DEFAULT: "hsl(var(--estimate))",
+          light: "hsl(var(--estimate-light))",
+          border: "hsl(var(--estimate-border))",
+          text: "hsl(var(--estimate-text))",
+        },
+        cost: "hsl(var(--cost))",
+        trilho: "hsl(var(--trilho))",
+        mapa: {
+          fundo: "hsl(var(--mapa-fundo))",
+          grade: "hsl(var(--mapa-grade))",
+        },
+        escala: {
+          1: "hsl(var(--escala-1))",
+          2: "hsl(var(--escala-2))",
+          3: "hsl(var(--escala-3))",
+          4: "hsl(var(--escala-4))",
+          5: "hsl(var(--escala-5))",
+        },
+        serie: {
+          1: "hsl(var(--serie-1))",
+          2: "hsl(var(--serie-2))",
+          3: "hsl(var(--serie-3))",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
@@ -76,6 +111,10 @@ export default {
         card: "var(--shadow-card)",
         "card-hover": "var(--shadow-card-hover)",
         elevated: "var(--shadow-elevated)",
+        segmented: "var(--shadow-segmented)",
+        dialog: "var(--shadow-dialog)",
+        sheet: "var(--shadow-sheet)",
+        marcador: "var(--shadow-marcador)",
       },
       keyframes: {
         "accordion-down": {

@@ -17,24 +17,68 @@
 
     --primary: 210 70% 25%;
     --primary-foreground: 0 0% 100%;
+    /* hover/pressed do primário (#0E3157) */
+    --primary-hover: 211 72% 20%;
+    /* textos sobre o bloco azul (rótulo e apoio) */
+    --primary-label: 201 54% 84%;
+    --primary-soft: 203 46% 89%;
 
     --secondary: 210 20% 92%;
     --secondary-foreground: 215 30% 10%;
 
     --muted: 210 15% 94%;
-    --muted-foreground: 215 10% 46%;
+    /* escurecido para contraste ≥ 4,5:1 sobre o fundo (#5E6775) */
+    --muted-foreground: 215 11% 41%;
+    /* texto médio de apoio (#3B4452) */
+    --foreground-medium: 216 16% 28%;
 
     --accent: 200 65% 45%;
     --accent-foreground: 0 0% 100%;
+    /* ciano para rótulos em caixa-alta e links pequenos (#1C6A92) */
+    --accent-text: 200 68% 34%;
+    /* ciano claro: tag observado, hover do secundário, linha selecionada (#E2EDF3) */
+    --accent-light: 200 40% 92%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 4 76% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --destructive-light: 6 83% 95%;
+    --destructive-border: 5 70% 85%;
+    --destructive-text: 6 77% 27%;
+
+    /* natureza do dado: estimativa Bewild (âmbar) */
+    --estimate: 36 100% 27%;
+    --estimate-light: 37 76% 93%;
+    --estimate-border: 37 53% 55%;
+    --estimate-text: 36 100% 24%;
+    --estimate-stripe: 38 66% 86%;
+    /* barras de custo */
+    --cost: 211 17% 80%;
+    /* listras de hipótese */
+    --hipotese-1: 216 17% 94%;
+    --hipotese-2: 213 19% 91%;
+
+    /* escala sequencial da receita de referência (mapa) */
+    --escala-1: 201 57% 88%;
+    --escala-2: 201 58% 71%;
+    --escala-3: 200 65% 45%;
+    --escala-4: 207 66% 35%;
+    --escala-5: 210 70% 25%;
+    /* séries da comparação (até 3) */
+    --serie-1: 210 70% 25%;
+    --serie-2: 200 65% 45%;
+    --serie-3: 214 14% 60%;
+    /* mapa esquemático */
+    --mapa-fundo: 206 26% 95%;
+    --mapa-grade: 207 22% 90%;
+    --trilho: 216 17% 94%;
 
     --border: 210 15% 88%;
-    --input: 210 15% 88%;
-    --ring: 210 70% 25%;
+    /* linha de campo: inputs e botão secundário (#C5CDD6) */
+    --input: 211 17% 81%;
+    /* foco em ciano (#288CBD) */
+    --ring: 200 65% 45%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 215 25% 26%;
@@ -56,6 +100,11 @@
     --shadow-card: 0 1px 3px 0 hsl(210 15% 10% / 0.04), 0 1px 2px -1px hsl(210 15% 10% / 0.04);
     --shadow-card-hover: 0 4px 12px -2px hsl(210 15% 10% / 0.08), 0 2px 6px -2px hsl(210 15% 10% / 0.05);
     --shadow-elevated: 0 10px 30px -8px hsl(210 15% 10% / 0.12);
+    /* sombras só em elementos flutuantes */
+    --shadow-segmented: 0 1px 2px hsl(216 29% 10% / 0.12);
+    --shadow-dialog: 0 10px 30px -8px hsl(216 29% 10% / 0.3);
+    --shadow-sheet: 0 -6px 24px hsl(216 29% 10% / 0.14);
+    --shadow-marcador: 0 1px 2px hsl(216 29% 10% / 0.25);
   }
 
   .dark {
@@ -67,17 +116,49 @@
     --popover-foreground: 210 20% 95%;
     --primary: 200 60% 45%;
     --primary-foreground: 0 0% 100%;
+    --primary-hover: 200 60% 40%;
+    --primary-label: 201 54% 88%;
+    --primary-soft: 203 46% 92%;
     --secondary: 215 20% 15%;
     --secondary-foreground: 210 20% 95%;
     --muted: 215 20% 15%;
-    --muted-foreground: 210 15% 65%;
+    --muted-foreground: 210 15% 68%;
+    --foreground-medium: 210 15% 80%;
     --accent: 200 65% 50%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --accent-text: 200 65% 68%;
+    --accent-light: 205 40% 18%;
+    --destructive: 4 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --destructive-light: 4 50% 14%;
+    --destructive-border: 4 50% 30%;
+    --destructive-text: 5 80% 78%;
+    --estimate: 37 90% 62%;
+    --estimate-light: 36 45% 14%;
+    --estimate-border: 37 50% 45%;
+    --estimate-text: 37 90% 70%;
+    --estimate-stripe: 36 40% 24%;
+    --cost: 214 15% 35%;
+    --hipotese-1: 215 20% 18%;
+    --hipotese-2: 215 20% 23%;
+    --escala-1: 201 40% 25%;
+    --escala-2: 201 50% 38%;
+    --escala-3: 200 65% 50%;
+    --escala-4: 203 70% 63%;
+    --escala-5: 203 80% 76%;
+    --serie-1: 200 60% 55%;
+    --serie-2: 195 70% 68%;
+    --serie-3: 214 14% 60%;
+    --mapa-fundo: 215 25% 12%;
+    --mapa-grade: 215 20% 18%;
+    --trilho: 215 20% 18%;
     --border: 215 20% 18%;
-    --input: 215 20% 18%;
-    --ring: 200 60% 45%;
+    --input: 215 18% 30%;
+    --ring: 200 65% 55%;
+    --shadow-segmented: 0 1px 2px hsl(0 0% 0% / 0.4);
+    --shadow-dialog: 0 10px 30px -8px hsl(0 0% 0% / 0.6);
+    --shadow-sheet: 0 -6px 24px hsl(0 0% 0% / 0.5);
+    --shadow-marcador: 0 1px 2px hsl(0 0% 0% / 0.5);
     --sidebar-background: 215 30% 10%;
     --sidebar-foreground: 210 15% 95%;
     --sidebar-primary: 200 65% 48%;
@@ -116,9 +197,10 @@
     @apply transition-colors duration-200;
   }
 
-  /* Better focus rings */
+  /* Foco: contorno ciano de 2px com folga de 2px em tudo que for focável */
   :focus-visible {
-    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
   }
 }
 
@@ -152,6 +234,51 @@
   .glass-nav {
     @apply bg-background/95 backdrop-blur-md border-b border-border/50;
     box-shadow: 0 1px 8px hsl(210 15% 10% / 0.04);
+  }
+
+  /* ─── Direção Híbrida: prancha de arquitetura + ferramenta de análise ─── */
+  /* Rótulo de seção: DM Sans 600, 13px, caixa-alta (ex.: 01 · ESCOLHER O BAIRRO) */
+  .rotulo-secao {
+    font-family: var(--font-body);
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: hsl(var(--accent-text));
+  }
+  /* Régua de 2px que abre blocos-chave (portas, tabela, resultado) */
+  .regua {
+    border-top: 2px solid hsl(var(--foreground));
+  }
+  .regua-base {
+    border-bottom: 2px solid hsl(var(--foreground));
+  }
+  /* Hipótese de simulação: listras diagonais */
+  .bg-hipotese {
+    background: repeating-linear-gradient(135deg, hsl(var(--hipotese-1)) 0 4px, hsl(var(--hipotese-2)) 4px 8px);
+  }
+  /* Estimativa Bewild em barras: listrada (preenchida) ou tracejada (linha) */
+  .bg-estimativa-listrada {
+    background: repeating-linear-gradient(90deg, hsl(var(--estimate-border)) 0 5px, hsl(var(--estimate-stripe)) 5px 8px);
+  }
+  .bg-estimativa-tracejada {
+    background: repeating-linear-gradient(90deg, hsl(var(--estimate-border)) 0 4px, transparent 4px 7px);
+  }
+  /* Aproximação (distrito vizinho com fonte) em barras: listrada azul ou tracejada (linha) */
+  .bg-aproximacao-listrada {
+    background: repeating-linear-gradient(90deg, hsl(var(--accent)) 0 5px, hsl(var(--accent-light)) 5px 8px);
+  }
+  .bg-aproximacao-tracejada {
+    background: repeating-linear-gradient(90deg, hsl(var(--accent)) 0 4px, transparent 4px 7px);
+  }
+  /* Mapa esquemático: fundo com grade (tamanho via --grade) */
+  .mapa-esquema {
+    background-color: hsl(var(--mapa-fundo));
+    background-image:
+      linear-gradient(hsl(var(--mapa-grade)) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--mapa-grade)) 1px, transparent 1px);
+    background-size: var(--grade, 48px) var(--grade, 48px);
   }
 
   /* Premium gradient text */
@@ -242,6 +369,17 @@
   border-radius: 0.5rem !important;
   border: 1px solid hsl(var(--border)) !important;
   overflow: hidden;
+}
+/* Mapa do Radar: controles de zoom com alvo de 44px e sem sombra */
+.radar-mapa .maplibregl-ctrl-group {
+  box-shadow: none !important;
+}
+.radar-mapa .maplibregl-ctrl-group button {
+  width: 44px;
+  height: 44px;
+}
+.radar-mapa .maplibregl-ctrl-top-right .maplibregl-ctrl {
+  margin: 12px 12px 0 0;
 }
 
 /* Table row hover with subtle left border accent */

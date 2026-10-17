@@ -8,7 +8,7 @@ import { buscarAjuste, mapaAjustes, useBairroAjustes } from "@/lib/bairroAjustes
  * Bairros com ajuste manual do admin mostram outro número na tela; para não
  * exibir dois valores para o mesmo bairro, a variação entre coletas some neles.
  */
-function useVariacoesVisiveis() {
+export function useVariacoesVisiveis() {
   const { data: variacoes } = useVariacoesColeta();
   const { data: ajustes } = useBairroAjustes();
   const mapa = mapaAjustes(ajustes);

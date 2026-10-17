@@ -223,9 +223,9 @@ export const EVENT_ICONS: Record<string, typeof Music> = {
 };
 
 export const IMPACT_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  high: { bg: "bg-destructive/10", text: "text-destructive", label: "Alta demanda" },
-  medium: { bg: "bg-amber-100 dark:bg-amber-900/20", text: "text-amber-700 dark:text-amber-300", label: "Média demanda" },
-  low: { bg: "bg-muted", text: "text-muted-foreground", label: "Baixa demanda" },
+  high: { bg: "bg-destructive-light", text: "text-destructive-text", label: "Alta demanda" },
+  medium: { bg: "bg-estimate-light", text: "text-estimate-text", label: "Média demanda" },
+  low: { bg: "bg-secondary", text: "text-muted-foreground", label: "Baixa demanda" },
 };
 
 export const TAG_ICONS: Record<string, typeof MapPin> = {
@@ -259,8 +259,8 @@ export const DEMAND_PROFILE_LABELS: Record<string, { label: string; emoji: strin
 export const fmt = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
 
 export function scoreColor(score: number) {
-  if (score >= 88) return "bg-emerald-500";
-  if (score >= 84) return "bg-amber-500";
+  if (score >= 88) return "bg-primary";
+  if (score >= 84) return "bg-accent";
   return "bg-muted-foreground/40";
 }
 

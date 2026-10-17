@@ -50,7 +50,8 @@ describe("renderização", () => {
 
   it("o comparador monta com os bairros da URL e a fonte de cada um", async () => {
     const texto = await montar(<CompararBairros />, "/comparar?b=pinheiros,mooca");
-    const titulos = [...container!.querySelectorAll("h2")].map((h) => h.textContent);
+    // Os bairros são os títulos das colunas da tabela (no celular, a leitura é por indicador).
+    const titulos = [...container!.querySelectorAll('[role="table"] h2')].map((h) => h.textContent);
     expect(titulos).toEqual(["Pinheiros", "Mooca"]);
     expect(texto).toContain("amostra pequena");
   });

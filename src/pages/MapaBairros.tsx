@@ -1,52 +1,71 @@
-import bwildLogo from "@/assets/bewild-logo.webp";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Calculator, TrendingUp } from "lucide-react";
-import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import AppNavbar from "@/components/AppNavbar";
-import MapaBairrosEmbed from "@/components/mapa/MapaBairrosEmbed";
+import RodapeRadar from "@/components/RodapeRadar";
+import ExploradorBairros from "@/components/mapa/ExploradorBairros";
+import LeiturasComplementares from "@/components/mapa/LeiturasComplementares";
+import { BairroProvider, useBairroData } from "@/hooks/useBairroData";
+import { DEMAND_FILTERS, NEIGHBORHOODS, type CityEvent } from "@/data/mapaBairrosData";
+import { temPerfil } from "@/lib/leiturasBairros";
+import { slugifyBairro } from "@/lib/seo";
 
+/**
+ * /mapa — explorar bairros geograficamente e seguir para a comparação ou a
+ * simulação. Seleção (?bairro=) e comparação (?b=) ficam na URL. Abaixo do
+ * explorador seguem as leituras do mapa anterior (ranking interno, perfis de
+ * demanda e eventos, que destacam bairros no mapa).
+ */
 export default function MapaBairros() {
   return (
-    <div className="min-h-screen bg-background">
-      <AppNavbar />
+    <BairroProvider>
+      <div className="min-h-screen bg-background">
+        <AppNavbar />
+        <MapaConteudo />
+      </div>
+    </BairroProvider>
+  );
+}
 
-      <main className="max-w-7xl mx-auto px-4 md:px-8 pb-24">
-        {/* Hero */}
-        <section className="py-6 md:py-14">
-          <motion.div initial={{ opacity: 0, y: 30, filter: "blur(8px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}>
-            <Badge className="mb-4 bg-primary/10 text-primary border-0 font-body">São Paulo · Dashboard do investidor</Badge>
-            <h1 className="font-display text-3xl md:text-5xl font-extrabold text-foreground leading-tight mb-3">
-              Mapa de Bairros Rentáveis
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl font-body">
-              Analise demanda, compare bairros, simule ROI e identifique os melhores investimentos em studios.
-            </p>
-          </motion.div>
-        </section>
+function MapaConteudo() {
+  const { bairros } = useBairroData();
+  const [, setParams] = useSearchParams();
+  const [evento, setEvento] = useState<CityEvent | null>(null);
+  const [perfis, setPerfis] = useState<string[]>([]);
+  const [pedidoCentralizar, setPedidoCentralizar] = useState<{ nome: string; n: number } | null>(null);
+  const nomesBase = new Set(bairros.map((b) => b.name));
 
-        <MapaBairrosEmbed />
+  // Destaque no mapa: o evento escolhido ou, sem evento, os bairros do perfil de demanda (só os da base).
+  const nomesPerfil = perfis.length ? NEIGHBORHOODS.filter((n) => temPerfil(n, perfis)).map((n) => n.name) : [];
+  const rotulosPerfil = DEMAND_FILTERS.filter((f) => perfis.includes(f.key)).map((f) => f.label).join(", ");
+  const destaque = (evento ? evento.nearbyNeighborhoods : nomesPerfil).filter((n) => nomesBase.has(n));
+  const rotuloDestaque = evento ? `Perto de: ${evento.name}` : perfis.length ? `Perfil: ${rotulosPerfil}` : undefined;
+  const limparDestaque = () => { if (evento) setEvento(null); else setPerfis([]); };
 
-        {/* CTA */}
-        <section className="bg-hero-gradient rounded-2xl p-8 md:p-12 text-center mb-12">
-          <h2 className="font-display text-2xl md:text-3xl font-bold text-white mb-3">Encontrou seu bairro ideal?</h2>
-          <p className="text-white/80 max-w-xl mx-auto mb-6 font-body">Combine a análise de bairro com as tendências premium para maximizar sua rentabilidade.</p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button size="lg" asChild className="bg-white text-primary hover:bg-white/90 font-body">
-              <Link to="/mercado"><Calculator size={18} className="mr-2" />Análise inteligente</Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild className="border-white/30 text-white hover:bg-white/10 font-body">
-              <Link to="/#tendencias"><TrendingUp size={18} className="mr-2" />Ver tendências 2026</Link>
-            </Button>
-          </div>
-        </section>
+  const selecionarNoMapa = (nome: string) => {
+    if (!nomesBase.has(nome)) return;
+    setParams((atual) => { const p = new URLSearchParams(atual); p.set("bairro", slugifyBairro(nome)); return p; }, { replace: true });
+    setPedidoCentralizar((c) => ({ nome, n: (c?.n ?? 0) + 1 }));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-        <footer className="text-center py-8 text-sm text-muted-foreground font-body border-t border-border">
-          <img src={bwildLogo} alt="Bewild" className="h-6 w-auto mx-auto mb-3 opacity-60" />
-          © 2026 Bewild · Mapa de Bairros Rentáveis — São Paulo
-        </footer>
-      </main>
-    </div>
+  return (
+    <main>
+      <ExploradorBairros
+        destaque={destaque}
+        rotuloDestaque={rotuloDestaque}
+        onLimparDestaque={limparDestaque}
+        pedidoCentralizar={pedidoCentralizar}
+      />
+      <div className="border-t border-border">
+        <LeiturasComplementares
+          eventoAtivo={evento}
+          onEvento={setEvento}
+          perfis={perfis}
+          onPerfis={setPerfis}
+          onSelecionarBairro={selecionarNoMapa}
+        />
+      </div>
+      <RodapeRadar />
+    </main>
   );
 }
