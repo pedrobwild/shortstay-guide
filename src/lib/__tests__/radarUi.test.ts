@@ -73,8 +73,8 @@ describe("receita de referência e escala do mapa", () => {
   });
 
   it("os extremos da legenda usam só dado observado", () => {
-    // República (R$ 3.837) e Itaim Bibi (R$ 6.354); estimativas e aproximações ficam de fora.
-    expect(extremosLegendaReceita(BAIRROS_CURADOS)).toEqual([3800, 6400]);
+    // Sé (R$ 3.533) e Morumbi (R$ 8.182); estimativas e aproximações ficam de fora.
+    expect(extremosLegendaReceita(BAIRROS_CURADOS)).toEqual([3400, 8200]);
   });
 
   it("marcador cresce com a amostra; sem amostra própria tem tamanho fixo", () => {
@@ -92,18 +92,18 @@ describe("receita de referência e escala do mapa", () => {
 
   it("ordena por receita de referência, da maior para a menor", () => {
     const ordem = ordenarPorReceita(BAIRROS_CURADOS);
-    // Brooklin e Vila Olímpia usam os números do Itaim Bibi: empatam e o desempate é pelo nome.
-    expect(ordem.slice(0, 3).map((o) => [o.bairro.name, o.receita])).toEqual([["Brooklin", 6354], ["Itaim Bibi", 6354], ["Vila Olímpia", 6354]]);
-    expect(ordem[ordem.length - 1].bairro.name).toBe("República");
+    // Morumbi na frente; Brooklin e Vila Olímpia usam os números do Itaim Bibi: empatam e o desempate é pelo nome.
+    expect(ordem.slice(0, 4).map((o) => [o.bairro.name, o.receita])).toEqual([["Morumbi", 8182], ["Brooklin", 6354], ["Itaim Bibi", 6354], ["Vila Olímpia", 6354]]);
+    expect(ordem[ordem.length - 1].bairro.name).toBe("Bom Retiro"); // R$ 189 × 30 × 60% = R$ 3.402
     for (let i = 1; i < ordem.length; i++) expect(ordem[i - 1].receita).toBeGreaterThanOrEqual(ordem[i].receita);
     expect(ordem.find((o) => o.bairro.name === "Pinheiros")?.receita).toBe(5580);
   });
 });
 
 describe("filtros do mapa", () => {
-  it("sem filtro, passam os 13 bairros", () => {
+  it("sem filtro, passam os 28 bairros", () => {
     expect(temFiltroAtivo(FILTROS_INICIAIS)).toBe(false);
-    expect(BAIRROS_CURADOS.filter((b) => passaFiltros(b, FILTROS_INICIAIS))).toHaveLength(13);
+    expect(BAIRROS_CURADOS.filter((b) => passaFiltros(b, FILTROS_INICIAIS))).toHaveLength(28);
   });
 
   it("busca ignora acento e maiúscula", () => {
@@ -115,13 +115,13 @@ describe("filtros do mapa", () => {
   it("“só dado observado” tira a estimativa e as aproximações", () => {
     const f = { ...FILTROS_INICIAIS, fonte: "observados" as const };
     const nomes = BAIRROS_CURADOS.filter((b) => passaFiltros(b, f)).map((b) => b.name);
-    expect(nomes).toHaveLength(10);
+    expect(nomes).toHaveLength(25);
     for (const nome of SEM_DADO_PROPRIO) expect(nomes).not.toContain(nome);
   });
 
   it("receita mínima combina com a fonte", () => {
     const f = { ...FILTROS_INICIAIS, fonte: "observados" as const, receitaMin: 5500 };
-    expect(BAIRROS_CURADOS.filter((b) => passaFiltros(b, f)).map((b) => b.name).sort()).toEqual(["Itaim Bibi", "Jardim Paulista", "Pinheiros"]);
+    expect(BAIRROS_CURADOS.filter((b) => passaFiltros(b, f)).map((b) => b.name).sort()).toEqual(["Itaim Bibi", "Jardim Paulista", "Morumbi", "Pinheiros"]);
   });
 });
 
@@ -135,8 +135,8 @@ describe("textos montados a partir da base", () => {
 
   it("Fontes e atualização citam coleta, períodos, aproximações e a estimativa certa", () => {
     const t = textosFontes(reserva);
-    expect(t.observado).toContain("Coleta de 13/10/2026");
-    expect(t.observado).toContain("período jan–set/2026 (Liberdade e República: jan–jul/2026)");
+    expect(t.observado).toContain("Coletas de 13/10/2026 e 18/10/2026");
+    expect(t.observado).toContain("período jan–set/2026 (Liberdade, República, Santana e Barra Funda: jan–jul/2026)");
     for (const nome of SEM_DADO_PROPRIO) expect(t.observado).not.toContain(nome);
     expect(t.aproximacao).toBe("Brooklin e Vila Olímpia não têm dado público por bairro: usam os números do Itaim Bibi, mesma coleta da GuestFavorites.");
     expect(t.estimativa).toContain("Consolação usa valores Bewild anteriores, sem fonte pública atualizada.");
@@ -148,8 +148,8 @@ describe("textos montados a partir da base", () => {
     expect(textoSemQuartis(porNome("Consolação"))).toBe("Sem quartis publicados. Estimativa Bewild de R$ 260 a R$ 390 por diária.");
   });
 
-  it("escala comum dos quartis começa em R$ 450 e arredonda para R$ 50", () => {
-    expect(fimEscalaQuartis(BAIRROS_CURADOS)).toBe(450);
+  it("escala comum dos quartis começa em R$ 450 e arredonda para R$ 50 (Morumbi, P75 R$ 574 → R$ 600)", () => {
+    expect(fimEscalaQuartis(BAIRROS_CURADOS)).toBe(600);
     expect(fimEscalaQuartis([{ dailyQuartiles: [100, 200, 471] }])).toBe(500);
     expect(fimEscalaQuartis([{ dailyQuartiles: null }])).toBe(450);
   });
@@ -169,15 +169,16 @@ describe("entrada de números em português", () => {
 describe("mapa esquemático da home", () => {
   it("todos os bairros da base têm posição e ficam dentro da margem", () => {
     const pos = posicoesEsquema(BAIRROS_CURADOS.map((b) => b.name));
-    expect(pos.size).toBe(13);
+    expect(pos.size).toBe(28);
     for (const { x, y } of pos.values()) {
       expect(x).toBeGreaterThanOrEqual(8);
       expect(x).toBeLessThanOrEqual(92);
       expect(y).toBeGreaterThanOrEqual(8);
       expect(y).toBeLessThanOrEqual(92);
     }
-    expect(pos.get("Mooca")!.x).toBeCloseTo(92); // o bairro mais a leste
-    expect(pos.get("Brooklin")!.y).toBeCloseTo(92); // o mais ao sul
+    expect(pos.get("Tatuapé")!.x).toBeCloseTo(92); // o bairro mais a leste
+    expect(pos.get("Santo Amaro")!.y).toBeCloseTo(92); // o mais ao sul
+    expect(pos.get("Santana")!.y).toBeCloseTo(8); // o mais ao norte
   });
 
   it("bairro sem posição conhecida fica de fora", () => {

@@ -81,7 +81,7 @@ export function bairrosReserva(): BairroRadar[] {
   return BAIRROS_CURADOS.map((b) => ({
     ...b, fonteNome: b.ocupacaoFonte === "guestfavorites" ? "GuestFavorites" : b.ocupacaoFonte === "aproximacao" ? "GuestFavorites (aproximação pelo Itaim Bibi)" : "Estimativa Bewild",
     fonteTipo: b.ocupacaoFonte === "guestfavorites" ? "publica" : "estimativa",
-    coletadoEm: "2026-10-13", idadeDias: null, amostraN: b.activeListings, confianca: null, estimativa: b.ocupacaoFonte === "bewild" || b.ocupacaoFonte === "aproximacao",
+    coletadoEm: b.coletadoEm ?? "2026-10-13", idadeDias: null, amostraN: b.activeListings, confianca: null, estimativa: b.ocupacaoFonte === "bewild" || b.ocupacaoFonte === "aproximacao",
   }));
 }
 

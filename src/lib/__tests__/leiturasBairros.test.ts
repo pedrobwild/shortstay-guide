@@ -42,15 +42,15 @@ describe("leituras do /mapa com a base do Radar", () => {
 
   it("bairro fora da base não entra nas leituras", () => {
     const nomes = leituras.map((n) => n.name);
-    for (const nome of ["Barra Funda", "Campo Belo", "Santana", "Itaquera"]) expect(nomes).not.toContain(nome);
+    for (const nome of ["Vila Nova Conceição", "Itaquera"]) expect(nomes).not.toContain(nome);
     const naBase = new Set(base.map((b) => b.name));
     for (const nome of nomes) expect(naBase.has(nome), nome).toBe(true);
   });
 
   it("eventos ficam só com bairros próximos da base", () => {
-    expect(nomesNaBase(["Moema", "Campo Belo", "itaim bibi"], base)).toEqual(["Moema", "Itaim Bibi"]);
+    expect(nomesNaBase(["Moema", "Itaquera", "itaim bibi"], base)).toEqual(["Moema", "Itaim Bibi"]);
     const apas = EVENTS.find((e) => e.name === "APAS Show")!;
-    expect(nomesNaBase(apas.nearbyNeighborhoods, base)).toEqual([]); // Barra Funda e Santana: o evento sai da lista
+    expect(nomesNaBase(apas.nearbyNeighborhoods, base)).toEqual(["Barra Funda", "Santana"]); // entraram na base em 18/10/2026
   });
 
   it("segue os ajustes do admin, como o painel", () => {

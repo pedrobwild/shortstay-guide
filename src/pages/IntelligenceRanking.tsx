@@ -18,6 +18,7 @@ import { ArrowLeft, Download, TrendingUp, HelpCircle, ChevronRight, BarChart3, F
 import { motion } from "framer-motion";
 import type { BairroAirbnb } from "@/types/intelligence";
 import { ComparativeNarrativesSection, ContextualNote } from "@/components/intelligence/StorytellingComponents";
+import OutrosBairrosRadar from "@/components/intelligence/OutrosBairrosRadar";
 import { calculateInvestmentScore } from "@/lib/investmentScore";
 import { getGradeStyle, FOOTER_DISCLAIMER } from "@/lib/uiHelpers";
 import {
@@ -285,6 +286,9 @@ const IntelligenceRanking = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Bairros que só existem na base do Radar (sem scores) */}
+          <OutrosBairrosRadar jaListados={(bairros ?? []).map((b) => b.bairro)} />
 
           {/* Compact footer */}
           <footer className="border-t border-border/40 pt-6 pb-4 text-center">

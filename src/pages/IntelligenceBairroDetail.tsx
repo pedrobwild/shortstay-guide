@@ -5,6 +5,8 @@ import ProximoPassoBairro from "@/components/intelligence/ProximoPassoBairro";
 import BlocoReformaBairro from "@/components/intelligence/BlocoReformaBairro";
 import { VariacaoColetaBairro } from "@/components/guide/VariacaoColeta";
 import FaixaQuartisBairro from "@/components/intelligence/FaixaQuartisBairro";
+import BairroSomenteRadar from "@/components/intelligence/BairroSomenteRadar";
+import { useRadarBase } from "@/lib/radarBase";
 import { definirBairroAtual } from "@/lib/bairroAtual";
 import { useEffect } from "react";
 import { formatPercent, formatDecimal } from "@/lib/numberFormat";
@@ -99,15 +101,20 @@ const IntelligenceBairroDetail = () => {
     allBairros?.find((x) => slugifyBairro(x.bairro) === slug)?.bairro ??
     "";
   const { data: b, isLoading, isError, refetch } = useBairroDetail(resolvedName);
-  const seoName = resolvedName || decoded;
+  // Bairro que só existe na base do Radar (sem a estimativa de mercado — base 2025): página reduzida com os números da base.
+  const radar = useRadarBase();
+  const somenteRadar = radar.data?.bairros.find((x) => slugifyBairro(x.name) === slug);
+  const seoName = resolvedName || somenteRadar?.name || decoded;
   // Lembra o último bairro visto para o aviso de retomar na home (só no navegador).
-  useEffect(() => { if (b?.bairro) definirBairroAtual(b.bairro); }, [b?.bairro]);
+  const nomeAtual = b?.bairro ?? somenteRadar?.name;
+  useEffect(() => { if (nomeAtual) definirBairroAtual(nomeAtual); }, [nomeAtual]);
   const seoHead = <Seo title={bairroTitle(seoName)} description={bairroDescription(seoName)} path={`/bairro/${slug}`} />;
 
   // Formato antigo (com acento/maiúsculas/espaços) → redireciona para o slug canônico.
   if (rawParam !== slug) return <Navigate to={`/bairro/${slug}${search}${hash}`} replace />;
 
-  if (isLoading || (!resolvedName && loadingAll)) return <div className="min-h-screen bg-background">{seoHead}<AppNavbar fixo={false} /><div className="flex min-h-[60vh] items-center justify-center"><div className="animate-pulse text-muted-foreground">Carregando dados do bairro…</div></div></div>;
+  if (isLoading || (!resolvedName && loadingAll) || (!b && radar.isLoading)) return <div className="min-h-screen bg-background">{seoHead}<AppNavbar fixo={false} /><div className="flex min-h-[60vh] items-center justify-center"><div className="animate-pulse text-muted-foreground">Carregando dados do bairro…</div></div></div>;
+  if (!b && somenteRadar) return <BairroSomenteRadar bairro={somenteRadar} seoHead={seoHead} />;
   // Bairro conhecido, mas a consulta falhou (rede/servidor): não confundir com "sem dados".
   if (!b && isError && resolvedName) return (
     <div className="min-h-screen bg-background">
