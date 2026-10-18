@@ -114,7 +114,7 @@ export default function SimuladorReceitaLiquida({
   /** Conteúdo abaixo do resultado (ações da home: compartilhar, salvar, guardar). */
   rodape?: ReactNode;
 }) {
-  const { p, atualizar, escolherBairro, bairros, bairro: selected, diariaBase, diaria, ocupacao, diariaAjustada, ocupacaoAjustada, aluguel, resultadoShortStay: resultadoSS, resultadoTradicional: resultadoTrad, resultado, indicadores: ind } = sim;
+  const { p, atualizar, escolherBairro, bairros, bairro: selected, diariaBase, diaria, ocupacao, diariaAjustada, ocupacaoAjustada, reforma, sugestaoReforma, reformaAjustada, aluguel, resultadoShortStay: resultadoSS, resultadoTradicional: resultadoTrad, resultado, indicadores: ind } = sim;
   const [premissasAbertas, setPremissasAbertas] = useState(false);
   const modo = p.modo;
   const shortStay = p.shortStay;
@@ -167,13 +167,16 @@ export default function SimuladorReceitaLiquida({
             <div className="grid gap-1.5">
               <span className="text-sm text-foreground">Faixa de área</span>
               <Segmentado<SizeKey> rotulo="Faixa de área" valor={p.area} opcoes={FAIXAS_AREA.map((f) => ({ valor: f, rotulo: f }))} onChange={(v) => atualizar({ area: v })} itemClassName="px-2" />
-              <span className="text-xs leading-snug text-muted-foreground">A faixa não altera a diária: não há fonte de diária por metragem.</span>
+              <span className="text-xs leading-snug text-muted-foreground">A faixa não altera a diária (não há fonte por metragem); ela entra na sugestão de reforma.</span>
             </div>
             <Campo rotulo="Valor do imóvel" ajuda="Opcional: libera rentabilidade e prazo de retorno." largo>
               <Stepper rotulo="Valor do imóvel" valor={imovel.valorImovel} onChange={(v) => setImovel({ valorImovel: v })} formatar={brl} {...LIMITES.valorImovel} />
             </Campo>
-            <Campo rotulo="Investimento em reforma" ajuda="Opcional: soma ao imóvel no prazo de retorno." largo>
-              <Stepper rotulo="Investimento em reforma" valor={p.reforma} onChange={(v) => atualizar({ reforma: v })} formatar={brl} {...LIMITES_MERCADO.reforma} />
+            <Campo rotulo="Investimento em reforma" ajuda={sugestaoReforma ? (reformaAjustada ? `Informado por você. Sugestão para esta faixa e diária: ${brl(sugestaoReforma.valor)}.` : `Sugestão (hipótese): ${sugestaoReforma.areaM2} m² × ${brl(sugestaoReforma.custoM2)}/m², com base no estudo Bewild; sobe com a diária. Soma ao imóvel no prazo de retorno.`) : "Soma ao imóvel no prazo de retorno."} largo>
+              <div className="grid min-w-0 gap-0.5">
+                <Stepper rotulo="Investimento em reforma" valor={reforma} onChange={(v) => atualizar({ reforma: v })} formatar={brl} {...LIMITES_MERCADO.reforma} />
+                {reformaAjustada && sugestaoReforma && <button type="button" onClick={() => atualizar({ reforma: null })} className="inline-flex min-h-[44px] items-center justify-self-end text-xs font-semibold text-primary underline underline-offset-4">Voltar à sugestão ({brl(sugestaoReforma.valor)})</button>}
+              </div>
             </Campo>
             <Campo rotulo="Condomínio por mês" ajuda="Exemplo de partida; informe o do seu prédio.">
               <Stepper rotulo="Condomínio por mês" valor={imovel.condominio} onChange={(v) => setImovel({ condominio: v })} formatar={brl} {...LIMITES.condominio} />
@@ -355,12 +358,12 @@ export default function SimuladorReceitaLiquida({
                 <div>
                   <p className="text-xs text-muted-foreground">Rentabilidade líquida</p>
                   <p className="mt-0.5 text-xl font-semibold tabular-nums text-foreground">{ind ? `${formatDecimal(ind.rentabilidadeAA, 1)}% a.a.` : "—"}</p>
-                  <p className="text-[11px] text-muted-foreground">líquido anual ÷ {p.reforma > 0 ? "imóvel + reforma" : "valor do imóvel"}</p>
+                  <p className="text-[11px] text-muted-foreground">líquido anual ÷ {reforma > 0 ? "imóvel + reforma" : "valor do imóvel"}</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Prazo de retorno</p>
                   <p className="mt-0.5 text-xl font-semibold tabular-nums text-foreground">{ind?.paybackAnos != null ? `${formatDecimal(ind.paybackAnos, 1)} anos` : "—"}</p>
-                  <p className="text-[11px] text-muted-foreground">{ind && ind.paybackAnos == null ? "sem resultado líquido positivo" : `${p.reforma > 0 ? "imóvel + reforma" : "valor do imóvel"} ÷ líquido anual`}</p>
+                  <p className="text-[11px] text-muted-foreground">{ind && ind.paybackAnos == null ? "sem resultado líquido positivo" : `${reforma > 0 ? "imóvel + reforma" : "valor do imóvel"} ÷ líquido anual`}</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Sobra da receita bruta</p>
@@ -369,7 +372,7 @@ export default function SimuladorReceitaLiquida({
                 </div>
               </div>
               {!ind && <p className="mt-2 text-xs text-muted-foreground">Informe o valor do imóvel para ver rentabilidade e prazo de retorno.</p>}
-              {ind && <p className="mt-2 text-xs text-muted-foreground">Investimento total considerado, isto é, {TEXTO_INVESTIMENTO_TOTAL}: {brl(ind.investimento)}{p.reforma > 0 ? ` = imóvel ${brl(imovel.valorImovel)} + reforma ${brl(p.reforma)}` : ""}. Rentabilidade = líquido anual ÷ investimento; prazo de retorno = investimento ÷ líquido anual.</p>}
+              {ind && <p className="mt-2 text-xs text-muted-foreground">Investimento total considerado, isto é, {TEXTO_INVESTIMENTO_TOTAL}: {brl(ind.investimento)}{reforma > 0 ? ` = imóvel ${brl(imovel.valorImovel)} + reforma ${brl(reforma)}${reformaAjustada ? "" : " (sugerida)"}` : ""}. Rentabilidade = líquido anual ÷ investimento; prazo de retorno = investimento ÷ líquido anual.</p>}
 
               {extras}
 

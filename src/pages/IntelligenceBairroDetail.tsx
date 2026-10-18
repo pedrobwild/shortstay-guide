@@ -4,6 +4,7 @@ import OrcamentoButton from "@/components/OrcamentoButton";
 import ProximoPassoBairro from "@/components/intelligence/ProximoPassoBairro";
 import BlocoReformaBairro from "@/components/intelligence/BlocoReformaBairro";
 import { VariacaoColetaBairro } from "@/components/guide/VariacaoColeta";
+import HistoricoBairro from "@/components/guide/HistoricoBairro";
 import FaixaQuartisBairro from "@/components/intelligence/FaixaQuartisBairro";
 import BairroSomenteRadar from "@/components/intelligence/BairroSomenteRadar";
 import { useRadarBase } from "@/lib/radarBase";
@@ -196,6 +197,7 @@ const IntelligenceBairroDetail = () => {
       <main className="container mx-auto px-4 py-6 space-y-8">
         <FaixaQuartisBairro bairro={b.bairro} />
         <VariacaoColetaBairro bairro={b.bairro} />
+        <HistoricoBairro bairro={b.bairro} />
 
         {/* ── Report intro ────────────────────────────────── */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>

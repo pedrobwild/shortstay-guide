@@ -10,8 +10,10 @@ import { FAQ_ITEMS } from "./components/guide/FAQSection";
 import { TabelaBairrosEstatica, BairroEstatico } from "./components/PreRenderMercado";
 import { ConteudoTema } from "./pages/GuiaTema";
 import { temaPorSlug } from "./data/temasGuia";
+import { ConteudoMetodologia } from "./pages/Metodologia";
+import { csvDadosAbertos, datasetJsonLd, jsonDadosAbertos } from "./lib/dadosAbertos";
 
-export { FAQ_ITEMS };
+export { FAQ_ITEMS, csvDadosAbertos, datasetJsonLd, jsonDadosAbertos };
 
 /** HTML estático das páginas de dados (/ranking, /mercado, /bairro/*); o app o substitui ao abrir. */
 export function renderEstatico(p: { path: string; h1: string; description: string; bairro?: string }): string | null {
@@ -25,6 +27,16 @@ export function renderEstatico(p: { path: string; h1: string; description: strin
         <StaticRouter location={p.path}>
           <header><h1>{p.h1}</h1><p>{p.description}</p></header>
           <ConteudoTema slug={tema.slug} />
+        </StaticRouter>
+      </AppShell>,
+    );
+  }
+  // /metodologia: conteúdo completo com o registro de atualizações da reserva offline; o app o substitui ao abrir.
+  if (p.path === "/metodologia") {
+    return renderToStaticMarkup(
+      <AppShell helmetContext={{}}>
+        <StaticRouter location={p.path}>
+          <ConteudoMetodologia />
         </StaticRouter>
       </AppShell>,
     );

@@ -22,7 +22,7 @@ export type BairroCurado = {
   /** Referência extra (dados anteriores da Bewild, sem fonte pública); nunca usada em cálculos. */
   referenciaBewild?: { dailyAvg: number; dailyMin: number; dailyMax: number; avgOccupancy: number };
 };
-export const FONTE_BAIRROS_CURADOS = "Ocupação e diária: GuestFavorites (coletas de 13/10/2026 e 18/10/2026; jan–set/2026, exceto Liberdade, República, Santana, Barra Funda e Consolação, jan–jul/2026).";
+export const FONTE_BAIRROS_CURADOS = "Ocupação e diária: GuestFavorites (coletas de 13/10/2026 e 18/10/2026; jan–set/2026, exceto Liberdade e República, jan–jul/2026).";
 export const FONTE_ESTIMATIVA_BEWILD = "estimativa Bewild (sem fonte pública atualizada)";
 export const FONTE_APROXIMACAO_ITAIM = "aproximação pelo Itaim Bibi (GuestFavorites, jan–set/2026)";
 export const URL_ITAIM_BIBI = "https://www.guestfavorites.com/airbnb-occupancy-rates-in-itaim-bibi-sao-paulo-brazil";
@@ -45,7 +45,7 @@ export const BAIRROS_CURADOS: BairroCurado[] = [
   gf("Bela Vista", 64, 237, [140, 198, 256], 1983, "jan–set/2026", "bela-vista"),
   aproximacaoItaim("Brooklin", { dailyAvg: 360, dailyMin: 290, dailyMax: 430, avgOccupancy: 75 }),
   // Consolação: dado público GuestFavorites desde a coleta de 18/10/2026 (antes estimativa Bewild R$ 325 / 63%).
-  gf("Consolação", 62, 271, [155, 221, 281], 1625, "jan–jul/2026", "consolacao", "2026-10-18"),
+  gf("Consolação", 63, 270, [160, 220, 282], 1567, "jan–set/2026", "consolacao", "2026-10-18"),
   gf("Itaim Bibi", 59, 359, [180, 279, 404], 3884, "jan–set/2026", "itaim-bibi"),
   gf("Jardim Paulista", 62, 319, [183, 251, 327], 3147, "jan–set/2026", "jardim-paulista"),
   gf("Liberdade", 61, 230, [132, 195, 251], 553, "jan–jul/2026", "liberdade"),
@@ -59,17 +59,17 @@ export const BAIRROS_CURADOS: BairroCurado[] = [
   // Coleta de 18/10/2026 (docs/coleta-2026-10-18-novos-bairros.md): 15 bairros novos, base de 28.
   gf("Santa Cecília", 59, 215, [53, 163, 222], 607, "jan–set/2026", "santa-cecilia", "2026-10-18"),
   gf("Campo Belo", 60, 233, [142, 194, 252], 1077, "jan–set/2026", "campo-belo", "2026-10-18"),
-  gf("Santana", 61, 228, [160, 205, 254], 506, "jan–jul/2026", "santana", "2026-10-18"),
+  gf("Santana", 62, 229, [164, 207, 257], 510, "jan–set/2026", "santana", "2026-10-18"),
   gf("Tatuapé", 58, 249, [157, 220, 268], 422, "jan–set/2026", "tatuape", "2026-10-18"),
-  gf("Barra Funda", 57, 257, [196, 235, 281], 549, "jan–jul/2026", "barra-funda", "2026-10-18"),
+  gf("Barra Funda", 57, 255, [193, 233, 279], 559, "jan–set/2026", "barra-funda", "2026-10-18"),
   gf("Butantã", 61, 276, [87, 207, 268], 402, "jan–set/2026", "butanta", "2026-10-18"),
   gf("Saúde", 63, 247, [120, 191, 243], 525, "jan–set/2026", "saude", "2026-10-18"),
   gf("Ipiranga", 56, 226, [89, 171, 228], 238, "jan–set/2026", "ipiranga", "2026-10-18"),
-  gf("Morumbi", 56, 487, [204, 323, 574], 334, "jan–set/2026", "morumbi", "2026-10-18"),
+  gf("Morumbi", 57, 485, [204, 323, 574], 330, "jan–set/2026", "morumbi", "2026-10-18"),
   gf("Santo Amaro", 56, 256, [152, 201, 256], 1488, "jan–set/2026", "santo-amaro", "2026-10-18"),
-  gf("Jabaquara", 55, 227, [110, 183, 248], 417, "jan–set/2026", "jabaquara", "2026-10-18"),
+  gf("Jabaquara", 55, 228, [110, 183, 248], 421, "jan–set/2026", "jabaquara", "2026-10-18"),
   gf("Sé", 64, 184, [133, 160, 190], 502, "jan–set/2026", "se", "2026-10-18"),
-  gf("Brás", 65, 217, [122, 167, 256], 798, "jan–set/2026", "bras", "2026-10-18"),
+  gf("Brás", 65, 217, [122, 167, 255], 841, "jan–set/2026", "bras", "2026-10-18"),
   gf("Bom Retiro", 60, 189, [120, 170, 204], 187, "jan–set/2026", "bom-retiro", "2026-10-18"),
   gf("Lapa", 57, 239, [125, 190, 247], 160, "jan–set/2026", "lapa", "2026-10-18"),
 ];

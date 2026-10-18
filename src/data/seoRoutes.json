@@ -92,6 +92,13 @@
       "description": "Como montar o anúncio e definir a diária de um studio para short stay com base nos dados do bairro.",
       "h1": "Anúncio e precificação",
       "priority": "0.6"
+    },
+    {
+      "path": "/metodologia",
+      "title": "Metodologia e dados abertos do Radar Bewild: fontes, cálculos e atualizações",
+      "description": "Como o Radar Bewild produz os números de short stay em São Paulo: fontes públicas por bairro, o que é dado observado, aproximação e hipótese, registro de atualizações e base aberta em CSV e JSON.",
+      "h1": "De onde vêm os números do Radar Bewild",
+      "priority": "0.7"
     }
   ],
   "bairros": [

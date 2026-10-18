@@ -41,30 +41,30 @@ República	63%	R$ 203	117/166/210	3.079	jan–jul/2026
 Vila Mariana	60%	R$ 226	143/194/235	2.238	jan–set/2026
 Mooca	59%	R$ 241	27/195/268	85	jan–set/2026
 Perdizes	53%	R$ 254	174/217/276	1.752	jan–set/2026
-Coleta GuestFavorites aprovada e carregada em 18/10/2026 (jan–set/2026, exceto Santana, Barra Funda e Consolação, jan–jul/2026):
+Coleta GuestFavorites aprovada e carregada em 18/10/2026 (todos jan–set/2026; seis bairros conferidos ao vivo e corrigidos em 18/10/2026):
 Santa Cecília	59%	R$ 215	53/163/222	607
 Campo Belo	60%	R$ 233	142/194/252	1.077
-Santana	61%	R$ 228	160/205/254	506
+Santana	62%	R$ 229	164/207/257	510
 Tatuapé	58%	R$ 249	157/220/268	422
-Barra Funda	57%	R$ 257	196/235/281	549
+Barra Funda	57%	R$ 255	193/233/279	559
 Butantã	61%	R$ 276	87/207/268	402
 Saúde	63%	R$ 247	120/191/243	525
 Ipiranga	56%	R$ 226	89/171/228	238
-Morumbi	56%	R$ 487	204/323/574	334
+Morumbi	57%	R$ 485	204/323/574	330
 Santo Amaro	56%	R$ 256	152/201/256	1.488
-Jabaquara	55%	R$ 227	110/183/248	417
+Jabaquara	55%	R$ 228	110/183/248	421
 Sé	64%	R$ 184	133/160/190	502
-Brás	65%	R$ 217	122/167/256	798
+Brás	65%	R$ 217	122/167/255	841
 Bom Retiro	60%	R$ 189	120/170/204	187
 Lapa	57%	R$ 239	125/190/247	160
-Consolação	62%	R$ 271	155/221/281	1.625
+Consolação	63%	R$ 270	160/220/282	1.567
 Referência São Paulo: ocupação 60%, ADR R$ 266, 34.854 anúncios (jan–set/2026).
 Brooklin e Vila Olímpia usam a APROXIMAÇÃO pelo Itaim Bibi (GuestFavorites, 59% / R$ 359 / quartis 180-279-404, jan–set/2026; distrito que inclui a Vila Olímpia e parte do Brooklin; sem anúncios ativos por bairro). A estimativa Bewild anterior (Brooklin R$ 360 / 75%; Vila Olímpia R$ 415 / 79%) aparece só como referência extra, fora das contas, rotulada "Estimativa Bewild (dados anteriores, sem fonte pública)". Consolação é dado público GuestFavorites desde 18/10/2026; a estimativa Bewild anterior (R$ 325 / 63%) não é mais usada. O filtro "Só dados observados" deixa a aproximação de fora. AirDNA (API Enterprise) é prevista só para Brooklin e Vila Olímpia.
 Aviso de amostra pequena para fonte pública com menos de 200 anúncios: Mooca (85), Bom Retiro (187) e Lapa (160).
 Receita mensal de referência = diária × 30 × ocupação.
 Fonte por bairro: https://www.guestfavorites.com/airbnb-occupancy-rates-in-{bairro-sem-acento}-sao-paulo-brazil.
 Regra um bairro, um número: o mesmo bairro nunca aparece com valores diferentes. O banco é a fonte única (app e chat leem radar_bairro_atual); bairrosCurados.ts é a reserva offline e precisa ter os mesmos números.
-Bairro novo entra em: banco (radar_observacoes via /admin/coletas ou SQL direto), bairrosCurados.ts (reserva, com coletadoEm), bairrosGeo.ts, ARTIGO_BAIRRO/BAIRROS_SEM_ARTIGO em radarUi.ts e seoRoutes.json. Bairro sem linha em bairro_airbnb_sp usa a página BairroSomenteRadar e a lista "Outros bairros da base do Radar" no /ranking; o chat o inclui sem scores. Registro das coletas: docs/coleta-2026-10-18-novos-bairros.md.
+Bairro novo entra em: banco (radar_observacoes via /admin/coletas ou SQL direto), bairrosCurados.ts (reserva, com coletadoEm), bairrosGeo.ts, ARTIGO_BAIRRO/BAIRROS_SEM_ARTIGO em radarUi.ts e seoRoutes.json. Bairro sem linha em bairro_airbnb_sp usa a página BairroSomenteRadar e a lista "Outros bairros da base do Radar" no /ranking; o chat o inclui sem scores. Registro das coletas: docs/coleta-2026-10-18-novos-bairros.md. Coleta assistida (Onda 2): a Edge Function coletar-guestfavorites lê as páginas públicas e grava propostas em radar_coletas_pendentes; nada entra na base sem aprovação em /admin/coletas; após aprovar, bairrosCurados.ts é atualizado para ficar igual. Página pública /metodologia (fontes, cálculos, registro de atualizações) e dados abertos em /dados/bairros.csv e .json (licença CC BY 4.0, decisão de 18/10/2026).
 Custo de reforma, prazo e prova social — estudo Bewild out/2026, base de 188 contratos turnkey em SP (fonte única: src/data/provasBewild.ts, cada número com origem em comentário):
 
 Orçamento mediano: R$ 71.850 para 27,5 m²; custo por m²: mediana R$ 2.744, faixa central R$ 2.457–3.125 (P25–P75). Nenhum contrato abaixo de R$ 55 mil.
@@ -72,6 +72,7 @@ Escopo turnkey: projeto e ART/RRT, obra, marcenaria sob medida, mobiliário, ele
 Proposta real de R$ 87.692,80 (set/2026): marcenaria 28%, obra civil/acabamentos 27%, gestão/impostos/logística/seguro 14%, eletros 7,4%, vidraçaria 7%, mobiliário 6,5%, iluminação 3,6%, projeto/ART 3,4%, enxoval 3,1%.
 Prazo em contrato: 60 a 75 dias úteis conforme metragem e sacada; marcenaria: 25 dias úteis de fábrica + 5 de montagem, em paralelo com a obra.
 Exemplo de investimento: studio de 27 m² ao preço médio FipeZap (R$ 12.143/m², ago/2026), ITBI hipotético de 3% (sempre rotular como hipótese) e reforma mediana.
+Sugestão de reforma no simulador (hipótese, decisão de 18/10/2026): área de referência da faixa (20–25 → 25 m², 26–35 → 30 m², 36–50 → 45 m²) × custo/m²; custo/m² parte da mediana do estudo (R$ 2.744) na diária média do bairro e cresce linearmente com a diária até R$ 4.000/m² no alto padrão (1,45×) — referência Bewild: 25 m² alto padrão = R$ 100.000 (CUSTO_M2_ALTO_PADRAO em provasBewild.ts). Piso P25, teto em 2× a diária média, nunca abaixo de R$ 55 mil; valor informado pela pessoa prevalece.
 Prova social oficial: 160 reformas entregues ("+160"), 200 projetos ("+200"), "em 27 bairros" (nunca "+27").
 Garantia: 5 anos (nunca "1 ano"). Contrato prevê multa por dia de atraso.
 Estudo: https://bewild.com.br/conteudos/quanto-custa-reformar-apartamento-studio-ate-50-m2(abre em uma nova aba)

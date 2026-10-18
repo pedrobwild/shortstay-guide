@@ -37,7 +37,7 @@ describe("natureza e fonte de cada bairro na nova interface", () => {
 
   it("estimativa nunca recebe GuestFavorites no carimbo; a aproximação diz de onde vem", () => {
     expect(fonteCurtaBairro(estimada)).toBe("Sem fonte pública atualizada");
-    expect(fonteCurtaBairro(porNome("Consolação"))).toBe("GuestFavorites · jan–jul/2026 · coleta 18/10/2026");
+    expect(fonteCurtaBairro(porNome("Consolação"))).toBe("GuestFavorites · jan–set/2026 · coleta 18/10/2026");
     for (const nome of APROXIMACOES) {
       expect(fonteCurtaBairro(porNome(nome))).toBe("GuestFavorites (aproximação pelo Itaim Bibi) · jan–set/2026 · coleta 13/10/2026");
     }
@@ -82,8 +82,8 @@ describe("receita de referência e escala do mapa", () => {
   });
 
   it("os extremos da legenda usam só dado observado", () => {
-    // Sé (R$ 3.533) e Morumbi (R$ 8.182); estimativas e aproximações ficam de fora.
-    expect(extremosLegendaReceita(BAIRROS_CURADOS)).toEqual([3400, 8200]);
+    // Bom Retiro (R$ 3.402) e Morumbi (R$ 8.294); estimativas e aproximações ficam de fora.
+    expect(extremosLegendaReceita(BAIRROS_CURADOS)).toEqual([3400, 8300]);
   });
 
   it("marcador cresce com a amostra; sem amostra própria tem tamanho fixo", () => {
@@ -102,7 +102,7 @@ describe("receita de referência e escala do mapa", () => {
   it("ordena por receita de referência, da maior para a menor", () => {
     const ordem = ordenarPorReceita(BAIRROS_CURADOS);
     // Morumbi na frente; Brooklin e Vila Olímpia usam os números do Itaim Bibi: empatam e o desempate é pelo nome.
-    expect(ordem.slice(0, 4).map((o) => [o.bairro.name, o.receita])).toEqual([["Morumbi", 8182], ["Brooklin", 6354], ["Itaim Bibi", 6354], ["Vila Olímpia", 6354]]);
+    expect(ordem.slice(0, 4).map((o) => [o.bairro.name, o.receita])).toEqual([["Morumbi", 8294], ["Brooklin", 6354], ["Itaim Bibi", 6354], ["Vila Olímpia", 6354]]);
     expect(ordem[ordem.length - 1].bairro.name).toBe("Bom Retiro"); // R$ 189 × 30 × 60% = R$ 3.402
     for (let i = 1; i < ordem.length; i++) expect(ordem[i - 1].receita).toBeGreaterThanOrEqual(ordem[i].receita);
     expect(ordem.find((o) => o.bairro.name === "Pinheiros")?.receita).toBe(5580);
@@ -147,7 +147,7 @@ describe("textos montados a partir da base", () => {
   it("Fontes e atualização citam coleta, períodos, aproximações e a estimativa certa", () => {
     const t = textosFontes(reserva);
     expect(t.observado).toContain("Coletas de 13/10/2026 e 18/10/2026");
-    expect(t.observado).toContain("período jan–set/2026 (Consolação, Liberdade, República, Santana e Barra Funda: jan–jul/2026)"); // ordem da base
+    expect(t.observado).toContain("período jan–set/2026 (Liberdade e República: jan–jul/2026)");
     for (const nome of SEM_DADO_PROPRIO) expect(t.observado).not.toContain(nome);
     expect(t.aproximacao).toBe("Brooklin e Vila Olímpia não têm dado público por bairro: usam os números do Itaim Bibi, mesma coleta da GuestFavorites.");
     expect(t.estimativa).not.toContain("Consolação");

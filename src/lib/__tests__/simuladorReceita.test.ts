@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { getBairroCurado } from "@/data/bairrosCurados";
 import { DEDUCOES_PADRAO_PCT } from "@/lib/bairroAjustes";
 import {
-  CHAVE_CENARIOS, CHAVE_CENARIOS_ANTIGA, CHAVE_RASCUNHO, CHAVE_RASCUNHO_PROJECAO, IMOVEL_PADRAO, PREMISSAS_SIMULADOR_PADRAO, RENTABILIDADE_LOCACAO_SP_AA,
+  CHAVE_CENARIOS, CHAVE_CENARIOS_ANTIGA, CHAVE_RASCUNHO, CHAVE_RASCUNHO_PROJECAO, IMOVEL_PADRAO, PREMISSAS_SIMULADOR_PADRAO, RENTABILIDADE_LOCACAO_SP_AA, custoM2Reforma, reformaSugerida,
   SHORT_STAY_PADRAO, TRADICIONAL_PADRAO, aluguelReferencia, indicadores, lerCenarios, lerPremissasDaQuery, lerRascunho, mesAMes, normalizarPremissasSimulador,
   premissasParaQuery, recalcularCenario, resultadoShortStay, resultadoTradicional, salvarRascunho, type PremissasSimulador,
 } from "@/lib/simuladorReceita";
@@ -182,5 +182,29 @@ describe("cenário migrado recalculado com a base", () => {
     expect(r.receitaBruta).toBe(Math.round(360 * 30 * 0.7)); // R$ 7.560
     expect(r.liquido).toBe(resultadoShortStay({ diaria: 360, ocupacaoPct: 70 }, c.premissas.imovel, c.premissas.shortStay).liquido);
     expect(recalcularCenario({ ...c, premissas: { ...c.premissas, bairro: "Fora" } }, base).liquido).toBe(0);
+  });
+});
+
+describe("sugestão de reforma (hipótese: área de referência × custo/m² que cresce com a diária)", () => {
+  it("nível básico = mediana do estudo Bewild; alto padrão de 25 m² = R$ 100.000 (R$ 4.000/m²)", () => {
+    expect(custoM2Reforma(300, 300)).toBe(2744);
+    expect(custoM2Reforma(Math.round(300 * 1.45), 300)).toBe(4000);
+    expect(reformaSugerida("20–25 m²", 300, 300)).toEqual({ valor: 68_500, areaM2: 25, custoM2: 2744 });
+    expect(reformaSugerida("20–25 m²", 435, 300)).toEqual({ valor: 100_000, areaM2: 25, custoM2: 4000 });
+  });
+  it("cresce com a diária, respeita o piso do P25 e o teto de 2× a média, e nunca fica abaixo de R$ 55 mil", () => {
+    expect(custoM2Reforma(360, 300)).toBeGreaterThan(2744);
+    expect(custoM2Reforma(360, 300)).toBeLessThan(4000);
+    expect(custoM2Reforma(80, 300)).toBe(2457);
+    expect(custoM2Reforma(1500, 300)).toBe(custoM2Reforma(600, 300));
+    expect(reformaSugerida("20–25 m²", 80, 300).valor).toBeGreaterThanOrEqual(55_000);
+    expect(reformaSugerida("36–50 m²", 300, 300)).toEqual({ valor: 123_500, areaM2: 45, custoM2: 2744 });
+  });
+  it("reforma null = sugestão: não vai no link nem substitui o valor informado", () => {
+    expect(PREMISSAS_SIMULADOR_PADRAO.reforma).toBeNull();
+    expect(normalizarPremissasSimulador({}).reforma).toBeNull();
+    expect(normalizarPremissasSimulador({ reforma: 0 }).reforma).toBe(0);
+    expect(premissasParaQuery({ ...PREMISSAS_SIMULADOR_PADRAO, bairro: "Pinheiros" }, "pinheiros")).toBe("bairro=pinheiros");
+    expect(lerPremissasDaQuery("?bairro=pinheiros&reforma=90000").premissas.reforma).toBe(90_000);
   });
 });

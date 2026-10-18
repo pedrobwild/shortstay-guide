@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import NaturezaTag from "@/components/radar/NaturezaTag";
 import { useBairroData } from "@/hooks/useBairroData";
 import { textosFontes } from "@/lib/radarUi";
@@ -35,6 +37,9 @@ export default function FontesAtualizacaoSection() {
           </div>
         ))}
       </div>
+      <Link to="/metodologia" className="mt-8 inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-primary underline underline-offset-4">
+        Metodologia completa, registro de atualizações e dados abertos<ArrowRight className="h-4 w-4" aria-hidden="true" />
+      </Link>
     </section>
   );
 }
