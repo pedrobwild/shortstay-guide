@@ -109,7 +109,7 @@ function IndexInner() {
       <TableOfContents activeId={activeId} visitedSections={visitedSections} />
       <MobileStickyBar />
 
-      <main className="flex w-full flex-col items-center pb-24 lg:ml-[60px] lg:w-[calc(100%-60px)] lg:pb-0">
+      <main id="conteudo" tabIndex={-1} className="flex w-full flex-col items-center pb-24 lg:ml-[60px] lg:w-[calc(100%-60px)] lg:pb-0">
 
         {/* ═══ HERO: três portas (bairro → conta → reforma) e carimbo de referência ═══ */}
         <Faixa><HeroSection /></Faixa>

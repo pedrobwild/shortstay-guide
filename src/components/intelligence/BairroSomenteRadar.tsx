@@ -58,7 +58,7 @@ export default function BairroSomenteRadar({ bairro, seoHead }: { bairro: Bairro
         </div>
       </header>
 
-      <main className="container mx-auto space-y-8 px-4 py-6">
+      <main id="conteudo" tabIndex={-1} className="container mx-auto space-y-8 px-4 py-6">
         <Carimbo
           titulo={`Base do Radar · ${bairro.name}`}
           tag={tag}

@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "ingest:bairro": "node scripts/ingest-bairro-market.mjs"
+    "ingest:bairro": "node scripts/ingest-bairro-market.mjs",
+    "indexnow": "node scripts/submit-indexnow.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

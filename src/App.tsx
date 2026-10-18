@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Navigate, useParams } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import RouteSeo from "@/components/RouteSeo";
+import SkipLink from "@/components/SkipLink";
+import NormalizarCaminho from "@/components/NormalizarCaminho";
 import { slugifyBairro } from "@/lib/seo";
 import { lazy, Suspense, useEffect } from "react";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -147,6 +149,8 @@ export function AppRoutes() {
   const IndexRota = rotaHome();
   return (
     <>
+      <SkipLink />
+      <NormalizarCaminho />
       <ScrollToHash />
       <ClientOnly><CookieConsent /></ClientOnly>
       <PostLoginProvision />

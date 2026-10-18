@@ -194,7 +194,7 @@ const IntelligenceBairroDetail = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 space-y-8">
+      <main id="conteudo" tabIndex={-1} className="container mx-auto px-4 py-6 space-y-8">
         <FaixaQuartisBairro bairro={b.bairro} />
         <VariacaoColetaBairro bairro={b.bairro} />
         <HistoricoBairro bairro={b.bairro} />

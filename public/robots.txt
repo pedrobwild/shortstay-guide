@@ -1,22 +1,38 @@
-User-agent: Googlebot
-Allow: /
-Disallow: /admin
-Disallow: /painel
+# Radar Bewild — radarbewild.com.br
+# Páginas públicas liberadas para todos os robôs, inclusive os de IA (GPTBot, ClaudeBot,
+# PerplexityBot): o Radar quer ser citado. Área restrita (prefixos de seoRoutes.json) fora.
+# Parâmetros utm_/gclid/fbclid não são bloqueados: o canonical consolida as variantes.
 
-User-agent: Bingbot
+User-agent: *
 Allow: /
 Disallow: /admin
+Disallow: /admin/
 Disallow: /painel
+Disallow: /painel/
+Disallow: /projetos
+Disallow: /projetos/
+Disallow: /projeto/
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+Disallow: /reset-password
+Allow: /fonts/
+Allow: /geo/
+Allow: /dados/
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.svg$
+Allow: /*.webp$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.png$
+Allow: /*.ico$
+Allow: /*.woff2$
 
 User-agent: Twitterbot
 Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
-
-User-agent: *
-Allow: /
-Disallow: /admin
-Disallow: /painel
 
 Sitemap: https://radarbewild.com.br/sitemap.xml

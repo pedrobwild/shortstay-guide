@@ -55,7 +55,7 @@ export function ConteudoMetodologia() {
   const aproximacoes = BAIRROS_CURADOS.filter((b) => b.ocupacaoFonte === "aproximacao").map((b) => b.name);
   const hoje = new Date().toISOString().slice(0, 10);
   return (
-    <main className="mx-auto w-full max-w-[1280px] px-5 pb-16 lg:px-10">
+    <main id="conteudo" tabIndex={-1} className="mx-auto w-full max-w-[1280px] px-5 pb-16 lg:px-10">
       <nav aria-label="Caminho" className="flex min-h-[44px] flex-wrap items-center gap-1.5 pt-6 text-xs text-muted-foreground">
         <Link to="/" className="hover:text-foreground">Guia do investidor</Link>
         <ChevronRight className="h-3 w-3" aria-hidden="true" />

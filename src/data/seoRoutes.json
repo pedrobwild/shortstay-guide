@@ -7,97 +7,111 @@
       "title": "Radar Bewild: guia do investidor em studios para short stay em SP",
       "description": "Guia completo para investir em studios compactos para Airbnb em São Paulo: dados de mercado por bairro, simulador de rentabilidade e checklist do investidor.",
       "h1": "Guia do Investidor em Studios para Short Stay",
+      "keywords": "studio para airbnb em são paulo, investir em short stay, diária média por bairro, ocupação airbnb são paulo, simulador de receita airbnb, guia do investidor em studios, Radar Bewild",
       "priority": "1.0"
     },
     {
       "path": "/mercado",
-      "title": "Mercado de short stay em São Paulo: dados por bairro | Radar Bewild",
+      "title": "Mercado de short stay em São Paulo: dados por bairro",
       "description": "Inteligência de mercado para studios no Airbnb em São Paulo: diária, ocupação, receita e score de investimento por bairro.",
       "h1": "Inteligência de mercado",
+      "keywords": "mercado de short stay são paulo, diária airbnb por bairro, ocupação airbnb por bairro, dados airbnb são paulo, inteligência de mercado short stay",
       "priority": "0.9"
     },
     {
       "path": "/ranking",
-      "title": "Comparador de bairros para Airbnb em SP | Radar Bewild",
+      "title": "Comparador de bairros para Airbnb em SP",
       "description": "Compare diária, ocupação e receita de referência dos bairros de São Paulo, com fonte e período de cada número. Ferramenta gratuita do Radar Bewild.",
       "h1": "Comparador de bairros para short stay",
+      "keywords": "melhores bairros para airbnb em são paulo, ranking de bairros short stay, comparador de bairros airbnb, receita por bairro airbnb sp",
       "priority": "0.9"
     },
     {
       "path": "/anuncios",
-      "title": "Anúncios de studios no Airbnb em São Paulo | Radar Bewild",
+      "title": "Anúncios de studios no Airbnb em São Paulo",
       "description": "Base de anúncios reais de studios no Airbnb em São Paulo, com diária, avaliação e bairro.",
       "h1": "Base de Listings",
+      "keywords": "anúncios airbnb são paulo, studios no airbnb sp, base de anúncios short stay",
       "priority": "0.7"
     },
     {
       "path": "/comparar",
-      "title": "Comparar bairros para Airbnb em São Paulo | Radar Bewild",
+      "title": "Comparar bairros para Airbnb em São Paulo",
       "description": "Compare até 3 bairros de São Paulo lado a lado: diária média, ocupação, faixa de diárias e anúncios, cada número com a sua fonte.",
       "h1": "Comparar bairros",
+      "keywords": "comparar bairros airbnb, diária e ocupação por bairro, comparação de bairros short stay são paulo",
       "priority": "0.7"
     },
     {
       "path": "/mapa",
-      "title": "Mapa de bairros rentáveis para Airbnb em SP | Radar Bewild",
+      "title": "Mapa de bairros rentáveis para Airbnb em SP",
       "description": "Mapa interativo dos bairros de São Paulo com diária, ocupação e potencial de retorno para studios de short stay.",
       "h1": "Mapa de bairros",
+      "keywords": "mapa airbnb são paulo, bairros rentáveis para airbnb, mapa de bairros short stay, metrô e short stay",
       "priority": "0.8"
     },
     {
       "path": "/ferramentas",
-      "title": "Ferramentas do investidor em short stay | Radar Bewild",
+      "title": "Ferramentas do investidor em short stay",
       "description": "Autoavaliação do investidor, recomendação de bairro e plano de ação para investir em studios para Airbnb.",
       "h1": "Ferramentas do Investidor",
+      "keywords": "ferramentas para investidor airbnb, autoavaliação do investidor, plano de ação short stay",
       "priority": "0.7"
     },
     {
       "path": "/projecao",
-      "title": "Projeção de receita do seu studio | Radar Bewild",
+      "title": "Projeção de receita do seu studio",
       "description": "Veja a projeção de receita, ocupação e retorno do seu studio para short stay em São Paulo.",
       "h1": "Projeção do seu studio",
+      "keywords": "simulador de receita airbnb, projeção de receita studio, quanto rende um studio no airbnb, rentabilidade short stay são paulo",
       "priority": "0.6"
     },
     {
       "path": "/guia/hospede",
-      "title": "O que influencia a escolha do hóspede em um studio | Radar Bewild",
+      "title": "O que influencia a escolha do hóspede em um studio",
       "description": "Os seis fatores que pesam na decisão de reserva e no desempenho de um studio para short stay em São Paulo, com fontes.",
       "h1": "O que influencia a escolha do hóspede",
+      "keywords": "o que o hóspede valoriza, escolha do hóspede airbnb, avaliação de studio airbnb",
       "priority": "0.6"
     },
     {
       "path": "/guia/anti-checklist",
-      "title": "Anti-checklist da reforma de studio para short stay | Radar Bewild",
+      "title": "Anti-checklist da reforma de studio para short stay",
       "description": "O que não fazer na reforma e na operação de um studio para Airbnb: erros que comprometem a rentabilidade.",
       "h1": "Anti-checklist: o que não fazer",
+      "keywords": "erros na reforma de studio, o que não fazer no airbnb, reforma para short stay",
       "priority": "0.6"
     },
     {
       "path": "/guia/decoracao",
-      "title": "Decoração estratégica para studio de short stay | Radar Bewild",
+      "title": "Decoração estratégica para studio de short stay",
       "description": "Níveis de decoração, o que entra na reforma turnkey e como a estética e a funcionalidade pesam na rentabilidade do studio.",
       "h1": "Decoração estratégica",
+      "keywords": "decoração de studio para airbnb, decoração short stay, reforma turnkey studio",
       "priority": "0.6"
     },
     {
       "path": "/guia/tendencias",
-      "title": "Tendências 2026 para studios de short stay em SP | Radar Bewild",
+      "title": "Tendências 2026 para studios de short stay em SP",
       "description": "Práticas para planejar produto e operação de studios para Airbnb em São Paulo em 2026, sem garantia de desempenho.",
       "h1": "Tendências 2026",
+      "keywords": "tendências short stay 2026, airbnb são paulo 2026, studios compactos tendências",
       "priority": "0.6"
     },
     {
       "path": "/guia/anuncio-e-precificacao",
-      "title": "Anúncio e precificação de studio no Airbnb | Radar Bewild",
+      "title": "Anúncio e precificação de studio no Airbnb",
       "description": "Como montar o anúncio e definir a diária de um studio para short stay com base nos dados do bairro.",
       "h1": "Anúncio e precificação",
+      "keywords": "como precificar diária airbnb, anúncio airbnb studio, precificação short stay",
       "priority": "0.6"
     },
     {
       "path": "/metodologia",
       "title": "Metodologia e dados abertos do Radar Bewild: fontes, cálculos e atualizações",
-      "description": "Como o Radar Bewild produz os números de short stay em São Paulo: fontes públicas por bairro, o que é dado observado, aproximação e hipótese, registro de atualizações e base aberta em CSV e JSON.",
+      "description": "Como o Radar Bewild produz os números de short stay em SP: fontes públicas por bairro, dado observado ou hipótese, atualizações e base aberta em CSV e JSON.",
       "h1": "De onde vêm os números do Radar Bewild",
+      "keywords": "metodologia radar bewild, dados abertos airbnb são paulo, fonte guestfavorites, dados de short stay por bairro csv",
       "priority": "0.7"
     }
   ],

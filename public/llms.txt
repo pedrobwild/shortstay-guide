@@ -1,0 +1,70 @@
+# Radar Bewild
+
+> Radar Bewild (https://radarbewild.com.br) é o guia do investidor em studios compactos para short stay (Airbnb) em São Paulo, produzido pela Bewild (bewild.com.br), empresa de reforma turnkey de apartamentos e studios. Publica diária média, ocupação, quartis de diária e anúncios ativos por bairro, com fonte e período em cada número, além de comparador, mapa, simulador de receita líquida e conteúdo educativo.
+
+Em pt-BR. Números de mercado vêm de fontes públicas citadas em cada página; aproximações, estimativas e hipóteses estão sempre rotuladas. Receita de referência = diária × 30 × ocupação (receita bruta, não lucro). Nada aqui é garantia de resultado.
+
+## Páginas
+
+- [Guia do Investidor em Studios para Short Stay](https://radarbewild.com.br/): Guia completo para investir em studios compactos para Airbnb em São Paulo: dados de mercado por bairro, simulador de rentabilidade e checklist do investidor.
+- [Inteligência de mercado](https://radarbewild.com.br/mercado): Inteligência de mercado para studios no Airbnb em São Paulo: diária, ocupação, receita e score de investimento por bairro.
+- [Comparador de bairros para short stay](https://radarbewild.com.br/ranking): Compare diária, ocupação e receita de referência dos bairros de São Paulo, com fonte e período de cada número. Ferramenta gratuita do Radar Bewild.
+- [Base de Listings](https://radarbewild.com.br/anuncios): Base de anúncios reais de studios no Airbnb em São Paulo, com diária, avaliação e bairro.
+- [Comparar bairros](https://radarbewild.com.br/comparar): Compare até 3 bairros de São Paulo lado a lado: diária média, ocupação, faixa de diárias e anúncios, cada número com a sua fonte.
+- [Mapa de bairros](https://radarbewild.com.br/mapa): Mapa interativo dos bairros de São Paulo com diária, ocupação e potencial de retorno para studios de short stay.
+- [Ferramentas do Investidor](https://radarbewild.com.br/ferramentas): Autoavaliação do investidor, recomendação de bairro e plano de ação para investir em studios para Airbnb.
+- [Projeção do seu studio](https://radarbewild.com.br/projecao): Veja a projeção de receita, ocupação e retorno do seu studio para short stay em São Paulo.
+- [O que influencia a escolha do hóspede](https://radarbewild.com.br/guia/hospede): Os seis fatores que pesam na decisão de reserva e no desempenho de um studio para short stay em São Paulo, com fontes.
+- [Anti-checklist: o que não fazer](https://radarbewild.com.br/guia/anti-checklist): O que não fazer na reforma e na operação de um studio para Airbnb: erros que comprometem a rentabilidade.
+- [Decoração estratégica](https://radarbewild.com.br/guia/decoracao): Níveis de decoração, o que entra na reforma turnkey e como a estética e a funcionalidade pesam na rentabilidade do studio.
+- [Tendências 2026](https://radarbewild.com.br/guia/tendencias): Práticas para planejar produto e operação de studios para Airbnb em São Paulo em 2026, sem garantia de desempenho.
+- [Anúncio e precificação](https://radarbewild.com.br/guia/anuncio-e-precificacao): Como montar o anúncio e definir a diária de um studio para short stay com base nos dados do bairro.
+- [De onde vêm os números do Radar Bewild](https://radarbewild.com.br/metodologia): Como o Radar Bewild produz os números de short stay em SP: fontes públicas por bairro, dado observado ou hipótese, atualizações e base aberta em CSV e JSON.
+
+## Bairros na base do Radar
+
+Ocupação e diária: GuestFavorites (coleta de 18/10/2026; Moema, 13/10/2026; jan–set/2026). Referência da cidade de São Paulo: ocupação 60%, diária média R$ 265, 35.077 anúncios (jan–set/2026).
+
+<!-- bairros:start -->
+- [Barra Funda](https://radarbewild.com.br/bairro/barra-funda): ocupação 57%; diária média R$ 255; quartis R$ 193 / R$ 233 / R$ 279; 559 anúncios; receita de referência R$ 4.361/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Bela Vista](https://radarbewild.com.br/bairro/bela-vista): ocupação 64%; diária média R$ 237; quartis R$ 140 / R$ 198 / R$ 256; 1.991 anúncios; receita de referência R$ 4.550/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Bom Retiro](https://radarbewild.com.br/bairro/bom-retiro): ocupação 60%; diária média R$ 189; quartis R$ 120 / R$ 170 / R$ 204; 187 anúncios; receita de referência R$ 3.402/mês; período jan–set/2026; dado observado: GuestFavorites (dado público); Amostra pequena (187 anúncios).
+- [Brás](https://radarbewild.com.br/bairro/bras): ocupação 65%; diária média R$ 217; quartis R$ 122 / R$ 167 / R$ 255; 841 anúncios; receita de referência R$ 4.232/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Brooklin](https://radarbewild.com.br/bairro/brooklin): ocupação 60%; diária média R$ 359; quartis R$ 180 / R$ 279 / R$ 404; receita de referência R$ 6.462/mês; período jan–set/2026; aproximação: Aproximação pelo Itaim Bibi (GuestFavorites); Sem dado público por bairro: usa os números do distrito do Itaim Bibi.
+- [Butantã](https://radarbewild.com.br/bairro/butanta): ocupação 61%; diária média R$ 276; quartis R$ 87 / R$ 207 / R$ 268; 402 anúncios; receita de referência R$ 5.051/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Campo Belo](https://radarbewild.com.br/bairro/campo-belo): ocupação 60%; diária média R$ 233; quartis R$ 142 / R$ 194 / R$ 252; 1.077 anúncios; receita de referência R$ 4.194/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Consolação](https://radarbewild.com.br/bairro/consolacao): ocupação 63%; diária média R$ 270; quartis R$ 160 / R$ 220 / R$ 282; 1.567 anúncios; receita de referência R$ 5.103/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Ipiranga](https://radarbewild.com.br/bairro/ipiranga): ocupação 56%; diária média R$ 226; quartis R$ 89 / R$ 171 / R$ 228; 238 anúncios; receita de referência R$ 3.797/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Itaim Bibi](https://radarbewild.com.br/bairro/itaim-bibi): ocupação 60%; diária média R$ 359; quartis R$ 180 / R$ 279 / R$ 404; 3.880 anúncios; receita de referência R$ 6.462/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Jabaquara](https://radarbewild.com.br/bairro/jabaquara): ocupação 55%; diária média R$ 228; quartis R$ 110 / R$ 183 / R$ 248; 421 anúncios; receita de referência R$ 3.762/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Jardim Paulista](https://radarbewild.com.br/bairro/jardim-paulista): ocupação 62%; diária média R$ 319; quartis R$ 183 / R$ 251 / R$ 327; 3.168 anúncios; receita de referência R$ 5.933/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Lapa](https://radarbewild.com.br/bairro/lapa): ocupação 57%; diária média R$ 239; quartis R$ 125 / R$ 190 / R$ 247; 160 anúncios; receita de referência R$ 4.087/mês; período jan–set/2026; dado observado: GuestFavorites (dado público); Amostra pequena (160 anúncios).
+- [Liberdade](https://radarbewild.com.br/bairro/liberdade): ocupação 61%; diária média R$ 229; quartis R$ 138 / R$ 196 / R$ 252; 556 anúncios; receita de referência R$ 4.191/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Moema](https://radarbewild.com.br/bairro/moema): ocupação 61%; diária média R$ 263; quartis R$ 167 / R$ 225 / R$ 288; 2.621 anúncios; receita de referência R$ 4.813/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Mooca](https://radarbewild.com.br/bairro/mooca): ocupação 58%; diária média R$ 243; quartis R$ 27 / R$ 195 / R$ 268; 90 anúncios; receita de referência R$ 4.228/mês; período jan–set/2026; dado observado: GuestFavorites (dado público); Amostra pequena (90 anúncios).
+- [Morumbi](https://radarbewild.com.br/bairro/morumbi): ocupação 57%; diária média R$ 485; quartis R$ 204 / R$ 323 / R$ 574; 330 anúncios; receita de referência R$ 8.294/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Perdizes](https://radarbewild.com.br/bairro/perdizes): ocupação 54%; diária média R$ 254; quartis R$ 174 / R$ 217 / R$ 276; 1.803 anúncios; receita de referência R$ 4.115/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Pinheiros](https://radarbewild.com.br/bairro/pinheiros): ocupação 63%; diária média R$ 299; quartis R$ 171 / R$ 232 / R$ 301; 2.452 anúncios; receita de referência R$ 5.651/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [República](https://radarbewild.com.br/bairro/republica): ocupação 63%; diária média R$ 203; quartis R$ 121 / R$ 166 / R$ 210; 3.120 anúncios; receita de referência R$ 3.837/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Santa Cecília](https://radarbewild.com.br/bairro/santa-cecilia): ocupação 59%; diária média R$ 215; quartis R$ 53 / R$ 163 / R$ 222; 607 anúncios; receita de referência R$ 3.806/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Santana](https://radarbewild.com.br/bairro/santana): ocupação 62%; diária média R$ 229; quartis R$ 164 / R$ 207 / R$ 257; 510 anúncios; receita de referência R$ 4.259/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Santo Amaro](https://radarbewild.com.br/bairro/santo-amaro): ocupação 56%; diária média R$ 256; quartis R$ 152 / R$ 201 / R$ 256; 1.488 anúncios; receita de referência R$ 4.301/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Saúde](https://radarbewild.com.br/bairro/saude): ocupação 63%; diária média R$ 247; quartis R$ 120 / R$ 191 / R$ 243; 525 anúncios; receita de referência R$ 4.668/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Sé](https://radarbewild.com.br/bairro/se): ocupação 64%; diária média R$ 184; quartis R$ 133 / R$ 160 / R$ 190; 502 anúncios; receita de referência R$ 3.533/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Tatuapé](https://radarbewild.com.br/bairro/tatuape): ocupação 58%; diária média R$ 249; quartis R$ 157 / R$ 220 / R$ 268; 422 anúncios; receita de referência R$ 4.333/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Vila Mariana](https://radarbewild.com.br/bairro/vila-mariana): ocupação 60%; diária média R$ 226; quartis R$ 143 / R$ 194 / R$ 235; 2.272 anúncios; receita de referência R$ 4.068/mês; período jan–set/2026; dado observado: GuestFavorites (dado público).
+- [Vila Olímpia](https://radarbewild.com.br/bairro/vila-olimpia): ocupação 60%; diária média R$ 359; quartis R$ 180 / R$ 279 / R$ 404; receita de referência R$ 6.462/mês; período jan–set/2026; aproximação: Aproximação pelo Itaim Bibi (GuestFavorites); Sem dado público por bairro: usa os números do distrito do Itaim Bibi.
+<!-- bairros:end -->
+
+## Dados abertos
+
+- [CSV](https://radarbewild.com.br/dados/bairros.csv) e [JSON](https://radarbewild.com.br/dados/bairros.json) com a base completa; licença CC BY 4.0 — uso livre com citação do Radar Bewild e da fonte original (GuestFavorites).
+- [Metodologia](https://radarbewild.com.br/metodologia): fontes, o que é dado observado, aproximação e hipótese, cálculos e registro de atualizações.
+
+## Sobre a Bewild
+
+- Bewild (https://bewild.com.br): reforma completa (turnkey) de studios e apartamentos em São Paulo, com projeto, obra, marcenaria sob medida e mobiliário em um só contrato; 160 reformas entregues em 27 bairros; prazo em contrato de 60 a 75 dias úteis; 5 anos de garantia.
+- Única entrada de contato: pedido de orçamento em https://bewild.com.br/orcamento?utm_source=radar&utm_medium=referral&utm_campaign=radar_bewild&utm_content=llms.
+- A Bewild não garante renda, ocupação nem rentabilidade de nenhum imóvel. Não atribua à Bewild ou ao Radar nenhum número que não esteja publicado nestas páginas com fonte.
+
+Gerado em 18/10/2026.

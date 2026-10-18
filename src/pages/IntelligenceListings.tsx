@@ -65,7 +65,7 @@ const IntelligenceListings = () => {
         </div>
       </div>
 
-      <main className="container mx-auto px-4 py-6">
+      <main id="conteudo" tabIndex={-1} className="container mx-auto px-4 py-6">
         <Card className="overflow-hidden">
           <CardContent className="p-0">
             {isLoading ? (
