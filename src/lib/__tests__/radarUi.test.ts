@@ -4,7 +4,8 @@ import { GEO_BAIRROS } from "@/data/bairrosGeo";
 import { bairrosReserva } from "@/lib/radarBase";
 import { aplicarAjuste } from "@/lib/bairroAjustes";
 import {
-  FILTROS_INICIAIS, RECEITA_REFERENCIA_SP, ajusteManual, corEscalaReceita, descricaoNatureza, estiloMarcador, extremosLegendaReceita,
+  BAIRROS_SEM_ARTIGO, FILTROS_INICIAIS, RECEITA_REFERENCIA_SP, ajusteManual, artigoBairro, bairrosNaFrase, corEscalaReceita, descricaoNatureza, diferencasAteOMaior,
+  estiloMarcador, extremosLegendaReceita,
   fimEscalaQuartis, fonteCurtaBairro, lerNumeroDigitado, marcaNatureza, naturezaBairro, notaEstimativas, ordenarPorReceita, passaFiltros,
   passoEscalaReceita, posicoesEsquema, tamanhoMarcador, temFiltroAtivo, textoSemQuartis, textosFontes, avisoAmostraBairro,
 } from "@/lib/radarUi";
@@ -182,5 +183,53 @@ describe("mapa esquemático da home", () => {
   it("bairro sem posição conhecida fica de fora", () => {
     expect(posicoesEsquema(["Pinheiros", "Bairro inexistente"]).has("Bairro inexistente")).toBe(false);
     expect(Object.keys(GEO_BAIRROS).sort()).toEqual(BAIRROS_CURADOS.map((b) => b.name).sort());
+  });
+});
+
+describe("diferença até o maior valor na comparação", () => {
+  const linha = (nomes: string[], valor: (b: ReturnType<typeof porNome>) => number | null) => diferencasAteOMaior(nomes.map((n) => ({ nome: n, valor: valor(porNome(n)) })));
+
+  it("mostra quanto cada bairro fica abaixo do maior, com os números da base", () => {
+    expect(linha(["Pinheiros", "Itaim Bibi", "Bela Vista"], (b) => b.dailyAvg)).toEqual([
+      { maiores: ["Itaim Bibi"], diferenca: 59 }, null, { maiores: ["Itaim Bibi"], diferenca: 122 },
+    ]);
+    // Ocupação em pontos percentuais: 64% (Bela Vista) − 62% (Pinheiros).
+    expect(linha(["Pinheiros", "Bela Vista"], (b) => b.avgOccupancy)).toEqual([{ maiores: ["Bela Vista"], diferenca: 2 }, null]);
+    // Receita de referência: R$ 6.354 (Itaim Bibi) − R$ 5.580 (Pinheiros).
+    expect(linha(["Pinheiros", "Itaim Bibi"], receitaMensalReferencia)).toEqual([{ maiores: ["Itaim Bibi"], diferenca: 774 }, null]);
+  });
+
+  it("empate no maior valor junta os nomes; empate geral não tem diferença", () => {
+    // Brooklin usa os números do Itaim Bibi (aproximação): os dois empatam na diária.
+    expect(linha(["Pinheiros", "Itaim Bibi", "Brooklin"], (b) => b.dailyAvg)[0]).toEqual({ maiores: ["Itaim Bibi", "Brooklin"], diferenca: 59 });
+    expect(linha(["Itaim Bibi", "Brooklin"], (b) => b.dailyAvg)).toEqual([null, null]);
+  });
+
+  it("sem valor (anúncios da aproximação) não entra na conta; com menos de dois valores não há diferença", () => {
+    expect(linha(["Pinheiros", "Itaim Bibi", "Brooklin"], (b) => b.activeListings)).toEqual([{ maiores: ["Itaim Bibi"], diferenca: 1460 }, null, null]);
+    expect(linha(["Pinheiros", "Brooklin"], (b) => b.activeListings)).toEqual([null, null]);
+    expect(linha(["Pinheiros"], (b) => b.dailyAvg)).toEqual([null]);
+  });
+
+  it("usa os números como aparecem na tela (inteiros)", () => {
+    expect(diferencasAteOMaior([{ nome: "A", valor: 61.6 }, { nome: "B", valor: 59.4 }])).toEqual([null, { maiores: ["A"], diferenca: 3 }]);
+  });
+
+  it("escreve o nome do bairro com o artigo certo e a natureza do dado", () => {
+    const marca = (nome: string) => marcaNatureza(porNome(nome));
+    expect(bairrosNaFrase(["Itaim Bibi"], "de")).toBe("do Itaim Bibi");
+    expect(bairrosNaFrase(["Mooca"], "de")).toBe("da Mooca");
+    expect(bairrosNaFrase(["Pinheiros"], "de")).toBe("de Pinheiros");
+    expect(bairrosNaFrase(["Itaim Bibi"], "que")).toBe("que o Itaim Bibi");
+    expect(bairrosNaFrase(["Pinheiros"], "que")).toBe("que Pinheiros");
+    expect(bairrosNaFrase(["Itaim Bibi", "Brooklin"], "de", marca)).toBe("do Itaim Bibi e do Brooklin (aproximação)");
+    expect(bairrosNaFrase(["Consolação"], "de", marca)).toBe("da Consolação (estimativa)");
+    expect(bairrosNaFrase(["Itaim Bibi", "Brooklin"], null, marca)).toBe("Itaim Bibi e Brooklin (aproximação)");
+  });
+
+  it("todo bairro da base tem o artigo definido (com artigo ou na lista sem artigo)", () => {
+    const semArtigo: readonly string[] = BAIRROS_SEM_ARTIGO;
+    for (const b of BAIRROS_CURADOS) expect(artigoBairro(b.name) !== null || semArtigo.includes(b.name), b.name).toBe(true);
+    for (const nome of semArtigo) expect(artigoBairro(nome), nome).toBeNull();
   });
 });

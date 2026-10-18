@@ -37,7 +37,7 @@ export const SECTIONS = [
   // Bloco 2 — Como validar a conta
   { id: "escolha-ativo", label: "Escolha do Ativo", icon: Building2, phase: 2 },
   { id: "rentabilidade", label: "Matemática do Investimento", icon: PieChart, phase: 2 },
-  { id: "simulador", label: "Simulador de Receita", icon: Calculator, phase: 2 },
+  { id: "simulador", label: "Simulador de receita", icon: Calculator, phase: 2 },
   // Bloco 3 — O que faz um studio performar
   { id: "reservas", label: "O que move reservas", icon: TrendingUp, phase: 3 },
   { id: "reforma", label: "Reforma inteligente", icon: Paintbrush, phase: 3 },
@@ -176,46 +176,6 @@ export const SCORE_TIERS = [
   { min: 7, max: 8, label: "Quase pronto", color: "bg-primary/70", desc: "Falta pouco! Revise os itens pendentes e avance com confiança." },
   { min: 9, max: 10, label: "Pronto para investir", color: "bg-primary", desc: "Excelente! Seu planejamento está sólido. Hora de agir." },
 ];
-
-export type SavedScenario = {
-  id: string;
-  name: string;
-  bairro: string;
-  metragem: number;
-  ocupacao: number;
-  diariaAtual: string;
-  objetivo: string;
-  rateBoost: number;
-  reformaBudget: string;
-  boostedDaily: number;
-  receitaMensal: number;
-  receitaAnual: number;
-  paybackMonths: number | null;
-};
-
-export const SCENARIOS_KEY = "bwild_guide_scenarios";
-
-/**
- * Cenários do simulador ficam neste navegador (localStorage) para sobreviver a
- * novas visitas; quem tinha cenários na sessão antiga (sessionStorage) é migrado.
- * Só premissas e resultados da simulação — nenhum dado pessoal.
- */
-export function loadScenarios(): SavedScenario[] {
-  try {
-    const salvo = localStorage.getItem(SCENARIOS_KEY);
-    if (salvo) return JSON.parse(salvo);
-    const antigo = sessionStorage.getItem(SCENARIOS_KEY);
-    if (antigo) {
-      localStorage.setItem(SCENARIOS_KEY, antigo);
-      return JSON.parse(antigo);
-    }
-    return [];
-  } catch { return []; }
-}
-
-export function persistScenarios(scenarios: SavedScenario[]) {
-  try { localStorage.setItem(SCENARIOS_KEY, JSON.stringify(scenarios)); } catch { /* armazenamento indisponível: segue só na tela */ }
-}
 
 export const fmt = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
 

@@ -256,6 +256,46 @@ export function lerNumeroDigitado(texto: string): number | null {
 /** Cores das séries da comparação (até 3 bairros). */
 export const COR_SERIE = ["hsl(var(--serie-1))", "hsl(var(--serie-2))", "hsl(var(--serie-3))"] as const;
 
+export type DiferencaAteOMaior = { maiores: string[]; diferenca: number } | null;
+/**
+ * Comparação de bairros: quanto cada valor fica abaixo do maior da linha (`maiores` = quem tem o
+ * maior; num empate, todos). A conta usa os números como aparecem na tela (inteiros), para bater com
+ * o que se lê. Só existe com dois ou mais valores; quem tem o maior valor, e quem está sem valor,
+ * fica com null. Nenhum número novo: só a diferença entre números exibidos.
+ */
+export function diferencasAteOMaior(itens: { nome: string; valor: number | null }[]): DiferencaAteOMaior[] {
+  const exibidos = itens.map((i) => (i.valor == null ? null : Math.round(i.valor)));
+  const comValor = exibidos.filter((v): v is number => v != null);
+  if (comValor.length < 2) return itens.map(() => null);
+  const maior = Math.max(...comValor);
+  const maiores = itens.filter((_, k) => exibidos[k] === maior).map((i) => i.nome);
+  return exibidos.map((v) => (v == null || v === maior ? null : { maiores, diferenca: maior - v }));
+}
+
+/** Artigo dos bairros da base nas frases ("do Itaim Bibi", "da Mooca"). */
+const ARTIGO_BAIRRO: Record<string, "o" | "a"> = {
+  "Itaim Bibi": "o", "Jardim Paulista": "o", Brooklin: "o",
+  "Bela Vista": "a", "Consolação": "a", Liberdade: "a", Mooca: "a", "República": "a", "Vila Mariana": "a", "Vila Olímpia": "a",
+};
+/** Bairros da base que vão sem artigo ("de Pinheiros", "que Moema"). Bairro novo entra numa das duas listas. */
+export const BAIRROS_SEM_ARTIGO = ["Pinheiros", "Moema", "Perdizes"] as const;
+export const artigoBairro = (nome: string): "o" | "a" | null => ARTIGO_BAIRRO[nome] ?? null;
+
+/**
+ * Nomes de bairro dentro de uma frase, com o artigo e, se houver, a marca da natureza do dado:
+ * "de" → "do Itaim Bibi", "da Mooca", "de Pinheiros"; "que" → "que o Itaim Bibi", "que Pinheiros";
+ * null → só os nomes. Vários nomes: "do Itaim Bibi e do Brooklin (aproximação)".
+ */
+export function bairrosNaFrase(nomes: string[], preposicao: "de" | "que" | null, marca: (nome: string) => string | null = () => null): string {
+  const partes = nomes.map((n) => {
+    const a = artigoBairro(n);
+    const nome = preposicao === "de" ? (a ? `d${a} ${n}` : `de ${n}`) : preposicao === "que" && a ? `${a} ${n}` : n;
+    const m = marca(n);
+    return m ? `${nome} (${m})` : nome;
+  });
+  return `${preposicao === "que" ? "que " : ""}${juntarNomes(partes)}`;
+}
+
 /**
  * Posições do mapa esquemático (0–100% em x e y) a partir do centro de cada
  * bairro, com margem nas bordas. Bairros sem posição conhecida ficam de fora.

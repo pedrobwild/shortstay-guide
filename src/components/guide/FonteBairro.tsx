@@ -4,7 +4,8 @@ import FonteLink from "@/components/guide/FonteLink";
 import NaturezaTag from "@/components/radar/NaturezaTag";
 import { alertasFonteRadar, bairrosReserva, rotuloReferenciaBewild, rotuloFonteRadar, useRadarBase } from "@/lib/radarBase";
 import { useBairroData } from "@/hooks/useBairroData";
-import { ajusteManual } from "@/lib/radarUi";
+import { ajusteManual, fonteCurtaBairro } from "@/lib/radarUi";
+import { cn } from "@/lib/utils";
 
 const norm = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
@@ -14,17 +15,20 @@ const norm = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").t
  * `semNatureza` omite essa etiqueta quando a tela já mostra a natureza do dado ao lado;
  * `carimbo` desenha a fonte como etiqueta cinza (painel do mapa, comparação) e deixa o aviso
  * de amostra para a tela. Na aproximação, a estimativa Bewild anterior aparece só como referência.
+ * `rodape` desenha a fonte como rodapé do `Carimbo` (painel do mapa): fonte · período · coleta · confiança.
  */
 export default function FonteBairro({
   nome,
   inverse = false,
   semNatureza = false,
   carimbo = false,
+  rodape = false,
 }: {
   nome: string;
   inverse?: boolean;
   semNatureza?: boolean;
   carimbo?: boolean;
+  rodape?: boolean;
 }) {
   const { data } = useRadarBase();
   // Números exibidos (com os ajustes do admin): um ajuste manual troca a fonte do carimbo.
@@ -46,6 +50,24 @@ export default function FonteBairro({
     ? "Ajuste manual da Bewild"
     : (carimbo || semNatureza) && semFontePublica ? "Sem fonte pública atualizada" : rotuloFonteRadar(bairro);
   const url = ajustado ? exibido?.sourceUrl ?? null : bairro.sourceUrl;
+  const dataColeta = bairro.coletadoEm ? bairro.coletadoEm.slice(0, 10).split("-").reverse().join("/") : null;
+  if (rodape) {
+    // A natureza (tag) e o tamanho da amostra ficam no próprio carimbo; aqui só a origem do número.
+    const confianca = !ajustado && !semFontePublica && bairro.confianca ? ` · confiança ${bairro.confianca === "media" ? "média" : bairro.confianca}` : "";
+    const texto = ajustado ? "Ajuste manual da Bewild" : `${fonteCurtaBairro(bairro)}${confianca}`;
+    const linha = "flex min-h-[44px] w-full items-center px-3.5 py-1.5 text-xs text-foreground-medium";
+    return (
+      <div>
+        {alertas.desatualizado && !ajustado && dataColeta && (
+          <p className="border-b border-border px-3.5 py-2 text-xs font-semibold text-estimate-text">Dado desatualizado · coleta {dataColeta}</p>
+        )}
+        {url ? <FonteLink fonte={{ title: texto, url }} className={cn(linha, "no-underline hover:underline")} /> : <p className={linha}>{texto}</p>}
+        {aproximacao && bairro.referenciaBewild && (
+          <p className="border-t border-border px-3.5 py-2 text-xs text-muted-foreground">{rotuloReferenciaBewild(bairro.referenciaBewild)}</p>
+        )}
+      </div>
+    );
+  }
   const selo = inverse
     ? "inline-block rounded-[4px] border border-dashed border-primary-foreground px-2 py-[3px] font-semibold"
     : "";
@@ -60,9 +82,9 @@ export default function FonteBairro({
         amostra pequena · {bairro.amostraN} anúncios
       </span>
     )}
-    {alertas.desatualizado && !ajustado && bairro.coletadoEm && (
+    {alertas.desatualizado && !ajustado && dataColeta && (
       <span className="mb-1 block font-semibold">
-        dado desatualizado · coleta {bairro.coletadoEm.slice(0, 10).split("-").reverse().join("/")}
+        dado desatualizado · coleta {dataColeta}
       </span>
     )}
     {url

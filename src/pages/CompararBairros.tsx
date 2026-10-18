@@ -20,7 +20,9 @@ import { COLETA_GUESTFAVORITES } from "@/data/fontesGuia";
 import type { BairroItem } from "@/data/guide-data";
 import { linkProjecaoBairro } from "@/data/navegacao";
 import { formatBRL, formatDecimal, formatPercent } from "@/lib/numberFormat";
-import { COR_SERIE, avisoAmostraBairro, fimEscalaQuartis, marcaNatureza, naturezaBairro, textoSemQuartis, type NaturezaBairro } from "@/lib/radarUi";
+import {
+  COR_SERIE, avisoAmostraBairro, bairrosNaFrase, diferencasAteOMaior, fimEscalaQuartis, marcaNatureza, naturezaBairro, textoSemQuartis, type NaturezaBairro,
+} from "@/lib/radarUi";
 import { slugifyBairro } from "@/lib/seo";
 import { MAX_COMPARAR, caminhoComparar, lerComparar } from "@/lib/comparar";
 import { cn } from "@/lib/utils";
@@ -43,19 +45,40 @@ export default function CompararBairros() {
   );
 }
 
-const LINHAS: { rotulo: string; ajuda?: string; valor: (b: BairroItem) => number | null; texto: (v: number | null) => string }[] = [
-  { rotulo: "Diária média (ADR)", valor: (b) => b.dailyAvg, texto: (v) => (v == null ? "—" : formatBRL(v)) },
-  { rotulo: "Ocupação média", valor: (b) => b.avgOccupancy, texto: (v) => (v == null ? "—" : formatPercent(v, 0)) },
-  { rotulo: "Anúncios na amostra", ajuda: "tamanho da amostra da fonte", valor: (b) => b.activeListings, texto: (v) => (v == null ? "—" : formatDecimal(v, 0)) },
-  { rotulo: "Receita mensal de referência", ajuda: "diária × 30 × ocupação, antes de custos", valor: (b) => receitaMensalReferencia(b), texto: (v) => (v == null ? "—" : formatBRL(v)) },
+type Linha = {
+  rotulo: string;
+  ajuda?: string;
+  valor: (b: BairroItem) => number | null;
+  texto: (v: number | null) => string;
+  /** Diferença até o maior da linha: por extenso (tabela; `de`/`que` vêm de bairrosNaFrase) e curta, com sinal (celular). */
+  diferenca: (d: number, de: string, que: string) => string;
+  curta: (d: number) => string;
+};
+const LINHAS: Linha[] = [
+  {
+    rotulo: "Diária média (ADR)", valor: (b) => b.dailyAvg, texto: (v) => (v == null ? "—" : formatBRL(v)),
+    diferenca: (d, de) => `${formatBRL(d)} abaixo ${de}`, curta: (d) => formatBRL(-d),
+  },
+  {
+    rotulo: "Ocupação média", valor: (b) => b.avgOccupancy, texto: (v) => (v == null ? "—" : formatPercent(v, 0)),
+    diferenca: (d, de) => `${formatDecimal(d, 0)} p.p. abaixo ${de}`, curta: (d) => `−${formatDecimal(d, 0)} p.p.`,
+  },
+  {
+    rotulo: "Anúncios na amostra", ajuda: "tamanho da amostra da fonte", valor: (b) => b.activeListings, texto: (v) => (v == null ? "—" : formatDecimal(v, 0)),
+    diferenca: (d, _de, que) => `${formatDecimal(d, 0)} anúncios a menos ${que}`, curta: (d) => `−${formatDecimal(d, 0)}`,
+  },
+  {
+    rotulo: "Receita mensal de referência", ajuda: "diária × 30 × ocupação, antes de custos", valor: (b) => receitaMensalReferencia(b), texto: (v) => (v == null ? "—" : formatBRL(v)),
+    diferenca: (d, de) => `${formatBRL(d)} abaixo ${de}`, curta: (d) => formatBRL(-d),
+  },
 ];
 
-/** Barra proporcional ao maior valor da linha, na cor da série (estimativa listrada em âmbar, aproximação em azul). */
 /** Marca curta ao lado do nome no celular: estimativa, aproximação ou amostra pequena (Mooca). */
 function marcaBairro(b: BairroItem): string | null {
   return marcaNatureza(b) ?? (avisoAmostraBairro(b) ? "amostra pequena" : null);
 }
 
+/** Barra proporcional ao maior valor da linha, na cor da série (estimativa listrada em âmbar, aproximação em azul). */
 function Barra({ fracao, serie, natureza, alto = 6 }: { fracao: number; serie: number; natureza: NaturezaBairro; alto?: 6 | 8 }) {
   const listrada = natureza === "estimativa" ? "bg-estimativa-listrada" : natureza === "aproximacao" ? "bg-aproximacao-listrada" : null;
   return (
@@ -109,15 +132,21 @@ function CompararConteudo() {
   };
   const simular = (b: BairroItem) => trackGlobal("cta_clicked", { cta_id: "simular_bairro", section: "comparar", bairro: b.name });
 
+  const marcaDoBairro = (nome: string) => {
+    const b = selecionados.find((x) => x.name === nome);
+    return b ? marcaNatureza(b) : null;
+  };
   const linhasCalculadas = LINHAS.map((l) => {
     const brutos = selecionados.map((b) => l.valor(b));
     const valores = brutos.map((v) => v ?? 0);
     const maior = Math.max(1, ...valores);
-    // "maior" só faz sentido com dois ou mais bairros com valor nesta linha.
-    const comValor = brutos.filter((v) => v != null).length;
-    return { ...l, valores, maior, comValor };
+    // Diferença de cada bairro até o maior valor da linha (só com dois ou mais valores). O nome de
+    // quem tem o maior leva a marca da natureza ("Brooklin (aproximação)", "Consolação (estimativa)").
+    const diferencas = diferencasAteOMaior(selecionados.map((b, i) => ({ nome: b.name, valor: brutos[i] })));
+    const maiores = diferencas.find((d) => d)?.maiores ?? null;
+    const frase = (d: number) => (maiores ? l.diferenca(d, bairrosNaFrase(maiores, "de", marcaDoBairro), bairrosNaFrase(maiores, "que", marcaDoBairro)) : "");
+    return { ...l, valores, maior, diferencas, maiores, frase };
   });
-  const ehMaior = (v: number, linha: { maior: number; comValor: number }) => linha.comValor > 1 && v === linha.maior && v > 0;
 
   const botaoAdicionar = selecionados.length < MAX_COMPARAR && disponiveis.length > 0;
   // Com bairros escolhidos, a comparação aparece já com a base de reserva (mesmos números aprovados)
@@ -222,13 +251,13 @@ function CompararConteudo() {
                 if (!b) return <div key={`vaga-${i}`} role="cell" className="border-l border-border" />;
                 const bruto = l.valor(b);
                 const v = l.valores[i];
+                const dif = l.diferencas[i];
                 return (
                   <div key={b.name} role="cell" className="min-w-0 border-l border-border px-5 py-[18px]">
-                    <div className="flex flex-wrap items-baseline gap-x-2">
-                      <span className="text-[22px] font-semibold tabular-nums text-foreground lg:text-[26px]">{l.texto(bruto)}</span>
-                      {ehMaior(v, l) && <span className="text-xs font-semibold text-accent-text">maior</span>}
-                    </div>
+                    <span className="block text-[22px] font-semibold tabular-nums text-foreground lg:text-[26px]">{l.texto(bruto)}</span>
                     <div className="mt-2"><Barra fracao={v / l.maior} serie={i} natureza={naturezaBairro(b)} /></div>
+                    {/* Diferença até o maior da linha, embaixo da barra (as barras ficam alinhadas); quem tem o maior fica sem texto. */}
+                    {dif && <span className="mt-1.5 block text-xs font-semibold leading-snug text-accent-text">{l.frase(dif.diferenca)}</span>}
                   </div>
                 );
               })}
@@ -290,6 +319,7 @@ function CompararConteudo() {
             <section key={l.rotulo} className="border-t border-border py-4">
               <h2 className="font-body text-[15px] font-semibold text-foreground">{l.rotulo}</h2>
               {l.ajuda && <p className="mt-0.5 text-xs text-muted-foreground">{l.ajuda}</p>}
+              {l.maiores && <p className="mt-0.5 text-xs text-accent-text">Diferença até o maior valor: {bairrosNaFrase(l.maiores, null, marcaDoBairro)}</p>}
               <ul className="mt-2.5 space-y-1">
                 {selecionados.map((b, i) => (
                   <li key={b.name} className="grid min-h-[32px] grid-cols-[110px_minmax(0,1fr)_84px] items-center gap-2.5">
@@ -301,7 +331,15 @@ function CompararConteudo() {
                       </span>
                     </span>
                     <Barra fracao={l.valores[i] / l.maior} serie={i} natureza={naturezaBairro(b)} alto={8} />
-                    <span className="text-right text-[15px] font-semibold tabular-nums">{l.texto(l.valor(b))}</span>
+                    <span className="text-right">
+                      <span className="block text-[15px] font-semibold tabular-nums">{l.texto(l.valor(b))}</span>
+                      {l.diferencas[i] && (
+                        <span className="block text-[11px] font-semibold leading-tight tabular-nums text-accent-text">
+                          <span aria-hidden="true">{l.curta(l.diferencas[i]!.diferenca)}</span>
+                          <span className="sr-only">{l.frase(l.diferencas[i]!.diferenca)}</span>
+                        </span>
+                      )}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -350,6 +388,7 @@ function CompararConteudo() {
       )}
 
       <p className="mb-10 mt-4 hidden max-w-[820px] text-[13px] text-muted-foreground md:block">
+        Em cada linha, a diferença é contada até o bairro com o maior valor, a partir dos números exibidos.
         Receita de referência é uma conta simples (diária média × 30 × ocupação média) para comparar bairros; não inclui custos de operação nem é garantia de resultado.
       </p>
 
