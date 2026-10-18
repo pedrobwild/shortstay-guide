@@ -4,6 +4,7 @@ import { GuideDecisionProvider } from "@/hooks/useGuideDecision";
 import DiagnosticoInvestidorSection from "@/components/guide/DiagnosticoInvestidorSection";
 import RecomendacaoSection from "@/components/guide/RecomendacaoSection";
 import PlanoAcaoSection from "@/components/guide/PlanoAcaoSection";
+import SimuladorFinanciamento from "@/components/financiamento/SimuladorFinanciamento";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -25,13 +26,29 @@ export default function Ferramentas() {
                 Ferramentas do Investidor
               </h1>
               <p className="text-muted-foreground text-lg font-body max-w-2xl">
-                Autoavaliação do investidor, recomendação personalizada e plano de ação — ferramentas complementares para refinar sua estratégia.
+                Simulação de financiamento para quem ainda procura o imóvel, autoavaliação do investidor, recomendação personalizada e plano de ação.
               </p>
             </div>
           </div>
 
-          {/* Diagnóstico do Investidor */}
+          {/* Seção inicial: quem ainda busca imóvel simula o financiamento do imóvel que está avaliando */}
           <div className="w-full">
+            <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+              <SimuladorFinanciamento
+                titulo="Ainda buscando um imóvel? Simule o financiamento"
+                descricao={
+                  <>
+                    Informe o nome do empreendimento, o bairro e a metragem do imóvel que está avaliando, ajuste valor,
+                    entrada e prazo e clique em <strong>Gerar simulação</strong>. Simulação estimativa — a proposta
+                    oficial é sempre do banco.
+                  </>
+                }
+              />
+            </div>
+          </div>
+
+          {/* Diagnóstico do Investidor */}
+          <div className="w-full border-t border-border/60">
             <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
               <DiagnosticoInvestidorSection />
             </div>

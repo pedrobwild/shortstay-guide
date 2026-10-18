@@ -12,7 +12,8 @@ import { FONTES_GUIA } from "@/data/fontesGuia";
 import { CONTRATOS_ANALISADOS, ESTUDO_REFORMA_DATA, ESTUDO_REFORMA_URL } from "@/data/provasBewild";
 import { CAMINHO_CSV, CAMINHO_JSON, LICENCA_DADOS, LICENCA_DADOS_NOME, textoCitacao } from "@/lib/dadosAbertos";
 import { coletasReserva, montarRegistro, useHistoricoRadar, type EntradaRegistro } from "@/lib/historicoRadar";
-import { formatDecimal } from "@/lib/numberFormat";
+import { formatDecimal, formatPercent } from "@/lib/numberFormat";
+import { INSTITUTION_RATES, MODALITY_LABEL, SITUATION_LABEL, TAXAS_CONSULTADAS_EM } from "@/data/taxasFinanciamento";
 import { textosFontes } from "@/lib/radarUi";
 import { useBairroData } from "@/hooks/useBairroData";
 
@@ -113,14 +114,36 @@ export function ConteudoMetodologia() {
         <p><FonteLink fonte={{ title: `Estudo Bewild — quanto custa reformar um studio (${ESTUDO_REFORMA_DATA})`, url: ESTUDO_REFORMA_URL }} /></p>
       </Bloco>
 
-      <Bloco id="atualizacao" numero="05 · Atualização" titulo="Como a base é atualizada">
+      <Bloco id="financiamento" numero="05 · Financiamento" titulo="Taxas do simulador de financiamento">
+        <p>O simulador de financiamento de <Link to="/ferramentas" className="text-primary underline underline-offset-4">/ferramentas</Link> parte de uma base de taxas consultada nas páginas e simuladores públicos dos bancos em {dataBR(TAXAS_CONSULTADAS_EM)}. Taxas mudam com frequência e dependem de relacionamento e análise de crédito: a proposta oficial é sempre do banco. Seguros, tarifas e custos de cartório e ITBI são estimativas, rotuladas na tela.</p>
+        <div className="overflow-x-auto rounded-lg border border-border">
+          <table className="w-full min-w-[560px] text-sm">
+            <thead className="bg-muted/40 text-left text-xs text-muted-foreground">
+              <tr><th className="px-3 py-2 font-medium">Banco</th><th className="px-3 py-2 font-medium">Linha</th><th className="px-3 py-2 text-right font-medium">Taxa a.a.</th><th className="px-3 py-2 font-medium">Situação</th></tr>
+            </thead>
+            <tbody>
+              {INSTITUTION_RATES.map((r) => (
+                <tr key={r.id} className="border-t border-border">
+                  <td className="px-3 py-2 text-foreground">{r.bank}</td>
+                  <td className="px-3 py-2">{r.product} · {MODALITY_LABEL[r.modality]}</td>
+                  <td className="px-3 py-2 text-right tabular-nums">{r.annualRate === null ? "sob consulta" : `${formatPercent(r.annualRate, 2)} + ${r.indexer}`}</td>
+                  <td className="px-3 py-2">{SITUATION_LABEL[r.situation]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p><strong>Simulações de quem ainda busca imóvel:</strong> quando a pessoa marca a autorização no simulador, a Bewild guarda a simulação de forma anônima — sem nome, contato ou IP; renda e idade só em faixas — e usa apenas números agregados por bairro em estudos de mercado. Sem a autorização, nada é gravado.</p>
+      </Bloco>
+
+      <Bloco id="atualizacao" numero="06 · Atualização" titulo="Como a base é atualizada">
         <p>Toda coleta é registrada com fonte, período, data, amostra e link. Uma coleta nova desativa a anterior do mesmo bairro, mas <strong>o histórico nunca é apagado</strong> — é ele que alimenta o "o que mudou" e o histórico de cada bairro.</p>
         <p>As páginas públicas são relidas periodicamente; o que mudou vira proposta e só entra na base depois de revisão humana. Nenhum número é alterado automaticamente.</p>
         <h3 className="pt-2 font-display text-lg font-semibold text-foreground">Registro de atualizações</h3>
         {historico.isLoading ? <p role="status">Carregando registro…</p> : <Registro entradas={registro} offline={!!historico.data?.offline} />}
       </Bloco>
 
-      <Bloco id="dados-abertos" numero="06 · Dados abertos" titulo="Baixe e cite a base">
+      <Bloco id="dados-abertos" numero="07 · Dados abertos" titulo="Baixe e cite a base">
         <p>A base dos {BAIRROS_CURADOS.length} bairros, com natureza, fonte, período, data de coleta e link de origem em cada linha, está disponível para download. Os arquivos são gerados a cada publicação do site a partir da base aprovada.</p>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline" className="min-h-[44px]"><a href={CAMINHO_CSV} download><Download className="h-4 w-4" aria-hidden="true" /> Baixar CSV</a></Button>
@@ -131,7 +154,7 @@ export function ConteudoMetodologia() {
         <blockquote className="rounded-lg border border-border bg-muted/40 p-3 text-sm text-foreground">{textoCitacao(hoje)}</blockquote>
       </Bloco>
 
-      <Bloco id="limites" numero="07 · Limites" titulo="O que estes números não dizem">
+      <Bloco id="limites" numero="08 · Limites" titulo="O que estes números não dizem">
         <ul className="list-disc space-y-1 pl-5">
           <li>São médias de bairro (todos os tipos de anúncio da fonte), não o desempenho de um studio específico.</li>
           <li>O período coberto é o que a fonte publica (hoje jan–set/2026 em toda a base); quando bairros têm períodos diferentes, a comparação pode refletir sazonalidade.</li>

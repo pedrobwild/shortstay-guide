@@ -11,6 +11,12 @@ export const FONTES_GUIA = {
   expedia: { title: "Expedia Traveler Value Index 2025", url: "https://ir.expediagroup.com/news-and-events/news/news-details/2025/Travel-Priorities-Reinvented-Expedia-Groups-2025-Traveler-Value-Index-Signals-a-Shift-in-Consumer-Priorities/default.aspx" },
   /** Referência da cidade (SAO_PAULO_REFERENCIA): coleta assistida aprovada em 18/10/2026, citada também no FAQ. */
   guestfavoritesSP: { title: "GuestFavorites", url: "https://www.guestfavorites.com" },
+  /**
+   * Base de taxas do simulador de financiamento (src/data/taxasFinanciamento.ts):
+   * consulta pública às páginas e simuladores dos bancos em 19/07/2026 (decisão do
+   * Pedro, 18/10/2026). A tabela completa, com situação de cada taxa, fica em /metodologia.
+   */
+  taxasFinanciamento: { title: "Taxas dos bancos — consulta de 19/07/2026", url: "/metodologia#financiamento" },
 } as const;
 
 /** Data da coleta GuestFavorites em uso (bairros e referência de São Paulo; Moema segue com 13/10/2026). */
