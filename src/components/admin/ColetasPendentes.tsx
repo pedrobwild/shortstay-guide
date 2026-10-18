@@ -25,7 +25,7 @@ export default function ColetasPendentes() {
   const invalidar = () => Promise.all(CHAVES_INVALIDAR.map((queryKey) => qc.invalidateQueries({ queryKey })));
 
   const ler = useMutation({
-    mutationFn: dispararColetaGuestFavorites,
+    mutationFn: () => dispararColetaGuestFavorites(),
     onSuccess: async (r) => { setResumo(r); await qc.invalidateQueries({ queryKey: ["coletas_pendentes"] }); },
     onSettled: () => qc.invalidateQueries({ queryKey: ["guestfavorites_execucao"] }),
     onError: (e) => toast({ title: "Leitura não concluída", description: e instanceof Error ? e.message : "Tente novamente.", variant: "destructive" }),

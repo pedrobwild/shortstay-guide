@@ -4,6 +4,7 @@ import { Loader2, RotateCcw, Save } from "lucide-react";
 import { z } from "zod";
 import AppNavbar from "@/components/AppNavbar";
 import AdminTabs from "@/components/admin/AdminTabs";
+import BairrosSemGuestFavorites from "@/components/admin/BairrosSemGuestFavorites";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -85,6 +86,7 @@ export default function AdminBairros() {
       <AppNavbar />
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
         <AdminTabs />
+        <BairrosSemGuestFavorites />
         <header className="space-y-1">
           <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">Diária e ocupação por bairro</h1>
           <p className="text-sm text-muted-foreground">

@@ -63,8 +63,8 @@ export async function descartarColetaPendente(id: string, motivo: string): Promi
 }
 
 /** Dispara a leitura das páginas (Edge Function, só admin). Devolve o resumo da rodada. */
-export async function dispararColetaGuestFavorites(): Promise<ResumoColeta> {
-  const { data, error } = await supabase.functions.invoke("coletar-guestfavorites", { body: {} });
+export async function dispararColetaGuestFavorites(bairro?: string): Promise<ResumoColeta> {
+  const { data, error } = await supabase.functions.invoke("coletar-guestfavorites", { body: bairro ? { bairro } : {} });
   if (error) {
     const ctx = (error as { context?: Response }).context;
     const corpo = ctx && typeof ctx.json === "function" ? await ctx.json().catch(() => null) : null;
