@@ -134,6 +134,31 @@ export function ordenarPorReceita<T extends BairroCurado>(bairros: T[]): { bairr
     .sort((a, b) => b.receita - a.receita || a.bairro.name.localeCompare(b.bairro.name, "pt-BR"));
 }
 
+/** Critérios de ordenação do ranking da home (a receita de referência é o padrão). */
+export type CriterioRanking = "receita" | "diaria" | "ocupacao" | "anuncios";
+export const CRITERIOS_RANKING: readonly { valor: CriterioRanking; rotulo: string }[] = [
+  { valor: "receita", rotulo: "Receita" },
+  { valor: "diaria", rotulo: "Diária" },
+  { valor: "ocupacao", rotulo: "Ocupação" },
+  { valor: "anuncios", rotulo: "Anúncios" },
+];
+export function valorCriterio(b: BairroCurado, criterio: CriterioRanking): number {
+  if (criterio === "diaria") return b.dailyAvg;
+  if (criterio === "ocupacao") return b.avgOccupancy;
+  if (criterio === "anuncios") return b.activeListings ?? 0;
+  return receitaMensalReferencia(b);
+}
+/**
+ * Ranking por critério, decrescente (desempate pelo nome); `soObservados` deixa de fora
+ * aproximações e estimativas. Bairros sem anúncios publicados ficam no fim do critério "anúncios".
+ */
+export function ordenarRanking<T extends BairroCurado>(bairros: T[], criterio: CriterioRanking, soObservados = false): { bairro: T; receita: number; valor: number }[] {
+  return bairros
+    .filter((b) => !soObservados || naturezaBairro(b) === "observado")
+    .map((bairro) => ({ bairro, receita: receitaMensalReferencia(bairro), valor: valorCriterio(bairro, criterio) }))
+    .sort((a, b) => b.valor - a.valor || a.bairro.name.localeCompare(b.bairro.name, "pt-BR"));
+}
+
 const POR_EXTENSO = ["", "A", "As duas", "As três", "As quatro", "As cinco"];
 
 const juntarNomes = (nomes: string[]) => (nomes.length <= 1 ? nomes.join("") : `${nomes.slice(0, -1).join(", ")} e ${nomes[nomes.length - 1]}`);

@@ -85,7 +85,7 @@ export default function TendenciasSection() {
     : activeTag;
 
   return (
-    <SectionBlock id="tendencias" title="Tendências 2026" takeaway="Práticas para planejar produto e operação, sem garantia de desempenho.">
+    <SectionBlock resumido id="tendencias" title="Tendências 2026" takeaway="Práticas para planejar produto e operação, sem garantia de desempenho.">
       <p className="text-xs text-muted-foreground mb-4">Impacto e dificuldade são classificações internas de planejamento, não resultados medidos.</p>
       {/* KPI Filter Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">

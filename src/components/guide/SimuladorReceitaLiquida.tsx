@@ -369,7 +369,7 @@ export default function SimuladorReceitaLiquida({
                 </div>
               </div>
               {!ind && <p className="mt-2 text-xs text-muted-foreground">Informe o valor do imóvel para ver rentabilidade e prazo de retorno.</p>}
-              {ind && <p className="mt-2 text-xs text-muted-foreground">Investimento total considerado ({TEXTO_INVESTIMENTO_TOTAL}): {brl(ind.investimento)}{p.reforma > 0 ? ` = imóvel ${brl(imovel.valorImovel)} + reforma ${brl(p.reforma)}` : ""}. Rentabilidade = líquido anual ÷ investimento; prazo de retorno = investimento ÷ líquido anual.</p>}
+              {ind && <p className="mt-2 text-xs text-muted-foreground">Investimento total considerado, isto é, {TEXTO_INVESTIMENTO_TOTAL}: {brl(ind.investimento)}{p.reforma > 0 ? ` = imóvel ${brl(imovel.valorImovel)} + reforma ${brl(p.reforma)}` : ""}. Rentabilidade = líquido anual ÷ investimento; prazo de retorno = investimento ÷ líquido anual.</p>}
 
               {extras}
 

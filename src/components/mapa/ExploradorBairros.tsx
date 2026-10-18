@@ -28,6 +28,7 @@ import {
 import { MAX_COMPARAR, caminhoComparar, lerComparar } from "@/lib/comparar";
 import { formatBRL, formatDecimal, formatPercent } from "@/lib/numberFormat";
 import { slugifyBairro } from "@/lib/seo";
+import { definirBairroAtual, useBairroAtual } from "@/lib/bairroAtual";
 import { cn } from "@/lib/utils";
 
 const OPCOES_FONTE: { valor: FiltroFonte; rotulo: string }[] = [
@@ -166,7 +167,10 @@ export default function ExploradorBairros({
   const porSlug = useMemo(() => new Map(bairros.map((b) => [slugifyBairro(b.name), b])), [bairros]);
   const slugs = useMemo(() => [...porSlug.keys()], [porSlug]);
   const slugSel = params.get("bairro");
+  // Sem ?bairro= na URL, começa pelo bairro atual da pessoa (escolhido no hero, no simulador ou na página de bairro).
+  const bairroAtual = useBairroAtual();
   const selecionado = (slugSel ? porSlug.get(slugifyBairro(slugSel)) : undefined)
+    ?? (bairroAtual ? porSlug.get(bairroAtual.slug) : undefined)
     ?? bairros.find((b) => b.name === BAIRRO_PADRAO) ?? bairros[0];
   const comparacao = lerComparar(params.get("b"), slugs);
   const nomesComparacao = comparacao.map((s) => porSlug.get(s)?.name).filter((n): n is string => Boolean(n));
@@ -219,6 +223,7 @@ export default function ExploradorBairros({
     setParams((atual) => { const p = new URLSearchParams(atual); alterar(p); return p; }, { replace: true });
   };
   const selecionar = (nome: string) => {
+    definirBairroAtual(nome);
     atualizarParams((p) => p.set("bairro", slugifyBairro(nome)));
     trackGlobal("cta_clicked", { cta_id: "mapa_selecionar_bairro", section: "mapa", bairro: nome });
   };
@@ -321,9 +326,9 @@ export default function ExploradorBairros({
           />
 
           {/* Celular: busca e chips flutuando no topo */}
-          <div className="absolute inset-x-3 top-3 z-[5] grid gap-2 lg:hidden">
+          <div className="absolute inset-x-3 top-3 z-[5] grid min-w-0 gap-2 overflow-hidden lg:hidden">
             {campoBusca(true)}
-            <div className="-mx-3 flex gap-1.5 overflow-x-auto px-3 pb-1 scrollbar-none" role="group" aria-label="Filtros">
+            <div className="-mx-3 flex min-w-0 gap-1.5 overflow-x-auto px-3 pb-1 scrollbar-none" role="group" aria-label="Filtros">
               {OPCOES_FONTE.map((o) => (
                 <Chip key={o.valor} ativo={filtros.fonte === o.valor} onClick={() => setFiltros((f) => ({ ...f, fonte: o.valor }))}>{o.rotulo}</Chip>
               ))}

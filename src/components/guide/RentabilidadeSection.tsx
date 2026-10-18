@@ -139,7 +139,7 @@ export default function RentabilidadeSection() {
 
       {/* ── Scenarios ── */}
       <h3 className="font-display text-xl font-bold text-foreground mb-2">Cenários de retorno</h3>
-      <p className="text-muted-foreground text-sm font-body mb-4">Hipóteses de exemplo, não previsões de mercado. Clique para comparar os cenários; os valores não são garantidos. Receita líquida pela mesma conta da cascata acima; rentabilidade e prazo de retorno sobre {brlExemplo(exemplo.investimento)} de investimento total ({TEXTO_INVESTIMENTO_TOTAL}): imóvel de {brlExemplo(STUDIO_EXEMPLO_IMOVEL)} + ITBI hipotético de {brlExemplo(STUDIO_EXEMPLO_ITBI)} + reforma turnkey mediana de {brlExemplo(ORCAMENTO_MEDIANO)} (estudo de 188 contratos).</p>
+      <p className="text-muted-foreground text-sm font-body mb-4">Hipóteses de exemplo, não previsões de mercado. Clique para comparar os cenários; os valores não são garantidos. Receita líquida pela mesma conta da cascata acima; rentabilidade e prazo de retorno sobre {brlExemplo(exemplo.investimento)} de investimento total, isto é, {TEXTO_INVESTIMENTO_TOTAL}: imóvel de {brlExemplo(STUDIO_EXEMPLO_IMOVEL)} + ITBI hipotético de {brlExemplo(STUDIO_EXEMPLO_ITBI)} + reforma turnkey mediana de {brlExemplo(ORCAMENTO_MEDIANO)} (estudo de 188 contratos).</p>
       <p className="text-muted-foreground text-sm font-body mb-2">No exemplo de Pinheiros com os dados curados, receita líquida de {brlExemplo(exemplo.receitaLiquida)}/mês: {formatDecimal(exemplo.yieldLiquido, 1)}% ao ano e prazo estimado de retorno de {formatDecimal(exemplo.paybackAnos ?? 0, 1)} anos, sem valorização nem financiamento.</p>
       <FonteLink fonte={{ title: "Bewild — estudo de 188 contratos", url: ESTUDO_REFORMA_URL }} />
 
