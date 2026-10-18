@@ -8,6 +8,7 @@ import Carimbo from "@/components/radar/Carimbo";
 import NaturezaTag from "@/components/radar/NaturezaTag";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { formatDecimal, formatPercent } from "@/lib/numberFormat";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 /**
@@ -47,13 +48,22 @@ export default function HeroSection() {
   return (
     <section id="hero" className="scroll-mt-24 grid gap-10 pb-12 pt-8 md:pt-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start lg:gap-16 lg:pb-20 lg:pt-16">
       <div className="min-w-0">
-        <p className="mb-4 text-sm tracking-[0.02em] text-muted-foreground lg:mb-5">Radar Bewild · São Paulo · Short stay · Edição 2026</p>
-        <h1 className="mb-5 font-display text-[34px] font-bold leading-[1.1] tracking-[-0.01em] text-foreground text-balance sm:text-5xl lg:mb-6 lg:text-[60px] lg:leading-[1.06]">
-          Escolha o bairro, valide a conta e prepare a reforma do seu studio.
+        <p className="rotulo-secao mb-4 lg:mb-5">Radar Bewild · Inteligência para investir em studios</p>
+        <h1 className="mb-5 font-display text-[34px] font-bold leading-[1.1] tracking-[-0.01em] text-foreground sm:text-5xl lg:mb-6 lg:text-[60px] lg:leading-[1.06]">
+          Quanto seu studio pode render?<br />Comece pelos dados.
         </h1>
-        <p className="mb-8 max-w-[600px] text-[17px] leading-[1.55] text-foreground-medium text-pretty lg:mb-12 lg:text-[19px]">
-          Dados de diária e ocupação por bairro, cada número com fonte e período, para comparar regiões e simular um imóvel antes de decidir.
+        <p className="mb-6 max-w-[600px] text-[17px] leading-[1.55] text-foreground-medium text-pretty lg:mb-7 lg:text-[19px]">
+          Compare bairros de São Paulo, simule receitas e custos e planeje o investimento na reforma. Reúna as informações para decidir onde comprar e como preparar seu studio para locação por temporada.
         </p>
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <Button asChild className="min-h-[48px] px-[22px] text-[15px] font-semibold">
+            <Link to="/projecao" onClick={() => trackGlobal("cta_clicked", { cta_id: "hero_analisar", section: "hero" })}>Analisar meu investimento</Link>
+          </Button>
+          <Button asChild variant="outline" className="min-h-[48px] px-[22px] text-[15px] font-semibold">
+            <Link to="/mapa" onClick={() => trackGlobal("cta_clicked", { cta_id: "hero_explorar", section: "hero" })}>Explorar bairros</Link>
+          </Button>
+        </div>
+        <p className="mb-8 text-sm text-muted-foreground lg:mb-10">Dados com fontes identificadas. Simulações com premissas ajustáveis.</p>
 
         {/* Portas: prancha numerada com régua de 2px. No celular viram linhas compactas
             (número, título, texto e seta), para as três caberem na primeira tela. */}
