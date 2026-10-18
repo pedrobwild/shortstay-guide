@@ -14,7 +14,7 @@ export async function autenticarAdmin(req: Request) {
   if (error || !data.user) return { resposta: jsonColeta({ error: "Sessão inválida." }, 401) };
   const { data: admin, error: roleError } = await db.rpc("has_role", { _user_id: data.user.id, _role: "admin" });
   if (roleError || admin !== true) return { resposta: jsonColeta({ error: "Acesso exclusivo de administrador." }, 403) };
-  return { db };
+  return { db, usuario: data.user };
 }
 const data = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((v) => {
   const d = new Date(`${v}T00:00:00Z`);

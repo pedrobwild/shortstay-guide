@@ -8,6 +8,7 @@ const ABAS = [
   { to: "/admin/fontes", label: "Fontes" },
   { to: "/admin/simulacoes", label: "Simulações" },
   { to: "/admin/leads", label: "Leads" },
+  { to: "/admin/usuarios", label: "Usuários" },
 ];
 
 export default function AdminTabs() {
