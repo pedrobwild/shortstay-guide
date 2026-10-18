@@ -178,7 +178,7 @@ export function AppRoutes() {
           <Route path="/projetos" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
           <Route path="/projeto/:projectId" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
           <Route path="/admin/leads" element={<AdminRoute><AdminLeads /></AdminRoute>} />
-          <Route path="/admin" element={<Navigate to="/admin/bairros" replace />} />
+          <Route path="/admin" element={<AdminRoute><Navigate to="/admin/coletas" replace /></AdminRoute>} />
           <Route path="/admin/bairros" element={<AdminRoute><AdminBairros /></AdminRoute>} />
           <Route path="/admin/simulacoes" element={<AdminRoute><AdminSimulacoes /></AdminRoute>} />
           <Route path="/admin/fontes" element={<AdminRoute><AdminFontes /></AdminRoute>} />

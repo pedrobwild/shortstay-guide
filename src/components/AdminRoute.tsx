@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 
 /**
@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react";
  * A segurança real é o RLS/RPC no banco; aqui é só UX de roteamento.
  */
 export default function AdminRoute({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, loading: adminLoading } = useIsAdmin();
 
@@ -21,7 +22,7 @@ export default function AdminRoute({ children }: { children: React.ReactNode }) 
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: `${location.pathname}${location.search}${location.hash}` }} replace />;
   }
 
   if (!isAdmin) {
