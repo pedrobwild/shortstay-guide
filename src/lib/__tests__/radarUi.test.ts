@@ -10,25 +10,34 @@ import {
   passoEscalaReceita, posicoesEsquema, tamanhoMarcador, temFiltroAtivo, textoSemQuartis, textosFontes, avisoAmostraBairro,
 } from "@/lib/radarUi";
 
-const ESTIMATIVAS = ["Consolação"];
+// Desde 18/10/2026 a base não tem estimativa Bewild como número principal (a Consolação passou a dado público).
+const ESTIMATIVAS: string[] = [];
 const APROXIMACOES = ["Brooklin", "Vila Olímpia"];
 const SEM_DADO_PROPRIO = [...APROXIMACOES, ...ESTIMATIVAS];
 const reserva = bairrosReserva();
 const porNome = (nome: string) => reserva.find((b) => b.name === nome)!;
+/** Cenário com estimativa Bewild como número principal (como a Consolação era até 17/10/2026): as regras de exibição de estimativa continuam cobertas. */
+const estimada = {
+  ...porNome("Consolação"), name: "Consolação", dailyMin: 260, dailyMax: 390, dailyAvg: 325, avgOccupancy: 63, ocupacaoFonte: "bewild" as const,
+  dailyQuartiles: null, activeListings: null, period: null, sourceUrl: null, coletadoEm: "2026-10-13", fonteNome: "Estimativa Bewild", fonteTipo: "estimativa", amostraN: null, estimativa: true,
+};
+const reservaComEstimativa = reserva.map((b) => (b.name === "Consolação" ? estimada : b));
 
 describe("natureza e fonte de cada bairro na nova interface", () => {
-  it("Consolação é estimativa Bewild; Brooklin e Vila Olímpia, aproximação pelo Itaim Bibi", () => {
+  it("Consolação é dado observado desde 18/10/2026; Brooklin e Vila Olímpia, aproximação pelo Itaim Bibi", () => {
     const por = (n: string) => BAIRROS_CURADOS.filter((b) => naturezaBairro(b) === n).map((b) => b.name).sort();
     expect(por("estimativa")).toEqual(ESTIMATIVAS);
     expect(por("aproximacao")).toEqual(APROXIMACOES);
     expect(marcaNatureza(porNome("Brooklin"))).toBe("aproximação");
-    expect(marcaNatureza(porNome("Consolação"))).toBe("estimativa");
+    expect(marcaNatureza(porNome("Consolação"))).toBeNull();
+    expect(marcaNatureza(estimada)).toBe("estimativa");
     expect(marcaNatureza(porNome("Pinheiros"))).toBeNull();
     expect(descricaoNatureza(porNome("Vila Olímpia"))).toBe(", aproximação pelo Itaim Bibi");
   });
 
   it("estimativa nunca recebe GuestFavorites no carimbo; a aproximação diz de onde vem", () => {
-    expect(fonteCurtaBairro(porNome("Consolação"))).toBe("Sem fonte pública atualizada");
+    expect(fonteCurtaBairro(estimada)).toBe("Sem fonte pública atualizada");
+    expect(fonteCurtaBairro(porNome("Consolação"))).toBe("GuestFavorites · jan–jul/2026 · coleta 18/10/2026");
     for (const nome of APROXIMACOES) {
       expect(fonteCurtaBairro(porNome(nome))).toBe("GuestFavorites (aproximação pelo Itaim Bibi) · jan–set/2026 · coleta 13/10/2026");
     }
@@ -47,7 +56,7 @@ describe("natureza e fonte de cada bairro na nova interface", () => {
     expect(ajusteManual(porNome("Brooklin"))).toBe(false);
     const aproxAjustada = aplicarAjuste(porNome("Vila Olímpia"), { bairro: "Vila Olímpia", diaria: 380, ocupacao: 70, fonte: "Ajuste" });
     expect(ajusteManual(aproxAjustada)).toBe(true);
-    expect(ajusteManual(porNome("Consolação"))).toBe(false);
+    expect(ajusteManual(estimada)).toBe(false);
   });
 
   it("Mooca sempre traz o aviso de amostra pequena", () => {
@@ -79,13 +88,13 @@ describe("receita de referência e escala do mapa", () => {
 
   it("marcador cresce com a amostra; sem amostra própria tem tamanho fixo", () => {
     expect(tamanhoMarcador(porNome("Brooklin"))).toBe(18);
-    expect(tamanhoMarcador(porNome("Consolação"))).toBe(18);
+    expect(tamanhoMarcador(estimada)).toBe(18);
     expect(tamanhoMarcador(porNome("Itaim Bibi"))).toBeGreaterThan(tamanhoMarcador(porNome("Mooca")));
   });
 
   it("contorno do marcador: azul tracejado na aproximação, âmbar na estimativa, cor da escala no observado", () => {
     expect(estiloMarcador(porNome("Vila Olímpia")).border).toBe("2px dashed hsl(var(--accent-text))");
-    expect(estiloMarcador(porNome("Consolação")).border).toBe("2px dashed hsl(var(--estimate))");
+    expect(estiloMarcador(estimada).border).toBe("2px dashed hsl(var(--estimate))");
     expect(estiloMarcador(porNome("Pinheiros")).background).toBe("hsl(var(--escala-4))");
     expect(estiloMarcador(porNome("Brooklin")).background).toBe("hsl(var(--card) / 0.9)");
   });
@@ -115,8 +124,9 @@ describe("filtros do mapa", () => {
   it("“só dado observado” tira a estimativa e as aproximações", () => {
     const f = { ...FILTROS_INICIAIS, fonte: "observados" as const };
     const nomes = BAIRROS_CURADOS.filter((b) => passaFiltros(b, f)).map((b) => b.name);
-    expect(nomes).toHaveLength(25);
+    expect(nomes).toHaveLength(26);
     for (const nome of SEM_DADO_PROPRIO) expect(nomes).not.toContain(nome);
+    expect(reservaComEstimativa.filter((b) => passaFiltros(b, f)).map((b) => b.name)).not.toContain("Consolação");
   });
 
   it("receita mínima combina com a fonte", () => {
@@ -126,8 +136,9 @@ describe("filtros do mapa", () => {
 });
 
 describe("textos montados a partir da base", () => {
-  it("nota dos números sem dado próprio cita aproximações e estimativa", () => {
-    expect(notaEstimativas(BAIRROS_CURADOS)).toBe(
+  it("nota dos números sem dado próprio cita aproximações e, quando houver, estimativa", () => {
+    expect(notaEstimativas(BAIRROS_CURADOS)).toBe("Brooklin e Vila Olímpia usam a aproximação pelo Itaim Bibi (sem dado público por bairro).");
+    expect(notaEstimativas(reservaComEstimativa)).toBe(
       "Brooklin e Vila Olímpia usam a aproximação pelo Itaim Bibi (sem dado público por bairro). A estimativa Bewild fica acima da média e não tem fonte pública atualizada — leia com cautela.",
     );
     expect(notaEstimativas(BAIRROS_CURADOS.filter((b) => naturezaBairro(b) === "observado"))).toBeNull();
@@ -136,16 +147,17 @@ describe("textos montados a partir da base", () => {
   it("Fontes e atualização citam coleta, períodos, aproximações e a estimativa certa", () => {
     const t = textosFontes(reserva);
     expect(t.observado).toContain("Coletas de 13/10/2026 e 18/10/2026");
-    expect(t.observado).toContain("período jan–set/2026 (Liberdade, República, Santana e Barra Funda: jan–jul/2026)");
+    expect(t.observado).toContain("período jan–set/2026 (Consolação, Liberdade, República, Santana e Barra Funda: jan–jul/2026)"); // ordem da base
     for (const nome of SEM_DADO_PROPRIO) expect(t.observado).not.toContain(nome);
     expect(t.aproximacao).toBe("Brooklin e Vila Olímpia não têm dado público por bairro: usam os números do Itaim Bibi, mesma coleta da GuestFavorites.");
-    expect(t.estimativa).toContain("Consolação usa valores Bewild anteriores, sem fonte pública atualizada.");
+    expect(t.estimativa).not.toContain("Consolação");
     expect(t.estimativa).toContain("Em Brooklin e Vila Olímpia, a estimativa Bewild anterior aparece só como referência extra, fora das contas.");
+    expect(textosFontes(reservaComEstimativa).estimativa).toContain("Consolação usa valores Bewild anteriores, sem fonte pública atualizada.");
     expect(t.hipotese).toContain("não retorno garantido");
   });
 
   it("sem quartis, a estimativa mostra a faixa Bewild", () => {
-    expect(textoSemQuartis(porNome("Consolação"))).toBe("Sem quartis publicados. Estimativa Bewild de R$ 260 a R$ 390 por diária.");
+    expect(textoSemQuartis(estimada)).toBe("Sem quartis publicados. Estimativa Bewild de R$ 260 a R$ 390 por diária.");
   });
 
   it("escala comum dos quartis começa em R$ 450 e arredonda para R$ 50 (Morumbi, P75 R$ 574 → R$ 600)", () => {
@@ -217,7 +229,7 @@ describe("diferença até o maior valor na comparação", () => {
   });
 
   it("escreve o nome do bairro com o artigo certo e a natureza do dado", () => {
-    const marca = (nome: string) => marcaNatureza(porNome(nome));
+    const marca = (nome: string) => marcaNatureza(reservaComEstimativa.find((b) => b.name === nome)!);
     expect(bairrosNaFrase(["Itaim Bibi"], "de")).toBe("do Itaim Bibi");
     expect(bairrosNaFrase(["Mooca"], "de")).toBe("da Mooca");
     expect(bairrosNaFrase(["Pinheiros"], "de")).toBe("de Pinheiros");

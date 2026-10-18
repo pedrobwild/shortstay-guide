@@ -55,8 +55,9 @@ describe("coleta GuestFavorites aprovada em 13/10/2026", () => {
     const slug = nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/ /g, "-");
     expect(b?.sourceUrl).toBe(`https://www.guestfavorites.com/airbnb-occupancy-rates-in-${slug}-sao-paulo-brazil`);
   });
-  it("mantém estimativa Consolação", () => {
-    expect(getBairroCurado("Consolação")).toMatchObject({ dailyAvg: 325, avgOccupancy: 63, ocupacaoFonte: "bewild", dailyQuartiles: null, sourceUrl: null });
+  it("Consolação passou a dado público GuestFavorites em 18/10/2026 (antes estimativa Bewild R$ 325 / 63%)", () => {
+    expect(getBairroCurado("Consolação")).toMatchObject({ dailyAvg: 271, avgOccupancy: 62, dailyQuartiles: [155, 221, 281], activeListings: 1625, period: "jan–jul/2026", ocupacaoFonte: "guestfavorites", coletadoEm: "2026-10-18" });
+    expect(BAIRROS_CURADOS.some((b) => b.ocupacaoFonte === "bewild")).toBe(false);
   });
   it.each(["Brooklin", "Vila Olímpia"])("%s usa a aproximação pelo Itaim Bibi", (nome) => {
     expect(getBairroCurado(nome)).toMatchObject({ dailyAvg: 359, avgOccupancy: 59, dailyQuartiles: [180, 279, 404], activeListings: null, ocupacaoFonte: "aproximacao", period: "jan–set/2026", sourceUrl: "https://www.guestfavorites.com/airbnb-occupancy-rates-in-itaim-bibi-sao-paulo-brazil" });
@@ -67,7 +68,7 @@ describe("coleta GuestFavorites aprovada em 13/10/2026", () => {
   });
   it("a base tem 28 bairros (13 da coleta de 13/10 + 15 da de 18/10) e a referência da cidade", () => {
     expect(BAIRROS_CURADOS).toHaveLength(28);
-    expect(BAIRROS_CURADOS.filter((b) => b.coletadoEm === "2026-10-13" || b.ocupacaoFonte !== "guestfavorites")).toHaveLength(13);
+    expect(BAIRROS_CURADOS.filter((b) => b.coletadoEm === "2026-10-13" || b.ocupacaoFonte !== "guestfavorites")).toHaveLength(12); // Consolação entrou na coleta de 18/10
     expect(SAO_PAULO_REFERENCIA).toEqual({ avgOccupancy: 60, dailyAvg: 266, activeListings: 34854, period: "jan–set/2026" });
   });
   it("identifica a amostra pequena da Mooca", () => {

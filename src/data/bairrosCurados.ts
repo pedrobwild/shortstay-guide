@@ -22,7 +22,7 @@ export type BairroCurado = {
   /** Referência extra (dados anteriores da Bewild, sem fonte pública); nunca usada em cálculos. */
   referenciaBewild?: { dailyAvg: number; dailyMin: number; dailyMax: number; avgOccupancy: number };
 };
-export const FONTE_BAIRROS_CURADOS = "Ocupação e diária: GuestFavorites (coletas de 13/10/2026 e 18/10/2026; jan–set/2026, exceto Liberdade, República, Santana e Barra Funda, jan–jul/2026).";
+export const FONTE_BAIRROS_CURADOS = "Ocupação e diária: GuestFavorites (coletas de 13/10/2026 e 18/10/2026; jan–set/2026, exceto Liberdade, República, Santana, Barra Funda e Consolação, jan–jul/2026).";
 export const FONTE_ESTIMATIVA_BEWILD = "estimativa Bewild (sem fonte pública atualizada)";
 export const FONTE_APROXIMACAO_ITAIM = "aproximação pelo Itaim Bibi (GuestFavorites, jan–set/2026)";
 export const URL_ITAIM_BIBI = "https://www.guestfavorites.com/airbnb-occupancy-rates-in-itaim-bibi-sao-paulo-brazil";
@@ -34,11 +34,7 @@ const gf = (name: string, avgOccupancy: number, dailyAvg: number, dailyQuartiles
   dailyMin: dailyQuartiles[0], dailyMax: dailyQuartiles[2], ocupacaoFonte: "guestfavorites",
   sourceUrl: `https://www.guestfavorites.com/airbnb-occupancy-rates-in-${slug}-sao-paulo-brazil`,
 });
-// Origem: valores Bewild anteriores, mantidos por Pedro; sem fonte pública atualizada.
-const estimativa = (name: string, dailyMin: number, dailyMax: number, avgOccupancy: number): BairroCurado => ({
-  name, dailyMin, dailyMax, dailyAvg: (dailyMin + dailyMax) / 2, avgOccupancy,
-  ocupacaoFonte: "bewild", dailyQuartiles: null, activeListings: null, period: null, sourceUrl: null,
-});
+// Sem estimativa Bewild como número principal desde 18/10/2026 (a Consolação passou a dado público); a referência extra de Brooklin e Vila Olímpia fica em `referenciaBewild`.
 // Origem: página GuestFavorites do Itaim Bibi (coleta 13/10/2026, jan–set/2026), distrito que inclui
 // a Vila Olímpia e parte do Brooklin; sem anúncios ativos por bairro (3.884 é do distrito).
 const aproximacaoItaim = (name: string, referenciaBewild: BairroCurado["referenciaBewild"]): BairroCurado => ({ referenciaBewild,
@@ -48,7 +44,8 @@ const aproximacaoItaim = (name: string, referenciaBewild: BairroCurado["referenc
 export const BAIRROS_CURADOS: BairroCurado[] = [
   gf("Bela Vista", 64, 237, [140, 198, 256], 1983, "jan–set/2026", "bela-vista"),
   aproximacaoItaim("Brooklin", { dailyAvg: 360, dailyMin: 290, dailyMax: 430, avgOccupancy: 75 }),
-  estimativa("Consolação", 260, 390, 63),
+  // Consolação: dado público GuestFavorites desde a coleta de 18/10/2026 (antes estimativa Bewild R$ 325 / 63%).
+  gf("Consolação", 62, 271, [155, 221, 281], 1625, "jan–jul/2026", "consolacao", "2026-10-18"),
   gf("Itaim Bibi", 59, 359, [180, 279, 404], 3884, "jan–set/2026", "itaim-bibi"),
   gf("Jardim Paulista", 62, 319, [183, 251, 327], 3147, "jan–set/2026", "jardim-paulista"),
   gf("Liberdade", 61, 230, [132, 195, 251], 553, "jan–jul/2026", "liberdade"),

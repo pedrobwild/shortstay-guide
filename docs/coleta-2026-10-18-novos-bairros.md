@@ -1,6 +1,6 @@
 # Coleta GuestFavorites de 18/10/2026 — base de 28 bairros
 
-**Status: aguarda aprovação do Pedro.** Nada foi inserido no banco; `bairrosCurados.ts` (reserva offline) e os demais arquivos deste PR já trazem os números abaixo, para entrar em vigor junto com a carga.
+**Status: aprovada pelo Pedro e carregada no banco em 18/10/2026** (15 bairros novos + Consolação como dado público), via SQL direto em `radar_observacoes`, preservando o histórico. `bairrosCurados.ts` (reserva offline) e os demais arquivos deste PR trazem os mesmos números.
 
 Leitura das páginas públicas da GuestFavorites em 18/10/2026 (`https://www.guestfavorites.com/airbnb-occupancy-rates-in-{slug}-sao-paulo-brazil`). Valores como estão nas páginas: ocupação e diária média do cabeçalho; quartis da tabela de faixas de preço (25% mais baratos / mediana / 25% mais caros); anúncios ativos.
 
@@ -26,9 +26,9 @@ Leitura das páginas públicas da GuestFavorites em 18/10/2026 (`https://www.gue
 
 Critério de escolha: todos os bairros da cidade de São Paulo com página na GuestFavorites e amostra razoável. Bom Retiro (187) e Lapa (160) ficam com o aviso de amostra pequena (regra já existente: n < 200), como a Mooca. Ficaram de fora por amostra muito pequena: Vila Andrade (154), Penha (79), Vila Prudente (77), Vila Leopoldina (38), Cambuci (35). Sem página na GuestFavorites: Vila Madalena, Higienópolis, Paraíso, Aclimação, Jardins, Brooklin, Vila Olímpia.
 
-## Consolação (decisão à parte)
+## Consolação (troca aprovada em 18/10/2026)
 
-A GuestFavorites passou a publicar a página da Consolação: **62% · R$ 271 · quartis 155 / 221 / 281 · 1.625 anúncios · jan–jul/2026** (atualizada em 20/08/2026). Hoje o Radar mostra a estimativa Bewild (R$ 325 / 63%, sem fonte pública). Se aprovar a troca, o bairro passa a dado observado e sai do escopo da AirDNA (restam Brooklin e Vila Olímpia).
+A GuestFavorites passou a publicar a página da Consolação: **62% · R$ 271 · quartis 155 / 221 / 281 · 1.625 anúncios · jan–jul/2026** (atualizada em 20/08/2026). O Radar mostrava a estimativa Bewild (R$ 325 / 63%, sem fonte pública); com a troca, o bairro é dado observado e a estimativa ficou inativa no histórico. A AirDNA segue prevista só para Brooklin e Vila Olímpia (a RPC ainda aceita Consolação; mudar isso exige migration).
 
 ## Pontos a conferir antes de aprovar
 

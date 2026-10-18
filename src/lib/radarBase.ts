@@ -140,7 +140,7 @@ export function anexarReferencias(bairros: BairroRadar[], linhas: LinhaRef[]): B
 const juntar = (nomes: string[]) => nomes.length <= 1 ? nomes.join("") : `${nomes.slice(0, -1).join(", ")} e ${nomes[nomes.length - 1]}`;
 /**
  * Nota dos bairros fora da GuestFavorites, montada a partir da base exibida:
- * "Brooklin: AirDNA (dado licenciado), jan–set/2026. Consolação e Vila Olímpia: estimativa Bewild (sem fonte pública atualizada)."
+ * "Brooklin: AirDNA (dado licenciado), jan–set/2026. Vila Olímpia: aproximação pelo Itaim Bibi (...)."
  */
 export function notaFontesComplementares(bairros: Pick<BairroCurado, "name" | "ocupacaoFonte" | "period">[]): string {
   const airdna = bairros.filter((b) => b.ocupacaoFonte === "airdna");

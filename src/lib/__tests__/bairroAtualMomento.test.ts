@@ -54,7 +54,7 @@ describe("ranking da home por critério", () => {
     const nomes = ordenarRanking(BAIRROS_CURADOS, "receita", true).map((x) => x.bairro.name);
     expect(nomes).not.toContain("Brooklin");
     expect(nomes).not.toContain("Vila Olímpia");
-    expect(nomes).not.toContain("Consolação");
+    expect(nomes).toContain("Consolação"); // dado público desde 18/10/2026
     expect(nomes).toContain("Pinheiros");
   });
 

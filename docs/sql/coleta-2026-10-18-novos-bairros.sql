@@ -1,5 +1,5 @@
 -- Coleta GuestFavorites de 18/10/2026 — 15 bairros novos (+ Consolação, opcional).
--- NÃO EXECUTAR sem a aprovação explícita do Pedro (regra: a base aprovada só muda com aprovação).
+-- EXECUTADO em 18/10/2026 após aprovação do Pedro (incluindo a Consolação). Mantido como registro da carga.
 -- Dados vão por SQL direto (nunca por migration). Mesmo formato que a RPC admin_registrar_coleta_radar grava:
 -- desativa as observações ativas do bairro e insere a coleta nova, preservando o histórico.
 -- Alternativa sem SQL: registrar cada bairro em /admin/coletas com os mesmos valores (a RPC faz a validação).
