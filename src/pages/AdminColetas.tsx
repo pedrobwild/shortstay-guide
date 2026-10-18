@@ -19,6 +19,7 @@ import ColetaAuditoria from "@/components/admin/ColetaAuditoria";
 import ImportacaoAirdna from "@/components/admin/ImportacaoAirdna";
 import ColetasPendentes from "@/components/admin/ColetasPendentes";
 import HistoricoGuestFavorites from "@/components/admin/HistoricoGuestFavorites";
+import ComparacaoFontes from "@/components/admin/ComparacaoFontes";
 
 const inicial = () => ({ bairro: "Mooca", fonte_id: "guestfavorites" as const, periodo_inicio: "", periodo_fim: "", coletado_em: new Date().toISOString().slice(0, 10), publicado_em: "", amostra_n: "", url_origem: "", observacao: "" });
 const dataBR = (v: string | null) => v ? v.split("-").reverse().join("/") : "Sem período";
@@ -57,6 +58,7 @@ export default function AdminColetas() {
     <HistoricoGuestFavorites />
     <p className="break-all text-sm text-muted-foreground">UTMs deste acesso: {rotuloUtms(utms)}</p>
     <ColetasPendentes />
+    <ComparacaoFontes />
     <ImportacaoAirdna utms={utms} />
     <h2 className="font-display text-xl font-semibold">Coleta manual GuestFavorites</h2>
     <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); revisar(); }}>
