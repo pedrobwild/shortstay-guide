@@ -1,4 +1,4 @@
-- [ ] Criar /admin/fontes para listar observações, editar com histórico preservado e ativar coletas atomicamente, com atualização automática; não publicar nem alterar dados reais durante testes.
+- [x] Criar /admin/fontes com observações reais paginadas, filtros, edição com revisões privadas e ativação transacional de coletas completas; atualizar sem recarga. 27 testes passaram, lint sem erros (18 avisos existentes), compilação automática OK e tela autenticada conferida a 320px sem transbordamento. Não publicado; salvamento/ativação real não exercitados para preservar dados aprovados.
 - [x] Corrigir HTML do FAQ: respostas e links presentes mesmo fechado, sem publicar.
 - [x] Substituir as dez afirmações aprovadas e exibir suas fontes.
 - [x] Padronizar percentuais e decimais com Intl.NumberFormat pt-BR, preservando moeda e case Pinheiros.
