@@ -53,6 +53,8 @@ export interface ControleProjecao {
   costs: CostSettings;
   occupancyPct: number;
   avgStayNights: number;
+  /** Rótulos da composição quando a página agrega custos (ex.: "Gestão, Airbnb e manutenção"). */
+  rotulos?: { gestao?: string; condominio?: string };
 }
 
 const SIZE_KEYS: SizeKey[] = ["20–25 m²", "26–35 m²", "36–50 m²"];
@@ -765,10 +767,10 @@ export default function ProjectAnalytics({
           <h3 className="text-sm font-medium text-foreground">Composição da receita</h3>
           <div className="space-y-2 text-xs">
             <CostRow label="Receita bruta" value={grossRevenue} positive />
-            <CostRow label={`Limpeza (${kpis.reservationsCount} reservas × ${brl(costs.cleaningPerStay)})`} value={-cleaningTotal} />
-            <CostRow label={`Gestão (${formatDecimal(costs.managementPct)}%)`} value={-managementTotal} />
+            {costs.cleaningPerStay > 0 && <CostRow label={`Limpeza (${kpis.reservationsCount} reservas × ${brl(costs.cleaningPerStay)})`} value={-cleaningTotal} />}
+            <CostRow label={`${controle?.rotulos?.gestao ?? "Gestão"} (${formatDecimal(costs.managementPct)}%)`} value={-managementTotal} />
             <CostRow label={`Impostos (${formatDecimal(costs.taxesPct)}%)`} value={-taxesTotal} />
-            <CostRow label={`Condomínio (${monthsCount} × ${brl(costs.condoMonthly)})`} value={-condoTotal} />
+            <CostRow label={`${controle?.rotulos?.condominio ?? "Condomínio"} (${monthsCount} × ${brl(costs.condoMonthly)})`} value={-condoTotal} />
             <div className="h-px bg-border my-1" />
             <CostRow label="Receita líquida" value={netRevenue} bold />
           </div>
