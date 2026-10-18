@@ -1,3 +1,4 @@
+- [ ] Preparar execução externa protegida GuestFavorites, registrar status e mostrar em /admin/coletas; ativação depende da configuração do agendador externo e chave compartilhada.
 - [x] Histórico global GuestFavorites em /admin/coletas com fonte, período, status, filtros, paginação e referências sem coleta ativa; 37 coletas reais e 2 referências sem coleta direta conferidas com sessão admin, desktop/320px sem transbordamento; 10 testes e lint passaram, compilação automática OK. Sem alterar dados ou publicar.
 - [x] Implantar coletar-airdna e coletar-airbnb com JWT/admin, validação e CORS; prévias somente leitura, comparação GuestFavorites por período e agregação mensal estrita. 12 testes e lint passaram; chamadas autenticadas e sem sessão conferidas; nenhuma gravação.
 - [ ] Validar coleta real AirDNA: provedor recusou a chave existente com 401 invalid_credentials; precisa de credencial Enterprise válida e pacote autorizado.
