@@ -521,6 +521,74 @@ export type Database = {
           },
         ]
       }
+      radar_coletas_pendentes: {
+        Row: {
+          amostra_n: number
+          atual: Json | null
+          bairro: string
+          cidade: string
+          coletado_em: string
+          criado_em: string
+          decidido_em: string | null
+          decidido_por: string | null
+          fonte_id: string
+          id: string
+          indicadores: Json
+          motivo: string | null
+          periodo_fim: string
+          periodo_inicio: string
+          publicado_em: string | null
+          status: string
+          url_origem: string
+        }
+        Insert: {
+          amostra_n: number
+          atual?: Json | null
+          bairro: string
+          cidade?: string
+          coletado_em: string
+          criado_em?: string
+          decidido_em?: string | null
+          decidido_por?: string | null
+          fonte_id: string
+          id?: string
+          indicadores: Json
+          motivo?: string | null
+          periodo_fim: string
+          periodo_inicio: string
+          publicado_em?: string | null
+          status?: string
+          url_origem: string
+        }
+        Update: {
+          amostra_n?: number
+          atual?: Json | null
+          bairro?: string
+          cidade?: string
+          coletado_em?: string
+          criado_em?: string
+          decidido_em?: string | null
+          decidido_por?: string | null
+          fonte_id?: string
+          id?: string
+          indicadores?: Json
+          motivo?: string | null
+          periodo_fim?: string
+          periodo_inicio?: string
+          publicado_em?: string | null
+          status?: string
+          url_origem?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "radar_coletas_pendentes_fonte_id_fkey"
+            columns: ["fonte_id"]
+            isOneToOne: false
+            referencedRelation: "radar_fontes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       radar_fontes: {
         Row: {
           id: string
@@ -818,7 +886,12 @@ export type Database = {
       }
     }
     Functions: {
+      admin_aprovar_coleta_pendente: { Args: { p_id: string }; Returns: number }
       admin_ativar_coleta_radar: { Args: { p_id: string }; Returns: undefined }
+      admin_descartar_coleta_pendente: {
+        Args: { p_id: string; p_motivo?: string }
+        Returns: undefined
+      }
       admin_editar_observacao_radar: {
         Args: {
           p_esperado: string
