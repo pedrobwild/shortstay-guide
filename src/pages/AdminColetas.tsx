@@ -18,6 +18,7 @@ import { registrarColetaAuditada, rotuloUtms, utmsAcessoColeta } from "@/lib/col
 import ColetaAuditoria from "@/components/admin/ColetaAuditoria";
 import ImportacaoAirdna from "@/components/admin/ImportacaoAirdna";
 import ColetasPendentes from "@/components/admin/ColetasPendentes";
+import HistoricoGuestFavorites from "@/components/admin/HistoricoGuestFavorites";
 
 const inicial = () => ({ bairro: "Mooca", fonte_id: "guestfavorites" as const, periodo_inicio: "", periodo_fim: "", coletado_em: new Date().toISOString().slice(0, 10), publicado_em: "", amostra_n: "", url_origem: "", observacao: "" });
 const dataBR = (v: string | null) => v ? v.split("-").reverse().join("/") : "Sem período";
@@ -53,6 +54,7 @@ export default function AdminColetas() {
   const campo = (key: keyof ReturnType<typeof inicial>, label: string, type = "text") => <label className="block space-y-1 text-sm"><span>{label}</span><Input required={!["publicado_em", "observacao"].includes(key)} type={type} className="text-base min-h-[44px]" value={form[key]} onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))} /></label>;
   return <div className="min-h-screen bg-background"><AppNavbar /><main className="mx-auto max-w-5xl px-4 py-8 space-y-6"><AdminTabs />
     <h1 className="font-display text-2xl font-bold">Coletas de mercado</h1>
+    <HistoricoGuestFavorites />
     <p className="break-all text-sm text-muted-foreground">UTMs deste acesso: {rotuloUtms(utms)}</p>
     <ColetasPendentes />
     <ImportacaoAirdna utms={utms} />
