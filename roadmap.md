@@ -1,3 +1,4 @@
+- [ ] Mostrar GuestFavorites, AirDNA e Airbnb lado a lado em /admin/coletas, conferir consultas e limitações sem alterar dados aprovados.
 - [x] Implantar coletar-guestfavorites sem alterar código/configuração e conferir execução completa autenticada em /admin/coletas: HTTP 200, 27 páginas, 27 sem mudança, zero propostas e erros; status concluído em 18/10/2026 às 05:22 Brasília.
 - [ ] Configurar chave real compartilhada GuestFavorites: formulário recusado; execução por x-coleta-key não verificada.
 - [x] Preparar execução externa protegida GuestFavorites, bloqueio simultâneo e status privado em /admin/coletas. Leitura real manual conferida: 27 páginas, zero propostas, 27 sem mudança; 8 testes, lint e compilação OK. Sem publicar.
