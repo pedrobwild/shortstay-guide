@@ -1,3 +1,4 @@
+- [x] Corrigir HTML do FAQ: respostas e links presentes mesmo fechado, sem publicar.
 - [x] Substituir as dez afirmações aprovadas e exibir suas fontes.
 - [x] Padronizar percentuais e decimais com Intl.NumberFormat pt-BR, preservando moeda e case Pinheiros.
 - [x] Ocultar o selo Edit with Lovable no site publicado.

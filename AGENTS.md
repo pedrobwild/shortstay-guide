@@ -1,5 +1,5 @@
 
-- SEO: head por rota via react-helmet-async (RouteSeo) e metadados em src/data/seoRoutes.json; scripts/prerender.mjs roda após vite build e gera HTML estático por rota pública + sitemap.xml. Por quê: indexação no Google em radarbewild.com.br sem SSR.
+- Use RouteSeo, seoRoutes.json and scripts/prerender.mjs for route metadata, public HTML and sitemap. Why: index public routes without SSR hosting.
 - Home pré-renderizada com React (src/entry-server.tsx + vite build --ssr) e hidratada via hydrateRoot só quando data-ssr-path bate com a rota; partes de navegador ficam em ClientOnly. Por quê: guia completo indexável sem quebrar o SPA.
 - Números de custo de reforma, prazo de obra, garantia e prova social vivem só em src/data/provasBewild.ts, cada um com a origem em comentário; componentes, FAQ e JSON-LD importam de lá e o teste src/lib/__tests__/provasBewild.test.ts barra textos proibidos. Por quê: evitar que a mesma prova apareça com valores diferentes em telas distintas.
 - Diária, ocupação, quartis, amostra e fonte por bairro vivem no banco (radar_observacoes; view radar_bairro_atual calcula confiança e idade) e são lidos por src/lib/radarBase.ts (app) e pela função chat; bairrosCurados.ts é só reserva offline e base do case Pinheiros. Nova coleta = novas linhas ativas + desativar antigas, sem editar código. Por quê: um bairro, um número, uma fonte para app, chat e site.
@@ -20,3 +20,4 @@
 - Links from the Radar to bewild.com.br articles and per-neighborhood reform pages live only in src/data/artigosBewild.ts, rendered as plain links without UTM (UTM only via OrcamentoButton). Why: Radar owns data/tools, bewild.com.br owns analysis and service, without competing for the same searches.
 - Data pages (/ranking, /mercado, /bairro/*) are prerendered as static React markup from the approved offline base (src/components/PreRenderMercado.tsx via renderEstatico) and replaced, not hydrated, on load; only the home hydrates. Why: those pages depend on database-only scores unavailable at build time.
 - Organization JSON-LD reuses the bewild.com.br #org node on every prerendered page; the Radar only owns its WebSite node. Why: one Bewild entity for search engines.
+- Use native details/summary and FAQ_ITEMS for homepage FAQ. Why: answers and links stay in initial HTML and work without JavaScript.
