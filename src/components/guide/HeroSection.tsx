@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useBairroData } from "@/hooks/useBairroData";
 import { caminhoComBairro, definirBairroAtual, useBairroAtual } from "@/lib/bairroAtual";
-import { CAMINHOS_MOMENTO, definirMomento, type Momento } from "@/lib/momento";
+import { CAMINHOS_MOMENTO, definirMomento, useMomento, type Momento } from "@/lib/momento";
 import { slugifyBairro } from "@/lib/seo";
 
 /**
@@ -93,6 +93,7 @@ function CarimboReferencia({ className }: { className?: string }) {
 
 export default function HeroSection() {
   const bairroAtual = useBairroAtual();
+  const momentoAtual = useMomento();
   return (
     <section id="hero" className="scroll-mt-24 grid gap-10 pb-12 pt-8 md:pt-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start lg:gap-16 lg:pb-20 lg:pt-16">
       <div className="min-w-0">
@@ -132,18 +133,20 @@ export default function HeroSection() {
                 <ArrowRight className="col-start-3 row-span-2 row-start-1 h-4 w-4 self-center text-primary md:hidden" aria-hidden="true" />
               </>
             );
+            const escolhido = momentoAtual === p.momento;
             const classe = cn(
               "grid h-full w-full grid-cols-[28px_minmax(0,1fr)_16px] gap-x-3 gap-y-1 py-4 text-left transition-colors hover:bg-accent-light",
               "md:flex md:min-h-[200px] md:flex-col md:gap-2.5 md:py-5",
               i === 0 ? "md:pr-5" : "md:px-5",
+              escolhido && "bg-accent-light",
             );
             const rastrear = () => { definirMomento(p.momento); trackGlobal("cta_clicked", { cta_id: p.id, section: "hero", momento: p.momento }); };
             const destino = c.destino.startsWith("#") ? c.destino : caminhoComBairro(c.destino, bairroAtual);
             return (
               <li key={p.num} className={cn("border-border", i > 0 && "border-t md:border-l md:border-t-0")}>
                 {destino.startsWith("#")
-                  ? <a href={destino} onClick={rastrear} className={classe}>{conteudo}</a>
-                  : <Link to={destino} onClick={rastrear} className={classe}>{conteudo}</Link>}
+                  ? <a href={destino} onClick={rastrear} className={classe} aria-current={escolhido ? "true" : undefined}>{conteudo}</a>
+                  : <Link to={destino} onClick={rastrear} className={classe} aria-current={escolhido ? "true" : undefined}>{conteudo}</Link>}
               </li>
             );
           })}

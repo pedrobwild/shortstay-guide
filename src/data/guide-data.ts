@@ -38,6 +38,7 @@ export const SECTIONS = [
   { id: "escolha-ativo", label: "Escolha do Ativo", icon: Building2, phase: 2 },
   { id: "rentabilidade", label: "Matemática do Investimento", icon: PieChart, phase: 2 },
   { id: "simulador", label: "Simulador de receita", icon: Calculator, phase: 2 },
+  { id: "casestudy", label: "Case study", icon: BookOpen, phase: 2 },
   // Bloco 3 — O que faz um studio performar
   { id: "reservas", label: "Escolha do hóspede", icon: TrendingUp, phase: 3 },
   { id: "reforma", label: "Reforma inteligente", icon: Paintbrush, phase: 3 },
@@ -46,7 +47,6 @@ export const SECTIONS = [
   { id: "tendencias", label: "Tendências 2026", icon: Sparkles, phase: 3 },
   // Bloco 4 — Como agir com confiança
   { id: "anuncio-pricing", label: "Anúncio e Precificação", icon: Megaphone, phase: 4 },
-  { id: "casestudy", label: "Case study", icon: BookOpen, phase: 4 },
   { id: "checklist", label: "Checklist investidor", icon: CheckSquare, phase: 4 },
   { id: "faq", label: "FAQ", icon: HelpCircle, phase: 4 },
   { id: "cta-final", label: "Peça seu orçamento", icon: Send, phase: 4 },
