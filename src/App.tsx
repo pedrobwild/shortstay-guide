@@ -39,6 +39,7 @@ const AdminSimulacoes = lazy(() => import("./pages/AdminSimulacoes"));
 const AdminFontes = lazy(() => import("./pages/AdminFontes"));
 const AdminColetas = lazy(() => import("./pages/AdminColetas"));
 const AdminMercado = lazy(() => import("./pages/AdminMercado"));
+const AdminUsuarios = lazy(() => import("./pages/AdminUsuarios"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 import ChatBot from "./components/ChatBot";
 import ClientOnly from "@/components/ClientOnly";
@@ -188,6 +189,7 @@ export function AppRoutes() {
           <Route path="/admin/fontes" element={<AdminRoute><AdminFontes /></AdminRoute>} />
           <Route path="/admin/coletas" element={<AdminRoute><AdminColetas /></AdminRoute>} />
           <Route path="/admin/mercado" element={<AdminRoute><AdminMercado /></AdminRoute>} />
+          <Route path="/admin/usuarios" element={<AdminRoute><AdminUsuarios /></AdminRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <ClientOnly><ChatBot /></ClientOnly>
