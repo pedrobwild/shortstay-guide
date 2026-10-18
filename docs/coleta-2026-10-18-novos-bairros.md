@@ -10,31 +10,31 @@ Leitura das páginas públicas da GuestFavorites em 18/10/2026 (`https://www.gue
 |---|---|---|---|---|---|---|---|
 | Santa Cecília | 59% | R$ 215 | 53 / 163 / 222 | 607 | jan–set/2026 | 15/10/2026 | P25 muito baixo na página (R$ 53), como na Mooca; conferir. |
 | Campo Belo | 60% | R$ 233 | 142 / 194 / 252 | 1.077 | jan–set/2026 | 08/10/2026 |  |
-| Santana | 61% | R$ 228 | 160 / 205 / 254 | 506 | jan–jul/2026 | 19/08/2026 | Período jan–jul/2026 (página atualizada em 19/08/2026). |
+| Santana | 62% | R$ 229 | 164 / 207 / 257 | 510 | jan–set/2026 | 08/10/2026 | corrigido em 18/10 (leitura inicial veio de cache: 61% / R$ 228 / 506, jan–jul) |
 | Tatuapé | 58% | R$ 249 | 157 / 220 / 268 | 422 | jan–set/2026 | 15/10/2026 |  |
-| Barra Funda | 57% | R$ 257 | 196 / 235 / 281 | 549 | jan–jul/2026 | 19/08/2026 | Período jan–jul/2026 (página atualizada em 19/08/2026). |
+| Barra Funda | 57% | R$ 255 | 193 / 233 / 279 | 559 | jan–set/2026 | 08/10/2026 | corrigido em 18/10 (leitura inicial em cache: R$ 257 / 549, jan–jul) |
 | Butantã | 61% | R$ 276 | 87 / 207 / 268 | 402 | jan–set/2026 | 16/10/2026 | P25 baixo na página (R$ 87); conferir. |
 | Saúde | 63% | R$ 247 | 120 / 191 / 243 | 525 | jan–set/2026 | 15/10/2026 |  |
 | Ipiranga | 56% | R$ 226 | 89 / 171 / 228 | 238 | jan–set/2026 | 08/10/2026 | P25 baixo na página (R$ 89); conferir. |
-| Morumbi | 56% | R$ 487 | 204 / 323 / 574 | 334 | jan–set/2026 | 02/10/2026 | Diária média puxada por anúncios de alto valor (mediana R$ 323). |
+| Morumbi | 57% | R$ 485 | 204 / 323 / 574 | 330 | jan–set/2026 | 15/10/2026 | média bem acima da mediana (R$ 323); corrigido em 18/10 (cache: 56% / R$ 487 / 334) |
 | Santo Amaro | 56% | R$ 256 | 152 / 201 / 256 | 1.488 | jan–set/2026 | 15/10/2026 |  |
-| Jabaquara | 55% | R$ 227 | 110 / 183 / 248 | 417 | jan–set/2026 | 02/10/2026 |  |
+| Jabaquara | 55% | R$ 228 | 110 / 183 / 248 | 421 | jan–set/2026 | 15/10/2026 | corrigido em 18/10 (cache: R$ 227 / 417) |
 | Sé | 64% | R$ 184 | 133 / 160 / 190 | 502 | jan–set/2026 | 08/10/2026 |  |
-| Brás | 65% | R$ 217 | 122 / 167 / 256 | 798 | jan–set/2026 | 02/10/2026 |  |
+| Brás | 65% | R$ 217 | 122 / 167 / 255 | 841 | jan–set/2026 | 15/10/2026 | corrigido em 18/10 (cache: P75 256 / 798) |
 | Bom Retiro | 60% | R$ 189 | 120 / 170 / 204 | 187 | jan–set/2026 | 08/10/2026 | Amostra pequena (187 anúncios). |
 | Lapa | 57% | R$ 239 | 125 / 190 / 247 | 160 | jan–set/2026 | 08/10/2026 | Amostra pequena (160 anúncios). |
 
-Critério de escolha: todos os bairros da cidade de São Paulo com página na GuestFavorites e amostra razoável. Bom Retiro (187) e Lapa (160) ficam com o aviso de amostra pequena (regra já existente: n < 200), como a Mooca. Ficaram de fora por amostra muito pequena: Vila Andrade (154), Penha (79), Vila Prudente (77), Vila Leopoldina (38), Cambuci (35). Sem página na GuestFavorites: Vila Madalena, Higienópolis, Paraíso, Aclimação, Jardins, Brooklin, Vila Olímpia.
+Critério de escolha: todos os bairros da cidade de São Paulo com página na GuestFavorites e amostra razoável. Períodos: todos jan–set/2026. Bom Retiro (187) e Lapa (160) ficam com o aviso de amostra pequena (regra já existente: n < 200), como a Mooca. Ficaram de fora por amostra muito pequena: Vila Andrade (154), Penha (79), Vila Prudente (77), Vila Leopoldina (38), Cambuci (35). Sem página na GuestFavorites: Vila Madalena, Higienópolis, Paraíso, Aclimação, Jardins, Brooklin, Vila Olímpia.
 
 ## Consolação (troca aprovada em 18/10/2026)
 
-A GuestFavorites passou a publicar a página da Consolação: **62% · R$ 271 · quartis 155 / 221 / 281 · 1.625 anúncios · jan–jul/2026** (atualizada em 20/08/2026). O Radar mostrava a estimativa Bewild (R$ 325 / 63%, sem fonte pública); com a troca, o bairro é dado observado e a estimativa ficou inativa no histórico. A AirDNA segue prevista só para Brooklin e Vila Olímpia (a RPC ainda aceita Consolação; mudar isso exige migration).
+A GuestFavorites passou a publicar a página da Consolação: **63% · R$ 270 · quartis 160 / 220 / 282 · 1.567 anúncios · jan–set/2026** (atualizada em 15/10/2026; a leitura inicial em cache dizia 62% / R$ 271 / 1.625, jan–jul — corrigido em 18/10). O Radar mostrava a estimativa Bewild (R$ 325 / 63%, sem fonte pública); com a troca, o bairro é dado observado e a estimativa ficou inativa no histórico. A AirDNA segue prevista só para Brooklin e Vila Olímpia (a RPC ainda aceita Consolação; mudar isso exige migration).
 
 ## Pontos a conferir antes de aprovar
 
 - P25 muito baixo em Santa Cecília (R$ 53), Butantã (R$ 87) e Ipiranga (R$ 89) — mesmo padrão da Mooca (R$ 27); a página mostra assim.
 - Morumbi: diária média R$ 487 bem acima da mediana (R$ 323) — anúncios de alto valor puxam a média; o Radar mostra a média (ADR), como nos demais.
-- Santana e Barra Funda: período jan–jul/2026; páginas atualizadas em 19/08/2026 (ainda dentro dos 240 dias da regra de confiança).
+- Lição da carga: a leitura por ferramenta de busca devolveu versões em cache de 6 páginas; a conferência ao vivo (navegador) é obrigatória antes de registrar — é o que a coleta assistida faz.
 
 ## Como carregar depois de aprovado
 
