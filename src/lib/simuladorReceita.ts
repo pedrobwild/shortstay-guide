@@ -5,14 +5,15 @@
  *
  * Números de mercado (diária, ocupação) vêm da base do Radar. Todas as premissas
  * de custo aqui são HIPÓTESES editáveis, rotuladas assim na tela:
- *  - short stay: DRE padrão do guia (Airbnb 3%, gestão 20%, impostos 6%,
- *    manutenção 5%; ver DEDUCOES_PADRAO_PCT em bairroAjustes.ts). As despesas
- *    fixas (condomínio, IPTU, contas) entram em reais, informadas pela pessoa.
+ *  - short stay: DRE padrão do guia (fonte única: src/data/dreGuia.ts —
+ *    DRE_GUIA). As despesas fixas (condomínio, IPTU, contas) entram em reais,
+ *    informadas pela pessoa.
  *  - tradicional: a base não tem aluguel por bairro; o aluguel de partida usa a
  *    rentabilidade média de locação de São Paulo (FipeZAP) sobre o valor do
  *    imóvel e a pessoa ajusta.
  */
 import { DEFAULT_PROJECTION_COSTS } from "@/lib/projectAnalytics";
+import { DESPESAS_EXEMPLO, DRE_GUIA, investimentoTotal } from "@/data/dreGuia";
 import { formatPercent } from "@/lib/numberFormat";
 import type { SizeKey } from "@/data/bairrosCurados";
 import { DECORATION_LEVELS } from "@/data/guide-data";
@@ -54,11 +55,11 @@ export interface PremissasTradicional {
   irPct: number;
 }
 
-/**
- * DRE padrão do guia, mesma origem de DEDUCOES_PADRAO_PCT: Airbnb 3%, gestão 20%,
- * impostos 6%, manutenção 5%. Contas: valor do exemplo do guia (rentabilidadeExample).
- */
-export const SHORT_STAY_PADRAO: PremissasShortStay = { airbnbPct: 3, gestaoPct: 20, impostosPct: 6, manutencaoPct: 5, contas: 500 };
+/** DRE padrão do guia (DRE_GUIA) e contas do exemplo do guia (DESPESAS_EXEMPLO). */
+export const SHORT_STAY_PADRAO: PremissasShortStay = {
+  airbnbPct: DRE_GUIA.airbnbPct, gestaoPct: DRE_GUIA.gestaoPct, impostosPct: DRE_GUIA.impostosPct, manutencaoPct: DRE_GUIA.manutencaoPct,
+  contas: DESPESAS_EXEMPLO.contas,
+};
 
 /** Condomínio do exemplo da projeção (DEFAULT_PROJECTION_COSTS); IPTU e valor do imóvel a pessoa informa. */
 export const IMOVEL_PADRAO: Imovel = { valorImovel: 0, condominio: DEFAULT_PROJECTION_COSTS.condoMonthly, iptu: 0 };
@@ -184,9 +185,10 @@ function montar(modo: ModoSimulacao, receitaBruta: number, deducoes: LinhaResult
  * Rentabilidade líquida anual e prazo de retorno sobre o investimento (valor do imóvel
  * + reforma, quando informada). Null sem valor do imóvel; payback null sem resultado positivo.
  */
-export function indicadores(r: Resultado, valorImovel: number, reforma = 0): { investimento: number; rentabilidadeAA: number; paybackAnos: number | null } | null {
+/** Rentabilidade líquida anual e prazo de retorno sobre o investimento total (imóvel + reforma + ITBI, se informado). */
+export function indicadores(r: Resultado, valorImovel: number, reforma = 0, itbi = 0): { investimento: number; rentabilidadeAA: number; paybackAnos: number | null } | null {
   if (!(valorImovel > 0)) return null;
-  const investimento = valorImovel + Math.max(0, reforma);
+  const investimento = investimentoTotal({ imovel: valorImovel, reforma, itbi });
   return { investimento, rentabilidadeAA: r.liquidoAnual / investimento * 100, paybackAnos: r.liquidoAnual > 0 ? investimento / r.liquidoAnual : null };
 }
 

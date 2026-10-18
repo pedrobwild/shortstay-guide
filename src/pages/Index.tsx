@@ -150,7 +150,7 @@ function IndexInner() {
         ═══════════════════════════════════════════════════════ */}
         <Faixa><PhaseHeader {...phase(3)} /></Faixa>
 
-        {/* O que move reservas */}
+        {/* O que influencia a escolha do hóspede */}
         <Faixa branca><ReservasSection /></Faixa>
 
         {/* Reforma inteligente */}

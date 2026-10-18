@@ -1,3 +1,4 @@
+import { DRE_PERCENTUAIS_PCT } from "@/data/dreGuia";
 import { describe, expect, it } from "vitest";
 import { getBairroCurado } from "@/data/bairrosCurados";
 import { DEDUCOES_PADRAO_PCT } from "@/lib/bairroAjustes";
@@ -14,13 +15,14 @@ describe("short stay: da receita bruta ao líquido", () => {
   it("receita bruta de Pinheiros = diária × 30 × ocupação (R$ 5.580)", () => {
     const r = resultadoShortStay({ diaria: pinheiros.dailyAvg, ocupacaoPct: pinheiros.avgOccupancy }, semFixas, { ...SHORT_STAY_PADRAO, contas: 0 });
     expect(r.receitaBruta).toBe(5580);
-    // Só percentuais do DRE padrão: Airbnb 3% + gestão 20% + impostos 6% + manutenção 5% = 34% da bruta.
-    expect(r.totalDeducoes).toBe(Math.round(5580 * 0.03) + Math.round(5580 * 0.2) + Math.round(5580 * 0.06) + Math.round(5580 * 0.05));
+    // Só percentuais do DRE padrão (dreGuia.ts): Airbnb 3% + gestão 18% + impostos 6% + manutenção 5% = 32% da bruta.
+    expect(DRE_PERCENTUAIS_PCT).toBe(32);
+    expect(r.totalDeducoes).toBe(Math.round(5580 * 0.03) + Math.round(5580 * 0.18) + Math.round(5580 * 0.06) + Math.round(5580 * 0.05));
     expect(r.liquido).toBe(r.receitaBruta - r.totalDeducoes);
     expect(r.liquidoAnual).toBe(r.liquido * 12);
   });
 
-  it("as premissas padrão vêm do DRE do guia (45% com fixos e utilities)", () => {
+  it("as premissas padrão vêm do DRE do guia (43% com fixos e contas)", () => {
     const { airbnbPct, gestaoPct, impostosPct, manutencaoPct } = SHORT_STAY_PADRAO;
     // Fixos (8%) e utilities (3%) entram em reais na tela; os percentuais somam o resto do DRE.
     expect(airbnbPct + gestaoPct + impostosPct + manutencaoPct).toBe(DEDUCOES_PADRAO_PCT - 8 - 3);
@@ -168,7 +170,7 @@ describe("mês a mês", () => {
     expect(Math.abs(somaBruta - r.receitaBruta * 12)).toBeLessThanOrEqual(12); // arredondamento por mês
     // Fixos (condomínio + IPTU + contas = R$ 1.100) iguais todo mês; o resto acompanha a receita.
     const fixos = 500 + 100 + SHORT_STAY_PADRAO.contas;
-    for (const m of meses) expect(m.custos - Math.round(m.bruta * 0.34)).toBe(fixos);
+    for (const m of meses) expect(m.custos - Math.round(m.bruta * DRE_PERCENTUAIS_PCT / 100)).toBe(fixos);
   });
 });
 

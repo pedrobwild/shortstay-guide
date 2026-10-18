@@ -61,7 +61,7 @@ export default function CaseStudySection() {
     ...(caseData.ocupacao != null ? [{ icone: Percent, valor: `${caseData.ocupacao}%`, rotulo: `Ocupação ${caseData.ocupacaoContexto ?? "média"}` }] : []),
     ...(caseData.diaria != null ? [{ icone: DollarSign, valor: brl(caseData.diaria), rotulo: `Diária ${caseData.diariaContexto ?? ""}`.trim() }] : []),
     ...(caseData.receitaMensal != null ? [{ icone: DollarSign, valor: `${brl(caseData.receitaMensal)}/mês`, rotulo: "Receita média" }] : []),
-    ...(caseData.yieldBruto ? [{ icone: TrendingUp, valor: caseData.yieldBruto, rotulo: "Yield bruto" }] : []),
+    ...(caseData.yieldBruto ? [{ icone: TrendingUp, valor: caseData.yieldBruto, rotulo: "Rentabilidade bruta" }] : []),
   ];
 
   return (

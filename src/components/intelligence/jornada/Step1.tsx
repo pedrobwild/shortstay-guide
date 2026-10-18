@@ -1,3 +1,4 @@
+import { DRE_LINHAS } from "@/data/dreGuia";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -135,12 +136,8 @@ export const Step1Context = ({ bairros, onNext }: { bairros: BairroAirbnb[]; onN
               const gross = adr * nights;
               const lines: { label: string; pct: number | null; isGross?: boolean; isNet?: boolean; note?: string }[] = [
                 { label: "Receita bruta anual", pct: null, isGross: true },
-                { label: "Taxa Airbnb (host)", pct: -3, note: "Comissão da plataforma" },
-                { label: "Gestão / administração", pct: -20, note: "Operadora ou autogestão" },
-                { label: "Impostos (ISS + Simples)", pct: -6, note: "Varia por regime fiscal" },
-                { label: "Manutenção e reposição", pct: -5, note: "Limpeza, reparos, enxoval" },
-                { label: "Condomínio + IPTU", pct: -8, note: "Custos fixos do imóvel" },
-                { label: "Energia + internet", pct: -3, note: "Custos operacionais" },
+                // Fonte única: DRE padrão do guia (src/data/dreGuia.ts).
+                ...DRE_LINHAS.map((l) => ({ label: l.rotulo, pct: -l.pct, note: l.nota })),
                 { label: "Lucro líquido estimado", pct: null, isNet: true },
               ];
               const totalDeduction = lines.reduce((s, l) => s + (l.pct ?? 0), 0);

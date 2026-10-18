@@ -46,11 +46,8 @@ export function useBairroAjustes() {
   return useQuery({ queryKey: ["bairro_ajustes"], queryFn: carregarAjustes, staleTime: 5 * 60 * 1000 });
 }
 
-/** Deduções padrão do DRE do guia: Airbnb 3%, gestão 20%, impostos 6%, manutenção 5%, fixos 8%, utilities 3%. */
-export const DEDUCOES_PADRAO_PCT = 45;
-export function resultadoLiquidoMensal(receitaBrutaMensal: number): number {
-  return Math.round(receitaBrutaMensal * (1 - DEDUCOES_PADRAO_PCT / 100));
-}
+/** Deduções padrão do DRE do guia: fonte única em src/data/dreGuia.ts (reexportadas para quem já importa daqui). */
+export { DEDUCOES_PADRAO_PCT, resultadoLiquidoMensal } from "@/data/dreGuia";
 
 /** Nível de decoração conforme o boost escolhido no simulador. */
 export function rotuloDecoracao(boostPct: number): string {

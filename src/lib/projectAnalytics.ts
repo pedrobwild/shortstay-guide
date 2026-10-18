@@ -5,6 +5,8 @@
  * Convenção iCal: `end_date` é EXCLUSIVO (primeiro dia não ocupado / checkout).
  */
 
+import { DESPESAS_EXEMPLO, DRE_GUIA } from "@/data/dreGuia";
+
 export type EventType = "reservation" | "blocked";
 
 export interface RawEvent {
@@ -739,11 +741,12 @@ export function longestGaps(events: NormalizedEvent[], topN = 3): VacancyGap[] {
  * Convenção mantida: `end` é exclusivo (checkout / primeiro dia não ocupado).
  */
 /** Premissas financeiras padrão de uma projeção (espelha o painel de custos). */
+/** Gestão e impostos: DRE padrão do guia (src/data/dreGuia.ts); condomínio: despesa do exemplo do guia. */
 export const DEFAULT_PROJECTION_COSTS = {
   cleaningPerStay: 120,
-  managementPct: 18,
-  taxesPct: 6,
-  condoMonthly: 500,
+  managementPct: DRE_GUIA.gestaoPct,
+  taxesPct: DRE_GUIA.impostosPct,
+  condoMonthly: DESPESAS_EXEMPLO.condominio,
 };
 
 export interface ProjectionSummaryParams {

@@ -159,7 +159,7 @@ function RecommendationCard({
 
               {/* Key metrics */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 my-3">
-                <MetricPill label="Yield" value={fmtPct(rec.bairro.yield_bruto_airbnb)} />
+                <MetricPill label="Rentabilidade" value={fmtPct(rec.bairro.yield_bruto_airbnb)} />
                 <MetricPill label="Ocupação" value={fmtPct(rec.bairro.ocupacao_media_studio)} />
                 <MetricPill label="ADR" value={fmtBRL(Number(rec.bairro.adr_medio_studio))} />
                 <MetricPill label="Liquidez" value={formatDecimal(Number(rec.bairro.score_liquidez), 0)} />
