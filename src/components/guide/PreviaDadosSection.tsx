@@ -1,4 +1,4 @@
-import { Fragment, useMemo, type CSSProperties } from "react";
+import { Fragment, useMemo, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,8 @@ import FonteBairro from "@/components/guide/FonteBairro";
 import FaixaQuartis from "@/components/guide/FaixaQuartis";
 import FonteLink from "@/components/guide/FonteLink";
 import AvisoBase from "@/components/radar/AvisoBase";
+import Segmentado from "@/components/radar/Segmentado";
+import { Switch } from "@/components/ui/switch";
 import { useBairroData } from "@/hooks/useBairroData";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { FONTE_BAIRROS_CURADOS, SAO_PAULO_REFERENCIA, rotuloOcupacao } from "@/data/bairrosCurados";
@@ -13,7 +15,7 @@ import { COLETA_GUESTFAVORITES, FONTES_GUIA } from "@/data/fontesGuia";
 import { fmt } from "@/data/guide-data";
 import { notaFontesComplementares } from "@/lib/radarBase";
 import {
-  RECEITA_REFERENCIA_SP, avisoAmostraBairro, corEscalaReceita, descricaoNatureza, estiloMarcador, marcaNatureza, naturezaBairro, notaEstimativas, ordenarPorReceita, posicoesEsquema,
+  CRITERIOS_RANKING, RECEITA_REFERENCIA_SP, avisoAmostraBairro, corEscalaReceita, descricaoNatureza, estiloMarcador, marcaNatureza, naturezaBairro, notaEstimativas, ordenarRanking, posicoesEsquema, type CriterioRanking,
 } from "@/lib/radarUi";
 import { formatBRL, formatPercent } from "@/lib/numberFormat";
 import { slugifyBairro } from "@/lib/seo";
@@ -29,17 +31,35 @@ import { cn } from "@/lib/utils";
 const HOME_PRE_RENDERIZADA = typeof document === "undefined" || document.getElementById("root")?.getAttribute("data-ssr-path") === "/";
 
 const linkMapa = (nome: string) => `/mapa?bairro=${encodeURIComponent(slugifyBairro(nome))}`;
+const linkSimular = (nome: string) => `/projecao?bairro=${encodeURIComponent(slugifyBairro(nome))}`;
 
-/** 01 · Escolher o bairro: ranking em pirulito da receita de referência + mapa compacto. */
+/** Rótulo e formato do valor exibido em cada critério do ranking. */
+const VALOR_CRITERIO: Record<CriterioRanking, { titulo: string; descricao: string; formatar: (v: number) => string }> = {
+  receita: { titulo: "Receita mensal de referência por bairro", descricao: "Diária média × 30 × ocupação média, antes de custos. Serve para comparar bairros; não é lucro nem garantia de resultado.", formatar: (v) => formatBRL(v) },
+  diaria: { titulo: "Diária média por bairro", descricao: "Diária média (ADR) observada na coleta. Serve para comparar bairros; a receita depende também da ocupação.", formatar: (v) => formatBRL(v) },
+  ocupacao: { titulo: "Ocupação média por bairro", descricao: "Ocupação média observada na coleta. Serve para comparar bairros; a receita depende também da diária.", formatar: (v) => formatPercent(v, 0) },
+  anuncios: { titulo: "Anúncios ativos por bairro", descricao: "Tamanho da amostra na coleta (anúncios ativos). Mais anúncios = número mais confiável, não necessariamente melhor investimento.", formatar: (v) => (v > 0 ? formatDecimalInteiro(v) : "—") },
+};
+const formatDecimalInteiro = (v: number) => new Intl.NumberFormat("pt-BR").format(v);
+
+/**
+ * 01 · Escolher o bairro: ranking em pirulito + mapa compacto. A pessoa escolhe o
+ * critério (receita de referência por padrão), pode deixar só dados observados e
+ * cada bairro tem a ação de simular. A maior receita bruta não é indicação de melhor
+ * investimento: o texto diz isso e o comparador e o simulador fazem a conta.
+ */
 export default function PreviaDadosSection() {
   const { bairros, isLoading, offline, recarregar } = useBairroData();
-  const ranking = useMemo(() => ordenarPorReceita(bairros), [bairros]);
-  const maior = ranking[0]?.receita ?? 1;
+  const [criterio, setCriterio] = useState<CriterioRanking>("receita");
+  const [soObservados, setSoObservados] = useState(false);
+  const ranking = useMemo(() => ordenarRanking(bairros, criterio, soObservados), [bairros, criterio, soObservados]);
+  const maior = ranking[0]?.valor ?? 1;
+  const valorCriterio = VALOR_CRITERIO[criterio];
   const posicoes = useMemo(() => posicoesEsquema(bairros.map((b) => b.name)), [bairros]);
   const nota = notaEstimativas(bairros);
   const fontesObservadas = [...new Set(bairros.filter((b) => naturezaBairro(b) === "observado").map((b) => (b.ocupacaoFonte === "airdna" ? "AirDNA" : "GuestFavorites")))].join(" e ");
-  const temAproximacao = bairros.some((b) => naturezaBairro(b) === "aproximacao");
-  const temEstimativa = bairros.some((b) => naturezaBairro(b) === "estimativa");
+  const temAproximacao = !soObservados && bairros.some((b) => naturezaBairro(b) === "aproximacao");
+  const temEstimativa = !soObservados && bairros.some((b) => naturezaBairro(b) === "estimativa");
   const carregando = isLoading && !HOME_PRE_RENDERIZADA;
   const sp = SAO_PAULO_REFERENCIA;
 
@@ -48,10 +68,15 @@ export default function PreviaDadosSection() {
       <div className="mx-auto grid max-w-[1280px] gap-12 px-5 py-14 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16 lg:px-10 lg:py-[72px]">
         <div className="min-w-0">
           <p className="rotulo-secao mb-2.5">01 · Escolher o bairro</p>
-          <h2 id="mapa-bairros-titulo" className="mb-3 font-display text-[28px] font-bold leading-[1.15] text-foreground md:text-[36px]">Receita mensal de referência por bairro</h2>
-          <p className="mb-6 max-w-[620px] text-base leading-[1.55] text-muted-foreground">
-            Diária média × 30 × ocupação média, antes de custos. Serve para comparar bairros; não é lucro nem garantia de resultado.
-          </p>
+          <h2 id="mapa-bairros-titulo" className="mb-3 font-display text-[28px] font-bold leading-[1.15] text-foreground md:text-[36px]">{valorCriterio.titulo}</h2>
+          <p className="mb-5 max-w-[620px] text-base leading-[1.55] text-muted-foreground">{valorCriterio.descricao}</p>
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <Segmentado valor={criterio} opcoes={CRITERIOS_RANKING} onChange={(v) => { setCriterio(v); trackGlobal("cta_clicked", { cta_id: "ranking_criterio", section: "home_previa", criterio: v }); }} rotulo="Ordenar o ranking por" className="w-full sm:w-auto" itemClassName="px-2.5 sm:px-3.5" />
+            <label className="flex min-h-[44px] items-center gap-2 text-sm text-foreground-medium">
+              <Switch checked={soObservados} onCheckedChange={(v) => { setSoObservados(v); trackGlobal("cta_clicked", { cta_id: "ranking_so_observados", section: "home_previa", ativo: v }); }} aria-label="Só dados observados" />
+              Só dados observados
+            </label>
+          </div>
           <div className="mb-5 flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-foreground-medium">
             <span className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-3 rounded-full bg-escala-4" />Dado observado{fontesObservadas ? ` (${fontesObservadas})` : ""}</span>
             {temAproximacao && <span className="flex items-center gap-2"><span aria-hidden="true" className="h-3 w-3 rounded-full border-[1.5px] border-dashed border-accent-text" />Aproximação pelo Itaim Bibi</span>}
@@ -70,19 +95,20 @@ export default function PreviaDadosSection() {
             </div>
           ) : (
             <>
-              <ol className="m-0 list-none p-0" aria-label="Bairros por receita mensal de referência, da maior para a menor">
-                {ranking.map(({ bairro: b, receita }) => {
+              {ranking.length === 0 && <p className="py-4 text-sm text-muted-foreground">Nenhum bairro com dado observado na base agora.</p>}
+              <ol className="m-0 list-none p-0" aria-label={`Bairros por ${valorCriterio.titulo.toLowerCase()}, do maior para o menor`}>
+                {ranking.map(({ bairro: b, receita, valor }) => {
                   const natureza = naturezaBairro(b);
                   const aviso = avisoAmostraBairro(b);
                   const marca = marcaNatureza(b) ?? (aviso ? "amostra pequena" : null);
-                  const largura = `${((receita / maior) * 100).toFixed(1)}%`;
+                  const largura = `${(maior > 0 ? (valor / maior) * 100 : 0).toFixed(1)}%`;
                   return (
-                    <li key={b.name}>
+                    <li key={b.name} className="flex items-stretch border-b border-trilho">
                       <Link
                         to={linkMapa(b.name)}
                         onClick={() => trackGlobal("cta_clicked", { cta_id: "ranking_bairro", section: "home_previa", bairro: b.name })}
-                        aria-label={`${b.name}: ${formatBRL(receita)} por mês${descricaoNatureza(b)}${aviso ? `, ${aviso}` : ""}. Abrir no mapa`}
-                        className="grid min-h-[44px] w-full grid-cols-[104px_minmax(0,1fr)_76px] items-center gap-3 border-b border-trilho px-1 text-left text-foreground transition-colors hover:bg-background sm:grid-cols-[150px_minmax(0,1fr)_92px] sm:gap-4 sm:px-2"
+                        aria-label={`${b.name}: ${valorCriterio.formatar(valor)}${criterio === "receita" ? " por mês" : ""}${descricaoNatureza(b)}${aviso ? `, ${aviso}` : ""}. Abrir no mapa`}
+                        className="grid min-h-[44px] min-w-0 flex-1 grid-cols-[104px_minmax(0,1fr)_76px] items-center gap-3 px-1 text-left text-foreground transition-colors hover:bg-background sm:grid-cols-[150px_minmax(0,1fr)_92px] sm:gap-4 sm:px-2"
                       >
                         <span className="min-w-0">
                           <span className="block truncate text-sm font-medium sm:text-[15px]">{b.name}</span>
@@ -102,14 +128,22 @@ export default function PreviaDadosSection() {
                             }}
                           />
                         </span>
-                        <span className="text-right text-sm font-semibold tabular-nums sm:text-[15px]">{formatBRL(receita)}</span>
+                        <span className="text-right text-sm font-semibold tabular-nums sm:text-[15px]" title={criterio === "receita" ? undefined : `Receita de referência: ${formatBRL(receita)}/mês`}>{valorCriterio.formatar(valor)}</span>
+                      </Link>
+                      <Link
+                        to={linkSimular(b.name)}
+                        onClick={() => trackGlobal("cta_clicked", { cta_id: "ranking_simular", section: "home_previa", bairro: b.name })}
+                        aria-label={`Simular um studio em ${b.name}`}
+                        className="flex min-h-[44px] shrink-0 items-center px-2 text-[13px] font-semibold text-primary underline-offset-4 hover:underline sm:px-3 sm:text-sm"
+                      >
+                        Simular
                       </Link>
                     </li>
                   );
                 })}
               </ol>
               <p className="mt-3 text-[13px] leading-normal text-muted-foreground">
-                São Paulo, referência geral: {formatBRL(RECEITA_REFERENCIA_SP)}/mês ({formatBRL(sp.dailyAvg)} × 30 × {formatPercent(sp.avgOccupancy, 0)}).{nota ? ` ${nota}` : ""}
+                São Paulo, referência geral: {formatBRL(RECEITA_REFERENCIA_SP)}/mês ({formatBRL(sp.dailyAvg)} × 30 × {formatPercent(sp.avgOccupancy, 0)}).{nota ? ` ${nota}` : ""} A maior receita bruta não indica, sozinha, o melhor investimento: compare custos e capital necessário no <Link to="/comparar" className="font-medium text-primary underline underline-offset-4">comparador</Link> e no simulador.
               </p>
               <FonteLink fonte={{ ...FONTES_GUIA.guestfavoritesSP, title: `GuestFavorites · São Paulo · ${sp.period} · coleta de ${COLETA_GUESTFAVORITES}` }} />
             </>

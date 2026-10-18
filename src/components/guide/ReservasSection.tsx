@@ -16,7 +16,7 @@ export default function ReservasSection() {
   const sortedDrivers = useMemo(() => [...DECISION_DRIVERS].sort((a, b) => a.priority[persona] - b.priority[persona]), [persona]);
 
   return (
-    <SectionBlock artigo={ARTIGOS_BEWILD.reservas} id="reservas" title="O que realmente move reservas" takeaway="Os 6 fatores que transformam um studio vazio em máquina de reservas.">
+    <SectionBlock resumido artigo={ARTIGOS_BEWILD.reservas} id="reservas" title="O que influencia a escolha do hóspede" takeaway="Os 6 fatores que pesam na decisão de reserva e no desempenho do studio.">
       <div className="mb-6">
         <p className="text-sm font-medium text-foreground mb-3 font-body">Filtrar por perfil do hóspede:</p>
         <div className="flex flex-wrap gap-2">

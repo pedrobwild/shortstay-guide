@@ -7,6 +7,7 @@ import {
   premissasParaQuery, resultadoShortStay, resultadoTradicional, salvarRascunho, type PremissasSimulador, type Resultado,
 } from "@/lib/simuladorReceita";
 import { slugifyBairro } from "@/lib/seo";
+import { definirBairroAtual, useBairroAtual } from "@/lib/bairroAtual";
 
 const BAIRRO_PADRAO = "Pinheiros";
 
@@ -91,10 +92,14 @@ export function useSimuladorReceita(): SimuladorReceita {
   useEffect(() => { if (podeSalvar.current) salvarRascunho(p, armazenamentoLocal()); }, [p]);
 
   const atualizar = useCallback((parcial: Partial<PremissasSimulador>) => { podeSalvar.current = true; setP((atual) => ({ ...atual, ...parcial })); }, []);
-  const escolherBairro = useCallback((nome: string) => { podeSalvar.current = true; setP((atual) => ({ ...atual, bairro: nome, diaria: null, ocupacao: null })); }, []);
+  const escolherBairro = useCallback((nome: string) => { podeSalvar.current = true; definirBairroAtual(nome); setP((atual) => ({ ...atual, bairro: nome, diaria: null, ocupacao: null })); }, []);
   const carregar = useCallback((novo: PremissasSimulador) => { podeSalvar.current = true; setP(normalizarPremissasSimulador(novo)); }, []);
 
-  const bairro = bairros.find((b) => b.name === p.bairro) ?? bairros.find((b) => b.name === BAIRRO_PADRAO) ?? bairros[0];
+  // Sem bairro nas premissas (nem rascunho nem link), começa pelo bairro atual da pessoa; depois, o padrão.
+  const bairroAtual = useBairroAtual();
+  const bairro = bairros.find((b) => b.name === p.bairro)
+    ?? (bairroAtual ? bairros.find((b) => slugifyBairro(b.name) === bairroAtual.slug) : undefined)
+    ?? bairros.find((b) => b.name === BAIRRO_PADRAO) ?? bairros[0];
   const diariaBase = bairro ? diariaComDecoracao(bairro.dailyAvg, p.decoracao) : 0;
   const diaria = p.diaria ?? diariaBase;
   const ocupacao = p.ocupacao ?? bairro?.avgOccupancy ?? 0;

@@ -95,7 +95,7 @@ const RATE_TIPS = [
 
 export default function AnuncioPrecificacaoSection() {
   return (
-    <SectionBlock
+    <SectionBlock resumido
       artigo={ARTIGOS_BEWILD.precificacao}
       id="anuncio-pricing"
       title="Anúncio e Precificação"

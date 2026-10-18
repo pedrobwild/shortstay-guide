@@ -1,3 +1,4 @@
+import { DEDUCOES_PADRAO_PCT, DRE_GUIA, TEXTO_DRE_PERCENTUAIS, TEXTO_INVESTIMENTO_TOTAL } from "@/data/dreGuia";
 import { useState, type ReactNode } from "react";
 import { ChevronDown, Lightbulb, RotateCcw } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -261,7 +262,7 @@ export default function SimuladorReceitaLiquida({
                     )}
                   </>
                 )}
-                <p className="text-xs leading-snug text-muted-foreground">Padrão do guia (DRE de 45%): Airbnb 3%, gestão 20%, impostos 6% e manutenção 5% da receita bruta; os fixos (8%) e as contas (3%) do DRE entram aqui em reais, com o condomínio, o IPTU e as contas que você informar. Limpeza costuma ser cobrada do hóspede e fica fora da conta.</p>
+                <p className="text-xs leading-snug text-muted-foreground">Padrão do guia (DRE de {formatPercent(DEDUCOES_PADRAO_PCT, 0)}): {TEXTO_DRE_PERCENTUAIS}; os fixos ({formatPercent(DRE_GUIA.fixosPct, 0)}) e as contas ({formatPercent(DRE_GUIA.contasPct, 0)}) do DRE entram aqui em reais, com o condomínio, o IPTU e as contas que você informar. Limpeza costuma ser cobrada do hóspede e fica fora da conta.</p>
               </Grupo>
             </>
           ) : (
@@ -368,7 +369,7 @@ export default function SimuladorReceitaLiquida({
                 </div>
               </div>
               {!ind && <p className="mt-2 text-xs text-muted-foreground">Informe o valor do imóvel para ver rentabilidade e prazo de retorno.</p>}
-              {ind && <p className="mt-2 text-xs text-muted-foreground">Investimento considerado: {brl(ind.investimento)}{p.reforma > 0 ? ` (imóvel ${brl(imovel.valorImovel)} + reforma ${brl(p.reforma)})` : ""}.</p>}
+              {ind && <p className="mt-2 text-xs text-muted-foreground">Investimento total considerado, isto é, {TEXTO_INVESTIMENTO_TOTAL}: {brl(ind.investimento)}{p.reforma > 0 ? ` = imóvel ${brl(imovel.valorImovel)} + reforma ${brl(p.reforma)}` : ""}. Rentabilidade = líquido anual ÷ investimento; prazo de retorno = investimento ÷ líquido anual.</p>}
 
               {extras}
 

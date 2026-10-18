@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import HeroSection from "@/components/guide/HeroSection";
 import PreviaDadosSection from "@/components/guide/PreviaDadosSection";
 import FontesAtualizacaoSection from "@/components/guide/FontesAtualizacaoSection";
+import FaixaBewild from "@/components/guide/FaixaBewild";
 import TableOfContents from "@/components/guide/TableOfContents";
 import MenuSecoesGuia from "@/components/guide/MobileMenu";
 import MobileStickyBar from "@/components/guide/MobileStickyBar";
@@ -119,6 +120,9 @@ function IndexInner() {
         <PreviaDadosSection />
         <Faixa><FontesAtualizacaoSection /></Faixa>
 
+        {/* Quem produz o Radar: autoridade perto das decisões, provas oficiais */}
+        <FaixaBewild />
+
         {/* Fase 1 do guia (a prévia acima é a porta de entrada): mercado e indicadores */}
         <Faixa><PhaseHeader {...phase(1)} /></Faixa>
 
@@ -150,7 +154,7 @@ function IndexInner() {
         ═══════════════════════════════════════════════════════ */}
         <Faixa><PhaseHeader {...phase(3)} /></Faixa>
 
-        {/* O que move reservas */}
+        {/* O que influencia a escolha do hóspede */}
         <Faixa branca><ReservasSection /></Faixa>
 
         {/* Reforma inteligente */}

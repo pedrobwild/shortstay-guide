@@ -25,6 +25,7 @@ import {
 } from "@/lib/radarUi";
 import { slugifyBairro } from "@/lib/seo";
 import { MAX_COMPARAR, caminhoComparar, lerComparar } from "@/lib/comparar";
+import { useBairroAtual } from "@/lib/bairroAtual";
 import { cn } from "@/lib/utils";
 
 /**
@@ -101,8 +102,11 @@ function CompararConteudo() {
 
   const slugsDisponiveis = useMemo(() => bairros.map((b) => slugifyBairro(b.name)), [bairros]);
   const pedidos = lerComparar(params.get("b"), slugsDisponiveis);
-  // Sem seleção na URL, começa com os três primeiros bairros da base.
-  const slugs = params.get("b") === null ? slugsDisponiveis.slice(0, MAX_COMPARAR) : pedidos;
+  // Sem seleção na URL, começa pelo bairro atual da pessoa (quando há) e completa com os primeiros da base.
+  const bairroAtual = useBairroAtual();
+  const slugs = params.get("b") === null
+    ? [...(bairroAtual && slugsDisponiveis.includes(bairroAtual.slug) ? [bairroAtual.slug] : []), ...slugsDisponiveis.filter((s) => s !== bairroAtual?.slug)].slice(0, MAX_COMPARAR)
+    : pedidos;
   const selecionados = slugs
     .map((s) => bairros.find((b) => slugifyBairro(b.name) === s))
     .filter((b): b is BairroItem => Boolean(b));

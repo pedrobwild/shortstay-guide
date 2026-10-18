@@ -172,13 +172,13 @@ export default function LeiturasComplementares({
           <span className="rounded-full bg-estimate-light px-2 py-0.5 text-estimate-text">Média demanda — aumento moderado</span>
           <span className="rounded-full bg-secondary px-2 py-0.5 text-muted-foreground">Baixa demanda — impacto localizado</span>
         </div>
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {eventos.map((evento) => {
             const Icone = EVENT_ICONS[evento.category as keyof typeof EVENT_ICONS] || Calendar;
             const estilo = IMPACT_STYLES[evento.impactLevel] || IMPACT_STYLES.low;
             const ativo = eventoAtivo?.id === evento.id;
             return (
-              <li key={evento.id}>
+              <li key={evento.id} className="min-w-0">
                 <button
                   type="button"
                   aria-pressed={ativo}

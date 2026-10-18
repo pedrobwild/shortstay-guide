@@ -8,27 +8,36 @@ import { motion } from "framer-motion";
 import { ArrowDown, TrendingUp, TrendingDown, Minus, AlertCircle, Lightbulb, DollarSign, Percent, Building2, Zap } from "lucide-react";
 import SectionBlock from "./SectionBlock";
 import { ARTIGOS_BEWILD } from "@/data/artigosBewild";
-import { exemploRentabilidadePinheiros, retornoSobreInvestimentoExemplo } from "@/lib/rentabilidadeExample";
-import { ESTUDO_REFORMA_URL } from "@/data/provasBewild";
+import { exemploRentabilidadePinheiros, liquidoCenario, retornoSobreInvestimentoExemplo } from "@/lib/rentabilidadeExample";
+import { ESTUDO_REFORMA_URL, STUDIO_EXEMPLO_IMOVEL, STUDIO_EXEMPLO_ITBI, ORCAMENTO_MEDIANO } from "@/data/provasBewild";
+import { DRE_GUIA, TEXTO_INVESTIMENTO_TOTAL } from "@/data/dreGuia";
 import FonteLink from "@/components/guide/FonteLink";
 import FonteBairro from "@/components/guide/FonteBairro";
 
 const exemplo = exemploRentabilidadePinheiros();
 const brlExemplo = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
-const retornoCenario = (liquido: number) => {
-  const retorno = retornoSobreInvestimentoExemplo(liquido);
-  return { yield: `${formatDecimal(retorno.yieldLiquido, 1)}%`, payback: retorno.paybackAnos === null ? "—" : `${formatDecimal(retorno.paybackAnos, 1)} anos` };
+const pct = (p: number) => formatPercent(p, 0);
+/** Cenário didático: receita bruta = diária × 30 × ocupação; líquido pela mesma conta do exemplo e do simulador. */
+const cenario = (ocupacaoPct: number, diaria: number) => {
+  const receitaBruta = diaria * 30 * ocupacaoPct / 100;
+  const receitaLiquida = liquidoCenario(receitaBruta);
+  const retorno = retornoSobreInvestimentoExemplo(receitaLiquida);
+  return {
+    ocupacao: pct(ocupacaoPct), adr: brlExemplo(diaria), receitaBruta: brlExemplo(receitaBruta), receitaLiquida: brlExemplo(receitaLiquida),
+    yield: `${formatDecimal(retorno.yieldLiquido, 1)}%`, payback: retorno.paybackAnos === null ? "—" : `${formatDecimal(retorno.paybackAnos, 1)} anos`,
+  };
 };
 
-/* ── Waterfall data ── */
+/* ── Waterfall data: mesmas linhas e percentuais do DRE padrão do guia (dreGuia.ts) ── */
 const WATERFALL = [
-  { label: "Receita Bruta", desc: "ADR × noites ocupadas/mês", example: brlExemplo(exemplo.receitaBruta), type: "revenue" as const },
-  { label: "Comissão plataforma", desc: "15% — hipótese de plataforma", example: `- ${brlExemplo(exemplo.plataforma)}`, type: "cost" as const },
-  { label: "Gestão operacional", desc: "18% — hipótese de gestão terceirizada", example: `- ${brlExemplo(exemplo.gestao)}`, type: "cost" as const },
+  { label: "Receita bruta", desc: "Diária média × 30 × ocupação", example: brlExemplo(exemplo.receitaBruta), type: "revenue" as const },
+  { label: "Taxa do Airbnb", desc: `${pct(DRE_GUIA.airbnbPct)} — hipótese: comissão cobrada do anfitrião`, example: `- ${brlExemplo(exemplo.plataforma)}`, type: "cost" as const },
+  { label: "Gestão (administradora)", desc: `${pct(DRE_GUIA.gestaoPct)} — hipótese de gestão terceirizada`, example: `- ${brlExemplo(exemplo.gestao)}`, type: "cost" as const },
+  { label: "Impostos", desc: `${pct(DRE_GUIA.impostosPct)} — hipótese tributária`, example: `- ${brlExemplo(exemplo.impostos)}`, type: "cost" as const },
+  { label: "Manutenção e reposição", desc: `${pct(DRE_GUIA.manutencaoPct)} — hipótese: reparos e enxoval`, example: `- ${brlExemplo(exemplo.manutencao)}`, type: "cost" as const },
   { label: "Condomínio", desc: "Hipótese de custo fixo mensal", example: `- ${brlExemplo(exemplo.condominio)}`, type: "fixed" as const },
-  { label: "IPTU + Utilidades", desc: "Hipótese: luz, água, internet, gás", example: `- ${brlExemplo(exemplo.utilidades)}`, type: "fixed" as const },
-  { label: "Impostos", desc: "6% — hipótese tributária", example: `- ${brlExemplo(exemplo.impostos)}`, type: "cost" as const },
-  { label: "Receita Líquida", desc: "O que sobra no bolso", example: brlExemplo(exemplo.receitaLiquida), type: "result" as const },
+  { label: "Contas (luz, água, internet)", desc: "Hipótese: contas pagas pelo anfitrião; IPTU informado no simulador", example: `- ${brlExemplo(exemplo.utilidades)}`, type: "fixed" as const },
+  { label: "Receita líquida", desc: "O que sobra no bolso", example: brlExemplo(exemplo.receitaLiquida), type: "result" as const },
 ];
 
 /* ── Scenarios ── */
@@ -39,7 +48,7 @@ const SCENARIOS = [
     icon: TrendingDown,
     color: "border-amber-500/30 bg-amber-500/[0.03]",
     badgeColor: "bg-amber-100 text-amber-800",
-    metrics: { ocupacao: "65%", adr: "R$ 280", receitaBruta: "R$ 5.460", receitaLiquida: "R$ 2.000", ...retornoCenario(2000) },
+    metrics: cenario(65, 280),
     desc: "Primeiros meses, baixa temporada ou bairro menos aquecido.",
   },
   {
@@ -48,7 +57,7 @@ const SCENARIOS = [
     icon: Minus,
     color: "border-primary/30 bg-primary/[0.03]",
     badgeColor: "bg-primary/10 text-primary",
-    metrics: { ocupacao: "75%", adr: "R$ 350", receitaBruta: "R$ 7.875", receitaLiquida: "R$ 3.360", ...retornoCenario(3360) },
+    metrics: cenario(75, 350),
     desc: "Operação estabilizada com boa gestão e produto adequado.",
   },
   {
@@ -57,7 +66,7 @@ const SCENARIOS = [
     icon: TrendingUp,
     color: "border-emerald-500/30 bg-emerald-500/[0.03]",
     badgeColor: "bg-emerald-100 text-emerald-800",
-    metrics: { ocupacao: "85%", adr: "R$ 420", receitaBruta: "R$ 10.710", receitaLiquida: "R$ 4.900", ...retornoCenario(4900) },
+    metrics: cenario(85, 420),
     desc: "Studio premium, fotos profissionais, preço dinâmico e localização top.",
   },
 ];
@@ -67,7 +76,7 @@ const SENSITIVITY = [
   { driver: "Ocupação", impact: "Alto", desc: `Cada 5pp de ocupação = ~${brlExemplo(exemplo.impactoOcupacao)}/mês de receita bruta`, icon: Percent, color: "text-primary" },
   { driver: "Diária média (ADR)", impact: "Alto", desc: `Cada R$ 50 a mais na diária = ~${brlExemplo(exemplo.impactoDiaria)}/mês bruto a ${formatPercent(exemplo.bairro.avgOccupancy, 0)} de ocupação`, icon: DollarSign, color: "text-primary" },
   { driver: "Condomínio", impact: "Médio", desc: "Custo fixo que não escala — condomínios > R$ 1.200 comprimem margem", icon: Building2, color: "text-amber-600" },
-  { driver: "Gestão operacional", impact: "Médio", desc: "Na hipótese de gestão de 18%, a operação própria evita essa comissão, mas exige tempo e processo", icon: Zap, color: "text-amber-600" },
+  { driver: "Gestão (administradora)", impact: "Médio", desc: `Na hipótese de gestão de ${pct(DRE_GUIA.gestaoPct)}, a operação própria evita essa comissão, mas exige tempo e processo`, icon: Zap, color: "text-amber-600" },
 ];
 
 type ActiveScenario = "conservador" | "base" | "agressivo";
@@ -130,8 +139,8 @@ export default function RentabilidadeSection() {
 
       {/* ── Scenarios ── */}
       <h3 className="font-display text-xl font-bold text-foreground mb-2">Cenários de retorno</h3>
-      <p className="text-muted-foreground text-sm font-body mb-4">Hipóteses de exemplo, não previsões de mercado. Clique para comparar os cenários; os valores não são garantidos. Yield e payback recalculados sobre {brlExemplo(exemplo.investimento)} de investimento total, incluindo a reforma turnkey mediana do estudo de 188 contratos. Receitas e taxas dos cenários foram preservadas.</p>
-      <p className="text-muted-foreground text-sm font-body mb-2">No exemplo de Pinheiros com os dados curados, receita líquida de {brlExemplo(exemplo.receitaLiquida)}/mês: {formatDecimal(exemplo.yieldLiquido, 1)}% ao ano e payback simples de {formatDecimal(exemplo.paybackAnos ?? 0, 1)} anos, sem valorização nem financiamento.</p>
+      <p className="text-muted-foreground text-sm font-body mb-4">Hipóteses de exemplo, não previsões de mercado. Clique para comparar os cenários; os valores não são garantidos. Receita líquida pela mesma conta da cascata acima; rentabilidade e prazo de retorno sobre {brlExemplo(exemplo.investimento)} de investimento total, isto é, {TEXTO_INVESTIMENTO_TOTAL}: imóvel de {brlExemplo(STUDIO_EXEMPLO_IMOVEL)} + ITBI hipotético de {brlExemplo(STUDIO_EXEMPLO_ITBI)} + reforma turnkey mediana de {brlExemplo(ORCAMENTO_MEDIANO)} (estudo de 188 contratos).</p>
+      <p className="text-muted-foreground text-sm font-body mb-2">No exemplo de Pinheiros com os dados curados, receita líquida de {brlExemplo(exemplo.receitaLiquida)}/mês: {formatDecimal(exemplo.yieldLiquido, 1)}% ao ano e prazo estimado de retorno de {formatDecimal(exemplo.paybackAnos ?? 0, 1)} anos, sem valorização nem financiamento.</p>
       <FonteLink fonte={{ title: "Bewild — estudo de 188 contratos", url: ESTUDO_REFORMA_URL }} />
 
       <div className="flex flex-wrap gap-2 mb-4">
@@ -162,8 +171,8 @@ export default function RentabilidadeSection() {
                 adr: "Diária média",
                 receitaBruta: "Receita bruta/mês",
                 receitaLiquida: "Receita líquida/mês",
-                yield: "Yield anual",
-                payback: "Payback estimado",
+                yield: "Rentabilidade anual",
+                payback: "Prazo estimado de retorno",
               };
               return (
                 <div key={key} className="py-2">
@@ -216,13 +225,13 @@ export default function RentabilidadeSection() {
 
       <Accordion type="multiple" className="font-body">
         <AccordionItem value="roi-vs-yield">
-          <AccordionTrigger className="text-primary font-semibold min-h-[48px]">ROI vs. Yield: qual métrica usar</AccordionTrigger>
+          <AccordionTrigger className="text-primary font-semibold min-h-[48px]">Rentabilidade, prazo de retorno e os termos técnicos (yield, ROI, payback)</AccordionTrigger>
           <AccordionContent>
             <div className="text-sm text-muted-foreground leading-relaxed space-y-2">
-              <p><strong className="text-foreground">Yield bruto</strong> = receita anual bruta ÷ valor do imóvel. Útil para comparações rápidas entre ativos e regiões. Não considera custos operacionais.</p>
-              <p><strong className="text-foreground">Yield líquido</strong> = receita anual líquida ÷ valor do imóvel. Mais realista, mas depende de premissas de custo que variam por operação.</p>
-              <p><strong className="text-foreground">ROI (Return on Investment)</strong> = lucro líquido ÷ capital investido total (inclui reforma, mobília, ITBI). É a métrica mais completa, mas exige dados detalhados de implantação.</p>
-              <p><strong className="text-foreground">Payback</strong> = capital investido ÷ lucro líquido mensal. Indica em quantos meses o investimento se paga. Avalie o resultado conforme o risco e o capital investido; não há uma faixa universal de payback.</p>
+              <p><strong className="text-foreground">Rentabilidade bruta</strong> (yield bruto) = receita anual bruta ÷ valor do imóvel. Útil para comparações rápidas entre ativos e regiões. Não considera custos operacionais.</p>
+              <p><strong className="text-foreground">Rentabilidade líquida</strong> (yield líquido) = receita anual líquida ÷ valor do imóvel. Mais realista, mas depende de premissas de custo que variam por operação.</p>
+              <p><strong className="text-foreground">Rentabilidade anual do Radar</strong> (ROI, Return on Investment) = receita líquida anual ÷ investimento total ({TEXTO_INVESTIMENTO_TOTAL}). É a métrica usada no exemplo, nos cenários e no simulador.</p>
+              <p><strong className="text-foreground">Prazo estimado de retorno</strong> (payback simples) = investimento total ÷ receita líquida anual. Indica em quantos anos o investimento se paga, sem valorização nem financiamento. Avalie o resultado conforme o risco e o capital investido; não há uma faixa universal.</p>
             </div>
           </AccordionContent>
         </AccordionItem>

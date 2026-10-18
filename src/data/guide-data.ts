@@ -39,7 +39,7 @@ export const SECTIONS = [
   { id: "rentabilidade", label: "Matemática do Investimento", icon: PieChart, phase: 2 },
   { id: "simulador", label: "Simulador de receita", icon: Calculator, phase: 2 },
   // Bloco 3 — O que faz um studio performar
-  { id: "reservas", label: "O que move reservas", icon: TrendingUp, phase: 3 },
+  { id: "reservas", label: "Escolha do hóspede", icon: TrendingUp, phase: 3 },
   { id: "reforma", label: "Reforma inteligente", icon: Paintbrush, phase: 3 },
   { id: "antichecklist", label: "Anti-checklist", icon: ShieldCheck, phase: 3 },
   { id: "decoracao", label: "Decoração estratégica", icon: Palette, phase: 3 },

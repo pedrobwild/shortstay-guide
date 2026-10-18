@@ -1,3 +1,4 @@
+import { DEDUCOES_PADRAO_PCT, DRE_LINHAS } from "@/data/dreGuia";
 import { trackSimulationUsed } from "@/lib/marketingConsent";
 import { formatDecimal } from "@/lib/numberFormat";
 /**
@@ -33,16 +34,10 @@ const ACQUISITION_COSTS: AcquisitionCost[] = [
 ];
 
 // ── Operational cost structure (monthly %) ──────────────────────
-const OPERATIONAL_COSTS = [
-  { label: "Taxa Airbnb (host)", pct: 3, note: "Comissão da plataforma" },
-  { label: "Gestão / administração", pct: 20, note: "Operadora ou autogestão" },
-  { label: "Impostos (ISS + Simples)", pct: 6, note: "Varia por regime fiscal" },
-  { label: "Manutenção e reposição", pct: 5, note: "Limpeza, reparos, enxoval" },
-  { label: "Condomínio + IPTU", pct: 8, note: "Custos fixos do imóvel" },
-  { label: "Energia + internet", pct: 3, note: "Custos operacionais" },
-];
+// Fonte única: DRE padrão do guia (src/data/dreGuia.ts).
+const OPERATIONAL_COSTS = DRE_LINHAS.map((l) => ({ label: l.rotulo, pct: l.pct, note: l.nota }));
 
-const TOTAL_OPERATIONAL_PCT = OPERATIONAL_COSTS.reduce((s, c) => s + c.pct, 0); // 45%
+const TOTAL_OPERATIONAL_PCT = DEDUCOES_PADRAO_PCT;
 
 // ── PMT calculation (Price table — fixed installment) ───────────
 function calcPMT(principal: number, annualRate: number, months: number): number {

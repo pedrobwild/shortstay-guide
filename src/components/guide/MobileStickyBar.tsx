@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { caminhoComBairro, useBairroAtual } from "@/lib/bairroAtual";
+import { CAMINHOS_MOMENTO, useMomento } from "@/lib/momento";
 import { useDeslocamentoChat } from "@/hooks/useDeslocamentoChat";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { cn } from "@/lib/utils";
 
 /**
- * Barra fixa do celular (Simular agora · Explorar bairros). Fica recolhida enquanto as
+ * Barra fixa do celular (atalho principal do momento da pessoa · Explorar bairros).
+ * Sem momento escolhido: "Simular agora". Fica recolhida enquanto as
  * três portas do hero estão na tela: elas já levam ao mapa e à simulação, e a barra
  * cobria a terceira porta. Começa recolhida também no HTML pré-renderizado, para a
  * hidratação bater; sem IntersectionObserver, aparece direto. O botão do chat acompanha.
@@ -30,6 +34,13 @@ export default function MobileStickyBar() {
   // O botão do chat acompanha a barra: acima dela quando aparece, no canto quando recolhida.
   // As duas posições somam a margem inferior do iPhone (barra de início).
   useDeslocamentoChat(visivel ? "calc(80px + env(safe-area-inset-bottom))" : "calc(24px + env(safe-area-inset-bottom))");
+  // Atalho principal conforme o momento (procurando → comparar; já tenho → simular; vou reformar → reforma).
+  const momento = useMomento();
+  const bairroAtual = useBairroAtual();
+  const caminho = momento ? CAMINHOS_MOMENTO[momento] : null;
+  const principal = caminho
+    ? { rotulo: caminho.acao, destino: caminho.destino.startsWith("#") ? caminho.destino : caminhoComBairro(caminho.destino, bairroAtual), id: `momento_${momento}` }
+    : { rotulo: "Simular agora", destino: "#simulador", id: "simular_agora" };
 
   return (
     <div
@@ -38,8 +49,8 @@ export default function MobileStickyBar() {
         visivel ? "visible translate-y-0" : "invisible translate-y-full",
       )}
     >
-      <Button asChild className="min-h-[44px] flex-1 font-semibold" onClick={() => trackGlobal("cta_clicked", { cta_id: "simular_agora", section: "sticky_bar" })}>
-        <a href="#simulador">Simular agora</a>
+      <Button asChild className="min-h-[44px] flex-1 font-semibold" onClick={() => trackGlobal("cta_clicked", { cta_id: principal.id, section: "sticky_bar" })}>
+        {principal.destino.startsWith("#") ? <a href={principal.destino}>{principal.rotulo}</a> : <Link to={principal.destino}>{principal.rotulo}</Link>}
       </Button>
       <Button asChild variant="outline" className="min-h-[44px] flex-1 font-semibold" onClick={() => trackGlobal("cta_clicked", { cta_id: "explorar_bairros", section: "sticky_bar" })}>
         <a href="#mapa-bairros">Explorar bairros</a>
