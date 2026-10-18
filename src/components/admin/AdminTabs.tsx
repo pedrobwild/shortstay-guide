@@ -5,6 +5,7 @@ const ABAS = [
   { to: "/admin/mercado", label: "Mercado" },
   { to: "/admin/bairros", label: "Bairros" },
   { to: "/admin/coletas", label: "Coletas" },
+  { to: "/admin/fontes", label: "Fontes" },
   { to: "/admin/simulacoes", label: "Simulações" },
   { to: "/admin/leads", label: "Leads" },
 ];
