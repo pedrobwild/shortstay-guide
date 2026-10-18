@@ -16,6 +16,7 @@ import PostLoginProvision from "@/components/PostLoginProvision";
 import { rotaHome } from "./rotaHome";
 const MapaBairros = lazy(() => import("./pages/MapaBairros"));
 const CompararBairros = lazy(() => import("./pages/CompararBairros"));
+const GuiaTema = lazy(() => import("./pages/GuiaTema"));
 const IntelligenceDashboard = lazy(() => import("./pages/IntelligenceDashboard"));
 const IntelligenceRanking = lazy(() => import("./pages/IntelligenceRanking"));
 const IntelligenceBairroDetail = lazy(() => import("./pages/IntelligenceBairroDetail"));
@@ -161,6 +162,7 @@ export function AppRoutes() {
           <Route path="/anuncios" element={<IntelligenceListings />} />
           <Route path="/mapa" element={<MapaBairros />} />
           <Route path="/comparar" element={<CompararBairros />} />
+          <Route path="/guia/:tema" element={<GuiaTema />} />
           {/* Redirecionamentos das rotas antigas (mantêm ?query e #hash) */}
           <Route path="/intelligence" element={<LegacyRedirect to="/mercado" />} />
           <Route path="/intelligence/ranking" element={<LegacyRedirect to="/ranking" />} />

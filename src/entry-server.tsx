@@ -8,6 +8,8 @@ import { AppShell, AppRoutes } from "./App";
 import { FAQ_ITEMS } from "./components/guide/FAQSection";
 
 import { TabelaBairrosEstatica, BairroEstatico } from "./components/PreRenderMercado";
+import { ConteudoTema } from "./pages/GuiaTema";
+import { temaPorSlug } from "./data/temasGuia";
 
 export { FAQ_ITEMS };
 
@@ -15,6 +17,18 @@ export { FAQ_ITEMS };
 export function renderEstatico(p: { path: string; h1: string; description: string; bairro?: string }): string | null {
   if (p.path === "/ranking" || p.path === "/mercado") return renderToStaticMarkup(<TabelaBairrosEstatica h1={p.h1} descricao={p.description} />);
   if (p.bairro) return renderToStaticMarkup(<BairroEstatico nome={p.bairro} h1={p.h1} descricao={p.description} />);
+  // /guia/<tema>: a seção completa (mesmo componente da home) com links e fontes; o app a substitui ao abrir.
+  const tema = p.path.startsWith("/guia/") ? temaPorSlug(p.path.slice("/guia/".length)) : undefined;
+  if (tema) {
+    return renderToStaticMarkup(
+      <AppShell helmetContext={{}}>
+        <StaticRouter location={p.path}>
+          <header><h1>{p.h1}</h1><p>{p.description}</p></header>
+          <ConteudoTema slug={tema.slug} />
+        </StaticRouter>
+      </AppShell>,
+    );
+  }
   return null;
 }
 
