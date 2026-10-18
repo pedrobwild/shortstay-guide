@@ -15,8 +15,8 @@ describe("ajustes de bairro", () => {
   it("sem ajuste devolve o bairro original", () => {
     expect(aplicarAjuste(BAIRROS_CURADOS[0], undefined)).toBe(BAIRROS_CURADOS[0]);
   });
-  it("resultado líquido desconta as deduções totais do DRE do guia (43%)", () => {
-    expect(resultadoLiquidoMensal(10000)).toBe(5700);
+  it("resultado líquido desconta as deduções totais do DRE do guia (55%)", () => {
+    expect(resultadoLiquidoMensal(10000)).toBe(4500);
   });
   it("decoração segue o boost do simulador", () => {
     expect(rotuloDecoracao(0)).toBe("Sem melhoria");

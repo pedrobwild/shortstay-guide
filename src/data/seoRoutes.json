@@ -57,22 +57,70 @@
       "description": "Veja a projeção de receita, ocupação e retorno do seu studio para short stay em São Paulo.",
       "h1": "Projeção do seu studio",
       "priority": "0.6"
+    },
+    {
+      "path": "/guia/hospede",
+      "title": "O que influencia a escolha do hóspede em um studio | Radar Bewild",
+      "description": "Os seis fatores que pesam na decisão de reserva e no desempenho de um studio para short stay em São Paulo, com fontes.",
+      "h1": "O que influencia a escolha do hóspede",
+      "priority": "0.6"
+    },
+    {
+      "path": "/guia/anti-checklist",
+      "title": "Anti-checklist da reforma de studio para short stay | Radar Bewild",
+      "description": "O que não fazer na reforma e na operação de um studio para Airbnb: erros que comprometem a rentabilidade.",
+      "h1": "Anti-checklist: o que não fazer",
+      "priority": "0.6"
+    },
+    {
+      "path": "/guia/decoracao",
+      "title": "Decoração estratégica para studio de short stay | Radar Bewild",
+      "description": "Níveis de decoração, o que entra na reforma turnkey e como a estética e a funcionalidade pesam na rentabilidade do studio.",
+      "h1": "Decoração estratégica",
+      "priority": "0.6"
+    },
+    {
+      "path": "/guia/tendencias",
+      "title": "Tendências 2026 para studios de short stay em SP | Radar Bewild",
+      "description": "Práticas para planejar produto e operação de studios para Airbnb em São Paulo em 2026, sem garantia de desempenho.",
+      "h1": "Tendências 2026",
+      "priority": "0.6"
+    },
+    {
+      "path": "/guia/anuncio-e-precificacao",
+      "title": "Anúncio e precificação de studio no Airbnb | Radar Bewild",
+      "description": "Como montar o anúncio e definir a diária de um studio para short stay com base nos dados do bairro.",
+      "h1": "Anúncio e precificação",
+      "priority": "0.6"
     }
   ],
   "bairros": [
     "Barra Funda",
     "Bela Vista",
+    "Bom Retiro",
     "Brooklin",
+    "Brás",
+    "Butantã",
     "Campo Belo",
     "Consolação",
+    "Ipiranga",
     "Itaim Bibi",
+    "Jabaquara",
     "Jardim Paulista",
+    "Lapa",
     "Liberdade",
     "Moema",
     "Mooca",
+    "Morumbi",
     "Perdizes",
     "Pinheiros",
     "República",
+    "Santa Cecília",
+    "Santana",
+    "Santo Amaro",
+    "Saúde",
+    "Sé",
+    "Tatuapé",
     "Vila Mariana",
     "Vila Nova Conceição",
     "Vila Olímpia"

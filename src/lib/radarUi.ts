@@ -210,10 +210,11 @@ export function textosFontes(bairros: BairroBase[]): { observado: string; aproxi
   const periodo = maisFrequente(gf.map((b) => b.period ?? ""));
   const outros = new Map<string, string[]>();
   for (const b of gf) if (b.period && b.period !== periodo) outros.set(b.period, [...(outros.get(b.period) ?? []), b.name]);
-  const coleta = maisFrequente(gf.map((b) => (b.coletadoEm ? dataBR(b.coletadoEm) : "")));
+  // Datas de coleta em ordem cronológica ("Coleta de 13/10/2026" ou "Coletas de 13/10/2026 e 18/10/2026").
+  const coletas = [...new Set(gf.map((b) => b.coletadoEm ?? "").filter(Boolean))].sort().map(dataBR);
   let observado = "Diária, ocupação, quartis e amostra de anúncios da GuestFavorites.";
   const detalhes = [
-    coleta ? `Coleta de ${coleta}` : "",
+    coletas.length ? `${coletas.length === 1 ? "Coleta" : "Coletas"} de ${juntarNomes(coletas)}` : "",
     periodo ? `período ${periodo}${outros.size ? ` (${[...outros].map(([p, nomes]) => `${juntarNomes(nomes)}: ${p}`).join("; ")})` : ""}` : "",
   ].filter(Boolean);
   if (detalhes.length) {
@@ -301,9 +302,11 @@ export function diferencasAteOMaior(itens: { nome: string; valor: number | null 
 const ARTIGO_BAIRRO: Record<string, "o" | "a"> = {
   "Itaim Bibi": "o", "Jardim Paulista": "o", Brooklin: "o",
   "Bela Vista": "a", "Consolação": "a", Liberdade: "a", Mooca: "a", "República": "a", "Vila Mariana": "a", "Vila Olímpia": "a",
+  "Campo Belo": "o", "Tatuapé": "o", "Butantã": "o", Ipiranga: "o", Morumbi: "o", Jabaquara: "o", "Brás": "o", "Bom Retiro": "o",
+  "Santa Cecília": "a", "Barra Funda": "a", "Saúde": "a", "Sé": "a", Lapa: "a",
 };
 /** Bairros da base que vão sem artigo ("de Pinheiros", "que Moema"). Bairro novo entra numa das duas listas. */
-export const BAIRROS_SEM_ARTIGO = ["Pinheiros", "Moema", "Perdizes"] as const;
+export const BAIRROS_SEM_ARTIGO = ["Pinheiros", "Moema", "Perdizes", "Santana", "Santo Amaro"] as const;
 export const artigoBairro = (nome: string): "o" | "a" | null => ARTIGO_BAIRRO[nome] ?? null;
 
 /**

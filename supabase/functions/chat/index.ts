@@ -109,8 +109,29 @@ async function loadBairrosContext(): Promise<string> {
     ].join("\n");
   });
 
+  // Bairros que só existem na base do Radar (sem a estimativa de mercado — base 2025): só os números curados.
+  const jaListados = new Set(bairros.map((b) => normNome(b.bairro)));
+  const somenteRadar = [...new Set((radar ?? []).map((r) => r.bairro as string))]
+    .filter((nome) => normNome(nome) !== normNome("São Paulo") && !jaListados.has(normNome(nome)))
+    .sort((a, b) => a.localeCompare(b, "pt-BR"))
+    .flatMap((nome) => {
+      const c = curado(nome);
+      if (!c) return [];
+      return [[
+        `## ${nome}`,
+        `- Diária média (ADR): R$${c.media}`,
+        `- Ocupação: ${c.ocupacao}%`,
+        ...(c.quartis ? [`- Diária: 25% mais baratos / mediana / 25% mais caros: R$${c.quartis.join(" / R$")}`] : []),
+        `- Fonte: ${c.fonte}${c.periodo ? `, ${c.periodo}` : ""}${c.url ? ` (${c.url})` : ""}; coleta de ${fmtD(c.coleta)}; confiança ${c.confianca}${c.gf ? " — dado público, não estimativa" : " — estimativa (sem fonte pública atualizada)"}`,
+        ...(c.anuncios != null ? [`- Amostra: ${c.anuncios} anúncios${c.amostraPequena ? " — amostra pequena" : ""}`] : []),
+        ...(c.desatualizado ? [`- Dado desatualizado: coleta de ${fmtD(c.coleta)} (há mais de 240 dias).`] : []),
+        `- Receita mensal de referência (diária média × 30 × ocupação): R$${Math.round(c.media * 30 * c.ocupacao / 100)}`,
+        `- Sem estimativa de mercado — base 2025 para este bairro: não há scores, preço do m², aluguel ou yields; diga que não há quando perguntarem.`,
+      ].join("\n")];
+    });
+
   const ref = sp ? `Referência da cidade de São Paulo — ${sp.fonte}, ${sp.periodo ?? ""}, coleta de ${fmtD(sp.coleta)}: ocupação ${sp.ocupacao}%, ADR R$${sp.media}.` : "Referência da cidade indisponível.";
-  return `${ref}\n\n${lines.join("\n\n")}`;
+  return `${ref}\n\n${[...lines, ...somenteRadar].join("\n\n")}`;
 }
 
 async function loadListingsStats(): Promise<string> {
@@ -194,8 +215,8 @@ ${
 # GUARDRAILS (regras invioláveis)
 
 - NUNCA invente, estime ou arredonde números que não estejam nos dados reais dos bairros ou no contexto do projeto do cliente. Não há "achismo".
-- Se um dado não estiver disponível (ex.: ROI sem valor do imóvel informado, ou um bairro fora dos 15 analisados), diga claramente que NÃO tem esse dado e NÃO o invente.
-- Se perguntarem sobre algo fora dos 15 bairros analisados, informe que não temos dados para aquele bairro.
+- Se um dado não estiver disponível (ex.: ROI sem valor do imóvel informado, ou um bairro fora dos listados acima), diga claramente que NÃO tem esse dado e NÃO o invente.
+- Se perguntarem sobre um bairro fora dos listados acima, informe que não temos dados para aquele bairro.
 - Quando faltar dado, quando o usuário quiser avançar/fechar negócio, ou quando a pergunta exigir análise personalizada além do que os dados permitem, encaminhe ao time humano: convide-o a usar o botão "Peça seu orçamento" no próprio chat, que abre https://bewild.com.br/orcamento?utm_source=radar&utm_medium=referral&utm_campaign=radar_bewild&utm_content=chat. Não ofereça diagnóstico nem prometa resposta em 24 horas. Use sempre a marca Bewild, nunca Bewild ou Bewild.
 - Use apenas o contexto do projeto fornecido nesta conversa; nunca presuma dados de outros usuários ou projetos.`;
 

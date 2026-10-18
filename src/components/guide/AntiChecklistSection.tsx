@@ -13,7 +13,7 @@ export default function AntiChecklistSection() {
   ];
 
   return (
-    <SectionBlock resumido artigo={ARTIGOS_BEWILD.antiChecklist} id="antichecklist" title="Anti-checklist: O que NÃO fazer" takeaway="Erros que destroem rentabilidade — aprenda antes de cometer.">
+    <SectionBlock resumido="/guia/anti-checklist" artigo={ARTIGOS_BEWILD.antiChecklist} id="antichecklist" title="Anti-checklist: O que NÃO fazer" takeaway="Erros que comprometem a rentabilidade — aprenda antes de cometer.">
       <p className="mb-4 text-sm text-muted-foreground">Custos e economias abaixo são hipóteses de exemplo, não médias do estudo de contratos. Confirme os valores na proposta.</p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {warnings.map((w) => (

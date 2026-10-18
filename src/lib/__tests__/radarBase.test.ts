@@ -10,7 +10,7 @@ function linhas(): LinhaRadar[] {
     const [ini, fim] = b.period ? periodos[b.period] : [null, null];
     const n = b.activeListings;
     const conf = est || ap ? "baixa" : n! >= 1000 ? "alta" : n! >= 200 ? "media" : "baixa";
-    const base = { bairro: b.name, amostra_n: n, periodo_inicio: ini, periodo_fim: fim, fonte_id: ap ? "aproximacao_itaim_bibi" : est ? "estimativa_bewild" : "guestfavorites", fonte_nome: ap ? "GuestFavorites (aproximação pelo Itaim Bibi)" : est ? "Estimativa Bewild" : "GuestFavorites", fonte_tipo: est || ap ? "estimativa" : "publica", url_origem: b.sourceUrl, coletado_em: "2026-10-13", confianca: conf } as const;
+    const base = { bairro: b.name, amostra_n: n, periodo_inicio: ini, periodo_fim: fim, fonte_id: ap ? "aproximacao_itaim_bibi" : est ? "estimativa_bewild" : "guestfavorites", fonte_nome: ap ? "GuestFavorites (aproximação pelo Itaim Bibi)" : est ? "Estimativa Bewild" : "GuestFavorites", fonte_tipo: est || ap ? "estimativa" : "publica", url_origem: b.sourceUrl, coletado_em: b.coletadoEm ?? "2026-10-13", confianca: conf } as const;
     const ind: [string, number | null][] = est
       ? [["ocupacao_media_pct", b.avgOccupancy], ["adr_medio_brl", b.dailyAvg], ["adr_p25_brl", b.dailyMin], ["adr_p75_brl", b.dailyMax]]
       : ap ? [["ocupacao_media_pct", b.avgOccupancy], ["adr_medio_brl", b.dailyAvg], ["adr_p25_brl", b.dailyQuartiles![0]], ["adr_mediana_brl", b.dailyQuartiles![1]], ["adr_p75_brl", b.dailyQuartiles![2]]]
@@ -22,7 +22,7 @@ function linhas(): LinhaRadar[] {
 describe("base única radar_bairro_atual", () => {
   const bairros = montarBairros(linhas());
   it("reproduz exatamente os números aprovados de cada bairro", () => {
-    expect(bairros).toHaveLength(13);
+    expect(bairros).toHaveLength(28);
     for (const b of BAIRROS_CURADOS) {
       const r = bairros.find((x) => x.name === b.name)!;
       expect(r).toMatchObject({ dailyAvg: b.dailyAvg, avgOccupancy: b.avgOccupancy, dailyMin: b.dailyMin, dailyMax: b.dailyMax, dailyQuartiles: b.dailyQuartiles, activeListings: b.activeListings, period: b.period, sourceUrl: b.sourceUrl, ocupacaoFonte: b.ocupacaoFonte });

@@ -146,6 +146,9 @@ function IndexInner() {
         {/* Simulador de Receita */}
         <Faixa><SimuladorSection /></Faixa>
 
+        {/* Case de operação ao lado da análise: evidência junto do tema */}
+        <Faixa branca><CaseStudySection /></Faixa>
+
         {/* CTA intermediário */}
         <Faixa><MidPageCTA variant="slim" /></Faixa>
 
@@ -180,9 +183,6 @@ function IndexInner() {
 
         {/* Anúncio e Precificação */}
         <Faixa><AnuncioPrecificacaoSection /></Faixa>
-
-        {/* Case Study */}
-        <Faixa branca><CaseStudySection /></Faixa>
 
         {/* Checklist */}
         <Faixa>

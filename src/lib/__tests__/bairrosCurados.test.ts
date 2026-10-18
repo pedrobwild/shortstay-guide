@@ -16,15 +16,48 @@ const aprovados: [string, number, number, number[], number, string][] = [
   ["Mooca", 59, 241, [27, 195, 268], 85, "jan–set/2026"],
   ["Perdizes", 53, 254, [174, 217, 276], 1752, "jan–set/2026"],
 ];
-describe("coleta GuestFavorites aprovada em 13/10/2026", () => {
-  it.each(aprovados)("preserva valores e fonte de %s", (nome, occ, adr, quartis, anuncios, periodo) => {
+// Coleta de 18/10/2026 (docs/coleta-2026-10-18-novos-bairros.md); aguarda aprovação do Pedro.
+const coleta18: [string, number, number, number[], number, string][] = [
+  ["Santa Cecília", 59, 215, [53, 163, 222], 607, "jan–set/2026"],
+  ["Campo Belo", 60, 233, [142, 194, 252], 1077, "jan–set/2026"],
+  ["Santana", 61, 228, [160, 205, 254], 506, "jan–jul/2026"],
+  ["Tatuapé", 58, 249, [157, 220, 268], 422, "jan–set/2026"],
+  ["Barra Funda", 57, 257, [196, 235, 281], 549, "jan–jul/2026"],
+  ["Butantã", 61, 276, [87, 207, 268], 402, "jan–set/2026"],
+  ["Saúde", 63, 247, [120, 191, 243], 525, "jan–set/2026"],
+  ["Ipiranga", 56, 226, [89, 171, 228], 238, "jan–set/2026"],
+  ["Morumbi", 56, 487, [204, 323, 574], 334, "jan–set/2026"],
+  ["Santo Amaro", 56, 256, [152, 201, 256], 1488, "jan–set/2026"],
+  ["Jabaquara", 55, 227, [110, 183, 248], 417, "jan–set/2026"],
+  ["Sé", 64, 184, [133, 160, 190], 502, "jan–set/2026"],
+  ["Brás", 65, 217, [122, 167, 256], 798, "jan–set/2026"],
+  ["Bom Retiro", 60, 189, [120, 170, 204], 187, "jan–set/2026"],
+  ["Lapa", 57, 239, [125, 190, 247], 160, "jan–set/2026"],
+];
+describe("coleta GuestFavorites de 18/10/2026 (15 bairros novos)", () => {
+  it.each(coleta18)("preserva valores e fonte de %s", (nome, occ, adr, quartis, anuncios, periodo) => {
     const b = getBairroCurado(nome);
-    expect(b).toMatchObject({ avgOccupancy: occ, dailyAvg: adr, dailyQuartiles: quartis, activeListings: anuncios, period: periodo, ocupacaoFonte: "guestfavorites" });
+    expect(b).toMatchObject({ avgOccupancy: occ, dailyAvg: adr, dailyQuartiles: quartis, activeListings: anuncios, period: periodo, ocupacaoFonte: "guestfavorites", coletadoEm: "2026-10-18" });
     const slug = nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/ /g, "-");
     expect(b?.sourceUrl).toBe(`https://www.guestfavorites.com/airbnb-occupancy-rates-in-${slug}-sao-paulo-brazil`);
   });
-  it("mantém estimativa Consolação", () => {
-    expect(getBairroCurado("Consolação")).toMatchObject({ dailyAvg: 325, avgOccupancy: 63, ocupacaoFonte: "bewild", dailyQuartiles: null, sourceUrl: null });
+  it("Bom Retiro e Lapa levam o aviso de amostra pequena; os demais não", () => {
+    expect(avisoAmostra(getBairroCurado("Bom Retiro")!)).toBe("amostra pequena (187 anúncios)");
+    expect(avisoAmostra(getBairroCurado("Lapa")!)).toBe("amostra pequena (160 anúncios)");
+    expect(avisoAmostra(getBairroCurado("Santa Cecília")!)).toBeNull();
+  });
+});
+
+describe("coleta GuestFavorites aprovada em 13/10/2026", () => {
+  it.each(aprovados)("preserva valores e fonte de %s", (nome, occ, adr, quartis, anuncios, periodo) => {
+    const b = getBairroCurado(nome);
+    expect(b).toMatchObject({ avgOccupancy: occ, dailyAvg: adr, dailyQuartiles: quartis, activeListings: anuncios, period: periodo, ocupacaoFonte: "guestfavorites", coletadoEm: "2026-10-13" });
+    const slug = nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/ /g, "-");
+    expect(b?.sourceUrl).toBe(`https://www.guestfavorites.com/airbnb-occupancy-rates-in-${slug}-sao-paulo-brazil`);
+  });
+  it("Consolação passou a dado público GuestFavorites em 18/10/2026 (antes estimativa Bewild R$ 325 / 63%)", () => {
+    expect(getBairroCurado("Consolação")).toMatchObject({ dailyAvg: 271, avgOccupancy: 62, dailyQuartiles: [155, 221, 281], activeListings: 1625, period: "jan–jul/2026", ocupacaoFonte: "guestfavorites", coletadoEm: "2026-10-18" });
+    expect(BAIRROS_CURADOS.some((b) => b.ocupacaoFonte === "bewild")).toBe(false);
   });
   it.each(["Brooklin", "Vila Olímpia"])("%s usa a aproximação pelo Itaim Bibi", (nome) => {
     expect(getBairroCurado(nome)).toMatchObject({ dailyAvg: 359, avgOccupancy: 59, dailyQuartiles: [180, 279, 404], activeListings: null, ocupacaoFonte: "aproximacao", period: "jan–set/2026", sourceUrl: "https://www.guestfavorites.com/airbnb-occupancy-rates-in-itaim-bibi-sao-paulo-brazil" });
@@ -33,8 +66,9 @@ describe("coleta GuestFavorites aprovada em 13/10/2026", () => {
     expect(getBairroCurado(String(nome))?.referenciaBewild).toEqual({ dailyAvg: adr, avgOccupancy: occ, dailyMin: min, dailyMax: max });
     expect(getBairroCurado("Consolação")?.referenciaBewild).toBeUndefined();
   });
-  it("inclui Mooca e Perdizes e a referência da cidade", () => {
-    expect(BAIRROS_CURADOS).toHaveLength(13);
+  it("a base tem 28 bairros (13 da coleta de 13/10 + 15 da de 18/10) e a referência da cidade", () => {
+    expect(BAIRROS_CURADOS).toHaveLength(28);
+    expect(BAIRROS_CURADOS.filter((b) => b.coletadoEm === "2026-10-13" || b.ocupacaoFonte !== "guestfavorites")).toHaveLength(12); // Consolação entrou na coleta de 18/10
     expect(SAO_PAULO_REFERENCIA).toEqual({ avgOccupancy: 60, dailyAvg: 266, activeListings: 34854, period: "jan–set/2026" });
   });
   it("identifica a amostra pequena da Mooca", () => {

@@ -45,8 +45,8 @@ describe("momento do investidor", () => {
 describe("ranking da home por critério", () => {
   it("receita é o critério padrão e ordena do maior para o menor", () => {
     const r = ordenarRanking(BAIRROS_CURADOS, "receita");
-    // Brooklin, Vila Olímpia (aproximação pelo Itaim Bibi) e Itaim Bibi empatam em R$ 359 × 30 × 59%; desempate pelo nome.
-    expect(r.slice(0, 3).map((x) => x.bairro.name)).toEqual(["Brooklin", "Itaim Bibi", "Vila Olímpia"]);
+    // Morumbi (R$ 487 × 30 × 56%) na frente; Brooklin, Itaim Bibi e Vila Olímpia empatam (números do Itaim), desempate pelo nome.
+    expect(r.slice(0, 4).map((x) => x.bairro.name)).toEqual(["Morumbi", "Brooklin", "Itaim Bibi", "Vila Olímpia"]);
     for (let i = 1; i < r.length; i++) expect(r[i - 1].valor).toBeGreaterThanOrEqual(r[i].valor);
   });
 
@@ -54,13 +54,13 @@ describe("ranking da home por critério", () => {
     const nomes = ordenarRanking(BAIRROS_CURADOS, "receita", true).map((x) => x.bairro.name);
     expect(nomes).not.toContain("Brooklin");
     expect(nomes).not.toContain("Vila Olímpia");
-    expect(nomes).not.toContain("Consolação");
+    expect(nomes).toContain("Consolação"); // dado público desde 18/10/2026
     expect(nomes).toContain("Pinheiros");
   });
 
   it("diária, ocupação e anúncios ordenam pelo próprio valor", () => {
-    expect(ordenarRanking(BAIRROS_CURADOS, "diaria", true)[0].bairro.name).toBe("Itaim Bibi");
-    expect(ordenarRanking(BAIRROS_CURADOS, "ocupacao", true)[0].bairro.name).toBe("Bela Vista");
+    expect(ordenarRanking(BAIRROS_CURADOS, "diaria", true)[0].bairro.name).toBe("Morumbi");
+    expect(ordenarRanking(BAIRROS_CURADOS, "ocupacao", true)[0].bairro.name).toBe("Brás");
     expect(ordenarRanking(BAIRROS_CURADOS, "anuncios", true)[0].bairro.name).toBe("Itaim Bibi");
     expect(CRITERIOS_RANKING.map((c) => c.valor)).toEqual(["receita", "diaria", "ocupacao", "anuncios"]);
   });
