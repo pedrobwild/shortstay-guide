@@ -15,14 +15,14 @@ describe("short stay: da receita bruta ao líquido", () => {
   it("receita bruta de Pinheiros = diária × 30 × ocupação (R$ 5.580)", () => {
     const r = resultadoShortStay({ diaria: pinheiros.dailyAvg, ocupacaoPct: pinheiros.avgOccupancy }, semFixas, { ...SHORT_STAY_PADRAO, contas: 0 });
     expect(r.receitaBruta).toBe(5580);
-    // Só percentuais do DRE padrão (dreGuia.ts): Airbnb 3% + gestão 18% + impostos 6% + manutenção 5% = 32% da bruta.
-    expect(DRE_PERCENTUAIS_PCT).toBe(32);
-    expect(r.totalDeducoes).toBe(Math.round(5580 * 0.03) + Math.round(5580 * 0.18) + Math.round(5580 * 0.06) + Math.round(5580 * 0.05));
+    // Só percentuais do DRE padrão (dreGuia.ts): Airbnb 15% + gestão 18% + impostos 6% + manutenção 5% = 44% da bruta.
+    expect(DRE_PERCENTUAIS_PCT).toBe(44);
+    expect(r.totalDeducoes).toBe(Math.round(5580 * 0.15) + Math.round(5580 * 0.18) + Math.round(5580 * 0.06) + Math.round(5580 * 0.05));
     expect(r.liquido).toBe(r.receitaBruta - r.totalDeducoes);
     expect(r.liquidoAnual).toBe(r.liquido * 12);
   });
 
-  it("as premissas padrão vêm do DRE do guia (43% com fixos e contas)", () => {
+  it("as premissas padrão vêm do DRE do guia (55% com fixos e contas)", () => {
     const { airbnbPct, gestaoPct, impostosPct, manutencaoPct } = SHORT_STAY_PADRAO;
     // Fixos (8%) e utilities (3%) entram em reais na tela; os percentuais somam o resto do DRE.
     expect(airbnbPct + gestaoPct + impostosPct + manutencaoPct).toBe(DEDUCOES_PADRAO_PCT - 8 - 3);

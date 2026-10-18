@@ -5,15 +5,16 @@
  * cenários, simulador da home e da /projecao, simulador do painel, admin de
  * simulações, jornada) lê daqui. Nenhum componente repete estes percentuais.
  *
- * Origem: DRE padrão do guia; gestão em 18% por decisão do Pedro (18/10/2026),
- * mesmo valor do painel de projeção (DEFAULT_PROJECTION_COSTS). Todos são
- * HIPÓTESES editáveis pela pessoa — nunca estatística de mercado.
+ * Origem: DRE padrão do guia; Airbnb em 15% e gestão em 18% por decisão do Pedro
+ * (18/10/2026) — a gestão é o mesmo valor do painel de projeção
+ * (DEFAULT_PROJECTION_COSTS). Todos são HIPÓTESES editáveis pela pessoa —
+ * nunca estatística de mercado.
  */
 
 /** Percentuais sobre a receita bruta mensal. */
 export const DRE_GUIA = {
-  /** Taxa do Airbnb cobrada do anfitrião. */
-  airbnbPct: 3,
+  /** Taxa do Airbnb (hipótese padrão do guia: 15%, modelo em que a taxa fica com o anfitrião). */
+  airbnbPct: 15,
   /** Gestão (administradora). */
   gestaoPct: 18,
   /** Impostos (ISS + Simples). */
@@ -59,7 +60,7 @@ const pctTexto = (p: number) => `${new Intl.NumberFormat("pt-BR").format(p)}%`;
 
 /** Linhas do DRE para telas e textos (rótulo acessível + termo técnico na explicação). */
 export const DRE_LINHAS = [
-  { chave: "airbnb", rotulo: "Taxa do Airbnb", pct: DRE_GUIA.airbnbPct, nota: "Comissão da plataforma, cobrada do anfitrião" },
+  { chave: "airbnb", rotulo: "Taxa do Airbnb", pct: DRE_GUIA.airbnbPct, nota: "Comissão da plataforma (hipótese do guia)" },
   { chave: "gestao", rotulo: "Gestão (administradora)", pct: DRE_GUIA.gestaoPct, nota: "Operadora ou autogestão" },
   { chave: "impostos", rotulo: "Impostos", pct: DRE_GUIA.impostosPct, nota: "ISS + Simples; varia por regime fiscal" },
   { chave: "manutencao", rotulo: "Manutenção e reposição", pct: DRE_GUIA.manutencaoPct, nota: "Pequenos reparos e enxoval" },
