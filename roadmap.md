@@ -1,4 +1,6 @@
-- [ ] Criar comparação AirDNA–GuestFavorites somente leitura e explicitar bloqueio de coleta Airbnb por bairro sem acesso autorizado; testar funções implantadas.
+- [x] Implantar coletar-airdna e coletar-airbnb com JWT/admin, validação e CORS; prévias somente leitura, comparação GuestFavorites por período e agregação mensal estrita. 12 testes e lint passaram; chamadas autenticadas e sem sessão conferidas; nenhuma gravação.
+- [ ] Validar coleta real AirDNA: provedor recusou a chave existente com 401 invalid_credentials; precisa de credencial Enterprise válida e pacote autorizado.
+- [ ] Coletar mercado diretamente do Airbnb: depende de acesso autorizado a dados de mercado; endpoint retorna 501 explícito, sem scraping nem inferir ocupação por calendário.
 - [x] /admin abre Coletas após login; destino local preservado e usuário/papel validados no servidor. Acesso com a conta admin, histórico real e navegação Fontes conferidos; 14 testes passaram e compilação automática OK. Nenhuma coleta alterada; sem publicar.
 - [x] Criar /admin/fontes com observações reais paginadas, filtros, edição com revisões privadas e ativação transacional de coletas completas; atualizar sem recarga. 27 testes passaram, lint sem erros (18 avisos existentes), compilação automática OK e tela autenticada conferida a 320px sem transbordamento. Não publicado; salvamento/ativação real não exercitados para preservar dados aprovados.
 - [x] Corrigir HTML do FAQ: respostas e links presentes mesmo fechado, sem publicar.
