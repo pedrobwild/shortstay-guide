@@ -8,7 +8,7 @@ import { formatBRL, formatPercent, formatDecimal } from "@/lib/numberFormat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { compararIndicadores } from "../../../supabase/functions/_shared/comparacaoMetricas";
+import { compararIndicadores } from "@/../supabase/functions/_shared/comparacaoMetricas";
 
 type Previa = { indicadores: { adr_medio_brl: number; ocupacao_media_pct: number }; periodo_inicio: string; periodo_fim: string; coletado_em: string; amostra_n: number | null; metodologia?: string; filtros?: string; url_origem?: string };
 type Estado = { loading?: boolean; erro?: string; dados?: Previa };
