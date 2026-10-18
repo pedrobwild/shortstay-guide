@@ -1,3 +1,4 @@
+- [ ] Criar /admin/fontes para listar observações, editar com histórico preservado e ativar coletas atomicamente, com atualização automática; não publicar nem alterar dados reais durante testes.
 - [x] Corrigir HTML do FAQ: respostas e links presentes mesmo fechado, sem publicar.
 - [x] Substituir as dez afirmações aprovadas e exibir suas fontes.
 - [x] Padronizar percentuais e decimais com Intl.NumberFormat pt-BR, preservando moeda e case Pinheiros.
