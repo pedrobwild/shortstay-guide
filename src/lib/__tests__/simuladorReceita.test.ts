@@ -12,12 +12,12 @@ const pinheiros = getBairroCurado("Pinheiros")!;
 const semFixas = { valorImovel: 0, condominio: 0, iptu: 0 };
 
 describe("short stay: da receita bruta ao líquido", () => {
-  it("receita bruta de Pinheiros = diária × 30 × ocupação (R$ 5.580)", () => {
+  it("receita bruta de Pinheiros = diária × 30 × ocupação (R$ 5.651)", () => {
     const r = resultadoShortStay({ diaria: pinheiros.dailyAvg, ocupacaoPct: pinheiros.avgOccupancy }, semFixas, { ...SHORT_STAY_PADRAO, contas: 0 });
-    expect(r.receitaBruta).toBe(5580);
+    expect(r.receitaBruta).toBe(5651);
     // Só percentuais do DRE padrão (dreGuia.ts): Airbnb 15% + gestão 18% + impostos 6% + manutenção 5% = 44% da bruta.
     expect(DRE_PERCENTUAIS_PCT).toBe(44);
-    expect(r.totalDeducoes).toBe(Math.round(5580 * 0.15) + Math.round(5580 * 0.18) + Math.round(5580 * 0.06) + Math.round(5580 * 0.05));
+    expect(r.totalDeducoes).toBe(Math.round(5651 * 0.15) + Math.round(5651 * 0.18) + Math.round(5651 * 0.06) + Math.round(5651 * 0.05));
     expect(r.liquido).toBe(r.receitaBruta - r.totalDeducoes);
     expect(r.liquidoAnual).toBe(r.liquido * 12);
   });

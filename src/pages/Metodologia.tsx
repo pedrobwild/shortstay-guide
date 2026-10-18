@@ -134,7 +134,7 @@ export function ConteudoMetodologia() {
       <Bloco id="limites" numero="07 · Limites" titulo="O que estes números não dizem">
         <ul className="list-disc space-y-1 pl-5">
           <li>São médias de bairro (todos os tipos de anúncio da fonte), não o desempenho de um studio específico.</li>
-          <li>Períodos diferentes entre bairros (jan–jul vs. jan–set) refletem o que a fonte publica; comparações entre períodos podem refletir sazonalidade.</li>
+          <li>O período coberto é o que a fonte publica (hoje jan–set/2026 em toda a base); quando bairros têm períodos diferentes, a comparação pode refletir sazonalidade.</li>
           <li>Receita de referência e simulações não incluem todos os custos e não são garantia de resultado.</li>
           <li>Quando não há dado, dizemos que não há — não estimamos para preencher a tabela.</li>
         </ul>

@@ -28,20 +28,19 @@ Funções SECURITY DEFINER sempre com search_path fixado.
 PostgREST capa em 1.000 linhas: paginar com ordem estável + tiebreaker id; chunkar .in(); input do usuário em filtro passa por escape.
 Nunca alterar linhas do banco, a base curada (bairrosCurados.ts) ou o case Pinheiros sem aprovação explícita do Pedro. Ajustes de diária/ocupação vivem só na tabela bairro_ajustes e são sobrepostos na exibição por src/lib/bairroAjustes.ts — a base aprovada nunca é reescrita.
 FONTES ÚNICAS DE DADOS (nunca inventar número)
-Diária e ocupação por bairro — base de 28 bairros no banco (radar_observacoes / view radar_bairro_atual; bairrosCurados.ts é a reserva offline com os mesmos números e a data de coleta por bairro). Coleta GuestFavorites aprovada em 13/10/2026 (ocupação · diária média · quartis P25/mediana/P75 · anúncios):
+Diária e ocupação por bairro — base de 28 bairros no banco (radar_observacoes / view radar_bairro_atual; bairrosCurados.ts é a reserva offline com os mesmos números e a data de coleta por bairro). Toda a base é GuestFavorites, período jan–set/2026, coleta de 18/10/2026 (releitura assistida aprovada em /admin/coletas; Moema segue com a coleta de 13/10/2026). Ocupação · diária média · quartis P25/mediana/P75 · anúncios:
 
-Bairro	Ocupação	Diária	Quartis	Anúncios	Período
-Pinheiros	62%	R$ 300	171/232/301	2.424	jan–set/2026
-Bela Vista	64%	R$ 237	140/198/256	1.983	jan–set/2026
-Itaim Bibi	59%	R$ 359	180/279/404	3.884	jan–set/2026
-Jardim Paulista	62%	R$ 319	183/251/327	3.147	jan–set/2026
-Liberdade	61%	R$ 230	132/195/251	553	jan–jul/2026
-Moema	61%	R$ 263	167/225/288	2.621	jan–set/2026
-República	63%	R$ 203	117/166/210	3.079	jan–jul/2026
-Vila Mariana	60%	R$ 226	143/194/235	2.238	jan–set/2026
-Mooca	59%	R$ 241	27/195/268	85	jan–set/2026
-Perdizes	53%	R$ 254	174/217/276	1.752	jan–set/2026
-Coleta GuestFavorites aprovada e carregada em 18/10/2026 (todos jan–set/2026; seis bairros conferidos ao vivo e corrigidos em 18/10/2026):
+Bairro	Ocupação	Diária	Quartis	Anúncios
+Pinheiros	63%	R$ 299	171/232/301	2.452
+Bela Vista	64%	R$ 237	140/198/256	1.991
+Itaim Bibi	60%	R$ 359	180/279/404	3.880
+Jardim Paulista	62%	R$ 319	183/251/327	3.168
+Liberdade	61%	R$ 229	138/196/252	556
+Moema	61%	R$ 263	167/225/288	2.621
+República	63%	R$ 203	121/166/210	3.120
+Vila Mariana	60%	R$ 226	143/194/235	2.272
+Mooca	58%	R$ 243	27/195/268	90
+Perdizes	54%	R$ 254	174/217/276	1.803
 Santa Cecília	59%	R$ 215	53/163/222	607
 Campo Belo	60%	R$ 233	142/194/252	1.077
 Santana	62%	R$ 229	164/207/257	510
@@ -58,13 +57,13 @@ Brás	65%	R$ 217	122/167/255	841
 Bom Retiro	60%	R$ 189	120/170/204	187
 Lapa	57%	R$ 239	125/190/247	160
 Consolação	63%	R$ 270	160/220/282	1.567
-Referência São Paulo: ocupação 60%, ADR R$ 266, 34.854 anúncios (jan–set/2026).
-Brooklin e Vila Olímpia usam a APROXIMAÇÃO pelo Itaim Bibi (GuestFavorites, 59% / R$ 359 / quartis 180-279-404, jan–set/2026; distrito que inclui a Vila Olímpia e parte do Brooklin; sem anúncios ativos por bairro). A estimativa Bewild anterior (Brooklin R$ 360 / 75%; Vila Olímpia R$ 415 / 79%) aparece só como referência extra, fora das contas, rotulada "Estimativa Bewild (dados anteriores, sem fonte pública)". Consolação é dado público GuestFavorites desde 18/10/2026; a estimativa Bewild anterior (R$ 325 / 63%) não é mais usada. O filtro "Só dados observados" deixa a aproximação de fora. AirDNA (API Enterprise) é prevista só para Brooklin e Vila Olímpia.
-Aviso de amostra pequena para fonte pública com menos de 200 anúncios: Mooca (85), Bom Retiro (187) e Lapa (160).
+Referência São Paulo: ocupação 60%, ADR R$ 265, 35.077 anúncios (jan–set/2026, coleta 18/10/2026; quartis 138/208/278 no banco).
+Brooklin e Vila Olímpia usam a APROXIMAÇÃO pelo Itaim Bibi (GuestFavorites, 60% / R$ 359 / quartis 180-279-404, jan–set/2026, coleta 18/10/2026; distrito que inclui a Vila Olímpia e parte do Brooklin; sem anúncios ativos por bairro). A estimativa Bewild anterior (Brooklin R$ 360 / 75%; Vila Olímpia R$ 415 / 79%) aparece só como referência extra, fora das contas, rotulada "Estimativa Bewild (dados anteriores, sem fonte pública)". Consolação é dado público GuestFavorites desde 18/10/2026; a estimativa Bewild anterior (R$ 325 / 63%) não é mais usada. O filtro "Só dados observados" deixa a aproximação de fora. AirDNA (API Enterprise) é prevista só para Brooklin e Vila Olímpia.
+Aviso de amostra pequena para fonte pública com menos de 200 anúncios: Mooca (90), Bom Retiro (187) e Lapa (160).
 Receita mensal de referência = diária × 30 × ocupação.
 Fonte por bairro: https://www.guestfavorites.com/airbnb-occupancy-rates-in-{bairro-sem-acento}-sao-paulo-brazil.
 Regra um bairro, um número: o mesmo bairro nunca aparece com valores diferentes. O banco é a fonte única (app e chat leem radar_bairro_atual); bairrosCurados.ts é a reserva offline e precisa ter os mesmos números.
-Bairro novo entra em: banco (radar_observacoes via /admin/coletas ou SQL direto), bairrosCurados.ts (reserva, com coletadoEm), bairrosGeo.ts, ARTIGO_BAIRRO/BAIRROS_SEM_ARTIGO em radarUi.ts e seoRoutes.json. Bairro sem linha em bairro_airbnb_sp usa a página BairroSomenteRadar e a lista "Outros bairros da base do Radar" no /ranking; o chat o inclui sem scores. Registro das coletas: docs/coleta-2026-10-18-novos-bairros.md. Coleta assistida (Onda 2): a Edge Function coletar-guestfavorites lê as páginas públicas e grava propostas em radar_coletas_pendentes; nada entra na base sem aprovação em /admin/coletas; após aprovar, bairrosCurados.ts é atualizado para ficar igual. Página pública /metodologia (fontes, cálculos, registro de atualizações) e dados abertos em /dados/bairros.csv e .json (licença CC BY 4.0, decisão de 18/10/2026).
+Bairro novo entra em: banco (radar_observacoes via /admin/coletas ou SQL direto), bairrosCurados.ts (reserva, com coletadoEm), bairrosGeo.ts, ARTIGO_BAIRRO/BAIRROS_SEM_ARTIGO em radarUi.ts e seoRoutes.json. Bairro sem linha em bairro_airbnb_sp usa a página BairroSomenteRadar e a lista "Outros bairros da base do Radar" no /ranking; o chat o inclui sem scores. Registro das coletas: docs/coleta-2026-10-18-novos-bairros.md e docs/coleta-2026-10-18-releitura-assistida.md. Coleta assistida (Onda 2): a Edge Function coletar-guestfavorites lê as páginas públicas e grava propostas em radar_coletas_pendentes; nada entra na base sem aprovação em /admin/coletas; após aprovar, bairrosCurados.ts, as linhas de aproximação (Brooklin/Vila Olímpia seguem o Itaim Bibi) e os testes de proteção da base são atualizados para ficar igual. Conta admin operacional: admin@bewild.com.br (papel admin em user_roles, 18/10/2026). Página pública /metodologia (fontes, cálculos, registro de atualizações) e dados abertos em /dados/bairros.csv e .json (licença CC BY 4.0, decisão de 18/10/2026).
 Custo de reforma, prazo e prova social — estudo Bewild out/2026, base de 188 contratos turnkey em SP (fonte única: src/data/provasBewild.ts, cada número com origem em comentário):
 
 Orçamento mediano: R$ 71.850 para 27,5 m²; custo por m²: mediana R$ 2.744, faixa central R$ 2.457–3.125 (P25–P75). Nenhum contrato abaixo de R$ 55 mil.
@@ -77,7 +76,7 @@ Prova social oficial: 160 reformas entregues ("+160"), 200 projetos ("+200"), "e
 Garantia: 5 anos (nunca "1 ano"). Contrato prevê multa por dia de atraso.
 Estudo: https://bewild.com.br/conteudos/quanto-custa-reformar-apartamento-studio-ate-50-m2(abre em uma nova aba)
 DRE padrão do guia (deduções, decisão de 18/10/2026): Airbnb 15%, gestão 18%, impostos 6%, manutenção 5%, fixos 8%, contas 3% — total 55%. Resultado líquido mensal resumido = receita bruta × 0,45. Fonte única no código: src/data/dreGuia.ts (DRE_GUIA, DEDUCOES_PADRAO_PCT, TEXTO_DRE_PERCENTUAIS); nenhum componente repete os percentuais e o teste dreGuia.test.ts barra textos antigos. No simulador e no exemplo de Pinheiros, Airbnb, gestão, impostos e manutenção incidem em % sobre a receita bruta; fixos e contas entram em reais (condomínio R$ 500 e contas R$ 500 no exemplo, IPTU informado). Todos são hipóteses editáveis — nunca estatística de mercado.
-Investimento total (uma definição só): valor do imóvel + reforma (+ ITBI de 3% quando informado, sempre hipótese). Rentabilidade anual = líquido anual ÷ investimento total; prazo estimado de retorno = investimento total ÷ líquido anual. Exemplo de Pinheiros = simulador com as premissas padrão (R$ 5.580 bruto → R$ 2.125 líquido/mês).
+Investimento total (uma definição só): valor do imóvel + reforma (+ ITBI de 3% quando informado, sempre hipótese). Rentabilidade anual = líquido anual ÷ investimento total; prazo estimado de retorno = investimento total ÷ líquido anual. Exemplo de Pinheiros = simulador com as premissas padrão (R$ 5.651 bruto → R$ 2.164 líquido/mês, base de 18/10/2026).
 
 Regras de afirmações:
 

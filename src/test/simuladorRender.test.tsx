@@ -54,7 +54,7 @@ describe("renderização", () => {
     const titulos = [...container!.querySelectorAll('[role="table"] h2')].map((h) => h.textContent);
     expect(titulos).toEqual(["Pinheiros", "Mooca"]);
     expect(texto).toContain("amostra pequena");
-    // Em vez da etiqueta "maior", cada valor mostra quanto fica abaixo do maior da linha (R$ 300 − R$ 241).
-    expect(texto).toContain("R$ 59 abaixo de Pinheiros");
+    // Em vez da etiqueta "maior", cada valor mostra quanto fica abaixo do maior da linha (R$ 299 − R$ 243).
+    expect(texto).toContain("R$ 56 abaixo de Pinheiros");
   });
 });
