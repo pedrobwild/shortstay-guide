@@ -1,4 +1,4 @@
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { ChevronDown } from "lucide-react";
 import { SAO_PAULO_REFERENCIA } from "@/data/bairrosCurados";
 import SectionBlock from "./SectionBlock";
 import FonteLink from "@/components/guide/FonteLink";
@@ -24,11 +24,14 @@ export const FAQ_ITEMS: { q: string; a: string; link?: string; source?: FonteGui
 export default function FAQSection() {
   return (
     <SectionBlock id="faq" title="FAQ — Perguntas Frequentes" takeaway="Respostas diretas para as dúvidas mais comuns de investidores.">
-      <Accordion type="multiple" className="font-body">
+      <div className="font-body">
         {FAQ_ITEMS.map((item, i) => (
-          <AccordionItem key={i} value={String(i)}>
-            <AccordionTrigger className="text-foreground font-semibold text-left">{item.q}</AccordionTrigger>
-            <AccordionContent>
+          <details key={i} className="group border-b border-border">
+            <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-4 py-4 text-left font-semibold text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 [&::-webkit-details-marker]:hidden">
+              {item.q}
+              <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180 motion-reduce:transition-none" />
+            </summary>
+            <div className="pb-4">
               <p className="text-sm text-muted-foreground leading-relaxed">{item.a}</p>
               {item.source && <FonteLink fonte={item.source} />}
               {item.artigo && <LinkArtigoBewild artigo={item.artigo} />}
@@ -37,10 +40,10 @@ export default function FAQSection() {
                   ver a análise completa
                 </a>
               )}
-            </AccordionContent>
-          </AccordionItem>
+            </div>
+          </details>
         ))}
-      </Accordion>
+      </div>
     </SectionBlock>
   );
 }
