@@ -23,6 +23,12 @@ export const CUSTO_M2_P25 = 2457;
 export const CUSTO_M2_P75 = 3125;
 /** Nenhum contrato da base ficou abaixo deste valor, R$ (estudo out/2026). */
 export const ORCAMENTO_MINIMO_BASE = 55000;
+/**
+ * Custo por m² de uma reforma de alto padrão, R$ — referência Bewild informada por Pedro em
+ * 18/10/2026 (studio de 25 m² em alto padrão = R$ 100.000). Usada só na sugestão de reforma do
+ * simulador (hipótese), nunca como estatística do estudo.
+ */
+export const CUSTO_M2_ALTO_PADRAO = 4000;
 
 /** O que entra no orçamento da reforma completa (estudo out/2026). */
 export const ESCOPO_REFORMA_COMPLETA = [

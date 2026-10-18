@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useBairroData } from "@/hooks/useBairroData";
 import type { BairroItem } from "@/data/guide-data";
 import {
-  PREMISSAS_SIMULADOR_PADRAO, aluguelReferencia, armazenamentoLocal, diariaComDecoracao, indicadores, lerPremissasDaQuery, lerRascunho, normalizarPremissasSimulador,
+  PREMISSAS_SIMULADOR_PADRAO, aluguelReferencia, armazenamentoLocal, diariaComDecoracao, indicadores, lerPremissasDaQuery, lerRascunho, normalizarPremissasSimulador, reformaSugerida,
   premissasParaQuery, resultadoShortStay, resultadoTradicional, salvarRascunho, type PremissasSimulador, type Resultado,
 } from "@/lib/simuladorReceita";
 import { slugifyBairro } from "@/lib/seo";
@@ -24,6 +24,12 @@ export interface SimuladorReceita {
   ocupacao: number;
   diariaAjustada: boolean;
   ocupacaoAjustada: boolean;
+  /** Reforma considerada no investimento: o valor informado ou, sem ele, a sugestão. */
+  reforma: number;
+  /** Sugestão de reforma (área de referência × custo/m², hipótese); null sem bairro. */
+  sugestaoReforma: ReturnType<typeof reformaSugerida> | null;
+  /** A pessoa informou um valor de reforma (em vez da sugestão). */
+  reformaAjustada: boolean;
   aluguel: number;
   resultadoShortStay: Resultado | null;
   resultadoTradicional: Resultado;
@@ -108,13 +114,17 @@ export function useSimuladorReceita(): SimuladorReceita {
   const rSS = useMemo(() => (bairro ? resultadoShortStay({ diaria, ocupacaoPct: ocupacao }, p.imovel, p.shortStay) : null), [bairro, diaria, ocupacao, p.imovel, p.shortStay]);
   const rTrad = useMemo(() => resultadoTradicional(p.imovel, { ...p.tradicional, aluguel }), [p.imovel, p.tradicional, aluguel]);
   const resultado = p.modo === "short_stay" ? rSS : rTrad;
-  const ind = resultado ? indicadores(resultado, p.imovel.valorImovel, p.reforma) : null;
+  // Reforma: sugestão (área × custo/m², cresce com a diária) até a pessoa informar um valor. Na locação tradicional a sugestão fica no nível básico.
+  const sugestaoReforma = bairro ? reformaSugerida(p.area, p.modo === "short_stay" ? diaria : bairro.dailyAvg, bairro.dailyAvg) : null;
+  const reforma = p.reforma ?? sugestaoReforma?.valor ?? 0;
+  const ind = resultado ? indicadores(resultado, p.imovel.valorImovel, reforma) : null;
   const query = premissasParaQuery(p, bairro ? slugifyBairro(bairro.name) : null);
 
   return {
     p, atualizar, escolherBairro, carregar, bairros, bairro, diariaBase, diaria, ocupacao,
     diariaAjustada: p.diaria != null && p.diaria !== diariaBase,
     ocupacaoAjustada: p.ocupacao != null && bairro != null && p.ocupacao !== bairro.avgOccupancy,
+    reforma, sugestaoReforma, reformaAjustada: p.reforma != null,
     aluguel, resultadoShortStay: rSS, resultadoTradicional: rTrad, resultado, indicadores: ind, recebidaPorLink, query,
     slugBairro: bairro ? slugifyBairro(bairro.name) : null,
   };

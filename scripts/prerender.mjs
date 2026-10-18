@@ -77,6 +77,9 @@ const home = pages.find((p) => p.path === "/");
 home.jsonLd = [
   { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: ssr.FAQ_ITEMS.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) },
 ];
+// Dataset schema.org (Google Dataset Search) nas páginas que apresentam a base.
+const dataset = ssr.datasetJsonLd(seo.siteUrl);
+for (const p of pages) if (p.path === "/metodologia" || p.path === "/ranking") p.jsonLd = [...(p.jsonLd ?? []), dataset];
 const { html: homeHtml } = await ssr.render("/");
 
 for (const p of pages) {
@@ -91,6 +94,11 @@ for (const p of pages) {
   writeFileSync(dirFile, html);
   writeFileSync(resolve(DIST, `${rel}.html`), html);
 }
+
+// Dados abertos: a base aprovada (reserva offline = mesmos números do banco) em CSV e JSON.
+mkdirSync(resolve(DIST, "dados"), { recursive: true });
+writeFileSync(resolve(DIST, "dados/bairros.csv"), ssr.csvDadosAbertos());
+writeFileSync(resolve(DIST, "dados/bairros.json"), ssr.jsonDadosAbertos());
 
 const sitemap = [
   `<?xml version="1.0" encoding="UTF-8"?>`,

@@ -17,6 +17,7 @@ import { DESPESAS_EXEMPLO, DRE_GUIA, investimentoTotal } from "@/data/dreGuia";
 import { formatPercent } from "@/lib/numberFormat";
 import type { SizeKey } from "@/data/bairrosCurados";
 import { DECORATION_LEVELS } from "@/data/guide-data";
+import { CUSTO_M2_ALTO_PADRAO, CUSTO_M2_MEDIANO, CUSTO_M2_P25, ORCAMENTO_MINIMO_BASE } from "@/data/provasBewild";
 
 export type ModoSimulacao = "short_stay" | "tradicional";
 
@@ -205,6 +206,32 @@ export function diariaComDecoracao(dailyAvg: number, decoracao: Decoracao): numb
 }
 export const FAIXAS_AREA: SizeKey[] = ["20–25 m²", "26–35 m²", "36–50 m²"];
 
+/* Sugestão de investimento em reforma (HIPÓTESE do simulador, editável pela pessoa).
+ * Área de referência de cada faixa × custo por m². O custo por m² parte da mediana do estudo
+ * Bewild (nível básico = diária média do bairro) e cresce com a diária escolhida: no alto padrão
+ * (1,45× a diária) chega à referência Bewild de R$ 4.000/m² (25 m² = R$ 100.000). Entre esses
+ * pontos a relação é linear; abaixo da média do bairro desce até o P25 do estudo, acima de 2× a
+ * média não sobe mais. Nenhum contrato da base ficou abaixo de R$ 55 mil, e a sugestão também não. */
+export const AREA_REFERENCIA_M2: Record<SizeKey, number> = { "20–25 m²": 25, "26–35 m²": 30, "36–50 m²": 45 };
+const MULT_ALTO_PADRAO = DECORATION_LEVELS.find((d) => d.value === "alto")?.multiplier ?? 1.45;
+const RAZAO_DIARIA_MAX = 2;
+
+/** Custo por m² sugerido a partir da razão diária escolhida ÷ diária média do bairro (1 = mediana do estudo). */
+export function custoM2Reforma(diaria: number, diariaMediaBairro: number): number {
+  // Razão com 2 casas: a diária do nível é arredondada a real (485 × 1,45 = 703), e 703 ÷ 485 precisa voltar a 1,45.
+  const razao = diariaMediaBairro > 0 ? Math.min(RAZAO_DIARIA_MAX, Math.max(0, Math.round((diaria / diariaMediaBairro) * 100) / 100)) : 1;
+  const porRazao = CUSTO_M2_MEDIANO + ((CUSTO_M2_ALTO_PADRAO - CUSTO_M2_MEDIANO) * (razao - 1)) / (MULT_ALTO_PADRAO - 1);
+  return Math.round(Math.max(CUSTO_M2_P25, porRazao));
+}
+
+/** Reforma sugerida: área de referência da faixa × custo por m², arredondada a R$ 500 e nunca abaixo do mínimo da base. */
+export function reformaSugerida(area: SizeKey, diaria: number, diariaMediaBairro: number): { valor: number; areaM2: number; custoM2: number } {
+  const areaM2 = AREA_REFERENCIA_M2[area] ?? AREA_REFERENCIA_M2["26–35 m²"];
+  const custoM2 = custoM2Reforma(diaria, diariaMediaBairro);
+  const valor = Math.max(ORCAMENTO_MINIMO_BASE, Math.round((areaM2 * custoM2) / 500) * 500);
+  return { valor, areaM2, custoM2 };
+}
+
 /** Tudo o que a pessoa escolhe no simulador: é o que vai para o link, o rascunho e os cenários. */
 export interface PremissasSimulador {
   modo: ModoSimulacao;
@@ -217,8 +244,8 @@ export interface PremissasSimulador {
   /** Ocupação ajustada; null = média do bairro. */
   ocupacao: number | null;
   imovel: Imovel;
-  /** Investimento em reforma, em reais (0 = não informado): entra no prazo de retorno. */
-  reforma: number;
+  /** Investimento em reforma, em reais; null = sugestão do simulador (área × custo/m², hipótese). Entra no prazo de retorno. */
+  reforma: number | null;
   shortStay: PremissasShortStay;
   /** Aluguel digitado; null = referência FipeZAP sobre o valor do imóvel. */
   aluguel: number | null;
@@ -233,7 +260,7 @@ export const PREMISSAS_SIMULADOR_PADRAO: PremissasSimulador = {
   diaria: null,
   ocupacao: null,
   imovel: IMOVEL_PADRAO,
-  reforma: 0,
+  reforma: null,
   shortStay: SHORT_STAY_PADRAO,
   aluguel: null,
   tradicional: TRADICIONAL_PADRAO,
@@ -265,7 +292,7 @@ export function normalizarPremissasSimulador(bruto: unknown): PremissasSimulador
       condominio: num(im.condominio, LIMITES.condominio) ?? d.imovel.condominio,
       iptu: num(im.iptu, LIMITES.iptu) ?? d.imovel.iptu,
     },
-    reforma: num(o.reforma, LIMITES_MERCADO.reforma) ?? 0,
+    reforma: num(o.reforma, LIMITES_MERCADO.reforma) ?? null,
     shortStay: {
       airbnbPct: num(ss.airbnbPct, LIMITES.impostosPct) ?? d.shortStay.airbnbPct,
       gestaoPct: num(ss.gestaoPct, LIMITES.pct) ?? d.shortStay.gestaoPct,
@@ -428,7 +455,7 @@ function migrarCenarioAntigo(c: Record<string, unknown>): CenarioSalvo | null {
     ocupacao: c.ocupacao,
     diaria: Number.isFinite(diaria) && diaria > 0 ? diaria : undefined,
     decoracao: boost >= 30 ? "alto" : boost >= 20 ? "premium" : "basico",
-    reforma: Number(c.reformaBudget) || 0,
+    reforma: Number(c.reformaBudget) || null,
   });
   return { id: String(c.id ?? crypto.randomUUID()), nome: String(c.name ?? c.bairro), premissas, receitaBruta: Number(c.receitaMensal) || 0, liquido: 0, criadoEm: 0 };
 }

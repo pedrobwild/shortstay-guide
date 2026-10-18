@@ -3,6 +3,7 @@ import { ArrowLeft, ChevronRight } from "lucide-react";
 import AppNavbar from "@/components/AppNavbar";
 import FonteBairro from "@/components/guide/FonteBairro";
 import { VariacaoColetaBairro } from "@/components/guide/VariacaoColeta";
+import HistoricoBairro from "@/components/guide/HistoricoBairro";
 import FaixaQuartisBairro from "@/components/intelligence/FaixaQuartisBairro";
 import BlocoReformaBairro from "@/components/intelligence/BlocoReformaBairro";
 import ProximoPassoBairro from "@/components/intelligence/ProximoPassoBairro";
@@ -84,6 +85,7 @@ export default function BairroSomenteRadar({ bairro, seoHead }: { bairro: Bairro
 
         <FaixaQuartisBairro bairro={bairro.name} />
         <VariacaoColetaBairro bairro={bairro.name} />
+        <HistoricoBairro bairro={bairro.name} />
 
         <BlocoReformaBairro bairro={bairro.name} />
         <ProximoPassoBairro bairro={bairro.name} />
