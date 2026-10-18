@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
+import StatusColetaGuestFavorites from "@/components/admin/StatusColetaGuestFavorites";
 import { aprovarColetaPendente, descartarColetaPendente, diferencasColeta, dispararColetaGuestFavorites, listarColetasPendentes, periodoColeta, type ColetaPendente, type ResumoColeta } from "@/lib/coletasPendentes";
 
 const dataBR = (v: string | null) => (v ? v.slice(0, 10).split("-").reverse().join("/") : "—");
@@ -26,6 +27,7 @@ export default function ColetasPendentes() {
   const ler = useMutation({
     mutationFn: dispararColetaGuestFavorites,
     onSuccess: async (r) => { setResumo(r); await qc.invalidateQueries({ queryKey: ["coletas_pendentes"] }); },
+    onSettled: () => qc.invalidateQueries({ queryKey: ["guestfavorites_execucao"] }),
     onError: (e) => toast({ title: "Leitura não concluída", description: e instanceof Error ? e.message : "Tente novamente.", variant: "destructive" }),
   });
   const aprovar = useMutation({
@@ -51,6 +53,7 @@ export default function ColetasPendentes() {
         {ler.isPending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <RefreshCw className="h-4 w-4" aria-hidden />} {ler.isPending ? "Lendo páginas…" : "Ler páginas agora"}
       </Button>
     </div>
+    <StatusColetaGuestFavorites />
     {resumo && <p role="status" className="rounded-md border border-border bg-muted/40 p-3 text-sm tabular-nums">
       {resumo.lidos} páginas lidas · {resumo.propostas} propostas · {resumo.semMudanca} sem mudança{resumo.erros.length > 0 && <> · {resumo.erros.length} com erro: <span className="break-words">{resumo.erros.join("; ")}</span></>}
     </p>}

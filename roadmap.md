@@ -1,3 +1,5 @@
+- [x] Preparar execução externa protegida GuestFavorites, bloqueio simultâneo e status privado em /admin/coletas. Leitura real manual conferida: 27 páginas, zero propostas, 27 sem mudança; 8 testes, lint e compilação OK. Sem publicar.
+- [ ] Ativar e verificar agendamento externo: depende da chave compartilhada e trabalho habilitado no cron-job.org; função aceita 202 mas nenhum agendamento foi criado.
 - [x] Histórico global GuestFavorites em /admin/coletas com fonte, período, status, filtros, paginação e referências sem coleta ativa; 37 coletas reais e 2 referências sem coleta direta conferidas com sessão admin, desktop/320px sem transbordamento; 10 testes e lint passaram, compilação automática OK. Sem alterar dados ou publicar.
 - [x] Implantar coletar-airdna e coletar-airbnb com JWT/admin, validação e CORS; prévias somente leitura, comparação GuestFavorites por período e agregação mensal estrita. 12 testes e lint passaram; chamadas autenticadas e sem sessão conferidas; nenhuma gravação.
 - [ ] Validar coleta real AirDNA: provedor recusou a chave existente com 401 invalid_credentials; precisa de credencial Enterprise válida e pacote autorizado.
