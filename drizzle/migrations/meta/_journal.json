@@ -64,6 +64,13 @@
       "when": 1792304497536,
       "tag": "0008_radar_revisao_concorrencia",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792309238110,
+      "tag": "0009_guestfavorites_execucoes",
+      "breakpoints": true
     }
   ]
 }

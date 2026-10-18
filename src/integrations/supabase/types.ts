@@ -521,6 +521,45 @@ export type Database = {
           },
         ]
       }
+      radar_coleta_execucoes: {
+        Row: {
+          erros: Json
+          finalizado_em: string | null
+          fonte_id: string
+          id: string
+          iniciado_em: string
+          lidos: number
+          origem: string
+          propostas: number
+          sem_mudanca: number
+          status: string
+        }
+        Insert: {
+          erros?: Json
+          finalizado_em?: string | null
+          fonte_id?: string
+          id?: string
+          iniciado_em?: string
+          lidos?: number
+          origem: string
+          propostas?: number
+          sem_mudanca?: number
+          status?: string
+        }
+        Update: {
+          erros?: Json
+          finalizado_em?: string | null
+          fonte_id?: string
+          id?: string
+          iniciado_em?: string
+          lidos?: number
+          origem?: string
+          propostas?: number
+          sem_mudanca?: number
+          status?: string
+        }
+        Relationships: []
+      }
       radar_coletas_pendentes: {
         Row: {
           amostra_n: number
@@ -947,6 +986,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      iniciar_execucao_guestfavorites: {
+        Args: { p_origem: string }
+        Returns: string
       }
       user_owns_ota_connection: {
         Args: { _connection_id: string; _user_id: string }
