@@ -50,6 +50,20 @@
       "when": 1792202507260,
       "tag": "0006_radar_coletas_realtime",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792304362100,
+      "tag": "0007_radar_admin_fontes_edicao_ativacao",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792304497536,
+      "tag": "0008_radar_revisao_concorrencia",
+      "breakpoints": true
     }
   ]
 }

@@ -548,6 +548,45 @@ export type Database = {
         }
         Relationships: []
       }
+      radar_observacao_revisoes: {
+        Row: {
+          anterior: Json
+          id: string
+          observacao_id: string
+          registrado_em: string
+          registrado_por: string
+        }
+        Insert: {
+          anterior: Json
+          id?: string
+          observacao_id: string
+          registrado_em?: string
+          registrado_por: string
+        }
+        Update: {
+          anterior?: Json
+          id?: string
+          observacao_id?: string
+          registrado_em?: string
+          registrado_por?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "radar_observacao_revisoes_observacao_id_fkey"
+            columns: ["observacao_id"]
+            isOneToOne: false
+            referencedRelation: "radar_bairro_atual"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "radar_observacao_revisoes_observacao_id_fkey"
+            columns: ["observacao_id"]
+            isOneToOne: false
+            referencedRelation: "radar_observacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       radar_observacoes: {
         Row: {
           amostra_n: number | null
@@ -779,6 +818,17 @@ export type Database = {
       }
     }
     Functions: {
+      admin_ativar_coleta_radar: { Args: { p_id: string }; Returns: undefined }
+      admin_editar_observacao_radar: {
+        Args: {
+          p_esperado: string
+          p_id: string
+          p_observacao: string
+          p_url: string
+          p_valor: number
+        }
+        Returns: undefined
+      }
       admin_lead_scores: {
         Args: never
         Returns: {
