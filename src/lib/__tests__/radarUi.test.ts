@@ -39,13 +39,13 @@ describe("natureza e fonte de cada bairro na nova interface", () => {
     expect(fonteCurtaBairro(estimada)).toBe("Sem fonte pública atualizada");
     expect(fonteCurtaBairro(porNome("Consolação"))).toBe("GuestFavorites · jan–set/2026 · coleta 18/10/2026");
     for (const nome of APROXIMACOES) {
-      expect(fonteCurtaBairro(porNome(nome))).toBe("GuestFavorites (aproximação pelo Itaim Bibi) · jan–set/2026 · coleta 13/10/2026");
+      expect(fonteCurtaBairro(porNome(nome))).toBe("GuestFavorites (aproximação pelo Itaim Bibi) · jan–set/2026 · coleta 18/10/2026");
     }
   });
 
   it("dado observado mostra fonte, período e data da coleta", () => {
-    expect(fonteCurtaBairro(porNome("Pinheiros"))).toBe("GuestFavorites · jan–set/2026 · coleta 13/10/2026");
-    expect(fonteCurtaBairro(porNome("Liberdade"))).toBe("GuestFavorites · jan–jul/2026 · coleta 13/10/2026");
+    expect(fonteCurtaBairro(porNome("Pinheiros"))).toBe("GuestFavorites · jan–set/2026 · coleta 18/10/2026");
+    expect(fonteCurtaBairro(porNome("Moema"))).toBe("GuestFavorites · jan–set/2026 · coleta 13/10/2026");
   });
 
   it("ajuste manual do admin sobre bairro observado é sinalizado como ajuste", () => {
@@ -60,7 +60,7 @@ describe("natureza e fonte de cada bairro na nova interface", () => {
   });
 
   it("Mooca sempre traz o aviso de amostra pequena", () => {
-    expect(avisoAmostraBairro(porNome("Mooca"))).toBe("amostra pequena (85 anúncios)");
+    expect(avisoAmostraBairro(porNome("Mooca"))).toBe("amostra pequena (90 anúncios)");
     expect(avisoAmostraBairro(porNome("Pinheiros"))).toBeNull();
     expect(avisoAmostraBairro(porNome("Brooklin"))).toBeNull();
   });
@@ -69,16 +69,16 @@ describe("natureza e fonte de cada bairro na nova interface", () => {
 describe("receita de referência e escala do mapa", () => {
   it("a referência de São Paulo é diária × 30 × ocupação da mesma coleta", () => {
     expect(RECEITA_REFERENCIA_SP).toBe(receitaMensalReferencia(SAO_PAULO_REFERENCIA));
-    expect(RECEITA_REFERENCIA_SP).toBe(4788);
+    expect(RECEITA_REFERENCIA_SP).toBe(4770);
   });
 
   it("classifica a receita nos cinco passos da legenda", () => {
     expect(passoEscalaReceita(3837)).toBe(1);
     expect(passoEscalaReceita(4200)).toBe(2);
     expect(passoEscalaReceita(4600)).toBe(3);
-    expect(passoEscalaReceita(5580)).toBe(4);
+    expect(passoEscalaReceita(5651)).toBe(4);
     expect(passoEscalaReceita(5933)).toBe(5);
-    expect(corEscalaReceita(5580)).toBe("hsl(var(--escala-4))");
+    expect(corEscalaReceita(5651)).toBe("hsl(var(--escala-4))");
   });
 
   it("os extremos da legenda usam só dado observado", () => {
@@ -102,10 +102,10 @@ describe("receita de referência e escala do mapa", () => {
   it("ordena por receita de referência, da maior para a menor", () => {
     const ordem = ordenarPorReceita(BAIRROS_CURADOS);
     // Morumbi na frente; Brooklin e Vila Olímpia usam os números do Itaim Bibi: empatam e o desempate é pelo nome.
-    expect(ordem.slice(0, 4).map((o) => [o.bairro.name, o.receita])).toEqual([["Morumbi", 8294], ["Brooklin", 6354], ["Itaim Bibi", 6354], ["Vila Olímpia", 6354]]);
+    expect(ordem.slice(0, 4).map((o) => [o.bairro.name, o.receita])).toEqual([["Morumbi", 8294], ["Brooklin", 6462], ["Itaim Bibi", 6462], ["Vila Olímpia", 6462]]);
     expect(ordem[ordem.length - 1].bairro.name).toBe("Bom Retiro"); // R$ 189 × 30 × 60% = R$ 3.402
     for (let i = 1; i < ordem.length; i++) expect(ordem[i - 1].receita).toBeGreaterThanOrEqual(ordem[i].receita);
-    expect(ordem.find((o) => o.bairro.name === "Pinheiros")?.receita).toBe(5580);
+    expect(ordem.find((o) => o.bairro.name === "Pinheiros")?.receita).toBe(5651);
   });
 });
 
@@ -147,7 +147,8 @@ describe("textos montados a partir da base", () => {
   it("Fontes e atualização citam coleta, períodos, aproximações e a estimativa certa", () => {
     const t = textosFontes(reserva);
     expect(t.observado).toContain("Coletas de 13/10/2026 e 18/10/2026");
-    expect(t.observado).toContain("período jan–set/2026 (Liberdade e República: jan–jul/2026)");
+    expect(t.observado).toContain("período jan–set/2026.");
+    expect(t.observado).not.toContain("jan–jul/2026");
     for (const nome of SEM_DADO_PROPRIO) expect(t.observado).not.toContain(nome);
     expect(t.aproximacao).toBe("Brooklin e Vila Olímpia não têm dado público por bairro: usam os números do Itaim Bibi, mesma coleta da GuestFavorites.");
     expect(t.estimativa).not.toContain("Consolação");
@@ -204,22 +205,22 @@ describe("diferença até o maior valor na comparação", () => {
 
   it("mostra quanto cada bairro fica abaixo do maior, com os números da base", () => {
     expect(linha(["Pinheiros", "Itaim Bibi", "Bela Vista"], (b) => b.dailyAvg)).toEqual([
-      { maiores: ["Itaim Bibi"], diferenca: 59 }, null, { maiores: ["Itaim Bibi"], diferenca: 122 },
+      { maiores: ["Itaim Bibi"], diferenca: 60 }, null, { maiores: ["Itaim Bibi"], diferenca: 122 },
     ]);
-    // Ocupação em pontos percentuais: 64% (Bela Vista) − 62% (Pinheiros).
-    expect(linha(["Pinheiros", "Bela Vista"], (b) => b.avgOccupancy)).toEqual([{ maiores: ["Bela Vista"], diferenca: 2 }, null]);
-    // Receita de referência: R$ 6.354 (Itaim Bibi) − R$ 5.580 (Pinheiros).
-    expect(linha(["Pinheiros", "Itaim Bibi"], receitaMensalReferencia)).toEqual([{ maiores: ["Itaim Bibi"], diferenca: 774 }, null]);
+    // Ocupação em pontos percentuais: 64% (Bela Vista) − 63% (Pinheiros).
+    expect(linha(["Pinheiros", "Bela Vista"], (b) => b.avgOccupancy)).toEqual([{ maiores: ["Bela Vista"], diferenca: 1 }, null]);
+    // Receita de referência: R$ 6.462 (Itaim Bibi) − R$ 5.651 (Pinheiros).
+    expect(linha(["Pinheiros", "Itaim Bibi"], receitaMensalReferencia)).toEqual([{ maiores: ["Itaim Bibi"], diferenca: 811 }, null]);
   });
 
   it("empate no maior valor junta os nomes; empate geral não tem diferença", () => {
     // Brooklin usa os números do Itaim Bibi (aproximação): os dois empatam na diária.
-    expect(linha(["Pinheiros", "Itaim Bibi", "Brooklin"], (b) => b.dailyAvg)[0]).toEqual({ maiores: ["Itaim Bibi", "Brooklin"], diferenca: 59 });
+    expect(linha(["Pinheiros", "Itaim Bibi", "Brooklin"], (b) => b.dailyAvg)[0]).toEqual({ maiores: ["Itaim Bibi", "Brooklin"], diferenca: 60 });
     expect(linha(["Itaim Bibi", "Brooklin"], (b) => b.dailyAvg)).toEqual([null, null]);
   });
 
   it("sem valor (anúncios da aproximação) não entra na conta; com menos de dois valores não há diferença", () => {
-    expect(linha(["Pinheiros", "Itaim Bibi", "Brooklin"], (b) => b.activeListings)).toEqual([{ maiores: ["Itaim Bibi"], diferenca: 1460 }, null, null]);
+    expect(linha(["Pinheiros", "Itaim Bibi", "Brooklin"], (b) => b.activeListings)).toEqual([{ maiores: ["Itaim Bibi"], diferenca: 1428 }, null, null]);
     expect(linha(["Pinheiros", "Brooklin"], (b) => b.activeListings)).toEqual([null, null]);
     expect(linha(["Pinheiros"], (b) => b.dailyAvg)).toEqual([null]);
   });

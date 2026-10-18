@@ -88,7 +88,7 @@ export default function AdminBairros() {
         <header className="space-y-1">
           <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">Diária e ocupação por bairro</h1>
           <p className="text-sm text-muted-foreground">
-            O número salvo aqui substitui o da base aprovada no site. A base de 13/10/2026 e o case Pinheiros não mudam; use "Restaurar" para voltar.
+            O número salvo aqui substitui o da base aprovada no site. A base aprovada e o case Pinheiros não mudam; use "Restaurar" para voltar.
           </p>
         </header>
 

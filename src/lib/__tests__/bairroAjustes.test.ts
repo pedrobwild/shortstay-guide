@@ -9,8 +9,8 @@ describe("ajustes de bairro", () => {
     const ajustado = aplicarAjuste(pinheiros, buscarAjuste(mapa, "pinheiros"));
     expect(ajustado.dailyAvg).toBe(350);
     expect(ajustado.avgOccupancy).toBe(70);
-    expect(getBairroCurado("Pinheiros")!.dailyAvg).toBe(300);
-    expect(getBairroCurado("Pinheiros")!.avgOccupancy).toBe(62);
+    expect(getBairroCurado("Pinheiros")!.dailyAvg).toBe(299);
+    expect(getBairroCurado("Pinheiros")!.avgOccupancy).toBe(63);
   });
   it("sem ajuste devolve o bairro original", () => {
     expect(aplicarAjuste(BAIRROS_CURADOS[0], undefined)).toBe(BAIRROS_CURADOS[0]);

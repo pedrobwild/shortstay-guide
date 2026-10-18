@@ -34,10 +34,10 @@ describe("base única radar_bairro_atual", () => {
     expect(r.estimativa).toBe(est);
   });
   const mooca = bairros.find((b) => b.name === "Mooca");
-  it("Mooca é pública com 85 anúncios e alerta de amostra pequena, não estimativa", () => {
+  it("Mooca é pública com 90 anúncios e alerta de amostra pequena, não estimativa", () => {
     expect(mooca).toBeDefined();
     if (!mooca) throw new Error("Mooca ausente");
-    expect(mooca.amostraN).toBe(85);
+    expect(mooca.amostraN).toBe(90);
     expect(alertasFonteRadar(mooca)).toEqual({ estimativa: false, amostraPequena: true, desatualizado: false });
   });
   it("Brooklin tem alerta apenas de estimativa", () => {
@@ -58,16 +58,16 @@ describe("base única radar_bairro_atual", () => {
     expect(alertasFonteRadar({ ...mooca, fonteTipo: "estimativa", idadeDias: 241 })).toEqual({ estimativa: true, amostraPequena: false, desatualizado: false });
   });
   it("Brooklin mostra fonte_nome de aproximação", () => {
-    expect(rotuloFonteRadar(bairros.find((x) => x.name === "Brooklin")!)).toBe("GuestFavorites (aproximação pelo Itaim Bibi), jan–set/2026 · coleta 13/10/2026 · confiança baixa");
+    expect(rotuloFonteRadar(bairros.find((x) => x.name === "Brooklin")!)).toBe("GuestFavorites (aproximação pelo Itaim Bibi), jan–set/2026 · coleta 18/10/2026 · confiança baixa");
   });
   it("anexa estimativa Bewild só como referência, sem mudar o número principal", () => {
     const ref = [["adr_medio_brl", 415], ["ocupacao_media_pct", 79], ["adr_p25_brl", 330], ["adr_p75_brl", 500]].map(([indicador, valor]) => ({ bairro: "Vila Olímpia", indicador: String(indicador), valor: Number(valor) }));
     const vo = anexarReferencias(bairros, ref).find((b) => b.name === "Vila Olímpia")!;
-    expect(vo).toMatchObject({ dailyAvg: 359, avgOccupancy: 59, referenciaBewild: { dailyAvg: 415, avgOccupancy: 79, dailyMin: 330, dailyMax: 500 } });
+    expect(vo).toMatchObject({ dailyAvg: 359, avgOccupancy: 60, referenciaBewild: { dailyAvg: 415, avgOccupancy: 79, dailyMin: 330, dailyMax: 500 } });
     expect(anexarReferencias(bairros, [{ ...ref[0], bairro: "Consolação" }]).find((b) => b.name === "Consolação")!.referenciaBewild).toBeUndefined();
     expect(rotuloReferenciaBewild(vo.referenciaBewild!)).toBe("Estimativa Bewild: diária R$ 415 · ocupação 79% (dados anteriores da Bewild, sem fonte pública)");
   });
   it("monta o texto de fonte com período, coleta, n= e selo", () => {
-    expect(rotuloFonteRadar(bairros.find((x) => x.name === "Pinheiros")!)).toBe("GuestFavorites, jan–set/2026 · coleta 13/10/2026 · n=2.424 · confiança alta");
+    expect(rotuloFonteRadar(bairros.find((x) => x.name === "Pinheiros")!)).toBe("GuestFavorites, jan–set/2026 · coleta 18/10/2026 · n=2.452 · confiança alta");
   });
 });

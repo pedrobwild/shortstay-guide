@@ -19,7 +19,7 @@ describe("leituras do /mapa com a base do Radar", () => {
       expect(n.metrics.avgRevenueMo).toBe(receitaMensalReferencia(b));
       expect(n.metrics.activeListings).toBe(b.activeListings);
     }
-    expect(porNome("Pinheiros").metrics).toMatchObject({ nightlyRate: 300, occupancy: 62, avgRevenueMo: 5580, activeListings: 2424 });
+    expect(porNome("Pinheiros").metrics).toMatchObject({ nightlyRate: 299, occupancy: 63, avgRevenueMo: 5651, activeListings: 2452 });
   });
 
   it("aproximação não ganha número de anúncios; a fonte diz o que é (e uma estimativa seguiria a mesma regra)", () => {
@@ -31,13 +31,13 @@ describe("leituras do /mapa com a base do Radar", () => {
       const n = porNome(nome);
       expect(n.natureza).toBe("aproximacao");
       expect(n.metrics.activeListings).toBeNull();
-      expect(n.metrics).toMatchObject({ nightlyRate: 359, occupancy: 59 });
-      expect(n.metrics.dataSource).toBe("GuestFavorites (aproximação pelo Itaim Bibi) · jan–set/2026 · coleta 13/10/2026");
+      expect(n.metrics).toMatchObject({ nightlyRate: 359, occupancy: 60 });
+      expect(n.metrics.dataSource).toBe("GuestFavorites (aproximação pelo Itaim Bibi) · jan–set/2026 · coleta 18/10/2026");
     }
   });
 
   it("Mooca leva o aviso de amostra pequena", () => {
-    expect(porNome("Mooca").aviso).toBe("amostra pequena (85 anúncios)");
+    expect(porNome("Mooca").aviso).toBe("amostra pequena (90 anúncios)");
   });
 
   it("bairro fora da base não entra nas leituras", () => {

@@ -9,12 +9,12 @@ export const FONTES_GUIA = {
   fotografia: { title: "Airbnb — fotografia profissional", url: "https://www.airbnb.com/professional_photography" },
   vinilico: { title: "Durafloor — pisos e instalação", url: "https://www.durafloor.com.br/?p=123370" },
   expedia: { title: "Expedia Traveler Value Index 2025", url: "https://ir.expediagroup.com/news-and-events/news/news-details/2025/Travel-Priorities-Reinvented-Expedia-Groups-2025-Traveler-Value-Index-Signals-a-Shift-in-Consumer-Priorities/default.aspx" },
-  /** Referência da cidade (SAO_PAULO_REFERENCIA): mesma coleta aprovada de 13/10/2026, citada também no FAQ. */
+  /** Referência da cidade (SAO_PAULO_REFERENCIA): coleta assistida aprovada em 18/10/2026, citada também no FAQ. */
   guestfavoritesSP: { title: "GuestFavorites", url: "https://www.guestfavorites.com" },
 } as const;
 
-/** Data da coleta GuestFavorites aprovada (bairros e referência de São Paulo). */
-export const COLETA_GUESTFAVORITES = "13/10/2026";
+/** Data da coleta GuestFavorites em uso (bairros e referência de São Paulo; Moema segue com 13/10/2026). */
+export const COLETA_GUESTFAVORITES = "18/10/2026";
 
 export type FonteGuia = { title: string; url: string };
 

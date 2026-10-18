@@ -13,7 +13,7 @@ type BairroContextValue = {
   bairros: BairroItem[];
   lastUpdated: string | null;
   isLoading: boolean;
-  /** A base do banco não respondeu: os números exibidos vêm da reserva offline (coleta de 13/10/2026). */
+  /** A base do banco não respondeu: os números exibidos vêm da reserva offline (coleta de 18/10/2026). */
   offline: boolean;
   /** Lê a base de novo (botão "Tentar novamente"). */
   recarregar: () => void;
