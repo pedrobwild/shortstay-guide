@@ -60,7 +60,15 @@ serve(async (req) => {
     if (!ehAdmin) return json({ error: "Acesso exclusivo de administrador." }, 403);
     }
 
+    const corpo = await req.json().catch(() => ({}));
+    const bairroPedido = corpo?.bairro;
+    if (bairroPedido !== undefined && (typeof bairroPedido !== "string" || !bairroPedido.trim() || bairroPedido.length > 100)) return json({ error: "Informe um bairro válido." }, 400);
     const db = createClient(url, service);
+    if (bairroPedido) {
+      const { data: bairroBase, error: bairroErro } = await db.from("radar_bairro_atual").select("bairro").eq("cidade", CIDADE).eq("bairro", bairroPedido).limit(1);
+      if (bairroErro) throw bairroErro;
+      if (!bairroBase?.length) return json({ error: "Bairro não encontrado na base do Radar." }, 400);
+    }
     const { data: execucaoId, error: inicioErro } = await db.rpc("iniciar_execucao_guestfavorites", { p_origem: externa ? "externa" : "manual" });
     if (inicioErro) throw inicioErro;
     if (!execucaoId) return json({ error: "Já existe uma leitura em andamento." }, 409);
@@ -77,7 +85,7 @@ serve(async (req) => {
     const porBairro = new Map<string, LinhaAtual[]>();
     for (const l of (atuais ?? []) as LinhaAtual[]) porBairro.set(l.bairro, [...(porBairro.get(l.bairro) ?? []), l]);
 
-    const alvos = [...porBairro.entries()]
+    const alvos = bairroPedido ? [{ bairro: bairroPedido, url: bairroPedido === CIDADE ? URL_CIDADE_GF : URL_BAIRRO_GF(bairroPedido) }] : [...porBairro.entries()]
       .filter(([, ls]) => ls.some((l) => l.fonte_id === "guestfavorites"))
       .map(([bairro]) => ({ bairro, url: bairro === CIDADE ? URL_CIDADE_GF : URL_BAIRRO_GF(bairro) }));
 
