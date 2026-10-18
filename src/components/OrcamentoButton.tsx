@@ -3,6 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 import { orcamentoUrl, type OrcamentoLocal } from "@/lib/orcamento";
 import { trackBudgetClick } from "@/lib/marketingConsent";
 import type { ComponentProps } from "react";
+import NovaAba from "@/components/NovaAba";
 
 type Props = Omit<ComponentProps<typeof Button>, "asChild" | "children" | "onClick"> & {
   local: OrcamentoLocal;
@@ -20,7 +21,7 @@ export default function OrcamentoButton({ local, rotulo = "Peça seu orçamento"
   return (
     <Button {...props} className={`max-w-full whitespace-normal text-center ${props.className ?? ""}`} asChild onClick={() => trackBudgetClick(local)}>
       <a href={orcamentoUrl(local)} target="_blank" rel="noopener noreferrer">
-        {rotulo}{icone && <ArrowUpRight size={16} className="ml-2 shrink-0" aria-hidden="true" />}
+        {rotulo}<NovaAba />{icone && <ArrowUpRight size={16} className="ml-2 shrink-0" aria-hidden="true" />}
       </a>
     </Button>
   );

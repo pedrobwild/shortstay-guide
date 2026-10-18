@@ -11,9 +11,18 @@ import { TabelaBairrosEstatica, BairroEstatico } from "./components/PreRenderMer
 import { ConteudoTema } from "./pages/GuiaTema";
 import { temaPorSlug } from "./data/temasGuia";
 import { ConteudoMetodologia } from "./pages/Metodologia";
-import { csvDadosAbertos, datasetJsonLd, jsonDadosAbertos } from "./lib/dadosAbertos";
+import { csvDadosAbertos, datasetJsonLd, jsonDadosAbertos, linhasDadosAbertos } from "./lib/dadosAbertos";
+import { bairrosReserva } from "./lib/radarBase";
+import { bairroDescription, bairroH1, bairroTitle, tituloComMarca, OG_IMAGEM, OG_IMAGEM_ALT, ROBOTS_INDEXAVEL, ROBOTS_NOINDEX, caminhoCanonico } from "./lib/seo";
+import { isoSaoPaulo, itemListBairrosJsonLd, jsonLdDaPagina } from "./lib/seoJsonLd";
+import { gerarLlmsTxt, LLMS_TXT_CAMINHOS } from "./lib/llmsTxt";
 
-export { FAQ_ITEMS, csvDadosAbertos, datasetJsonLd, jsonDadosAbertos };
+// Tudo que scripts/prerender.mjs usa do código do app (regras de SEO ficam em TS, testadas).
+export {
+  FAQ_ITEMS, csvDadosAbertos, datasetJsonLd, jsonDadosAbertos, linhasDadosAbertos, bairrosReserva,
+  bairroDescription, bairroH1, bairroTitle, tituloComMarca, OG_IMAGEM, OG_IMAGEM_ALT, ROBOTS_INDEXAVEL, ROBOTS_NOINDEX, caminhoCanonico,
+  isoSaoPaulo, itemListBairrosJsonLd, jsonLdDaPagina, gerarLlmsTxt, LLMS_TXT_CAMINHOS,
+};
 
 /** HTML estático das páginas de dados (/ranking, /mercado, /bairro/*); o app o substitui ao abrir. */
 export function renderEstatico(p: { path: string; h1: string; description: string; bairro?: string }): string | null {

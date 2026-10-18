@@ -121,7 +121,7 @@ export default function ProjecaoStudio() {
   );
 
   return (
-    <main className="mx-auto max-w-[1280px] px-4 pb-32 pt-4 lg:px-10 lg:pb-16 lg:pt-8">
+    <main id="conteudo" tabIndex={-1} className="mx-auto max-w-[1280px] px-4 pb-32 pt-4 lg:px-10 lg:pb-16 lg:pt-8">
       <button type="button" onClick={voltar} className="hidden min-h-[44px] items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground lg:inline-flex">
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />Voltar
       </button>

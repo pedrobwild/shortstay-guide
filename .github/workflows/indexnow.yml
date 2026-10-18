@@ -1,0 +1,38 @@
+name: IndexNow
+
+# Avisa Bing/Yandex (protocolo IndexNow) das URLs do sitemap PUBLICADO em
+# radarbewild.com.br. O Radar não é publicado a cada push: o Pedro publica pelo
+# Lovable quando quer. Por isso o job não roda no push — roda toda segunda-feira
+# e sob demanda (Actions → IndexNow → Run workflow) logo depois de uma publicação.
+# A chave fica em public/<KEY>.txt (pública por desenho do protocolo).
+
+on:
+  schedule:
+    - cron: "17 10 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: indexnow-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  submit:
+    name: Enviar sitemap ao IndexNow
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enviar URLs do sitemap publicado
+        env:
+          INDEXNOW_SITEMAP_URL: https://radarbewild.com.br/sitemap.xml
+        run: node scripts/submit-indexnow.mjs

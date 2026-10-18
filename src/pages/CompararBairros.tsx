@@ -158,7 +158,7 @@ function CompararConteudo() {
   const mostrarComparacao = selecionados.length > 0;
 
   return (
-    <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-5 md:px-10 md:pt-10">
+    <main id="conteudo" tabIndex={-1} className="mx-auto max-w-[1280px] px-4 pb-16 pt-5 md:px-10 md:pt-10">
       <h1 className="mb-1.5 font-display text-[28px] font-bold leading-[1.1] text-foreground md:mb-2 md:text-[40px]">Comparar bairros</h1>
       <p className="mb-4 max-w-[680px] text-sm text-muted-foreground md:mb-6 md:text-base">
         <span className="md:hidden">Até {MAX_COMPARAR} bairros. Cada número com a sua fonte.</span>

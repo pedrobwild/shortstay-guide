@@ -14,7 +14,7 @@ export default function Ferramentas() {
     <BairroProvider>
       <GuideDecisionProvider>
         <AppNavbar />
-        <main className="w-full flex flex-col items-center pb-24 pt-16 lg:pt-8">
+        <main id="conteudo" tabIndex={-1} className="w-full flex flex-col items-center pb-24 pt-16 lg:pt-8">
           {/* Back link + header */}
           <div className="w-full">
             <div className="max-w-[1280px] mx-auto px-5 lg:px-10 pt-8 pb-4">

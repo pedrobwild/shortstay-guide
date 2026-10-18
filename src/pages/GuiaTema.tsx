@@ -1,8 +1,9 @@
 import type { ComponentType } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import AppNavbar from "@/components/AppNavbar";
 import RodapeRadar from "@/components/RodapeRadar";
+import NotFound from "@/pages/NotFound";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import { ModoPaginaGuia } from "@/components/guide/modoPaginaGuia";
 import ReservasSection from "@/components/guide/ReservasSection";
@@ -37,7 +38,7 @@ export function ConteudoTema({ slug }: { slug: SlugTemaGuia }) {
   const proximo = TEMAS_GUIA[(indice + 1) % TEMAS_GUIA.length];
   return (
     <ModoPaginaGuia.Provider value>
-      <main className="mx-auto w-full max-w-[1280px] px-5 pb-16 lg:px-10">
+      <main id="conteudo" tabIndex={-1} className="mx-auto w-full max-w-[1280px] px-5 pb-16 lg:px-10">
         <nav aria-label="Caminho" className="flex min-h-[44px] flex-wrap items-center gap-1.5 pt-6 text-xs text-muted-foreground">
           <Link to="/" className="hover:text-foreground">Guia do investidor</Link>
           <ChevronRight className="h-3 w-3" aria-hidden="true" />
@@ -69,7 +70,8 @@ export function ConteudoTema({ slug }: { slug: SlugTemaGuia }) {
 export default function GuiaTema() {
   const { tema = "" } = useParams<{ tema: string }>();
   const t = temaPorSlug(tema);
-  if (!t) return <Navigate to="/" replace />;
+  // Tema inexistente é um 404 de verdade (noindex pelo RouteSeo), não um redirecionamento para a home.
+  if (!t) return <NotFound />;
   return (
     <div className="min-h-screen bg-background">
       <AppNavbar fixo={false} />

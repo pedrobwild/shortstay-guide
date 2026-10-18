@@ -49,7 +49,7 @@ function MapaConteudo() {
   };
 
   return (
-    <main>
+    <main id="conteudo" tabIndex={-1}>
       <ExploradorBairros
         destaque={destaque}
         rotuloDestaque={rotuloDestaque}

@@ -174,7 +174,7 @@ const IntelligenceRanking = () => {
           </div>
         </div>
 
-        <main className="container mx-auto px-4 py-6 space-y-6">
+        <main id="conteudo" tabIndex={-1} className="container mx-auto px-4 py-6 space-y-6">
 
           {/* Insights section — compact */}
           <ComparativeNarrativesSection bairros={allBairros} />

@@ -1,0 +1,17 @@
+{
+  "name": "Radar Bewild — guia do investidor em studios para short stay em São Paulo",
+  "short_name": "Radar Bewild",
+  "description": "Dados de diária e ocupação por bairro, comparador, mapa e simulador de receita para studios no Airbnb em São Paulo. Um produto Bewild.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "lang": "pt-BR",
+  "background_color": "#f6f7f9",
+  "theme_color": "#f6f7f9",
+  "categories": ["business", "finance", "lifestyle"],
+  "icons": [
+    { "src": "/favicon-180.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+    { "src": "/favicon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" }
+  ]
+}
