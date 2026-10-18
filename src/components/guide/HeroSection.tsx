@@ -4,6 +4,7 @@ import sectionHeroStudio from "@/assets/section-hero-studio.jpg";
 import { SAO_PAULO_REFERENCIA } from "@/data/bairrosCurados";
 import { COLETA_GUESTFAVORITES, FONTES_GUIA } from "@/data/fontesGuia";
 import FonteLink from "@/components/guide/FonteLink";
+import Carimbo from "@/components/radar/Carimbo";
 import NaturezaTag from "@/components/radar/NaturezaTag";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { formatDecimal, formatPercent } from "@/lib/numberFormat";
@@ -22,30 +23,23 @@ const PORTAS = [
 /** Carimbo de referência: números de São Paulo da mesma coleta dos bairros (dado observado). */
 function CarimboReferencia({ className }: { className?: string }) {
   const sp = SAO_PAULO_REFERENCIA;
-  const celulas = [
-    { rotulo: "Diária média", valor: `R$ ${formatDecimal(sp.dailyAvg, 0)}` },
-    { rotulo: "Ocupação", valor: formatPercent(sp.avgOccupancy, 0) },
-    { rotulo: "Anúncios", valor: formatDecimal(sp.activeListings, 0) },
-  ];
   return (
-    <div className={cn("border border-foreground bg-card text-[13px] text-foreground", className)}>
-      <div className="flex items-center justify-between gap-3 border-b border-foreground px-3.5 py-2.5">
-        <strong className="font-semibold">Referência · São Paulo</strong>
-        <NaturezaTag tipo="observado">Observado</NaturezaTag>
-      </div>
-      <dl className="grid grid-cols-3">
-        {celulas.map((c, i) => (
-          <div key={c.rotulo} className={cn("px-3.5 py-3", i < 2 && "border-r border-border")}>
-            <dt className="text-xs text-muted-foreground">{c.rotulo}</dt>
-            <dd className="mt-0.5 text-[22px] font-semibold leading-tight tabular-nums">{c.valor}</dd>
-          </div>
-        ))}
-      </dl>
-      <FonteLink
-        fonte={{ ...FONTES_GUIA.guestfavoritesSP, title: `GuestFavorites · ${sp.period} · coleta de ${COLETA_GUESTFAVORITES}` }}
-        className="flex w-full border-t border-foreground px-3.5 text-xs text-foreground-medium no-underline hover:underline"
-      />
-    </div>
+    <Carimbo
+      className={className}
+      titulo="Referência · São Paulo"
+      tag={<NaturezaTag tipo="observado">Observado</NaturezaTag>}
+      celulas={[
+        { rotulo: "Diária média", valor: `R$ ${formatDecimal(sp.dailyAvg, 0)}` },
+        { rotulo: "Ocupação", valor: formatPercent(sp.avgOccupancy, 0) },
+        { rotulo: "Anúncios", valor: formatDecimal(sp.activeListings, 0) },
+      ]}
+      rodape={
+        <FonteLink
+          fonte={{ ...FONTES_GUIA.guestfavoritesSP, title: `GuestFavorites · ${sp.period} · coleta de ${COLETA_GUESTFAVORITES}` }}
+          className="flex w-full px-3 text-xs text-foreground-medium no-underline hover:underline min-[360px]:px-3.5"
+        />
+      }
+    />
   );
 }
 
@@ -61,21 +55,24 @@ export default function HeroSection() {
           Dados de diária e ocupação por bairro, cada número com fonte e período, para comparar regiões e simular um imóvel antes de decidir.
         </p>
 
-        {/* Portas: prancha numerada com régua de 2px */}
-        <ol className="regua grid md:grid-cols-3">
+        {/* Portas: prancha numerada com régua de 2px. No celular viram linhas compactas
+            (número, título, texto e seta), para as três caberem na primeira tela. */}
+        <ol id="portas-hero" className="regua grid md:grid-cols-3">
           {PORTAS.map((p, i) => {
             const conteudo = (
               <>
-                <span className="text-[13px] font-semibold tracking-[0.06em] text-accent-text">{p.num}</span>
-                <span className="font-display text-[21px] font-semibold leading-[1.2] text-foreground lg:text-[23px]">{p.titulo}</span>
-                <span className="text-[15px] leading-normal text-muted-foreground">{p.texto}</span>
-                <span className="mt-auto inline-flex items-center gap-1 pt-2 text-sm font-semibold text-primary">
+                <span className="col-start-1 row-span-2 row-start-1 pt-[5px] text-[13px] font-semibold tracking-[0.06em] text-accent-text md:pt-0">{p.num}</span>
+                <span className="col-start-2 row-start-1 font-display text-xl font-semibold leading-[1.2] text-foreground md:text-[21px] lg:text-[23px]">{p.titulo}</span>
+                <span className="col-start-2 row-start-2 text-sm leading-[1.45] text-muted-foreground md:text-[15px] md:leading-normal">{p.texto}</span>
+                <span className="sr-only md:not-sr-only md:mt-auto md:inline-flex md:items-center md:gap-1 md:pt-2 md:text-sm md:font-semibold md:text-primary">
                   {p.acao}<ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                 </span>
+                <ArrowRight className="col-start-3 row-span-2 row-start-1 h-4 w-4 self-center text-primary md:hidden" aria-hidden="true" />
               </>
             );
             const classe = cn(
-              "flex h-full w-full flex-col gap-2.5 py-5 text-left transition-colors hover:bg-accent-light md:min-h-[200px]",
+              "grid h-full w-full grid-cols-[28px_minmax(0,1fr)_16px] gap-x-3 gap-y-1 py-4 text-left transition-colors hover:bg-accent-light",
+              "md:flex md:min-h-[200px] md:flex-col md:gap-2.5 md:py-5",
               i === 0 ? "md:pr-5" : "md:px-5",
             );
             const rastrear = () => trackGlobal("cta_clicked", { cta_id: p.id, section: "hero" });
@@ -101,7 +98,7 @@ export default function HeroSection() {
         <img
           src={sectionHeroStudio}
           alt="Interior de um studio para short stay em São Paulo"
-          className="block aspect-[4/3] w-full rounded-[4px] object-cover object-[62%_50%] lg:aspect-[4/5]"
+          className="block aspect-[3/2] w-full rounded-[4px] object-cover object-[62%_50%] lg:aspect-[4/5]"
           loading="eager"
           fetchPriority="high"
           width={1280}

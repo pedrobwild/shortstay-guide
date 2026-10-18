@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import FonteBairro from "@/components/guide/FonteBairro";
 import FaixaQuartis from "@/components/guide/FaixaQuartis";
 import { VariacaoColetaBairro } from "@/components/guide/VariacaoColeta";
+import Carimbo from "@/components/radar/Carimbo";
 import NaturezaTag from "@/components/radar/NaturezaTag";
 import Segmentado from "@/components/radar/Segmentado";
 import AvisoBase from "@/components/radar/AvisoBase";
@@ -409,7 +410,7 @@ export default function ExploradorBairros({
           {nomesComparacao.length > 0 && !isLoading && (
             <Link
               to={caminhoComparar(comparacao)}
-              className="absolute left-3 z-[6] inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-foreground px-4 text-sm font-semibold text-background shadow-sheet transition-[bottom] duration-[250ms] lg:hidden"
+              className="absolute left-3 z-[6] inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-foreground px-4 text-sm font-semibold text-background shadow-sheet transition-[bottom] [transition-duration:250ms] lg:hidden"
               style={{ bottom: alturaFolha + 12 }}
             >
               Comparando {nomesComparacao.length} · Abrir<ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -420,7 +421,7 @@ export default function ExploradorBairros({
           {selecionado && resumo && (
             <section
               aria-label="Bairro selecionado"
-              className="absolute inset-x-0 bottom-0 z-[6] flex flex-col rounded-t-2xl bg-card shadow-sheet transition-[height] duration-[250ms] ease-out lg:hidden"
+              className="absolute inset-x-0 bottom-0 z-[6] flex flex-col rounded-t-2xl bg-card shadow-sheet transition-[height] [transition-duration:250ms] ease-out lg:hidden"
               style={{ height: alturaFolha }}
             >
               <button
@@ -500,18 +501,24 @@ export default function ExploradorBairros({
           ) : (
             <>
               <p className="mb-1 text-[13px] text-muted-foreground">Bairro selecionado</p>
-              <h2 className="mb-3 font-display text-[32px] font-bold leading-[1.1] text-foreground">{selecionado.name}</h2>
-              <div className="mb-4 flex flex-wrap items-center gap-x-1.5">
-                <NaturezaTag tipo={resumo.natureza} />
-                <FonteBairro nome={selecionado.name} semNatureza carimbo />
-              </div>
-              <dl className="grid grid-cols-2 border-t border-foreground">
-                <div className="border-r border-border py-3.5 pr-3"><dt className="text-[13px] text-muted-foreground">Diária média</dt><dd className="mt-1 text-[30px] font-semibold leading-tight tabular-nums">{formatBRL(selecionado.dailyAvg)}</dd></div>
-                <div className="py-3.5 pl-4"><dt className="text-[13px] text-muted-foreground">Ocupação média</dt><dd className="mt-1 text-[30px] font-semibold leading-tight tabular-nums">{formatPercent(selecionado.avgOccupancy, 0)}</dd></div>
-                <div className="border-r border-t border-border py-3.5 pr-3"><dt className="text-[13px] text-muted-foreground">Anúncios na amostra</dt><dd className="mt-1 text-xl font-semibold tabular-nums">{selecionado.activeListings != null ? formatDecimal(selecionado.activeListings, 0) : "—"}</dd></div>
-                <div className="border-t border-border py-3.5 pl-4"><dt className="text-[13px] text-muted-foreground">Período</dt><dd className="mt-1 text-xl font-semibold">{selecionado.period ?? "—"}</dd></div>
-              </dl>
-              <div className="border-y border-border py-3.5">
+              <h2 className="mb-4 font-display text-[32px] font-bold leading-[1.1] text-foreground">{selecionado.name}</h2>
+              {/* Carimbo de fonte (o mesmo do hero da home): natureza, números e origem num bloco só */}
+              <Carimbo
+                titulo="Referência do bairro"
+                tag={<NaturezaTag tipo={resumo.natureza} />}
+                celulas={[
+                  { rotulo: "Diária média", valor: formatBRL(selecionado.dailyAvg) },
+                  { rotulo: "Ocupação", valor: formatPercent(selecionado.avgOccupancy, 0) },
+                  {
+                    rotulo: "Anúncios",
+                    valor: selecionado.activeListings != null ? formatDecimal(selecionado.activeListings, 0) : "—",
+                    nota: resumo.aviso ? "amostra pequena" : undefined,
+                  },
+                ]}
+                valorClassName="min-[360px]:text-2xl"
+                rodape={<FonteBairro nome={selecionado.name} semNatureza rodape />}
+              />
+              <div className="mt-1 border-b border-border py-3.5">
                 <div className="flex items-baseline justify-between gap-3"><span className="text-sm text-foreground-medium">Receita mensal de referência</span><strong className="text-xl font-semibold tabular-nums">{formatBRL(resumo.receita)}</strong></div>
                 <p className="mt-1 text-xs text-muted-foreground">{resumo.formula}</p>
               </div>
