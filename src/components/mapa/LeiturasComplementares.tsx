@@ -222,7 +222,7 @@ export default function LeiturasComplementares({
             <Link to="/mercado">Análise de mercado<ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
           </Button>
           <Button asChild variant="outline" className="min-h-[44px] font-semibold">
-            <Link to="/#tendencias">Tendências 2026<ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+            <Link to="/guia/tendencias">Tendências 2026<ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
           </Button>
         </div>
       </div>

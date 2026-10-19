@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { COLETA_GUESTFAVORITES } from "@/data/fontesGuia";
 import { Link, useNavigate } from "react-router-dom";
 import { CabecalhoTela, Container, PaginaEstudo, Secao } from "@/components/estudo/Estrutura";
 import { TabelaNumerada, TD, TD_NUM, TH } from "@/components/estudo/Figura";
@@ -15,7 +16,7 @@ import { useBairroSelecionado } from "@/hooks/useBairroSelecionado";
 import { useBairrosData, rotuloEstimativa } from "@/hooks/useIntelligenceData";
 import { calculateInvestmentScore } from "@/lib/investmentScore";
 import { definirBairroAtual } from "@/lib/bairroAtual";
-import { contagemContra, receitaDe } from "@/lib/estudo";
+import { contagemContra, nomeComNatureza, receitaDe } from "@/lib/estudo";
 import { formatBRL, formatDecimal } from "@/lib/numberFormat";
 import { CRITERIOS_RANKING, naturezaBairro, ordenarRanking, type CriterioRanking } from "@/lib/radarUi";
 import { bairroPath } from "@/lib/seo";
@@ -71,6 +72,12 @@ function Ranking() {
   const referenciaSP = criterio === "receita" ? receitaDe(cidade) : criterio === "diaria" ? cidade.dailyAvg : criterio === "ocupacao" ? cidade.avgOccupancy : null;
   const escala = Math.max(max, referenciaSP ?? 0);
   const primeiro = linhas[0];
+  // Empate de valor (ex.: Brooklin e Vila Olímpia repetem o Itaim Bibi) vira faixa "2–4", sem ordem alfabética inventada.
+  const posicoes = linhas.map((l) => {
+    const primeira = 1 + linhas.filter((x) => x.valor > l.valor).length;
+    const ultima = primeira + linhas.filter((x) => x.valor === l.valor).length - 1;
+    return primeira === ultima ? `${primeira}` : `${primeira}–${ultima}`;
+  });
   const abaixo = contagemContra(bairros, receitaDe, receitaDe(cidade));
 
   const abrir = (b: BairroCurado) => {
@@ -90,7 +97,7 @@ function Ranking() {
 
       {offline && (
         <Container className="mb-6">
-          <AvisoBase tom="aviso" onTentar={recarregar}>A base do Radar não respondeu agora. A tabela mostra a reserva aprovada (mesmos números da coleta de 18/10/2026).</AvisoBase>
+          <AvisoBase tom="aviso" onTentar={recarregar}>A base do Radar não respondeu agora. A tabela mostra a reserva aprovada (mesmos números da coleta de {COLETA_GUESTFAVORITES}).</AvisoBase>
         </Container>
       )}
 
@@ -115,7 +122,7 @@ function Ranking() {
 
         <TabelaNumerada
           numero={1}
-          titulo={primeiro ? <>{primeiro.bairro.name} tem {TITULO_CRITERIO[criterio]}: {formatar(primeiro.valor, criterio)}{criterio === "receita" ? " por mês" : ""}</> : "Nenhum bairro com esse filtro"}
+          titulo={primeiro ? <>{nomeComNatureza(primeiro.bairro)} tem {TITULO_CRITERIO[criterio]}: {formatar(primeiro.valor, criterio)}{criterio === "receita" ? " por mês" : ""}</> : "Nenhum bairro com esse filtro"}
           unidade={<>{UNIDADE[criterio]}. {linhas.length} bairros{filtro === "observados" ? ", só dados observados" : ""}.{referenciaSP != null && <> A linha vertical marca São Paulo ({formatar(referenciaSP, criterio)}).</>}</>}
           nota={
             <>
@@ -126,7 +133,7 @@ function Ranking() {
         >
           <thead>
             <tr>
-              <th scope="col" className={cn(TH, "w-10 text-right")}>Pos.</th>
+              <th scope="col" className={cn(TH, "w-12 text-right")}>Pos.</th>
               <th scope="col" className={TH}>Bairro</th>
               <th scope="col" className={cn(TH, "hidden w-[34%] md:table-cell")}><span className="sr-only">Barra</span></th>
               <th scope="col" className={cn(TH, "text-right")}>{criterio === "receita" ? "R$/mês" : criterio === "diaria" ? "R$" : criterio === "ocupacao" ? "%" : "n"}</th>
@@ -142,7 +149,7 @@ function Ranking() {
               const semBarra = criterio === "anuncios" && !b.activeListings;
               return (
                 <tr key={b.name} className={cn("cursor-pointer transition-colors hover:bg-foreground/[0.03]", sel && "bg-magenta-100/60")} onClick={() => abrir(b)}>
-                  <td className={cn(TD_NUM, "text-tinta-70")}>{i + 1}</td>
+                  <td className={cn(TD_NUM, "text-tinta-70")}>{posicoes[i]}</td>
                   <td className={TD}>
                     <Link
                       to={bairroPath(b.name)}

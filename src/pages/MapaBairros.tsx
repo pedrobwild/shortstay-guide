@@ -1,4 +1,5 @@
 import { lazy, Suspense, useMemo, useRef, useState } from "react";
+import { COLETA_GUESTFAVORITES } from "@/data/fontesGuia";
 import { Link, useSearchParams } from "react-router-dom";
 import { CabecalhoTela, Container, PaginaEstudo, Secao } from "@/components/estudo/Estrutura";
 import { Figura, TabelaNumerada, TD, TD_NUM, TH } from "@/components/estudo/Figura";
@@ -82,9 +83,11 @@ function Mapa() {
     trackGlobal("cta_clicked", { cta_id: "mapa_selecionar_bairro", section: "mapa_fig1", bairro: nome });
   };
 
+  // Brooklin e Vila Olímpia repetem o Itaim Bibi: o título diz quantos dos destacados são aproximação.
+  const aproxNoTopo = pontos.filter((p) => p.classe === 4 && p.aproximacao).length;
   const tituloFig = achado.n === 1
     ? <>O bairro de maior {NOME[indicador]} fica {textoDirecao(achado.direcao)}</>
-    : <>Os {achado.n} bairros de maior {NOME[indicador]} ficam {textoDirecao(achado.direcao)}</>;
+    : <>Os {achado.n} bairros de maior {NOME[indicador]}{aproxNoTopo > 0 && <> ({aproxNoTopo} por aproximação)</>} ficam {textoDirecao(achado.direcao)}</>;
 
   return (
     <>
@@ -98,7 +101,7 @@ function Mapa() {
 
       {offline && (
         <Container className="mb-6">
-          <AvisoBase tom="aviso" onTentar={recarregar}>A base do Radar não respondeu agora. O mapa mostra a reserva aprovada (mesmos números da coleta de 18/10/2026).</AvisoBase>
+          <AvisoBase tom="aviso" onTentar={recarregar}>A base do Radar não respondeu agora. O mapa mostra a reserva aprovada (mesmos números da coleta de {COLETA_GUESTFAVORITES}).</AvisoBase>
         </Container>
       )}
 

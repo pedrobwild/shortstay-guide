@@ -128,7 +128,8 @@ function Comparar() {
 
   const marcaDoBairro = (nome: string) => {
     const b = selecionados.find((x) => x.name === nome);
-    return b ? marcaNatureza(b) : null;
+    // Aproximação/estimativa e, para dado observado, a amostra pequena (Mooca, Bom Retiro, Lapa).
+    return b ? marcaNatureza(b) ?? (temAmostraPequena(b) ? "amostra pequena" : null) : null;
   };
   const linhasCalculadas = LINHAS.map((l) => {
     const brutos = selecionados.map((b) => l.valor(b));
@@ -147,7 +148,8 @@ function Comparar() {
     : achado.tipo === "empate" ? <>{achado.nomes.map(comMarca).join(" e ")} têm a mesma receita de referência: {formatBRL(achado.valor)} por mês</>
     : achado.tipo === "unico" ? <>{comMarca(achado.nome)}: receita de referência de {formatBRL(achado.valor)} por mês. Escolha mais bairros para comparar</>
     : "Escolha até três bairros para comparar";
-  const larga = faixaMaisLarga(selecionados);
+  // O título da Fig. 1 não destaca a faixa de quem tem amostra pequena (o P25 de poucos anúncios distorce a largura).
+  const larga = faixaMaisLarga(selecionados.filter((b) => !temAmostraPequena(b)));
   const temAprox = selecionados.some((b) => naturezaBairro(b) !== "observado");
   const comAmostraPequena = selecionados.filter(temAmostraPequena);
 

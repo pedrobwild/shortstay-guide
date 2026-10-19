@@ -27,6 +27,22 @@ export function temAmostraPequena(b: Base): boolean {
   return naturezaBairro(b) === "observado" && b.activeListings != null && b.activeListings < LIMITE_AMOSTRA_PEQUENA;
 }
 
+/**
+ * Nome com a natureza do dado entre parênteses, para títulos e frases calculadas:
+ * "Bom Retiro (amostra pequena)", "Brooklin (aproximação)", "Pinheiros".
+ */
+export function nomeComNatureza(b: Base): string {
+  const n = naturezaBairro(b);
+  if (n === "aproximacao") return `${b.name} (aproximação)`;
+  if (n === "estimativa") return `${b.name} (estimativa)`;
+  return temAmostraPequena(b) ? `${b.name} (amostra pequena)` : b.name;
+}
+
+/** Os nomes de uma lista com a natureza de cada um, procurados na base exibida. */
+export function nomesComNatureza(nomes: string[], bairros: Base[]): string[] {
+  return nomes.map((n) => { const b = bairros.find((x) => x.name === n); return b ? nomeComNatureza(b) : n; });
+}
+
 export const receitaDe = (b: Pick<BairroCurado, "dailyAvg" | "avgOccupancy">) => receitaMensalReferencia(b);
 
 /* ─── Metadados da base (fonte, período, coleta, n) ─── */

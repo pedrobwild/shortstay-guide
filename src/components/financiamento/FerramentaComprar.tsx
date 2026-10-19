@@ -1,4 +1,5 @@
 import type { RefObject } from "react";
+import { TAXAS_CONSULTADAS_EM } from "@/data/taxasFinanciamento";
 import { Tag } from "@/components/estudo/Natureza";
 import { Button } from "@/components/ui/button";
 import FonteLink from "@/components/guide/FonteLink";
@@ -14,7 +15,7 @@ import { formatDecimal } from "@/lib/numberFormat";
  * Ferramenta 01 · Vou comprar (/ferramentas#comprar): o simulador de financiamento
  * existente (mesmo controlador: premissas, link, rascunho, captura anônima só com
  * consentimento, ao gerar) com um resumo ao vivo no padrão do direcionamento —
- * entrada, valor financiado, 1ª e última parcela no SAC e juros no prazo — calculado
+ * entrada, valor financiado, 1ª e última parcela (SAC ou Price, conforme o formulário) e juros no prazo — calculado
  * pelo mesmo motor (financiamento.ts) a partir dos campos preenchidos.
  */
 export default function FerramentaComprar() {
@@ -27,7 +28,7 @@ export default function FerramentaComprar() {
     jurosAA: snap.annualRate,
     tipoTaxa: snap.annualRateType,
     idade: snap.buyerAge,
-    sistema: "SAC",
+    sistema: snap.system,
   });
   const faltam = [
     !(snap.propertyValue > 0) && "valor do imóvel",
@@ -45,7 +46,7 @@ export default function FerramentaComprar() {
       <div className="min-w-0 space-y-10">
         <section aria-labelledby="resumo-financiamento" aria-live="polite">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 id="resumo-financiamento" className="e-h3">Resumo no sistema SAC</h3>
+            <h3 id="resumo-financiamento" className="e-h3">Resumo no sistema {snap.system === "PRICE" ? "Price" : "SAC"}</h3>
             <Tag tipo="hipotese">Simulação · hipótese</Tag>
           </div>
           <p className="e-legenda mt-1">
@@ -58,11 +59,11 @@ export default function FerramentaComprar() {
             <Item rotulo="Valor financiado (R$)" valor={resumo ? BRL(resumo.valorFinanciado) : "—"} />
             <Item rotulo="Juros no prazo (R$)" valor={resumo ? BRL(resumo.jurosNoPrazo) : "—"} nota={resumo ? "soma dos juros de todas as parcelas" : undefined} />
             <Item rotulo="1ª parcela (R$/mês)" valor={resumo ? BRL(resumo.primeiraParcela) : "—"} nota={resumo ? "com seguros e tarifa (estimados)" : undefined} destaque />
-            <Item rotulo="Última parcela (R$/mês)" valor={resumo ? BRL(resumo.ultimaParcela) : "—"} nota={resumo ? "no SAC a parcela cai mês a mês" : undefined} />
+            <Item rotulo="Última parcela (R$/mês)" valor={resumo ? BRL(resumo.ultimaParcela) : "—"} nota={resumo ? (snap.system === "PRICE" ? "na Price a parcela fica igual (antes dos seguros)" : "no SAC a parcela cai mês a mês") : undefined} />
             <Item rotulo="Total pago (R$)" valor={resumo ? BRL(resumo.totalPago) : "—"} nota={resumo ? "parcelas cheias no prazo, sem a entrada" : undefined} />
           </dl>
           <p className="e-legenda mt-4 max-w-[720px]">
-            Taxas das instituições consultadas em 19/07/2026 (<FonteLink fonte={FONTES_GUIA.taxasFinanciamento} className="text-[13px]" />). Seguros MIP e DFI, tarifa e custos de aquisição são estimativas; a proposta oficial é sempre do banco. Gere a simulação para o demonstrativo completo, o comparativo entre bancos e o relatório.
+            Taxas das instituições consultadas em {TAXAS_CONSULTADAS_EM.split("-").reverse().join("/")} (<FonteLink fonte={FONTES_GUIA.taxasFinanciamento} className="text-[13px]" />). Seguros MIP e DFI, tarifa e custos de aquisição são estimativas; a proposta oficial é sempre do banco. Gere a simulação para o demonstrativo completo, o comparativo entre bancos e o relatório.
           </p>
           {!ctl.snapshot && (
             <Button variant="outline" className="mt-4 min-h-[44px] px-5 text-[15px] font-semibold" onClick={ctl.handleGenerate}>

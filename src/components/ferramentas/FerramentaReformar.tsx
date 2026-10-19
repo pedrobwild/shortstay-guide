@@ -75,7 +75,7 @@ export default function FerramentaReformar() {
                 <dt className="e-rotulo">Prazo em contrato</dt>
                 <dd className="m-0">
                   <span className="e-numero-sm mt-1 block">{e.prazoDiasUteis} dias úteis</span>
-                  <span className="e-legenda mt-1 block">{e.acimaDe40 ? "acima de 40 m²: o maior prazo da tabela" : area! <= 30 ? `até 30 m², ${sacada === "sim" ? "com" : "sem"} sacada` : `de 31 a 40 m², ${sacada === "sim" ? "com" : "sem"} sacada`}</span>
+                  <span className="e-legenda mt-1 block">{e.acimaDe40 ? `prazo da faixa de 31 a 40 m², ${sacada === "sim" ? "com" : "sem"} sacada (o estudo não tem prazo acima de 40 m²)` : area! <= 30 ? `até 30 m², ${sacada === "sim" ? "com" : "sem"} sacada` : `de 31 a 40 m², ${sacada === "sim" ? "com" : "sem"} sacada`}</span>
                 </dd>
               </div>
               <div className="min-w-0">
@@ -124,7 +124,7 @@ export default function FerramentaReformar() {
             </figure>
 
             <TabelaNumerada
-              numero={1}
+              numero={4}
               className="mt-10"
               titulo="Como a faixa é calculada"
               unidade={`Área × custo por m² do estudo, arredondado a R$ 500; valores abaixo de ${formatBRL(ORCAMENTO_MINIMO_BASE)} sobem para o piso.`}
@@ -132,7 +132,7 @@ export default function FerramentaReformar() {
                 <>
                   Fonte: estudo Bewild de {ESTUDO_REFORMA_DATA}, {CONTRATOS_ANALISADOS} contratos de reforma completa em São Paulo (mediana de {formatBRL(ORCAMENTO_MEDIANO)} para {formatDecimal(AREA_MEDIANA_M2, 1)} m²).{" "}
                   <a href={ESTUDO_REFORMA_URL} target="_blank" rel="noopener noreferrer" className="e-link">Ver o estudo<NovaAba /></a>
-                  {e.algumNoPiso && <span className="e-amostra mt-1 block not-italic">Nessa área a conta fica abaixo de {formatBRL(ORCAMENTO_MINIMO_BASE)} em pelo menos um ponto da faixa: nenhum contrato do estudo ficou abaixo de R$ 55 mil, então o valor sobe para o piso.</span>}
+                  {e.algumNoPiso && <span className="e-amostra mt-1 block not-italic">Nessa área a conta fica abaixo de {formatBRL(ORCAMENTO_MINIMO_BASE)} em pelo menos um ponto da faixa: nenhum contrato do estudo ficou abaixo de {formatBRL(ORCAMENTO_MINIMO_BASE)}, então o valor sobe para o piso.</span>}
                 </>
               }
             >
@@ -164,7 +164,7 @@ export default function FerramentaReformar() {
             </TabelaNumerada>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <OrcamentoButton local="projecao" rotulo="Solicitar orçamento de reforma" className="h-auto min-h-[44px] px-5 py-2 text-[15px] font-semibold sm:shrink-0" />
+              <OrcamentoButton local="ferramentas" rotulo="Solicitar orçamento de reforma" className="h-auto min-h-[44px] px-5 py-2 text-[15px] font-semibold sm:shrink-0" />
               <p className="e-legenda max-w-[380px]">O orçamento parte do projeto do seu imóvel; a faixa acima só mostra onde os contratos do estudo ficaram.</p>
             </div>
           </>

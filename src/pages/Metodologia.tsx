@@ -173,7 +173,7 @@ export function ConteudoMetodologia() {
           <OrcamentoButton local="guia" variant="outline" className="min-h-[44px] px-[18px] font-semibold" />
         </div>
       </div>
-      <Link to="/#fontes" className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-primary underline underline-offset-4"><ArrowLeft className="h-4 w-4" aria-hidden="true" />Voltar ao guia</Link>
+      <Link to="/#base" className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-primary underline underline-offset-4"><ArrowLeft className="h-4 w-4" aria-hidden="true" />Voltar ao início</Link>
     </main>
   );
 }

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { TAXAS_CONSULTADAS_EM } from "@/data/taxasFinanciamento";
 import { CabecalhoTela, Container, PaginaEstudo, Secao } from "@/components/estudo/Estrutura";
 import AvisoBase from "@/components/radar/AvisoBase";
 import FerramentaComprar from "@/components/financiamento/FerramentaComprar";
@@ -42,7 +43,7 @@ function FerramentasInner() {
       <CabecalhoTela
         rotulo="Ferramentas · uma por etapa"
         titulo="Faça a conta da sua etapa: financiamento, reforma ou operação."
-        lead={<>Cada ferramenta usa uma fonte declarada: as taxas dos bancos consultadas em 19/07/2026, o estudo de {CONTRATOS_ANALISADOS} reformas da Bewild e a base de {bairros.length} bairros do Radar. Premissas suas ficam marcadas como hipótese.</>}
+        lead={<>Cada ferramenta usa uma fonte declarada: as taxas dos bancos consultadas em {TAXAS_CONSULTADAS_EM.split("-").reverse().join("/")}, o estudo de {CONTRATOS_ANALISADOS} contratos de reforma da Bewild e a base de {bairros.length} bairros do Radar. Premissas suas ficam marcadas como hipótese.</>}
       >
         <nav aria-label="Ferramentas nesta página">
           <ol className="grid gap-x-10 gap-y-2 border-t border-foreground pt-3 sm:grid-cols-3">
@@ -81,7 +82,7 @@ function FerramentasInner() {
         id="reformar"
         rotulo={rotuloPerfil("reformar")}
         titulo="Estime a reforma completa pela área do seu imóvel"
-        lead={`Faixa de custo e prazo em contrato a partir de ${CONTRATOS_ANALISADOS} reformas completas da Bewild em São Paulo. É uma estimativa do estudo, não um orçamento do seu projeto.`}
+        lead={`Faixa de custo e prazo em contrato a partir de ${CONTRATOS_ANALISADOS} contratos de reforma completa da Bewild em São Paulo. É uma estimativa do estudo, não um orçamento do seu projeto.`}
       >
         <FerramentaReformar />
       </Secao>

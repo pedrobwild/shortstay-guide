@@ -4,7 +4,7 @@ import { SAO_PAULO_REFERENCIA } from "@/data/bairrosCurados";
 import { RECEITA_REFERENCIA_SP } from "@/lib/radarUi";
 import {
   classeModal, classeQuartil, classesHistograma, compararOperacao, contagemContra, difPercentual, estimativaReforma,
-  extremos, faixaNosQuartis, limitesQuartis, posicaoEntre, prazoContrato, quantil, receitaDe, temAmostraPequena,
+  extremos, faixaNosQuartis, nomeComNatureza, nomesComNatureza, limitesQuartis, posicaoEntre, prazoContrato, quantil, receitaDe, temAmostraPequena,
 } from "@/lib/estudo";
 
 const base = bairrosReserva();
@@ -102,5 +102,15 @@ describe("perfil 02 · Vou reformar", () => {
   });
   it("prazo em contrato: 60 a 75 dias úteis conforme metragem e sacada", () => {
     expect([prazoContrato(25, false), prazoContrato(25, true), prazoContrato(35, false), prazoContrato(38, true)]).toEqual([60, 65, 70, 75]);
+  });
+});
+
+describe("nome com a natureza do dado", () => {
+  it("marca aproximação e amostra pequena; dado observado fica só com o nome", () => {
+    const por = (n: string) => base.find((b) => b.name === n)!;
+    expect(nomeComNatureza(por("Brooklin"))).toBe("Brooklin (aproximação)");
+    expect(nomeComNatureza(por("Bom Retiro"))).toBe("Bom Retiro (amostra pequena)");
+    expect(nomeComNatureza(por("Pinheiros"))).toBe("Pinheiros");
+    expect(nomesComNatureza(["Lapa", "Sé"], base)).toEqual(["Lapa (amostra pequena)", "Sé"]);
   });
 });

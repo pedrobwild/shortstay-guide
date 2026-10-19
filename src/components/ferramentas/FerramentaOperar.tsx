@@ -90,7 +90,7 @@ export default function FerramentaOperar({ bairros }: { bairros: BairroCurado[] 
         {bairro.dailyQuartiles && (
           <figure className="m-0 mt-6">
             <figcaption className="mb-3">
-              <span className="e-rotulo block">Fig. 1</span>
+              <span className="e-rotulo block">Fig. 5</span>
               <span className="e-h3 mt-1 block">Quartis de diária {aprox ? "do Itaim Bibi (aproximação para " + bairro.name + ")" : `de ${bairro.name}`}</span>
               <span className="e-legenda mt-1 block">Diária (R$). Faixa: do P25 ao P75 (metade dos anúncios); traço cheio: mediana; tracejado: média ({formatBRL(bairro.dailyAvg)}).</span>
             </figcaption>

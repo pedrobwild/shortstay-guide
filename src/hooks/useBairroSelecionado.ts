@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { BairroCurado } from "@/data/bairrosCurados";
 import { definirBairroAtual, useBairroAtual } from "@/lib/bairroAtual";
@@ -11,12 +11,16 @@ export const BAIRRO_PADRAO = "Pinheiros";
  * Bairro selecionado, compartilhado entre todas as telas do Radar: a URL (?bairro=)
  * manda quando existe; depois vale o bairro atual guardado (bairroAtual.ts, lido após
  * a montagem); sem nenhum dos dois, Pinheiros. Selecionar grava o bairro atual e,
- * com `naUrl`, troca o ?bairro= sem empilhar histórico.
+ * com `naUrl` (ou quando a URL já traz ?bairro=), troca o ?bairro= sem empilhar histórico.
+ * A URL também só é lida depois da montagem: a home é pré-renderizada para "/" sem
+ * parâmetro e hidratada mesmo com ?bairro=, então o primeiro render precisa ser igual.
  */
 export function useBairroSelecionado<T extends Pick<BairroCurado, "name">>(bairros: T[], { naUrl = true }: { naUrl?: boolean } = {}) {
   const [params, setParams] = useSearchParams();
   const atual = useBairroAtual();
-  const slugUrl = params.get("bairro");
+  const [montado, setMontado] = useState(false);
+  useEffect(() => setMontado(true), []);
+  const slugUrl = montado ? params.get("bairro") : null;
   const porSlug = useMemo(() => new Map(bairros.map((b) => [slugifyBairro(b.name), b])), [bairros]);
   const bairro =
     (slugUrl ? porSlug.get(slugUrl) : undefined) ??
@@ -27,7 +31,7 @@ export function useBairroSelecionado<T extends Pick<BairroCurado, "name">>(bairr
 
   const selecionar = useCallback((nome: string) => {
     definirBairroAtual(nome);
-    if (naUrl) {
+    if (naUrl || new URLSearchParams(window.location.search).has("bairro")) {
       setParams((p) => { const n = new URLSearchParams(p); n.set("bairro", slugifyBairro(nome)); return n; }, { replace: true, preventScrollReset: true });
     }
   }, [naUrl, setParams]);

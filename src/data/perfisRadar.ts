@@ -38,7 +38,7 @@ export const PERFIS_RADAR: PerfilRadar[] = [
       "A conta fecha antes da compra?",
     ],
     ferramentas: [
-      { rotulo: "Ranking dos 28 bairros", to: "/ranking" },
+      { rotulo: "Ranking dos bairros", to: "/ranking" },
       { rotulo: "Mapa", to: "/mapa" },
       { rotulo: "Comparar bairros", to: "/comparar" },
       { rotulo: "Financiamento", to: "/ferramentas#comprar" },

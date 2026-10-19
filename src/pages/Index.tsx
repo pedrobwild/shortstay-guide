@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import AppNavbar from "@/components/AppNavbar";
 import RodapeRadar from "@/components/RodapeRadar";
 import OrcamentoButton from "@/components/OrcamentoButton";
@@ -78,8 +78,18 @@ function useMedicaoHome() {
   }, [trackEvent]);
 }
 
+/** Links antigos para o simulador da home (/?bairro=x#simulador, compartilhados antes do redesign) seguem para /projecao. */
+function useSimuladorAntigo() {
+  const { hash, search } = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (hash === "#simulador") navigate(`/projecao${search}`, { replace: true });
+  }, [hash, search, navigate]);
+}
+
 function IndexInner() {
   useMedicaoHome();
+  useSimuladorAntigo();
   const { bairros, cidade } = useBaseEstudo();
   const { bairro, selecionar } = useBairroSelecionado(bairros, { naUrl: false });
   const momento = useMomento();
@@ -95,7 +105,7 @@ function IndexInner() {
           home
           rotulo="Radar Bewild · estudo aberto sobre studios em São Paulo"
           titulo="Dados para decidir cada etapa de um studio para short stay: comprar, reformar e operar."
-          lead={<>Diária, ocupação e amostra de {bairros.length} bairros, o custo de {CONTRATOS_ANALISADOS} reformas e as contas do short stay, com fonte, período e método à vista.</>}
+          lead={<>Diária, ocupação e amostra de {bairros.length} bairros, o custo de {CONTRATOS_ANALISADOS} contratos de reforma e as contas do short stay, com fonte, período e método à vista.</>}
         />
 
         {/* Três perfis: cada um com perguntas, número de referência, ferramentas e um botão */}

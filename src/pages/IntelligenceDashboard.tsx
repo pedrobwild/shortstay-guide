@@ -21,7 +21,7 @@ import { useBaseEstudo } from "@/hooks/useBaseEstudo";
 import { useBairroSelecionado } from "@/hooks/useBairroSelecionado";
 import { useBairrosData, rotuloEstimativa } from "@/hooks/useIntelligenceData";
 import { definirBairroAtual } from "@/lib/bairroAtual";
-import { classeModal, classesHistograma, contagemContra, extremos, periodoPrincipal, receitaDe } from "@/lib/estudo";
+import { classeModal, classesHistograma, contagemContra, extremos, nomesComNatureza, periodoPrincipal, receitaDe } from "@/lib/estudo";
 import { faixaConcentracao } from "@/lib/estudoMercado";
 import { formatBRL, formatDecimal } from "@/lib/numberFormat";
 import { naturezaBairro } from "@/lib/radarUi";
@@ -187,7 +187,7 @@ function Mercado() {
             <Indicador
               rotulo="Maior receita de referência (R$/mês)"
               valor={formatBRL(receita.max)}
-              nota={<>{receita.nomesMax.join(", ")}: {formatBRL(maior.dailyAvg)} × 30 × {formatDecimal(maior.avgOccupancy, 0)}%. A menor é {receita.nomesMin.join(", ")}, com {formatBRL(receita.min)}.</>}
+              nota={<>{nomesComNatureza(receita.nomesMax, bairros).join(", ")}: {formatBRL(maior.dailyAvg)} × 30 × {formatDecimal(maior.avgOccupancy, 0)}%. A menor é {nomesComNatureza(receita.nomesMin, bairros).join(", ")}, com {formatBRL(receita.min)}.</>}
             />
           )}
           {ocupacao && (
@@ -195,8 +195,8 @@ function Mercado() {
               rotulo="Ocupação média, maior e menor (%)"
               valor={<>{formatDecimal(ocupacao.max, 0)}% e {formatDecimal(ocupacao.min, 0)}%</>}
               nota={<>
-                Da maior ({ocupacao.nomesMax.join(", ")}) à menor ({ocupacao.nomesMin.join(", ")}).
-                {diaria && <> A diária varia mais: de {formatBRL(diaria.min)} ({diaria.nomesMin.join(", ")}) a {formatBRL(diaria.max)} ({diaria.nomesMax.join(", ")}).</>}
+                Da maior ({nomesComNatureza(ocupacao.nomesMax, bairros).join(", ")}) à menor ({nomesComNatureza(ocupacao.nomesMin, bairros).join(", ")}).
+                {diaria && <> A diária varia mais: de {formatBRL(diaria.min)} ({nomesComNatureza(diaria.nomesMin, bairros).join(", ")}) a {formatBRL(diaria.max)} ({nomesComNatureza(diaria.nomesMax, bairros).join(", ")}).</>}
               </>}
             />
           )}
