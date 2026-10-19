@@ -1,634 +1,421 @@
-import FonteBairro from "@/components/guide/FonteBairro";
-import AppNavbar from "@/components/AppNavbar";
-import OrcamentoButton from "@/components/OrcamentoButton";
-import ProximoPassoBairro from "@/components/intelligence/ProximoPassoBairro";
-import BlocoReformaBairro from "@/components/intelligence/BlocoReformaBairro";
-import { VariacaoColetaBairro } from "@/components/guide/VariacaoColeta";
-import HistoricoBairro from "@/components/guide/HistoricoBairro";
-import FaixaQuartisBairro from "@/components/intelligence/FaixaQuartisBairro";
-import BairroSomenteRadar from "@/components/intelligence/BairroSomenteRadar";
-import { useRadarBase } from "@/lib/radarBase";
-import { definirBairroAtual } from "@/lib/bairroAtual";
-import { useEffect } from "react";
-import { formatPercent, formatDecimal } from "@/lib/numberFormat";
-import { useParams, Link, useLocation, Navigate } from "react-router-dom";
-import { slugifyBairro, SEO_BAIRROS, bairroTitle, bairroDescription } from "@/lib/seo";
+import { useEffect, type ReactNode } from "react";
+import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Seo } from "@/components/RouteSeo";
-import { useBairroDetail, useBairrosData, fmtBRL, fmtPct, fmtScore, rotuloFonteDiariaOcupacao } from "@/hooks/useIntelligenceData";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import NovaAba from "@/components/NovaAba";
+import { CabecalhoTela, Container, PaginaEstudo, Secao } from "@/components/estudo/Estrutura";
+import { Figura, TabelaNumerada, TD, TD_NUM, TH } from "@/components/estudo/Figura";
+import Metadados, { type ItemMetadado } from "@/components/estudo/Metadados";
+import { NotaAmostra, Tag, TagBairro, TEXTO_APROXIMACAO } from "@/components/estudo/Natureza";
+import { AvisoReceita, Diferenca, FormulaReceita, GradeIndicadores, Indicador } from "@/components/estudo/Numeros";
+import SeletorBairro from "@/components/estudo/SeletorBairro";
+import FaixaPosicao from "@/components/estudo/graficos/FaixaPosicao";
+import { LegendaPontos } from "@/components/estudo/graficos/LegendaPontos";
+import AvisoBase from "@/components/radar/AvisoBase";
+import HistoricoBairro from "@/components/guide/HistoricoBairro";
+import { VariacaoColetaBairro } from "@/components/guide/VariacaoColeta";
+import LinkArtigoBewild from "@/components/guide/LinkArtigoBewild";
+import FaixaQuartisBairro from "@/components/intelligence/FaixaQuartisBairro";
+import BlocoReformaBairro from "@/components/intelligence/BlocoReformaBairro";
+import ProximoPassoBairro from "@/components/intelligence/ProximoPassoBairro";
+import BairroSomenteRadar from "@/components/intelligence/BairroSomenteRadar";
+import EstimativaBairro from "@/components/intelligence/EstimativaBairro";
+import OrcamentoButton from "@/components/OrcamentoButton";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, TrendingUp, BarChart3, Target, Building2, Shield, AlertTriangle, Star, Users, CheckCircle, Info, Lightbulb, UserCheck, Scale, Crown, Zap, Sprout, CalendarCheck, ChevronRight, type LucideIcon } from "lucide-react";
-import { motion } from "framer-motion";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Bar, BarChart, Line, LineChart, XAxis, YAxis, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, CartesianGrid } from "recharts";
-import {
-  getBairroProfile,
-  buildHeaderNarrative,
-  buildLeigosResumo,
-  buildExplicaResultado,
-  buildPontosAtencao,
-  buildShortVsLongNarrative,
-  buildInvestorProfile,
-} from "@/lib/intelligenceInsights";
-import { buildBairroStoryBlocks } from "@/lib/storytelling";
-import { calculateInvestmentScore, calculateTrueYield } from "@/lib/investmentScore";
-import { BairroStoryCard, EducationalBanner, ContextualNote } from "@/components/intelligence/StorytellingComponents";
-import { InvestmentScoreHero } from "@/components/intelligence/InvestmentScoreComponents";
-import { FOOTER_DISCLAIMER } from "@/lib/uiHelpers";
+import { ARTIGOS_BEWILD } from "@/data/artigosBewild";
+import { ROTULO_ESTIMATIVA_MERCADO } from "@/data/bairrosCurados";
+import { linkProjecaoBairro } from "@/data/navegacao";
+import { BairroProvider } from "@/hooks/useBairroData";
+import { useBaseEstudo } from "@/hooks/useBaseEstudo";
+import { useBairroDetail, useBairrosData } from "@/hooks/useIntelligenceData";
+import { trackGlobal } from "@/hooks/useGuideAnalytics";
+import { definirBairroAtual } from "@/lib/bairroAtual";
+import { caminhoComparar } from "@/lib/comparar";
+import { difPercentual, receitaDe, temAmostraPequena } from "@/lib/estudo";
+import { frasePosicao, fraseContraSP, linhasDre, posicaoComEmpate, textoPosicao } from "@/lib/estudoMercado";
+import { formatBRL, formatDecimal } from "@/lib/numberFormat";
+import { rotuloReferenciaBewild } from "@/lib/radarBase";
+import { ajusteManual, bairrosNaFrase, fonteCurtaBairro, naturezaBairro, type BairroBase } from "@/lib/radarUi";
+import { bairroDescription, bairroPath, bairroTitle, SEO_BAIRROS, slugifyBairro } from "@/lib/seo";
+import { cn } from "@/lib/utils";
 
-const MONTH_LABELS = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-const ADR_SEASONALITY = [0.92, 0.88, 0.95, 0.97, 0.93, 0.90, 1.02, 1.00, 1.05, 1.08, 1.12, 1.18];
-const OCC_SEASONALITY = [0.95, 0.90, 0.93, 0.96, 0.92, 0.88, 1.04, 1.02, 1.06, 1.10, 1.12, 1.14];
-
-function generateMonthlyData(adr: number, occ: number) {
-  return MONTH_LABELS.map((month, i) => ({
-    month,
-    adr: Math.round(adr * ADR_SEASONALITY[i]),
-    ocupacao: parseFloat((occ * OCC_SEASONALITY[i] * 100).toFixed(1)),
-    receita: Math.round((adr * ADR_SEASONALITY[i]) * 30 * (occ * OCC_SEASONALITY[i])),
-  }));
+/**
+ * /bairro/:bairro no redesign "Estudo aberto": o bairro contra São Paulo e contra os
+ * outros bairros da base do Radar. Cabeçalho com seletor (trocar navega para o outro
+ * bairro), resumo (% contra SP e posição), 4 indicadores com os quartis, Fig. 1 (posição
+ * entre os bairros em diária e ocupação), Tab. 1 (fórmula e DRE do guia até o resultado
+ * líquido, cada linha uma hipótese) e os botões Simular e Comparar. Depois: histórico de
+ * coletas, reforma no bairro, próximo passo e, recolhidos, os critérios internos da
+ * estimativa de mercado — base 2025 (só para bairros com essa base; os demais mostram
+ * BairroSomenteRadar). Pré-renderizada como HTML estático e substituída ao abrir.
+ */
+export default function IntelligenceBairroDetail() {
+  return (
+    <BairroProvider>
+      <PaginaEstudo>
+        <PaginaBairro />
+      </PaginaEstudo>
+    </BairroProvider>
+  );
 }
 
-const ScoreCard = ({ label, friendlyLabel, value, icon: Icon, color }: { label: string; friendlyLabel: string; value: number; icon: LucideIcon; color: string }) => (
-  <Card>
-    <CardContent className="p-4">
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-xs text-muted-foreground uppercase tracking-wide">{label}</span>
-        <Icon className={`h-4 w-4 ${color}`} />
-      </div>
-      <p className="text-[11px] text-muted-foreground mb-1">{friendlyLabel}</p>
-      <p className={`text-3xl font-bold ${color}`}>{fmtScore(value)}</p>
-      <Progress value={value} className="mt-2 h-1.5" />
-    </CardContent>
-  </Card>
-);
+const pct = (v: number) => `${formatDecimal(v, 0)}%`;
 
-const MetricRow = ({ label, value }: { label: string; value: string }) => (
-  <div className="flex justify-between py-2 border-b border-border/50 last:border-0">
-    <span className="text-sm text-muted-foreground">{label}</span>
-    <span className="text-sm font-medium">{value}</span>
-  </div>
-);
-
-const SectionHeader = ({ number, title, subtitle, icon: Icon }: { number: string; title: string; subtitle: string; icon: LucideIcon }) => (
-  <div className="flex items-start gap-3 mb-4">
-    <div className="flex items-center justify-center h-7 w-7 rounded-full bg-primary/10 text-primary text-xs font-bold shrink-0 mt-0.5">{number}</div>
-    <div className="flex-1">
-      <div className="flex items-center gap-2">
-        <Icon className="h-4 w-4 text-primary" />
-        <h2 className="text-base font-semibold">{title}</h2>
-      </div>
-      <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
-    </div>
-  </div>
-);
-
-const PROFILE_ICONS: Record<string, React.ElementType> = {
-  Scale, Crown, CalendarCheck, TrendingUp, AlertTriangle, Sprout,
-};
-
-const IntelligenceBairroDetail = () => {
+function PaginaBairro() {
   const { bairro: rawParam = "" } = useParams<{ bairro: string }>();
   const { search, hash } = useLocation();
+  const navigate = useNavigate();
   let decoded = rawParam;
   try { decoded = decodeURIComponent(rawParam); } catch { /* valor bruto */ }
   const slug = slugifyBairro(decoded);
-  const { data: allBairros, isLoading: loadingAll } = useBairrosData();
-  // Resolve o slug para o nome exato do bairro (lista estática primeiro, depois banco).
-  const resolvedName =
-    SEO_BAIRROS.find((n) => slugifyBairro(n) === slug) ??
-    allBairros?.find((x) => slugifyBairro(x.bairro) === slug)?.bairro ??
-    "";
-  const { data: b, isLoading, isError, refetch } = useBairroDetail(resolvedName);
-  // Bairro que só existe na base do Radar (sem a estimativa de mercado — base 2025): página reduzida com os números da base.
-  const radar = useRadarBase();
-  const somenteRadar = radar.data?.bairros.find((x) => slugifyBairro(x.name) === slug);
-  const seoName = resolvedName || somenteRadar?.name || decoded;
-  // Lembra o último bairro visto para o aviso de retomar na home (só no navegador).
-  const nomeAtual = b?.bairro ?? somenteRadar?.name;
-  useEffect(() => { if (nomeAtual) definirBairroAtual(nomeAtual); }, [nomeAtual]);
-  const seoHead = <Seo title={bairroTitle(seoName)} description={bairroDescription(seoName)} path={`/bairro/${slug}`} />;
 
-  // Formato antigo (com acento/maiúsculas/espaços) → redireciona para o slug canônico.
+  const { bairros, cidade, offline, recarregar } = useBaseEstudo();
+  const estimativas = useBairrosData();
+  const b = bairros.find((x) => slugifyBairro(x.name) === slug) as BairroBase | undefined;
+  // Nome exato: base do Radar, lista estática de SEO ou estimativa de mercado (base 2025).
+  const nome =
+    b?.name ??
+    SEO_BAIRROS.find((n) => slugifyBairro(n) === slug) ??
+    estimativas.data?.find((x) => slugifyBairro(x.bairro) === slug)?.bairro ??
+    "";
+  const estimativa = useBairroDetail(nome);
+
+  // Lembra o último bairro visto (só no navegador), para as outras telas.
+  useEffect(() => { if (nome) definirBairroAtual(nome); }, [nome]);
+
+  const seoNome = nome || decoded;
+  const seoHead = <Seo title={bairroTitle(seoNome)} description={bairroDescription(seoNome)} path={`/bairro/${slug}`} />;
+
+  // Formato antigo (com acento/maiúsculas/espaços) → slug canônico.
   if (rawParam !== slug) return <Navigate to={`/bairro/${slug}${search}${hash}`} replace />;
 
-  if (isLoading || (!resolvedName && loadingAll) || (!b && radar.isLoading)) return <div className="min-h-screen bg-background">{seoHead}<AppNavbar fixo={false} /><div className="flex min-h-[60vh] items-center justify-center"><div className="animate-pulse text-muted-foreground">Carregando dados do bairro…</div></div></div>;
-  if (!b && somenteRadar) return <BairroSomenteRadar bairro={somenteRadar} seoHead={seoHead} />;
-  // Bairro conhecido, mas a consulta falhou (rede/servidor): não confundir com "sem dados".
-  if (!b && isError && resolvedName) return (
-    <div className="min-h-screen bg-background">
-      {seoHead}
-      <AppNavbar fixo={false} />
-      <main className="mx-auto max-w-xl px-4 py-16 text-center space-y-4">
-        <h1 className="font-display text-2xl font-bold text-foreground">Não foi possível carregar {resolvedName} agora</h1>
-        <p className="text-sm text-muted-foreground">A conexão com a base do Radar falhou. Tente de novo em instantes; os dados não foram alterados.</p>
-        <div className="flex flex-col sm:flex-row justify-center gap-3">
-          <Button className="min-h-[44px]" onClick={() => void refetch()}>Tentar de novo</Button>
-          <Button asChild variant="outline" className="min-h-[44px]"><Link to="/ranking">Ver ranking de bairros</Link></Button>
-        </div>
-      </main>
-    </div>
-  );
-  if (!b) return (
-    <div className="min-h-screen bg-background">
-      <Seo title="Bairro não encontrado | Radar Bewild" description="Bairro não encontrado." path={`/bairro/${slug}`} noindex />
-      <AppNavbar fixo={false} />
-      <main className="mx-auto max-w-xl px-4 py-16 text-center space-y-4">
-        <h1 className="font-display text-2xl font-bold text-foreground">Não há dados deste bairro no Radar</h1>
-        <p className="text-sm text-muted-foreground">Confira os bairros com dados no ranking ou no mapa. Se você já tem um imóvel nesse endereço, a Bewild pode orçar a reforma.</p>
-        <div className="flex flex-col sm:flex-row justify-center gap-3">
-          <Button asChild className="min-h-[44px]"><Link to="/ranking">Ver ranking de bairros</Link></Button>
-          <Button asChild variant="outline" className="min-h-[44px]"><Link to="/mapa">Abrir o mapa</Link></Button>
-        </div>
-        <OrcamentoButton local="bairro" variant="ghost" className="min-h-[44px]" />
-      </main>
-    </div>
+  if (!nome && estimativas.isLoading) {
+    return <>{seoHead}<Container className="py-16"><p className="e-apoio" aria-busy="true">Carregando o bairro…</p></Container></>;
+  }
+
+  if (!nome) {
+    return (
+      <>
+        <Seo title="Bairro não encontrado | Radar Bewild" description="Bairro não encontrado." path={`/bairro/${slug}`} noindex />
+        <CabecalhoTela rotulo="Bairro" titulo="Não há dados deste bairro no Radar" lead="Confira os bairros com dados no ranking ou no mapa. Se você já tem um imóvel nesse endereço, a Bewild pode orçar a reforma.">
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button asChild className="min-h-[44px] px-5 text-[15px] font-semibold"><Link to="/ranking">Ver o ranking de bairros</Link></Button>
+            <Button asChild variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold"><Link to="/mapa">Abrir o mapa</Link></Button>
+            <OrcamentoButton local="bairro" variant="ghost" className="min-h-[44px] px-5 text-[15px] font-semibold" />
+          </div>
+        </CabecalhoTela>
+      </>
+    );
+  }
+
+  const trocar = (outro: string) => {
+    definirBairroAtual(outro);
+    trackGlobal("cta_clicked", { cta_id: "bairro_seletor", section: "bairro", bairro: outro });
+    navigate(bairroPath(outro));
+  };
+
+  const seletor = (
+    <SeletorBairro
+      rotulo="Trocar de bairro"
+      bairros={bairros}
+      valor={b ? b.name : null}
+      incluirVazio={b ? undefined : "Escolher bairro"}
+      onChange={trocar}
+    />
   );
 
-  const all = allBairros ?? [b];
-  const profile = getBairroProfile(b, all);
-  const headerNarrative = buildHeaderNarrative(b, profile);
-  const leigosResumo = buildLeigosResumo(b, profile);
-  const explicacao = buildExplicaResultado(b);
-  const pontosAtencao = buildPontosAtencao(b, all);
-  const shortVsLong = buildShortVsLongNarrative(b);
-  const investorProfiles = buildInvestorProfile(profile);
-  const storyBlocks = buildBairroStoryBlocks(b, all);
-  const investmentScore = calculateInvestmentScore(b, all);
-  const trueYield = calculateTrueYield(b);
+  // A lista da estimativa de mercado carregou e não tem este bairro: página só com a base do Radar.
+  const semEstimativa = Boolean(estimativas.data && !estimativas.data.some((x) => slugifyBairro(x.bairro) === slug));
+  const criterios = (
+    <Secao id="criterios-internos" rotulo="Critérios internos" titulo="Scores da Bewild, à parte da base" lead={`Combinam a diária e a ocupação com preço do m², liquidez e crescimento da ${ROTULO_ESTIMATIVA_MERCADO.toLowerCase()}. São critérios internos, não estatística de mercado.`}>
+      {estimativa.data ? (
+        <details className="group e-fina border-y">
+          <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-4 py-3 text-[17px] font-semibold [&::-webkit-details-marker]:hidden">
+            Ver os critérios internos de {nome}
+            <span aria-hidden="true" className="text-tinta-70 transition-transform group-open:rotate-45 motion-reduce:transition-none">+</span>
+          </summary>
+          <div className="pb-8 pt-4">
+            <EstimativaBairro b={estimativa.data} todos={estimativas.data ?? [estimativa.data]} numeroInicial={2} />
+          </div>
+        </details>
+      ) : semEstimativa ? (
+        <BairroSomenteRadar nome={nome} />
+      ) : estimativa.isError || estimativas.isError ? (
+        <AvisoBase onTentar={() => { void estimativa.refetch(); void estimativas.refetch(); }}>Os critérios internos de {nome} não carregaram agora. Os números da base do Radar acima não foram afetados.</AvisoBase>
+      ) : (
+        <p className="e-apoio" aria-busy="true">Carregando os critérios internos…</p>
+      )}
+    </Secao>
+  );
 
-  const precoEstudio = Number(b.preco_m2_residencial_medio) * Number(b.area_media_estudio);
-  const monthlyData = generateMonthlyData(Number(b.adr_medio_studio), Number(b.ocupacao_media_studio));
+  // Bairro sem dado na base do Radar (ex.: só na lista de SEO): não publicamos números sem fonte.
+  if (!b) {
+    return (
+      <>
+        {seoHead}
+        <CabecalhoTela rotulo="Bairro · São Paulo" titulo={nome} acao={seletor} lead={<>Ainda não há dado público de diária e ocupação para {nome} na base do Radar. Não publicamos números sem fonte.</>}>
+          <p className="flex flex-wrap gap-x-6 text-[15px]">
+            <Link to="/ranking" className="e-link inline-flex min-h-[44px] items-center">Ver os {bairros.length} bairros da base</Link>
+            <Link to="/mapa" className="e-link inline-flex min-h-[44px] items-center">Abrir o mapa</Link>
+          </p>
+        </CabecalhoTela>
+        <Secao id="proximo-passo" rotulo="Próximo passo">
+          <div className="space-y-10">
+            <ProximoPassoBairro bairro={nome} />
+            <BlocoReformaBairro bairro={nome} />
+          </div>
+        </Secao>
+        {criterios}
+      </>
+    );
+  }
+
+  const receita = receitaDe(b);
+  const receitaSP = receitaDe(cidade);
+  const dif = difPercentual(receita, receitaSP);
+  const posReceita = posicaoComEmpate(bairros, b.name, "receita");
+  const posDiaria = posicaoComEmpate(bairros, b.name, "diaria");
+  const posOcupacao = posicaoComEmpate(bairros, b.name, "ocupacao");
+  const natureza = naturezaBairro(b);
+  const aproximacao = natureza === "aproximacao";
+  const ajuste = ajusteManual(b);
+  const itaim = bairros.find((x) => x.name === "Itaim Bibi");
+  const dre = linhasDre(receita);
+  const linkSimular = linkProjecaoBairro(slug);
+  const linkComparar = caminhoComparar([slug]);
+  const total = bairros.length;
+  const deNome = bairrosNaFrase([b.name], "de");
+  const dataColeta = b.coletadoEm ? b.coletadoEm.slice(0, 10).split("-").reverse().join("/") : null;
+
+  const metadados: ItemMetadado[] = [
+    {
+      rotulo: "Fonte",
+      valor: b.sourceUrl
+        ? <a href={b.sourceUrl} target="_blank" rel="noopener noreferrer" className="e-link">{fonteCurtaBairro(b).split(" · ")[0]}<NovaAba /></a>
+        : fonteCurtaBairro(b),
+    },
+    { rotulo: "Período", valor: b.period ?? "sem período publicado" },
+    { rotulo: "Coleta", valor: dataColeta ?? "sem data registrada" },
+    {
+      rotulo: "Amostra",
+      valor: b.activeListings != null
+        ? <><span className="e-var">n</span> = {formatDecimal(b.activeListings, 0)} anúncios</>
+        : aproximacao ? "sem contagem por bairro" : "sem amostra publicada",
+    },
+  ];
+
+  const tituloPosicao = posReceita
+    ? <>{b.name} é {frasePosicao(posReceita)} em receita de referência entre os {total} bairros</>
+    : <>Posição de {b.name} entre os {total} bairros</>;
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
       {seoHead}
-      <AppNavbar fixo={false} />
-      <header className="bg-hero-gradient text-primary-foreground">
-        <div className="container mx-auto px-4 py-8">
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-1.5 text-primary-foreground/50 text-xs mb-3">
-            <Link to="/mercado" className="hover:text-primary-foreground/80 transition-colors">Inteligência de mercado</Link>
-            <ChevronRight className="h-3 w-3" />
-            <Link to="/ranking" className="hover:text-primary-foreground/80 transition-colors">Ranking</Link>
-            <ChevronRight className="h-3 w-3" />
-            <span className="text-primary-foreground/80">{b.bairro}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl md:text-3xl font-bold font-[var(--font-display)]">{b.bairro}</h1>
-              <Badge className={`${profile.color} ${profile.textColor}`}>{profile.label}</Badge>
-            </div>
-            <Link to="/ranking">
-              <Button variant="secondary" size="sm" className="shadow-lg">
-                <ArrowLeft className="mr-1 h-4 w-4" /> Ranking
-              </Button>
-            </Link>
-          </div>
-          <p className="text-sm text-primary-foreground/80 max-w-2xl leading-relaxed mt-3">{headerNarrative}</p>
-          <p className="text-xs text-primary-foreground/70 mt-2">{rotuloFonteDiariaOcupacao(b)}</p>
-          <FonteBairro nome={b.bairro} inverse />
-          <p className="text-sm mt-2">Diária média (ADR): {fmtBRL(b.adr_medio_studio)} · Ocupação: {fmtPct(b.ocupacao_media_studio)}</p>
-        </div>
-      </header>
-
-      <main id="conteudo" tabIndex={-1} className="container mx-auto px-4 py-6 space-y-8">
-        <FaixaQuartisBairro bairro={b.bairro} />
-        <VariacaoColetaBairro bairro={b.bairro} />
-        <HistoricoBairro bairro={b.bairro} />
-
-        {/* ── Report intro ────────────────────────────────── */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-          <Card className="border-primary/15 bg-gradient-to-br from-primary/[0.03] to-transparent">
-            <CardContent className="p-5">
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-3">Relatório consultivo</p>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    {(() => { const ProfileIcon = PROFILE_ICONS[profile.icon] || Scale; return <ProfileIcon className={`h-5 w-5 ${profile.textColor}`} />; })()}
-                    <Badge className={`${profile.color} ${profile.textColor} text-xs`}>{profile.label}</Badge>
-                  </div>
-                  <p className="text-sm font-semibold text-foreground mb-1">{profile.description}</p>
-                  <p className="text-xs text-foreground/70 leading-relaxed">{profile.interpretation}</p>
-                </div>
-                <div className="flex items-center gap-3 sm:border-l sm:border-border/50 sm:pl-5">
-                  <div className="text-center">
-                    <p className="text-3xl font-bold">{formatDecimal(investmentScore.score, 1)}</p>
-                    <p className={`text-sm font-bold ${investmentScore.gradeColor}`}>{investmentScore.grade}</p>
-                    <p className={`text-[10px] font-semibold ${investmentScore.gradeColor}`}>{investmentScore.gradeLabel}</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* ── 1. Resumo para leigos ──────────────────────── */}
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 }}>
-          <Card>
-            <CardContent className="p-5">
-              <SectionHeader number="1" title="Resumo para leigos" subtitle={`O que você precisa saber sobre ${b.bairro} em linguagem simples`} icon={Lightbulb} />
-              <ul className="space-y-2 ml-10">
-                {leigosResumo.map((item, i) => (
-                  <li key={i} className="flex gap-2 items-start text-sm">
-                    <CheckCircle className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* ── 2. Investment Score explicado ───────────────── */}
-        <ContextualNote sectionKey="score_intro" />
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
-          <Card>
-            <CardContent className="p-5">
-              <SectionHeader number="2" title="Investment Score" subtitle="Score central que combina retorno, demanda, operação e potencial futuro" icon={Target} />
-              <div className="ml-10">
-                <InvestmentScoreHero result={investmentScore} bairro={b.bairro} />
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* ── 3. O que explica / Pontos de atenção ────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
-            <Card className="h-full">
-              <CardContent className="p-5">
-                <SectionHeader number="3" title="O que explica esse resultado" subtitle="Fatores que sustentam a posição deste bairro" icon={Info} />
-                <ul className="space-y-2 ml-10">
-                  {explicacao.map((item, i) => (
-                    <li key={i} className="flex gap-2 items-start text-sm">
-                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-            <Card className="h-full border-amber-200/50">
-              <CardContent className="p-5">
-                <SectionHeader number="4" title="Pontos de atenção" subtitle="Riscos e limitações a considerar antes de investir" icon={AlertTriangle} />
-                <ul className="space-y-2 ml-10">
-                  {pontosAtencao.map((item, i) => (
-                    <li key={i} className="flex gap-2 items-start text-sm">
-                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
-                      <span className="text-foreground/80">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-
-        {/* ── 5. Short stay vs aluguel ────────────────────── */}
-        <ContextualNote sectionKey="yield_comparison" />
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
-          <Card>
-            <CardContent className="p-5">
-              <SectionHeader number="5" title="Short stay ou aluguel tradicional?" subtitle="Comparativo direto de retorno entre as duas estratégias" icon={BarChart3} />
-              <div className="ml-10 space-y-4">
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="text-center p-3 bg-emerald-50 rounded-lg">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Yield Airbnb</p>
-                    <p className="text-xl font-bold text-emerald-600">{fmtPct(b.yield_bruto_airbnb)}</p>
-                  </div>
-                  <div className="text-center p-3 bg-blue-50 rounded-lg">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Yield Aluguel</p>
-                    <p className="text-xl font-bold text-blue-600">{fmtPct(b.yield_bruto_long_term)}</p>
-                  </div>
-                  <div className="text-center p-3 bg-amber-50 rounded-lg">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Delta</p>
-                    <p className="text-xl font-bold text-amber-600">+{fmtPct(b.delta_yield)}</p>
-                  </div>
-                </div>
-                <p className="text-sm text-foreground/80 leading-relaxed">{shortVsLong}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* ── 5½. True Yield (advanced) ───────────────────── */}
-        <ContextualNote sectionKey="true_yield" />
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <Card className="border-dashed border-primary/20">
-            <CardContent className="p-5">
-              <div className="flex items-start gap-3 mb-4">
-                <Badge variant="outline" className="text-[9px] shrink-0 mt-1">Avançado</Badge>
-                <div>
-                  <h2 className="text-base font-semibold flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-primary" />
-                    True Yield
-                  </h2>
-                  <p className="text-xs text-muted-foreground mt-0.5">Estimativa mais direta do retorno anual real, calculado a partir de ADR × Ocupação × 365 ÷ Preço do imóvel</p>
-                </div>
-              </div>
-              <div className="ml-10 space-y-4">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="text-center p-3 rounded-lg bg-primary/[0.04]">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">True Yield</p>
-                    <p className="text-xl font-bold text-primary">{formatDecimal((trueYield.trueYield * 100), 2)}%</p>
-                  </div>
-                  <div className="text-center p-3 rounded-lg bg-emerald-50">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Yield Airbnb</p>
-                    <p className="text-xl font-bold text-emerald-600">{fmtPct(b.yield_bruto_airbnb)}</p>
-                  </div>
-                  <div className="text-center p-3 rounded-lg bg-muted/50">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Receita anual</p>
-                    <p className="text-lg font-bold">{fmtBRL(trueYield.annualRevenue)}</p>
-                  </div>
-                  <div className="text-center p-3 rounded-lg bg-muted/50">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Preço studio</p>
-                    <p className="text-lg font-bold">{fmtBRL(trueYield.propertyPrice)}</p>
-                  </div>
-                </div>
-                <p className="text-sm text-foreground/80 leading-relaxed">{trueYield.comparison}</p>
-                <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/30">
-                  <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    <strong>Como interpretar:</strong> O True Yield é uma estimativa simplificada que calcula o retorno bruto a partir da operação diária. 
-                    Não inclui custos operacionais, taxas de plataforma, impostos ou vacância sazonal. Use como referência complementar, não como projeção final.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* ── 6. Para quem faz sentido ───────────────────── */}
-        <ContextualNote sectionKey="investor_match" />
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}>
-          <Card>
-            <CardContent className="p-5">
-              <SectionHeader number="6" title={`Para quem ${b.bairro} faz sentido?`} subtitle="Perfis de investidor que mais se beneficiam deste bairro" icon={UserCheck} />
-              <ul className="space-y-2 ml-10">
-                {investorProfiles.map((item, i) => (
-                  <li key={i} className="flex gap-2 items-start text-sm">
-                    <CheckCircle className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* ── 7. Leitura consultiva (storytelling) ────────── */}
-        {storyBlocks.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.26 }}>
-            <Card>
-              <CardContent className="p-5">
-                <SectionHeader number="7" title="Leitura consultiva" subtitle={`O que os dados revelam sobre ${b.bairro} quando comparado com os demais bairros`} icon={Lightbulb} />
-                <div className="space-y-3 ml-10">
-                  {storyBlocks.map((block, i) => (
-                    <BairroStoryCard key={i} title={block.title} text={block.text} type={block.type} />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+      <CabecalhoTela
+        rotulo="Bairro · São Paulo"
+        titulo={b.name}
+        acao={seletor}
+        lead={<>Receita de referência de {formatBRL(receita)} por mês, antes de custos: {fraseContraSP(dif)}.{posReceita && <> É {frasePosicao(posReceita)} entre os {total} bairros da base.</>}</>}
+      >
+        <p className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2">
+          <TagBairro b={b} />
+          <NotaAmostra b={b} />
+          {aproximacao && <span className="e-legenda">{TEXTO_APROXIMACAO}</span>}
+          {ajuste && <span className="e-legenda">Diária e ocupação com ajuste manual da Bewild sobre a base; sem quartis nem período publicados.</span>}
+        </p>
+        <Metadados itens={metadados} compacto />
+        {aproximacao && b.referenciaBewild && (
+          <p className="e-legenda mt-4 max-w-[720px]">Referência extra, fora das contas: {rotuloReferenciaBewild(b.referenciaBewild)}.</p>
         )}
+      </CabecalhoTela>
 
-        <EducationalBanner message="Use os scores como leitura estratégica, não como verdade absoluta." type="caution" />
+      {offline && (
+        <Container className="mb-6">
+          <AvisoBase tom="aviso" onTentar={recarregar}>A base do Radar não respondeu agora. Os números são da reserva aprovada (mesma coleta).</AvisoBase>
+        </Container>
+      )}
 
-        {/* ── Scores cards ────────────────────────────────── */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <ScoreCard label="Rentabilidade" friendlyLabel="Score geral de retorno" value={b.score_rentabilidade} icon={TrendingUp} color="text-emerald-600" />
-          <ScoreCard label="Liquidez" friendlyLabel="Facilidade de operar" value={b.score_liquidez} icon={BarChart3} color="text-blue-600" />
-          <ScoreCard label="Crescimento" friendlyLabel="Potencial futuro" value={b.score_crescimento_potencial} icon={Target} color="text-amber-600" />
-        </motion.div>
-
-        {/* ── Charts ─────────────────────────────────────── */}
-        <ContextualNote sectionKey="before_charts" />
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Radar */}
-          <Card>
-            <CardHeader><CardTitle className="text-base">Análise 360°</CardTitle></CardHeader>
-            <CardContent>
-              <ChartContainer config={{ score: { label: "Score", color: "hsl(var(--primary))" } }} className="aspect-square max-h-[300px] mx-auto">
-                <RadarChart data={[
-                  { metric: "Rentabilidade", value: b.score_rentabilidade, fullMark: 100 },
-                  { metric: "Liquidez", value: b.score_liquidez, fullMark: 100 },
-                  { metric: "Crescimento", value: b.score_crescimento_potencial, fullMark: 100 },
-                  { metric: "Ocupação", value: (b.ocupacao_media_studio ?? 0) * 100, fullMark: 100 },
-                  { metric: "Reputação", value: (Number(b.rating_medio) / 5) * 100, fullMark: 100 },
-                  { metric: "Segurança", value: Math.max(0, 100 - (Number(b.indice_criminalidade) * 100)), fullMark: 100 },
-                ]}>
-                  <PolarGrid stroke="hsl(var(--border))" />
-                  <PolarAngleAxis dataKey="metric" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
-                  <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                  <Radar name="Score" dataKey="value" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.25} strokeWidth={2} />
-                </RadarChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-
-          {/* Yields comparison */}
-          <Card>
-            <CardHeader><CardTitle className="text-base">Comparativo de Yields</CardTitle></CardHeader>
-            <CardContent>
-              <ChartContainer config={{
-                airbnb: { label: "Yield Airbnb", color: "hsl(142 76% 36%)" },
-                longTerm: { label: "Yield Long Term", color: "hsl(221 83% 53%)" },
-                delta: { label: "Delta", color: "hsl(45 93% 47%)" },
-              }} className="max-h-[300px]">
-                <BarChart data={[
-                  { name: "Airbnb", value: (b.yield_bruto_airbnb ?? 0) * 100, fill: "hsl(142 76% 36%)" },
-                  { name: "Long Term", value: (b.yield_bruto_long_term ?? 0) * 100, fill: "hsl(221 83% 53%)" },
-                  { name: "Delta", value: (b.delta_yield ?? 0) * 100, fill: "hsl(45 93% 47%)" },
-                ]}>
-                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${formatDecimal(v, 1)}%`} />
-                  <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${formatDecimal(Number(value), 2)}%`} />} />
-                  <Bar dataKey="value" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-
-          {/* Risk chart */}
-          <Card>
-            <CardHeader><CardTitle className="text-base">Indicadores de Risco</CardTitle></CardHeader>
-            <CardContent>
-              <ChartContainer config={{ risk: { label: "Risco", color: "hsl(0 84% 60%)" } }} className="max-h-[300px]">
-                <BarChart data={[
-                  { name: "Saturação", value: (b.grau_saturacao_index ?? 0) * 100, fill: "hsl(0 84% 60%)" },
-                  { name: "Reg.", value: (b.risco_regulatorio ?? 0) * 100, fill: "hsl(25 95% 53%)" },
-                  { name: "Condomínio", value: (b.risco_condominio ?? 0) * 100, fill: "hsl(45 93% 47%)" },
-                  { name: "Crime", value: Number(b.indice_criminalidade) * 100, fill: "hsl(0 72% 51%)" },
-                ]}>
-                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} domain={[0, 100]} tickFormatter={(v) => formatPercent(Number(v))} />
-                  <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${formatDecimal(Number(value), 1)}%`} />} />
-                  <Bar dataKey="value" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-
-          {/* Performance chart */}
-          <Card>
-            <CardHeader><CardTitle className="text-base">Métricas de Performance</CardTitle></CardHeader>
-            <CardContent>
-              <ChartContainer config={{ metric: { label: "Valor", color: "hsl(var(--primary))" } }} className="max-h-[300px]">
-                <BarChart data={[
-                  { name: "ADR (R$)", value: Number(b.adr_medio_studio), fill: "hsl(var(--primary))" },
-                  { name: "Receita/mês (R$k)", value: Number(b.receita_anual_media_studio) / 12000, fill: "hsl(262 83% 58%)" },
-                  { name: "Reviews/listing", value: Number(b.media_reviews_por_listing), fill: "hsl(var(--accent-foreground))" },
-                  { name: "Estadia (noites)", value: Number(b.estadia_media_noites), fill: "hsl(45 93% 47%)" },
-                ]} layout="vertical">
-                  <XAxis type="number" tickFormatter={(v) => formatDecimal(Number(v))} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={110} />
-                  <ChartTooltip content={<ChartTooltipContent formatter={(value) => formatDecimal(Number(value))} />} />
-                  <Bar dataKey="value" radius={[0, 6, 6, 0]} />
-                </BarChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* ── Temporal evolution ──────────────────────────── */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="space-y-2">
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50/60 border border-amber-200/40">
-            <Info className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
-            <p className="text-xs text-amber-800 leading-relaxed">
-              <strong>Projeções estimadas:</strong> Os gráficos abaixo utilizam sazonalidade estimada aplicada sobre a média atual. Não representam dados históricos reais — são projeções para auxiliar na análise de tendências.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader><CardTitle className="text-base flex items-center gap-2"><TrendingUp className="h-4 w-4" /> Sazonalidade ilustrativa (modelo, não dado observado)</CardTitle></CardHeader>
-              <CardContent>
-                <ChartContainer config={{ adr: { label: "ADR (R$)", color: "hsl(var(--primary))" } }} className="max-h-[280px]">
-                  <LineChart data={monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => fmtBRL(Number(v))} domain={['dataMin - 20', 'dataMax + 20']} />
-                    <ChartTooltip content={<ChartTooltipContent formatter={(value) => fmtBRL(Number(value))} />} />
-                    <Line type="monotone" dataKey="adr" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ r: 4, fill: "hsl(var(--primary))" }} activeDot={{ r: 6 }} />
-                  </LineChart>
-                </ChartContainer>
-                <p className="text-xs text-muted-foreground mt-3">ADR: sazonalidade ilustrativa (modelo, não dado observado). Curva gerada por fatores mensais fixos aplicados à diária e à ocupação de referência do bairro; não há série mensal observada.</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader><CardTitle className="text-base flex items-center gap-2"><BarChart3 className="h-4 w-4" /> Sazonalidade ilustrativa (modelo, não dado observado)</CardTitle></CardHeader>
-              <CardContent>
-                <ChartContainer config={{ ocupacao: { label: "Ocupação (%)", color: "hsl(142 76% 36%)" } }} className="max-h-[280px]">
-                  <LineChart data={monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => formatPercent(Number(v))} domain={['dataMin - 5', 'dataMax + 5']} />
-                    <ChartTooltip content={<ChartTooltipContent formatter={(value) => `${formatDecimal(Number(value), 1)}%`} />} />
-                    <Line type="monotone" dataKey="ocupacao" stroke="hsl(142 76% 36%)" strokeWidth={2.5} dot={{ r: 4, fill: "hsl(142 76% 36%)" }} activeDot={{ r: 6 }} />
-                  </LineChart>
-                </ChartContainer>
-                <p className="text-xs text-muted-foreground mt-3">Ocupação: sazonalidade ilustrativa (modelo, não dado observado). Curva gerada por fatores mensais fixos aplicados à diária e à ocupação de referência do bairro; não há série mensal observada.</p>
-              </CardContent>
-            </Card>
-
-            <Card className="md:col-span-2">
-              <CardHeader><CardTitle className="text-base flex items-center gap-2"><Target className="h-4 w-4" /> Sazonalidade ilustrativa (modelo, não dado observado)</CardTitle></CardHeader>
-              <CardContent>
-                <ChartContainer config={{ receita: { label: "Receita (R$)", color: "hsl(262 83% 58%)" } }} className="max-h-[280px]">
-                  <BarChart data={monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `R$${formatDecimal(Number(v) / 1000)}k`} />
-                    <ChartTooltip content={<ChartTooltipContent formatter={(value) => `R$ ${Number(value).toLocaleString("pt-BR")}`} />} />
-                    <Bar dataKey="receita" fill="hsl(262 83% 58%)" radius={[6, 6, 0, 0]} />
-                  </BarChart>
-                </ChartContainer>
-                <p className="text-xs text-muted-foreground mt-3">Receita: sazonalidade ilustrativa (modelo, não dado observado). Curva gerada por fatores mensais fixos aplicados à diária e à ocupação de referência do bairro; não há série mensal observada.</p>
-              </CardContent>
-            </Card>
-          </div>
-        </motion.div>
-
-        {/* ── Detailed metrics ───────────────────────────── */}
-        <ContextualNote sectionKey="before_metrics" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader><CardTitle className="text-base flex items-center gap-2"><Building2 className="h-4 w-4" /> Volume de Anúncios</CardTitle></CardHeader>
-            <CardContent>
-              <MetricRow label="Total de listings" value={b.n_listings_total.toLocaleString("pt-BR")} />
-              <MetricRow label="Studios + 1 quarto" value={b.n_listings_studio_1q.toLocaleString("pt-BR")} />
-              <MetricRow label="% Studio/1Q" value={fmtPct(b.pct_studio_1q)} />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader><CardTitle className="text-base flex items-center gap-2"><TrendingUp className="h-4 w-4" /> Performance</CardTitle></CardHeader>
-            <CardContent>
-              <MetricRow label="ADR Médio (preço por noite)" value={fmtBRL(b.adr_medio_studio)} />
-              <MetricRow label="Ocupação Média (% dias alugados)" value={fmtPct(b.ocupacao_media_studio)} />
-              <MetricRow label="Receita Anual Média" value={fmtBRL(b.receita_anual_media_studio)} />
-              <MetricRow label="Estadia Média" value={`${b.estadia_media_noites} noites`} />
-              <MetricRow label="Reservas 30d+" value={fmtPct(b.porcentagem_reservas_30d_plus)} />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader><CardTitle className="text-base flex items-center gap-2"><Star className="h-4 w-4" /> Reputação</CardTitle></CardHeader>
-            <CardContent>
-              <MetricRow label="Rating Médio" value={formatDecimal(Number(b.rating_medio), 2)} />
-              <MetricRow label="% Superhost" value={fmtPct(b.percentual_superhost)} />
-              <MetricRow label="Reviews/Listing" value={formatDecimal(Number(b.media_reviews_por_listing), 1)} />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader><CardTitle className="text-base flex items-center gap-2"><BarChart3 className="h-4 w-4" /> Yields & Mercado</CardTitle></CardHeader>
-            <CardContent>
-              <MetricRow label="Preço m² Residencial" value={fmtBRL(b.preco_m2_residencial_medio)} />
-              <MetricRow label="Preço Estimado Studio" value={fmtBRL(precoEstudio)} />
-              <MetricRow label="Aluguel Long Term" value={fmtBRL(b.aluguel_mensal_long_term_medio)} />
-              <MetricRow label="Yield Airbnb (retorno anual)" value={fmtPct(b.yield_bruto_airbnb)} />
-              <MetricRow label="Yield Long Term" value={fmtPct(b.yield_bruto_long_term)} />
-              <MetricRow label="Delta Yield (ganho extra)" value={fmtPct(b.delta_yield)} />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader><CardTitle className="text-base flex items-center gap-2"><Users className="h-4 w-4" /> Liquidez Imobiliária</CardTitle></CardHeader>
-            <CardContent>
-              <MetricRow label="Dias Médio de Venda" value={`${b.dias_medio_venda_imovel} dias`} />
-              <MetricRow label="Transações/Ano" value={b.numero_transacoes_imobiliarias_ano.toLocaleString("pt-BR")} />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader><CardTitle className="text-base flex items-center gap-2"><AlertTriangle className="h-4 w-4" /> Risco & Saturação</CardTitle></CardHeader>
-            <CardContent>
-              <MetricRow label="Criminalidade" value={formatDecimal(Number(b.indice_criminalidade), 2)} />
-              <MetricRow label="Saturação" value={fmtPct(b.grau_saturacao_index)} />
-              <MetricRow label="Risco Regulatório" value={fmtPct(b.risco_regulatorio)} />
-              <MetricRow label="Risco Condomínio" value={fmtPct(b.risco_condominio)} />
-            </CardContent>
-          </Card>
+      <Secao
+        id="indicadores"
+        rotulo="Indicadores"
+        titulo={<>{formatBRL(b.dailyAvg)} de diária e {pct(b.avgOccupancy)} de ocupação rendem {formatBRL(receita)} por mês de referência</>}
+      >
+        <GradeIndicadores className="max-[399px]:grid-cols-1">
+          <Indicador rotulo="Diária média (R$)" valor={formatBRL(b.dailyAvg)} nota={<><Diferenca valor={b.dailyAvg - cidade.dailyAvg} /> contra São Paulo ({formatBRL(cidade.dailyAvg)})</>} />
+          <Indicador rotulo="Ocupação média (%)" valor={pct(b.avgOccupancy)} nota={<><Diferenca valor={b.avgOccupancy - cidade.avgOccupancy} formato="pp" /> contra São Paulo ({pct(cidade.avgOccupancy)})</>} />
+          <Indicador rotulo="Receita de referência (R$/mês)" valor={formatBRL(receita)} nota={<><Diferenca valor={dif} formato="pct" /> contra São Paulo ({formatBRL(receitaSP)})</>} />
+          <Indicador
+            rotulo="Anúncios (n)"
+            valor={b.activeListings != null ? formatDecimal(b.activeListings, 0) : "—"}
+            nota={
+              b.activeListings != null
+                ? temAmostraPequena(b) ? <span className="e-amostra">Amostra pequena: leia com cautela</span> : "Anúncios ativos na amostra"
+                : aproximacao && itaim?.activeListings != null
+                  ? <>Sem contagem por bairro; o distrito Itaim Bibi tem {formatDecimal(itaim.activeListings, 0)}</>
+                  : "Sem contagem publicada"
+            }
+          />
+        </GradeIndicadores>
+        <div className="mt-10">
+          <FaixaQuartisBairro bairro={b.name} />
         </div>
+      </Secao>
 
-        {/* ── Próximo passo ──────────────────────────── */}
-        <BlocoReformaBairro bairro={b.bairro} />
-        <ProximoPassoBairro bairro={b.bairro} />
+      <Secao
+        id="posicao"
+        rotulo={`Posição entre os ${total}`}
+        titulo={tituloPosicao}
+        lead={aproximacao ? <>Com os números do Itaim Bibi (aproximação), {b.name} empata com o distrito e com os outros bairros aproximados.</> : undefined}
+      >
+        <GradeIndicadores className="mb-12">
+          <Indicador pequeno rotulo="Receita contra São Paulo (%)" valor={<Diferenca valor={dif} formato="pct" />} nota={fraseContraSP(dif)} />
+          {posReceita && <Indicador pequeno rotulo={`Posição em receita (de ${total})`} valor={textoPosicao(posReceita)} nota={posReceita.empatados.length ? <>Empate com {posReceita.empatados.join(", ")}</> : "Maior receita = 1º"} />}
+          {posDiaria && <Indicador pequeno rotulo={`Posição em diária (de ${total})`} valor={textoPosicao(posDiaria)} nota={posDiaria.empatados.length ? <>Empate com {posDiaria.empatados.join(", ")}</> : "Maior diária = 1º"} />}
+          {posOcupacao && <Indicador pequeno rotulo={`Posição em ocupação (de ${total})`} valor={textoPosicao(posOcupacao)} nota={posOcupacao.empatados.length ? <>Empate com {posOcupacao.empatados.join(", ")}</> : "Maior ocupação = 1º"} />}
+        </GradeIndicadores>
 
-        {/* ── Disclaimer ──────────────────────────────── */}
-        <footer className="border-t border-border/40 pt-6 pb-2 text-center">
-          <p className="text-[11px] text-muted-foreground/70 leading-relaxed max-w-2xl mx-auto">{FOOTER_DISCLAIMER}</p>
-        </footer>
-      </main>
-    </div>
+        <Figura
+          numero={1}
+          titulo={<>Onde {b.name} fica entre os {total} bairros em diária e em ocupação</>}
+          unidade={<>Cada ponto é um bairro; a linha tracejada marca São Paulo. Toque num ponto para abrir o bairro.</>}
+          legenda={
+            <>
+              <LegendaPontos bairros={bairros} selecionado={b.name} referencia={<>São Paulo: {formatBRL(cidade.dailyAvg)} de diária e {pct(cidade.avgOccupancy)} de ocupação</>} />
+              <p className="mt-3">{TEXTO_APROXIMACAO}</p>
+            </>
+          }
+          fonte={<>GuestFavorites, {b.period ?? cidade.period}. Cálculo do Radar Bewild.</>}
+        >
+          <div className="space-y-10">
+            <FaixaPosicao
+              titulo="Diária média"
+              unidade="R$ por noite"
+              bairros={bairros}
+              valor={(x) => x.dailyAvg}
+              formatar={formatBRL}
+              passo={50}
+              referencia={{ valor: cidade.dailyAvg, rotulo: `SP ${formatBRL(cidade.dailyAvg)}` }}
+              selecionado={b.name}
+              hrefDe={(x) => bairroPath(x.name)}
+              aoAbrir={(x) => definirBairroAtual(x.name)}
+            />
+            <FaixaPosicao
+              titulo="Ocupação média"
+              unidade="% das noites"
+              bairros={bairros}
+              valor={(x) => x.avgOccupancy}
+              formatar={pct}
+              passo={2}
+              referencia={{ valor: cidade.avgOccupancy, rotulo: `SP ${pct(cidade.avgOccupancy)}` }}
+              selecionado={b.name}
+              hrefDe={(x) => bairroPath(x.name)}
+              aoAbrir={(x) => definirBairroAtual(x.name)}
+            />
+          </div>
+        </Figura>
+        <p className="mt-6 flex flex-wrap gap-x-6 text-[15px]">
+          <Link to="/ranking" className="e-link inline-flex min-h-[44px] items-center">Ver o ranking completo</Link>
+          <Link to="/mercado" className="e-link inline-flex min-h-[44px] items-center">Ver o mercado</Link>
+          <Link to={`/mapa?bairro=${slug}`} className="e-link inline-flex min-h-[44px] items-center">Ver no mapa</Link>
+        </p>
+      </Secao>
+
+      <Secao
+        id="conta"
+        rotulo="Conta"
+        titulo={<>Da receita de referência ao resultado líquido: {formatBRL(dre.liquido)} por mês com as hipóteses do guia</>}
+        lead="A receita sai da base; os custos são hipóteses editáveis do guia, não estatística de mercado. Ajuste cada uma no simulador."
+      >
+        <div className="max-w-[820px]">
+          <div className="overflow-x-auto">
+            <FormulaReceita diaria={b.dailyAvg} ocupacaoPct={b.avgOccupancy} receita={receita} />
+          </div>
+          <TabelaNumerada
+            numero={1}
+            className="mt-8"
+            titulo={<>Resultado líquido de referência {deNome}</>}
+            unidade="R$ por mês. Percentuais sobre a receita bruta; condomínio + IPTU e contas em reais."
+            nota={<p>Valores em reais do exemplo do guia. Rentabilidade e prazo de retorno dependem do preço do imóvel e da reforma: calcule no simulador.</p>}
+          >
+            <thead>
+              <tr>
+                <th scope="col" className={TH}>Linha</th>
+                <th scope="col" className={cn(TH, "hidden sm:table-cell")}>Base</th>
+                <th scope="col" className={cn(TH, "text-right")}>R$/mês</th>
+                <th scope="col" className={cn(TH, "hidden md:table-cell")}>Natureza</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" className={cn(TD, "font-semibold")}>Receita de referência<span className="e-legenda block font-normal"><var className="e-var">R</var> = <var className="e-var">d</var> × 30 × <var className="e-var">o</var></span></th>
+                <td className={cn(TD, "hidden sm:table-cell text-tinta-78")}>Base do Radar</td>
+                <td className={cn(TD_NUM, "whitespace-nowrap font-semibold")}>{formatBRL(receita)}</td>
+                <td className={cn(TD, "hidden md:table-cell")}><TagBairro b={b} /></td>
+              </tr>
+              {dre.linhas.map((l) => (
+                <tr key={l.chave}>
+                  <th scope="row" className={cn(TD, "font-normal")}>
+                    {l.rotulo}
+                    <span className="e-legenda block">{l.nota}<span className="sm:hidden"> · {l.base.tipo === "pct" ? `${formatDecimal(l.base.pct, 0)}% da receita` : "valor em R$"}</span></span>
+                    <span className="mt-1 block md:hidden"><Tag tipo="hipotese" /></span>
+                  </th>
+                  <td className={cn(TD, "hidden whitespace-nowrap tabular-nums text-tinta-78 sm:table-cell")}>
+                    {l.base.tipo === "pct" ? `${formatDecimal(l.base.pct, 0)}% da receita` : "valor em R$"}
+                  </td>
+                  <td className={cn(TD_NUM, "whitespace-nowrap")}>{formatBRL(-l.valor)}</td>
+                  <td className={cn(TD, "hidden md:table-cell")}><Tag tipo="hipotese" /></td>
+                </tr>
+              ))}
+              <tr>
+                <th scope="row" className="border-t border-foreground py-3 pr-2 text-left font-semibold">Resultado líquido de referência</th>
+                <td className="hidden border-t border-foreground sm:table-cell" />
+                <td className={cn("whitespace-nowrap border-t border-foreground py-3 text-right font-semibold tabular-nums", dre.liquido < 0 && "e-negativo")}>{formatBRL(dre.liquido)}</td>
+                <td className="hidden border-t border-foreground md:table-cell" />
+              </tr>
+            </tbody>
+          </TabelaNumerada>
+          <AvisoReceita className="mt-6" />
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Button asChild className="min-h-[44px] px-5 text-[15px] font-semibold">
+              <Link to={linkSimular} onClick={() => trackGlobal("cta_clicked", { cta_id: "simular_bairro", section: "bairro_conta", bairro: b.name })}>Simular este bairro</Link>
+            </Button>
+            <Button asChild variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold">
+              <Link to={linkComparar} onClick={() => trackGlobal("cta_clicked", { cta_id: "comparar_bairro", section: "bairro_conta", bairro: b.name })}>Comparar com outros bairros</Link>
+            </Button>
+          </div>
+        </div>
+      </Secao>
+
+      <HistoricoBairro
+        bairro={b.name}
+        moldura={(historico) => (
+          <Secao id="historico" rotulo="Histórico" titulo="Cada coleta fica registrada, com data, período e fonte" lead="Bairros com ajuste manual não mostram histórico, para o bairro ter um número só.">
+            <SemCaixa>
+              <VariacaoColetaBairro bairro={b.name} className="mb-8 border-0 bg-transparent p-0" />
+            </SemCaixa>
+            {historico}
+            <Link to="/metodologia" className="e-link mt-2 inline-flex min-h-[44px] items-center text-[15px]">Registro de atualizações na metodologia</Link>
+          </Secao>
+        )}
+      />
+
+      <Secao id="proximo-passo" rotulo="Próximo passo">
+        <div className="space-y-10">
+          <ProximoPassoBairro bairro={b.name} />
+          <BlocoReformaBairro bairro={b.name} />
+          <LinkArtigoBewild artigo={ARTIGOS_BEWILD.melhoresBairros} prefixo="Quer a análise bairro a bairro? Leia" className="e-apoio" />
+        </div>
+      </Secao>
+
+      {criterios}
+
+      <Container className="pb-4">
+        <AvisoReceita />
+      </Container>
+    </>
   );
-};
+}
 
-export default IntelligenceBairroDetail;
+/** Contêiner neutro para componentes compartilhados que ainda trazem moldura própria. */
+function SemCaixa({ children }: { children: ReactNode }) {
+  return <div className="[&_section]:rounded-none [&_section]:border-0 [&_section]:bg-transparent [&_section]:p-0">{children}</div>;
+}

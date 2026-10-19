@@ -98,7 +98,7 @@ function Ranking() {
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:gap-10">
           <div className="min-w-0">
             <p className="e-rotulo mb-1.5">Critério</p>
-            <Segmentado<CriterioRanking> rotulo="Critério de ordenação" valor={criterio} opcoes={CRITERIOS_RANKING} onChange={setCriterio} className="w-full max-w-[460px]" itemClassName="px-2.5 text-[15px]" />
+            <Segmentado<CriterioRanking> rotulo="Critério de ordenação" valor={criterio} opcoes={CRITERIOS_RANKING} onChange={setCriterio} className="w-full max-w-[460px]" itemClassName="min-w-0 px-1.5 text-[14px] sm:px-2.5 sm:text-[15px]" />
           </div>
           <div className="min-w-0">
             <p className="e-rotulo mb-1.5">Dados</p>
@@ -205,7 +205,7 @@ function Ranking() {
 /** Tabela recolhida dos scores internos (bairro_airbnb_sp, estimativa de mercado — base 2025). */
 function CriteriosInternos() {
   const { data, isLoading, isError, refetch } = useBairrosData();
-  const todos = data ?? [];
+  const todos = useMemo(() => data ?? [], [data]);
   const scores = useMemo(() => new Map(todos.map((b) => [b.bairro, calculateInvestmentScore(b, todos)])), [todos]);
   const ordenados = [...todos].sort((a, b) => (scores.get(b.bairro)?.score ?? 0) - (scores.get(a.bairro)?.score ?? 0));
   return (

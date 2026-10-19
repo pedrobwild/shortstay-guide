@@ -317,6 +317,11 @@
   :root.estudo h1, :root.estudo h2, :root.estudo h3, :root.estudo h4 {
     letter-spacing: -0.005em;
   }
+  /* Números em fonte monoespaçada herdada de telas antigas: no estudo, a mesma serifa com algarismos tabulares */
+  :root.estudo .font-mono {
+    font-family: var(--font-body);
+    font-variant-numeric: tabular-nums lining-nums;
+  }
   /* Seleção de texto em ciano claro, como o resto da interação */
   :root.estudo ::selection {
     background: hsl(var(--ciano-100));

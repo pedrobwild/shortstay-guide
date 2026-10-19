@@ -1,25 +1,29 @@
-import { formatDecimal } from "@/lib/numberFormat";
+import { formatBRL, formatDecimal } from "@/lib/numberFormat";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import { useMemo } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import {
-  Target, TrendingUp, Shield, AlertTriangle, CheckCircle2,
-  ArrowRight, ExternalLink, Lightbulb, BarChart3, Zap,
-} from "lucide-react";
-import SectionBlock from "./SectionBlock";
+import { useRastrearSecao } from "./SectionBlock";
+import { TabelaNumerada, TD, TD_NUM, TH } from "@/components/estudo/Figura";
 import { useGuideDecision } from "@/hooks/useGuideDecision";
-import { useBairrosData, fmtBRL, fmtPct, rotuloFonteDiariaOcupacao } from "@/hooks/useIntelligenceData";
+import { useBairrosData, fmtPct, rotuloFonteDiariaOcupacao } from "@/hooks/useIntelligenceData";
 import { generateRecommendations, type Recommendation } from "@/lib/investorQuiz";
 import { getBairroProfile } from "@/lib/intelligenceInsights";
+import { linkProjecaoBairro } from "@/data/navegacao";
+import { bairroPath, slugifyBairro } from "@/lib/seo";
+import { cn } from "@/lib/utils";
 import type { BairroAirbnb } from "@/types/intelligence";
 
+/**
+ * Recomendação personalizada (/ferramentas#recomendacao), no padrão "Estudo aberto":
+ * os três bairros mais aderentes ao perfil numa tabela numerada, com motivos e
+ * cuidados em texto. Os scores são critério interno da Bewild sobre a estimativa de
+ * mercado (base 2025); diária e ocupação seguem a base do Radar.
+ */
 export default function RecomendacaoSection() {
-  const { investorProfile, quizAnswers, hasProfile, unitScore } = useGuideDecision();
-  const { data: bairros } = useBairrosData();
+  const { investorProfile, hasProfile, unitScore } = useGuideDecision();
+  const { data: bairros, isLoading, isError, refetch } = useBairrosData();
+  const ref = useRastrearSecao<HTMLDivElement>("recomendacao");
 
   const recommendations = useMemo(() => {
     if (!bairros?.length || !investorProfile) return [];
@@ -28,180 +32,120 @@ export default function RecomendacaoSection() {
 
   if (!hasProfile) {
     return (
-      <SectionBlock
-        id="recomendacao"
-        title="Recomendação Personalizada"
-        takeaway="Complete a autoavaliação de perfil na Fase 2 para desbloquear recomendações personalizadas."
-      >
-        <Card className="border-dashed border-2 border-border">
-          <CardContent className="p-8 text-center">
-            <Target className="mx-auto text-muted-foreground/40 mb-3" size={40} />
-            <p className="text-muted-foreground font-body text-sm">
-              Responda o quiz de perfil acima para receber recomendações personalizadas de bairros.
-            </p>
-            <a href="#diagnostico" className="inline-block mt-3">
-              <Button variant="outline" size="sm">
-                <ArrowRight size={14} className="mr-1.5" /> Ir para a autoavaliação
-              </Button>
-            </a>
-          </CardContent>
-        </Card>
-      </SectionBlock>
+      <div ref={ref} className="e-fina border-y py-6">
+        <p className="e-apoio max-w-[620px]">Responda a autoavaliação acima para ver os três bairros mais aderentes ao seu perfil.</p>
+        <Button asChild variant="outline" className="mt-4 min-h-[44px] px-5 text-[15px] font-semibold">
+          <a href="#diagnostico">Ir para a autoavaliação</a>
+        </Button>
+      </div>
     );
   }
 
   return (
-    <SectionBlock
-      id="recomendacao"
-      title="Recomendação Personalizada"
-      takeaway={`Com base no seu perfil "${investorProfile!.name}", estes são os bairros mais aderentes à sua estratégia.`}
-    >
-      {/* Profile reminder */}
-      <div className="flex items-center gap-2 mb-6 bg-primary/5 rounded-lg px-4 py-2.5">
-        <Badge className={`${investorProfile!.color} ${investorProfile!.textColor} font-body text-xs`}>
-          {investorProfile!.name}
-        </Badge>
-        <span className="text-xs text-muted-foreground font-body">
-          Pesos: Retorno {Math.round(investorProfile!.weights.retorno * 100)}% · Demanda {Math.round(investorProfile!.weights.demanda * 100)}% · Operação {Math.round(investorProfile!.weights.operacao * 100)}% · Futuro {Math.round(investorProfile!.weights.futuro * 100)}%
-        </span>
-      </div>
+    <div ref={ref}>
+      <p className="e-apoio max-w-[720px]">
+        Perfil <strong className="font-semibold text-foreground">{investorProfile!.name}</strong>. Pesos: retorno {Math.round(investorProfile!.weights.retorno * 100)}% · demanda {Math.round(investorProfile!.weights.demanda * 100)}% · operação {Math.round(investorProfile!.weights.operacao * 100)}% · futuro {Math.round(investorProfile!.weights.futuro * 100)}%.
+      </p>
 
-      {/* Top 3 Recommendations */}
-      <div className="space-y-4 mb-8">
-        {recommendations.map((rec, i) => (
-          <RecommendationCard key={rec.bairro.bairro} rec={rec} rank={i + 1} bairros={bairros!} />
-        ))}
-      </div>
+      {isLoading && <p className="e-apoio mt-6" aria-busy="true">Carregando os bairros…</p>}
+      {isError && (
+        <p className="e-apoio mt-6">
+          A estimativa de mercado não carregou agora.{" "}
+          <button type="button" onClick={() => void refetch()} className="e-link inline-flex min-h-[44px] items-center">Tentar novamente</button>
+        </p>
+      )}
+      {!isLoading && !isError && !recommendations.length && <p className="e-apoio mt-6">Não há bairros com dados suficientes para recomendar agora.</p>}
 
-      {/* Unit Score Integration */}
-      {unitScore && unitScore.total > 0 && (
-        <Card className="border-border mb-6">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3 mb-2">
-              <Lightbulb className="text-primary" size={18} />
-              <h4 className="font-display font-bold text-foreground text-sm">
-                Cruzamento: Perfil × Unidade
-              </h4>
-            </div>
-            <p className="text-sm text-muted-foreground font-body leading-relaxed">
-              {unitScore.pct >= 80
-                ? "A unidade que você avaliou tem score alto. Combinada com os bairros recomendados, o cenário é favorável para avançar."
-                : unitScore.pct >= 50
-                ? "A unidade tem pontos positivos, mas alguns critérios precisam de atenção. Revise os itens pendentes antes de decidir."
-                : "A unidade avaliada tem gaps importantes. Considere buscar uma unidade com melhor aderência ao perfil de short stay."
-              }
-            </p>
-            <div className="flex items-center gap-3 mt-3">
-              <div className="h-2 flex-1 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-primary rounded-full transition-all"
-                  style={{ width: `${unitScore.pct}%` }}
-                />
-              </div>
-              <span className="text-xs font-mono text-foreground font-semibold">{unitScore.total}/{unitScore.max}</span>
-            </div>
-          </CardContent>
-        </Card>
+      {recommendations.length > 0 && (
+        <TabelaNumerada
+          numero={1}
+          className="mt-8"
+          titulo={`${recommendations[0].bairro.bairro} é o bairro mais aderente ao seu perfil`}
+          unidade="Pontuação personalizada (0–100, critério interno); diária e ocupação da base do Radar; rentabilidade bruta da estimativa de mercado."
+          nota={<p>{rotuloFonteDiariaOcupacao(recommendations[0].bairro)}</p>}
+        >
+          <thead>
+            <tr>
+              <th scope="col" className={cn(TH, "w-10 text-right")}>Pos.</th>
+              <th scope="col" className={TH}>Bairro</th>
+              <th scope="col" className={cn(TH, "text-right")}>Pontos</th>
+              <th scope="col" className={cn(TH, "text-right")}>Diária média</th>
+              <th scope="col" className={cn(TH, "text-right")}>Ocupação</th>
+              <th scope="col" className={cn(TH, "hidden text-right sm:table-cell")}>Rentab. bruta</th>
+            </tr>
+          </thead>
+          <tbody>
+            {recommendations.map((rec, i) => <LinhaRecomendacao key={rec.bairro.bairro} rec={rec} rank={i + 1} bairros={bairros!} />)}
+          </tbody>
+        </TabelaNumerada>
       )}
 
-      {/* CTA to Intelligence */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <Link to="/mercado" className="flex-1">
-          <Button className="w-full" variant="default" size="lg">
-            <BarChart3 size={16} className="mr-2" />
-            Explorar Intelligence completo
-            <ExternalLink size={12} className="ml-2 opacity-60" />
+      {recommendations.length > 0 && (
+        <ol className="mt-8 grid gap-8 md:grid-cols-3">
+          {recommendations.map((rec, i) => <MotivosBairro key={rec.bairro.bairro} rec={rec} rank={i + 1} />)}
+        </ol>
+      )}
+
+      {unitScore && unitScore.total > 0 && (
+        <div className="mt-8 border-t border-foreground pt-4">
+          <p className="e-rotulo">Perfil × unidade avaliada</p>
+          <p className="e-apoio mt-1 max-w-[720px]">
+            {unitScore.pct >= 80
+              ? "A unidade que você avaliou tem score alto. Combinada com os bairros recomendados, o cenário é favorável para avançar."
+              : unitScore.pct >= 50
+              ? "A unidade tem pontos positivos, mas alguns critérios precisam de atenção. Revise os itens pendentes antes de decidir."
+              : "A unidade avaliada tem gaps importantes. Considere buscar uma unidade com melhor aderência ao perfil de short stay."}
+          </p>
+          <p className="e-legenda mt-1 tabular-nums">Score da unidade: {unitScore.total}/{unitScore.max} (critério interno)</p>
+        </div>
+      )}
+
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <Button asChild variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold">
+          <Link to="/mercado">Ver o mercado completo</Link>
+        </Button>
+        {recommendations[0] && (
+          <Button asChild variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold">
+            <Link to={linkProjecaoBairro(slugifyBairro(recommendations[0].bairro.bairro))}>Simular {recommendations[0].bairro.bairro}</Link>
           </Button>
-        </Link>
-        <a href="#simulador" className="flex-1">
-          <Button className="w-full" variant="outline" size="lg">
-            <Zap size={16} className="mr-2" />
-            Simular receita do bairro #1
-          </Button>
-        </a>
+        )}
+        <OrcamentoButton local="recomendacao" className="min-h-[44px] px-5 text-[15px] font-semibold" />
       </div>
-      <OrcamentoButton local="recomendacao" className="mt-6 min-h-[44px]" />
-    </SectionBlock>
-  );
-}
-
-function RecommendationCard({
-  rec, rank, bairros,
-}: { rec: Recommendation; rank: number; bairros: BairroAirbnb[] }) {
-  const profile = getBairroProfile(rec.bairro, bairros);
-  const medalColors = ["bg-amber-500", "bg-gray-400", "bg-amber-700"];
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: rank * 0.1 }}
-    >
-      <Card className={`border-border ${rank === 1 ? "ring-2 ring-primary/20 shadow-lg" : ""}`}>
-        <CardContent className="p-5">
-          <div className="flex items-start gap-4">
-            {/* Rank medal */}
-            <div className={`h-10 w-10 rounded-full ${medalColors[rank - 1]} flex items-center justify-center shrink-0 text-white font-display font-bold text-sm`}>
-              #{rank}
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <h4 className="font-display font-bold text-foreground text-lg">{rec.bairro.bairro}</h4>
-                <Badge className={`${profile.color} ${profile.textColor} font-body text-[10px]`}>
-                  {profile.label}
-                </Badge>
-                <Badge variant="outline" className="font-body text-[10px]">
-                  <span className={rec.gradeColor}>{rec.grade}</span> · {formatDecimal(rec.personalizedScore, 0)}pts
-                </Badge>
-              </div>
-
-              {/* Key metrics */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 my-3">
-                <MetricPill label="Rentabilidade" value={fmtPct(rec.bairro.yield_bruto_airbnb)} />
-                <MetricPill label="Ocupação" value={fmtPct(rec.bairro.ocupacao_media_studio)} />
-                <MetricPill label="ADR" value={fmtBRL(Number(rec.bairro.adr_medio_studio))} />
-                <MetricPill label="Liquidez" value={formatDecimal(Number(rec.bairro.score_liquidez), 0)} />
-              </div>
-              <p className="text-[11px] text-muted-foreground font-body mb-2">{rotuloFonteDiariaOcupacao(rec.bairro)}</p>
-
-              {/* Reasons */}
-              {rec.reasons.length > 0 && (
-                <div className="space-y-1 mb-2">
-                  {rec.reasons.slice(0, 3).map((r, i) => (
-                    <div key={i} className="flex items-start gap-2 text-sm font-body">
-                      <CheckCircle2 size={13} className="text-primary mt-0.5 shrink-0" />
-                      <span className="text-muted-foreground">{r}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Cautions */}
-              {rec.cautions.length > 0 && (
-                <div className="space-y-1">
-                  {rec.cautions.map((c, i) => (
-                    <div key={i} className="flex items-start gap-2 text-sm font-body">
-                      <AlertTriangle size={13} className="text-amber-500 mt-0.5 shrink-0" />
-                      <span className="text-muted-foreground">{c}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-}
-
-function MetricPill({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="bg-muted/50 rounded-lg px-3 py-2 text-center">
-      <p className="text-sm font-display font-bold text-foreground">{value}</p>
-      <p className="text-[10px] text-muted-foreground font-body">{label}</p>
     </div>
+  );
+}
+
+function LinhaRecomendacao({ rec, rank, bairros }: { rec: Recommendation; rank: number; bairros: BairroAirbnb[] }) {
+  const perfil = getBairroProfile(rec.bairro, bairros);
+  return (
+    <tr>
+      <td className={cn(TD_NUM, "text-tinta-70")}>{rank}</td>
+      <td className={TD}>
+        <Link to={bairroPath(rec.bairro.bairro)} className="font-semibold underline-offset-4 hover:underline">{rec.bairro.bairro}</Link>
+        <span className="e-legenda block">{perfil.label} · nota {rec.grade}</span>
+      </td>
+      <td className={cn(TD_NUM, "font-semibold")}>{formatDecimal(rec.personalizedScore, 0)}</td>
+      <td className={TD_NUM}>{formatBRL(Number(rec.bairro.adr_medio_studio))}</td>
+      <td className={TD_NUM}>{fmtPct(rec.bairro.ocupacao_media_studio)}</td>
+      <td className={cn(TD_NUM, "hidden sm:table-cell")}>{fmtPct(rec.bairro.yield_bruto_airbnb)}</td>
+    </tr>
+  );
+}
+
+function MotivosBairro({ rec, rank }: { rec: Recommendation; rank: number }) {
+  return (
+    <li className="min-w-0 border-t border-foreground pt-3">
+      <p className="e-rotulo"><span className="tabular-nums">{rank}</span> · {rec.bairro.bairro}</p>
+      {rec.reasons.length > 0 && (
+        <ul className="mt-2 space-y-1">
+          {rec.reasons.slice(0, 3).map((r) => <li key={r} className="e-apoio">{r}</li>)}
+        </ul>
+      )}
+      {rec.cautions.length > 0 && (
+        <ul className="mt-3 space-y-1">
+          {rec.cautions.map((c) => <li key={c} className="text-[15px] leading-[22px] text-magenta-700">Atenção: {c}</li>)}
+        </ul>
+      )}
+    </li>
   );
 }

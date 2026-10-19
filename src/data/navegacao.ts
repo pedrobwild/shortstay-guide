@@ -12,7 +12,7 @@ export interface LinkNavegacao {
 }
 
 export const LINKS_PUBLICOS: LinkNavegacao[] = [
-  { to: "/", label: "Guia", id: "guia" },
+  { to: "/", label: "Início", id: "guia" },
   { to: "/mercado", label: "Mercado", id: "mercado" },
   { to: "/mapa", label: "Mapa", id: "mapa" },
   { to: "/ranking", label: "Ranking", id: "ranking" },

@@ -12,10 +12,7 @@ import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import {
-  GitCompareArrows, MapPin, Ruler, Hammer, User, Sparkles, ArrowRight,
-  TrendingUp, Wallet, Percent, CalendarClock, Check, Minus,
-} from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useBairroData } from "@/hooks/useBairroData";
 import { avisoAmostraBairro, naturezaBairro } from "@/lib/radarUi";
 import type { BairroItem } from "@/data/guide-data";
@@ -85,13 +82,10 @@ export default function BwildVsDiySection({ controle }: { controle?: ControleCom
   return (
     <section className="space-y-5" onChangeCapture={trackSimulationUsed} onPointerDownCapture={trackSimulationUsed} onKeyDownCapture={trackSimulationUsed}>
       {!controle && <p className="text-sm text-muted-foreground">Hipótese comparativa: multiplicadores de diária e ocupação, teto de ocupação e gestão são premissas fixas, não desempenho observado. O valor do imóvel é uma premissa editável no campo abaixo.</p>}
-      {/* Header */}
+      {/* Cabeçalho (com controle externo, o título vem da tela) */}
       <div>
-        <h2 className={controle ? "flex items-center gap-2 font-display text-[22px] font-bold text-foreground" : "text-lg font-semibold text-foreground flex items-center gap-2"}>
-          <GitCompareArrows className="h-4 w-4 text-primary" />
-          Fazer sozinho vs. com a Bewild
-        </h2>
-        <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
+        {!controle && <h2 className="e-h3">Fazer sozinho vs. com a Bewild</h2>}
+        <p className="e-apoio mt-1 max-w-2xl">
           O mesmo studio, dois cenários: à esquerda, anunciado por conta própria, sem reforma
           profissional. À direita, reformado, decorado e operado pela Bewild. Veja quanto a mais o
           imóvel rende — já descontada a taxa de gestão.
@@ -100,8 +94,8 @@ export default function BwildVsDiySection({ controle }: { controle?: ControleCom
 
       {/* Inputs (com controle externo, só o resumo do que veio do formulário) */}
       {controle ? (
-        <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">Hipótese comparativa</span>, com o mesmo bairro, faixa de área e valor do imóvel da projeção:{" "}
+        <p className="e-legenda max-w-[820px]">
+          <span className="font-semibold text-foreground">Hipótese comparativa</span>, com o mesmo bairro, faixa de área e valor do imóvel da projeção:{" "}
           {selectedBairro.name} · {sizeKey} · {propertyValue > 0 ? `imóvel de ${brl(propertyValue)}` : "valor do imóvel não informado"}.
           Base de mercado: {formatDecimal(selectedBairro.avgOccupancy, 0)}% de ocupação · {brl(diariaPorMetragem(selectedBairro, sizeKey))}/noite{rotuloBase ? ` (${rotuloBase})` : ""}.
           Multiplicadores de diária e ocupação, teto de ocupação e gestão são premissas fixas, não desempenho observado.
@@ -112,7 +106,7 @@ export default function BwildVsDiySection({ controle }: { controle?: ControleCom
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="space-y-1">
               <Label className="text-[11px] text-muted-foreground flex items-center gap-1">
-                <MapPin className="h-3 w-3" /> Bairro
+                Bairro
               </Label>
               <Select value={selectedBairro.name} onValueChange={setBairroName}>
                 <SelectTrigger className="h-9 text-sm">
@@ -127,7 +121,7 @@ export default function BwildVsDiySection({ controle }: { controle?: ControleCom
             </div>
             <div className="space-y-1">
               <Label className="text-[11px] text-muted-foreground flex items-center gap-1">
-                <Ruler className="h-3 w-3" /> Faixa de área
+                Faixa de área
               </Label>
               <Select value={sizeKey} onValueChange={(v) => setSizeKey(v as SizeKey)}>
                 <SelectTrigger className="h-9 text-sm">
@@ -171,84 +165,70 @@ export default function BwildVsDiySection({ controle }: { controle?: ControleCom
       )}
 
       {/* Duas colunas: DIY vs Bewild */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         <ScenarioColumn
           scenario={diy}
           variant="diy"
-          icon={<User className="h-4 w-4" />}
           subtitle="Sem reforma profissional · auto-gestão"
           comparison={comparison}
         />
         <ScenarioColumn
           scenario={bwild}
           variant="bwild"
-          icon={<Hammer className="h-4 w-4" />}
           subtitle={`Reforma + decoração + operação · gestão ${formatDecimal(bwild.managementPct)}%`}
           comparison={comparison}
         />
       </div>
 
-      {/* Delta em destaque */}
-      <Card className="border-primary/40 bg-primary/[0.05]">
-        <CardContent className="p-5 space-y-4">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-semibold text-foreground">
-              O que a Bewild adiciona — por ano
-            </h3>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <DeltaCard
-              icon={<Wallet className="h-4 w-4" />}
-              label="Receita líquida incremental"
-              value={`+${brl(delta.netRevenueBrl)}`}
-              hint={delta.netRevenueUpliftPct > 0
-                ? `+${formatDecimal(delta.netRevenueUpliftPct, 0)}% vs. fazer sozinho`
-                : "no período de 12 meses"}
-              emphasis
-            />
-            <DeltaCard
-              icon={<Percent className="h-4 w-4" />}
-              label="Ocupação adicional"
-              value={`+${formatDecimal(delta.occupancyPctPoints, 1)} pp`}
-              hint={`+${brl(delta.adrBrl)} na diária média`}
-            />
-            <DeltaCard
-              icon={<CalendarClock className="h-4 w-4" />}
-              label="Payback mais curto"
-              value={
-                delta.paybackYearsShorter !== null
-                  ? `−${formatDecimal(Math.abs(delta.paybackYearsShorter), 1)} anos`
-                  : "—"
-              }
-              hint={
-                delta.paybackYearsShorter !== null
-                  ? `${(bwild.paybackYears == null ? undefined : formatDecimal(bwild.paybackYears, 1))} anos vs. ${(diy.paybackYears == null ? undefined : formatDecimal(diy.paybackYears, 1))} anos`
-                  : "Informe o valor do imóvel"
-              }
-            />
-          </div>
+      {/* Diferença por ano */}
+      <div className="border-t border-foreground pt-3">
+        <h3 className="e-rotulo">O que a Bewild adiciona, por ano (hipótese)</h3>
+        <dl className="mt-3 grid grid-cols-1 gap-6 sm:grid-cols-3">
+          <DeltaCard
+            label="Receita líquida a mais (R$/ano)"
+            value={`+${brl(delta.netRevenueBrl)}`}
+            hint={delta.netRevenueUpliftPct > 0
+              ? `+${formatDecimal(delta.netRevenueUpliftPct, 0)}% contra fazer sozinho`
+              : "no período de 12 meses"}
+          />
+          <DeltaCard
+            label="Ocupação a mais (p.p.)"
+            value={`+${formatDecimal(delta.occupancyPctPoints, 1)} p.p.`}
+            hint={`+${brl(delta.adrBrl)} na diária média`}
+          />
+          <DeltaCard
+            label="Prazo de retorno mais curto (anos)"
+            value={
+              delta.paybackYearsShorter !== null
+                ? `−${formatDecimal(Math.abs(delta.paybackYearsShorter), 1)}`
+                : "—"
+            }
+            hint={
+              delta.paybackYearsShorter !== null
+                ? `${(bwild.paybackYears == null ? undefined : formatDecimal(bwild.paybackYears, 1))} anos contra ${(diy.paybackYears == null ? undefined : formatDecimal(diy.paybackYears, 1))} anos`
+                : "Informe o valor do imóvel"
+            }
+          />
+        </dl>
 
-          {/* CTA contextual */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-1">
-            <p className="text-xs text-muted-foreground max-w-md">
-              Hipóteses de comparação, não resultados de mercado ou do case de Pinheiros
-              (ocupação +{formatDecimal(((BWILD_VS_DIY_ASSUMPTIONS.bwild.occupancyMultiplier / BWILD_VS_DIY_ASSUMPTIONS.diy.occupancyMultiplier - 1) * 100), 0)}% e diária premium por reforma/decoração).
-            </p>
-            <OrcamentoButton local="recomendacao" className="min-h-[44px] shrink-0" />
-          </div>
-        </CardContent>
-      </Card>
+        {/* CTA contextual */}
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="e-legenda max-w-md">
+            Hipóteses de comparação, não resultados de mercado nem de um case
+            (ocupação +{formatDecimal(((BWILD_VS_DIY_ASSUMPTIONS.bwild.occupancyMultiplier / BWILD_VS_DIY_ASSUMPTIONS.diy.occupancyMultiplier - 1) * 100), 0)}% e diária premium por reforma e decoração).
+          </p>
+          <OrcamentoButton local="recomendacao" className="min-h-[44px] shrink-0 px-5 text-[15px] font-semibold" />
+        </div>
+      </div>
     </section>
   );
 }
 
 function ScenarioColumn({
-  scenario, variant, icon, subtitle, comparison,
+  scenario, variant, subtitle, comparison,
 }: {
   scenario: ScenarioResult;
   variant: "diy" | "bwild";
-  icon: React.ReactNode;
   subtitle: string;
   comparison: ReturnType<typeof buildBwildVsDiyComparison>;
 }) {
@@ -264,9 +244,9 @@ function ScenarioColumn({
     { key: "margin", label: "Margem líquida", value: `${formatDecimal(scenario.netMarginPct, 0)}%`, raw: scenario.netMarginPct },
     {
       key: "payback",
-      label: "Payback",
+      label: "Prazo estimado de retorno",
       value: scenario.paybackYears !== null ? `${formatDecimal(scenario.paybackYears, 1)} anos` : "—",
-      // payback: menor é melhor → invertemos o sinal para o cálculo de "vencedor"
+      // menor é melhor → invertemos o sinal para o cálculo de "vencedor"
       raw: scenario.paybackYears !== null ? -scenario.paybackYears : -Infinity,
     },
   ];
@@ -281,76 +261,48 @@ function ScenarioColumn({
   };
 
   return (
-    <Card
-      className={isBwild
-        ? "border-primary/40 bg-primary/[0.04]"
-        : "border-border"}
-    >
-      <CardContent className="p-4 space-y-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className={isBwild ? "text-primary" : "text-muted-foreground"}>{icon}</span>
-            <div>
-              <h3 className="text-sm font-semibold text-foreground">{scenario.label}</h3>
-              <p className="text-[11px] text-muted-foreground">{subtitle}</p>
-            </div>
-          </div>
-          <Badge
-            variant={isBwild ? "default" : "outline"}
-            className="text-[10px] shrink-0"
-          >
-            {isBwild ? "Recomendado" : "Referência"}
-          </Badge>
+    <div className={cn("min-w-0 pt-3", isBwild ? "border-t-[3px] border-ciano" : "border-t border-foreground")}>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="e-h3">{scenario.label}</h3>
+          <p className="e-legenda">{subtitle}</p>
         </div>
+        <span className="e-tag e-tag-hipotese shrink-0">{isBwild ? "Cenário Bewild" : "Referência"}</span>
+      </div>
 
-        <div className="divide-y divide-border/60">
-          {rows.map((r) => {
-            const isWinner = r.raw > otherRaw[r.key];
-            return (
-              <div key={r.key} className="flex items-center justify-between gap-2 py-2">
-                <span className="text-xs text-muted-foreground">{r.label}</span>
-                <span className="flex items-center gap-1.5">
-                  <span className={`text-sm font-medium ${isBwild ? "text-foreground" : "text-foreground/90"}`}>
-                    {r.value}
-                  </span>
-                  {/* Indicador textual + ícone (não depende de cor) */}
-                  {isWinner ? (
-                    <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-primary">
-                      <Check className="h-3 w-3" /> melhor
-                    </span>
-                  ) : (
-                    <Minus className="h-3 w-3 text-muted-foreground/40" aria-label="menor" />
-                  )}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
+      <dl className="mt-2">
+        {rows.map((r) => {
+          const isWinner = r.raw > otherRaw[r.key];
+          return (
+            <div key={r.key} className="e-fina flex items-center justify-between gap-2 border-b py-2">
+              <dt className="text-[15px] text-tinta-78">{r.label}</dt>
+              <dd className="m-0 flex items-baseline gap-1.5">
+                <span className={cn("tabular-nums text-[15px]", isWinner && "font-semibold")}>{r.value}</span>
+                {/* Indicador textual (não depende de cor) */}
+                {isWinner ? <span className="text-[12px] text-ciano-700">melhor</span> : <span className="sr-only">menor</span>}
+              </dd>
+            </div>
+          );
+        })}
+      </dl>
+    </div>
   );
 }
 
 function DeltaCard({
-  icon, label, value, hint, emphasis,
+  label, value, hint,
 }: {
-  icon: React.ReactNode;
   label: string;
   value: string;
   hint: string;
-  emphasis?: boolean;
 }) {
   return (
-    <div className={`rounded-lg border p-3 space-y-1 ${emphasis ? "border-primary/40 bg-background" : "border-border bg-background/60"}`}>
-      <div className="flex items-center gap-1.5 text-muted-foreground">
-        {icon}
-        <span className="text-[11px]">{label}</span>
-      </div>
-      <p className={`text-lg font-bold ${emphasis ? "text-primary" : "text-foreground"} flex items-center gap-1`}>
-        <TrendingUp className="h-4 w-4 shrink-0" aria-hidden />
-        {value}
-      </p>
-      <p className="text-[11px] text-muted-foreground">{hint}</p>
+    <div className="min-w-0">
+      <dt className="e-rotulo">{label}</dt>
+      <dd className="m-0">
+        <span className="e-numero-sm mt-1 block">{value}</span>
+        <span className="e-legenda mt-1 block">{hint}</span>
+      </dd>
     </div>
   );
 }

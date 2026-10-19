@@ -144,6 +144,7 @@ export default function ExploradorBairros({
   rotuloDestaque,
   onLimparDestaque,
   pedidoCentralizar,
+  embutido = false,
 }: {
   /** Bairros em destaque no mapa (ex.: perto de um evento ou do perfil escolhido nas leituras abaixo). */
   destaque?: string[];
@@ -151,6 +152,11 @@ export default function ExploradorBairros({
   onLimparDestaque?: () => void;
   /** Seleção feita fora do mapa (leituras abaixo): centraliza o mapa no bairro a cada pedido. */
   pedidoCentralizar?: { nome: string; n: number } | null;
+  /**
+   * Dentro de uma seção do /mapa (redesign "Estudo aberto"): sem o H1 próprio (a seção
+   * já tem título), sem as margens da página e com o mapa mais baixo no celular.
+   */
+  embutido?: boolean;
 }) {
   const { bairros, isLoading, offline, recarregar } = useBairroData();
   const [params, setParams] = useSearchParams();
@@ -285,15 +291,19 @@ export default function ExploradorBairros({
   );
 
   return (
-    <div className="lg:mx-auto lg:max-w-[1280px] lg:px-10 lg:pb-14 lg:pt-8">
+    <div className={embutido ? "min-w-0" : "lg:mx-auto lg:max-w-[1280px] lg:px-10 lg:pb-14 lg:pt-8"}>
       {/* Cabeçalho (desktop); no celular o mapa ocupa a tela e o título fica só para leitores de tela */}
-      <div className="sr-only lg:not-sr-only lg:mb-5 lg:flex lg:items-end lg:justify-between lg:gap-6">
-        <div>
-          <h1 className="mb-1.5 font-display text-[40px] font-bold leading-[1.1] text-foreground">Mapa de bairros</h1>
-          <p className="text-base text-muted-foreground">Selecione um bairro para ver diária, ocupação, amostra e fonte.</p>
+      {embutido ? (
+        <p className="e-legenda mb-3 hidden lg:block" aria-live="polite">{contador}</p>
+      ) : (
+        <div className="sr-only lg:not-sr-only lg:mb-5 lg:flex lg:items-end lg:justify-between lg:gap-6">
+          <div>
+            <h1 className="mb-1.5 font-display text-[40px] font-bold leading-[1.1] text-foreground">Mapa de bairros</h1>
+            <p className="text-base text-muted-foreground">Selecione um bairro para ver diária, ocupação, amostra e fonte.</p>
+          </div>
+          <span className="shrink-0 text-sm text-muted-foreground" aria-live="polite">{contador}</span>
         </div>
-        <span className="shrink-0 text-sm text-muted-foreground" aria-live="polite">{contador}</span>
-      </div>
+      )}
 
       {/* Barra de filtros (desktop), entre réguas finas */}
       <div className="hidden flex-wrap items-center gap-3 border-y border-border py-3 lg:mb-4 lg:flex">
@@ -312,7 +322,7 @@ export default function ExploradorBairros({
 
       <div className="lg:grid lg:h-[680px] lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-6">
         {/* Área do mapa: tela inteira no celular */}
-        <div ref={areaRef} className="relative h-[calc(100svh-120px)] min-h-[480px] overflow-hidden lg:h-full lg:min-h-0 lg:rounded-md lg:border lg:border-border">
+        <div ref={areaRef} className={cn("relative overflow-hidden lg:h-full lg:min-h-0 lg:rounded-md lg:border lg:border-border", embutido ? "h-[78svh] min-h-[520px] border border-border" : "h-[calc(100svh-120px)] min-h-[480px]")}>
           <MapaRadar
             bairros={bairros}
             selecionado={selecionado?.name ?? null}

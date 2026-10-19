@@ -1,122 +1,112 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Check, Copy, MessageCircle, Plus, Share2, X } from "lucide-react";
-import AppNavbar from "@/components/AppNavbar";
+import { Check, Copy, Share2 } from "lucide-react";
 import OrcamentoButton from "@/components/OrcamentoButton";
-import RodapeRadar from "@/components/RodapeRadar";
-import FonteBairro from "@/components/guide/FonteBairro";
-import FaixaQuartis from "@/components/guide/FaixaQuartis";
+import NovaAba from "@/components/NovaAba";
 import { VariacaoColetaBairro, useVariacoesVisiveis } from "@/components/guide/VariacaoColeta";
-import NaturezaTag from "@/components/radar/NaturezaTag";
+import { CabecalhoTela, Container, PaginaEstudo, Secao } from "@/components/estudo/Estrutura";
+import { Figura, TabelaNumerada, TD, TD_NUM, TH } from "@/components/estudo/Figura";
+import { NotaAmostra, TagBairro, TEXTO_APROXIMACAO } from "@/components/estudo/Natureza";
+import { AvisoReceita, FormulaReceita } from "@/components/estudo/Numeros";
+import SeletorBairro from "@/components/estudo/SeletorBairro";
+import FaixasDiaria, { LegendaFaixas } from "@/components/estudo/graficos/FaixasDiaria";
 import AvisoBase from "@/components/radar/AvisoBase";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
-import { BairroProvider, useBairroData } from "@/hooks/useBairroData";
+import { BairroProvider } from "@/hooks/useBairroData";
+import { useBaseEstudo } from "@/hooks/useBaseEstudo";
+import { useBairroSelecionado } from "@/hooks/useBairroSelecionado";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
-import { receitaMensalReferencia } from "@/data/bairrosCurados";
 import { COLETA_GUESTFAVORITES } from "@/data/fontesGuia";
 import type { BairroItem } from "@/data/guide-data";
 import { linkProjecaoBairro } from "@/data/navegacao";
-import { formatBRL, formatDecimal, formatPercent } from "@/lib/numberFormat";
-import {
-  COR_SERIE, avisoAmostraBairro, bairrosNaFrase, diferencasAteOMaior, fimEscalaQuartis, marcaNatureza, naturezaBairro, textoSemQuartis, type NaturezaBairro,
-} from "@/lib/radarUi";
-import { slugifyBairro } from "@/lib/seo";
+import { periodoPrincipal, receitaDe, resumoColetas, temAmostraPequena } from "@/lib/estudo";
+import { achadoComparacao, faixaMaisLarga, trocarNaComparacao, vizinhosMaisProximos } from "@/lib/estudoMapa";
+import { formatBRL, formatDecimal } from "@/lib/numberFormat";
+import { rotuloReferenciaBewild } from "@/lib/radarBase";
+import { bairrosNaFrase, diferencasAteOMaior, fonteCurtaBairro, marcaNatureza, naturezaBairro, textoSemQuartis, type BairroBase } from "@/lib/radarUi";
+import { bairroPath, slugifyBairro } from "@/lib/seo";
 import { MAX_COMPARAR, caminhoComparar, lerComparar } from "@/lib/comparar";
-import { useBairroAtual } from "@/lib/bairroAtual";
 import { cn } from "@/lib/utils";
 
 /**
- * Compara até 3 bairros lado a lado com os números da base aprovada
- * (diária, ocupação, quartis, anúncios e receita de referência = diária × 30 × ocupação),
- * cada um com sua fonte. A seleção vive na URL (?b=slug,slug) para ser compartilhada.
- * Desktop: tabela com rótulos à esquerda; celular: leitura por indicador.
+ * /comparar no redesign "Estudo aberto": até 3 bairros lado a lado com os números
+ * da base aprovada. Tab. 1 com 8 linhas (diária, quartis, ocupação, receita de
+ * referência, amostra e natureza/fonte), o maior valor de cada linha em negrito e a
+ * diferença até ele; Fig. 1 com as faixas de diária no mesmo eixo (R$ 0 a 600).
+ * A seleção vive na URL (?b=slug,slug) para ser compartilhada.
  */
 export default function CompararBairros() {
   return (
     <BairroProvider>
-      <div className="min-h-screen bg-background">
-        <AppNavbar />
-        <CompararConteudo />
-        <RodapeRadar />
-      </div>
+      <PaginaEstudo>
+        <Comparar />
+      </PaginaEstudo>
     </BairroProvider>
   );
 }
 
 type Linha = {
   rotulo: string;
-  ajuda?: string;
+  unidade: string;
   valor: (b: BairroItem) => number | null;
   texto: (v: number | null) => string;
-  /** Diferença até o maior da linha: por extenso (tabela; `de`/`que` vêm de bairrosNaFrase) e curta, com sinal (celular). */
+  /** Diferença até o maior da linha, por extenso (`de`/`que` vêm de bairrosNaFrase). */
   diferenca: (d: number, de: string, que: string) => string;
+  /** Diferença curta, com sinal (celular). */
   curta: (d: number) => string;
 };
+
+const quartil = (i: 0 | 1 | 2) => (b: BairroItem) => b.dailyQuartiles?.[i] ?? null;
+const reais = (v: number | null) => (v == null ? "—" : formatBRL(v));
+const abaixoEmReais = (d: number, de: string) => `${formatBRL(d)} abaixo ${de}`;
+
 const LINHAS: Linha[] = [
+  { rotulo: "Diária média", unidade: "R$", valor: (b) => b.dailyAvg, texto: reais, diferenca: abaixoEmReais, curta: (d) => formatBRL(-d) },
+  { rotulo: "P25 da diária", unidade: "R$ · 25% mais baratos", valor: quartil(0), texto: reais, diferenca: abaixoEmReais, curta: (d) => formatBRL(-d) },
+  { rotulo: "Mediana da diária", unidade: "R$", valor: quartil(1), texto: reais, diferenca: abaixoEmReais, curta: (d) => formatBRL(-d) },
+  { rotulo: "P75 da diária", unidade: "R$ · 25% mais caros", valor: quartil(2), texto: reais, diferenca: abaixoEmReais, curta: (d) => formatBRL(-d) },
   {
-    rotulo: "Diária média (ADR)", valor: (b) => b.dailyAvg, texto: (v) => (v == null ? "—" : formatBRL(v)),
-    diferenca: (d, de) => `${formatBRL(d)} abaixo ${de}`, curta: (d) => formatBRL(-d),
-  },
-  {
-    rotulo: "Ocupação média", valor: (b) => b.avgOccupancy, texto: (v) => (v == null ? "—" : formatPercent(v, 0)),
+    rotulo: "Ocupação média", unidade: "%", valor: (b) => b.avgOccupancy, texto: (v) => (v == null ? "—" : `${formatDecimal(v, 0)}%`),
     diferenca: (d, de) => `${formatDecimal(d, 0)} p.p. abaixo ${de}`, curta: (d) => `−${formatDecimal(d, 0)} p.p.`,
   },
   {
-    rotulo: "Anúncios na amostra", ajuda: "tamanho da amostra da fonte", valor: (b) => b.activeListings, texto: (v) => (v == null ? "—" : formatDecimal(v, 0)),
-    diferenca: (d, _de, que) => `${formatDecimal(d, 0)} anúncios a menos ${que}`, curta: (d) => `−${formatDecimal(d, 0)}`,
+    rotulo: "Receita de referência", unidade: "R$/mês · d × 30 × o, antes de custos", valor: (b) => receitaDe(b), texto: reais,
+    diferenca: abaixoEmReais, curta: (d) => formatBRL(-d),
   },
   {
-    rotulo: "Receita mensal de referência", ajuda: "diária × 30 × ocupação, antes de custos", valor: (b) => receitaMensalReferencia(b), texto: (v) => (v == null ? "—" : formatBRL(v)),
-    diferenca: (d, de) => `${formatBRL(d)} abaixo ${de}`, curta: (d) => formatBRL(-d),
+    rotulo: "Anúncios na amostra", unidade: "n", valor: (b) => (naturezaBairro(b) === "observado" ? b.activeListings : null),
+    texto: (v) => (v == null ? "sem amostra própria" : formatDecimal(v, 0)),
+    diferenca: (d, _de, que) => `${formatDecimal(d, 0)} anúncios a menos ${que}`, curta: (d) => `−${formatDecimal(d, 0)}`,
   },
 ];
 
-/** Marca curta ao lado do nome no celular: estimativa, aproximação ou amostra pequena (Mooca). */
-function marcaBairro(b: BairroItem): string | null {
-  return marcaNatureza(b) ?? (avisoAmostraBairro(b) ? "amostra pequena" : null);
+/** Bairros padrão sem ?b=: o bairro selecionado (?bairro=, guardado ou Pinheiros) e os dois mais próximos no mapa. */
+function padraoComparacao(bairros: BairroItem[], selecionado: BairroItem | null): string[] {
+  if (!selecionado) return bairros.slice(0, MAX_COMPARAR).map((b) => slugifyBairro(b.name));
+  const vizinhos = vizinhosMaisProximos(bairros, selecionado.name, MAX_COMPARAR - 1);
+  return [selecionado, ...vizinhos].map((b) => slugifyBairro(b.name));
 }
 
-/** Barra proporcional ao maior valor da linha, na cor da série (estimativa listrada em âmbar, aproximação em azul). */
-function Barra({ fracao, serie, natureza, alto = 6 }: { fracao: number; serie: number; natureza: NaturezaBairro; alto?: 6 | 8 }) {
-  const listrada = natureza === "estimativa" ? "bg-estimativa-listrada" : natureza === "aproximacao" ? "bg-aproximacao-listrada" : null;
-  return (
-    <div className="rounded-full bg-trilho" style={{ height: alto }} aria-hidden="true">
-      <div
-        className={cn("h-full rounded-full transition-[width] duration-300", listrada)}
-        style={{ width: `${(Math.max(0, Math.min(1, fracao)) * 100).toFixed(1)}%`, background: listrada ? undefined : COR_SERIE[serie] }}
-      />
-    </div>
-  );
-}
-
-function CompararConteudo() {
-  const { bairros, isLoading, offline, recarregar } = useBairroData();
+function Comparar() {
+  const { bairros, isLoading, offline, recarregar } = useBaseEstudo();
+  const { bairro: bairroSelecionado } = useBairroSelecionado(bairros, { naUrl: false });
   const [params, setParams] = useSearchParams();
-  const [escolhendo, setEscolhendo] = useState(false);
   const [compartilharAberto, setCompartilharAberto] = useState(false);
   const [copiado, setCopiado] = useState(false);
   const variacoes = useVariacoesVisiveis();
 
   const slugsDisponiveis = useMemo(() => bairros.map((b) => slugifyBairro(b.name)), [bairros]);
-  const pedidos = lerComparar(params.get("b"), slugsDisponiveis);
-  // Sem seleção na URL, começa pelo bairro atual da pessoa (quando há) e completa com os primeiros da base.
-  const bairroAtual = useBairroAtual();
-  const slugs = params.get("b") === null
-    ? [...(bairroAtual && slugsDisponiveis.includes(bairroAtual.slug) ? [bairroAtual.slug] : []), ...slugsDisponiveis.filter((s) => s !== bairroAtual?.slug)].slice(0, MAX_COMPARAR)
-    : pedidos;
+  const slugs = params.get("b") === null ? padraoComparacao(bairros, bairroSelecionado) : lerComparar(params.get("b"), slugsDisponiveis);
   const selecionados = slugs
     .map((s) => bairros.find((b) => slugifyBairro(b.name) === s))
     .filter((b): b is BairroItem => Boolean(b));
-  const disponiveis = bairros.filter((b) => !slugs.includes(slugifyBairro(b.name)));
-  const vagas = Array.from({ length: MAX_COMPARAR }, (_, i) => selecionados[i] ?? null);
-  const fimEscala = fimEscalaQuartis(selecionados);
   const temVariacao = selecionados.some((b) => variacoes.some((v) => v.bairro === b.name));
 
-  const atualizar = (novos: string[]) => setParams({ b: novos.join(",") }, { replace: true });
-  const adicionar = (b: BairroItem) => { atualizar([...slugs, slugifyBairro(b.name)].slice(0, MAX_COMPARAR)); setEscolhendo(false); };
+  const atualizar = (novos: string[]) => setParams({ b: novos.join(",") }, { replace: true, preventScrollReset: true });
+  const trocar = (vaga: number, nome: string) => atualizar(trocarNaComparacao(slugs, vaga, slugifyBairro(nome), MAX_COMPARAR));
   const remover = (b: BairroItem) => atualizar(slugs.filter((s) => s !== slugifyBairro(b.name)));
 
   const link = () => `${window.location.origin}${caminhoComparar(slugs)}`;
@@ -142,269 +132,217 @@ function CompararConteudo() {
   };
   const linhasCalculadas = LINHAS.map((l) => {
     const brutos = selecionados.map((b) => l.valor(b));
-    const valores = brutos.map((v) => v ?? 0);
-    const maior = Math.max(1, ...valores);
     // Diferença de cada bairro até o maior valor da linha (só com dois ou mais valores). O nome de
-    // quem tem o maior leva a marca da natureza ("Brooklin (aproximação)", "Consolação (estimativa)").
+    // quem tem o maior leva a marca da natureza ("Brooklin (aproximação)").
     const diferencas = diferencasAteOMaior(selecionados.map((b, i) => ({ nome: b.name, valor: brutos[i] })));
     const maiores = diferencas.find((d) => d)?.maiores ?? null;
     const frase = (d: number) => (maiores ? l.diferenca(d, bairrosNaFrase(maiores, "de", marcaDoBairro), bairrosNaFrase(maiores, "que", marcaDoBairro)) : "");
-    return { ...l, valores, maior, diferencas, maiores, frase };
+    return { ...l, brutos, diferencas, maiores, frase };
   });
 
-  const botaoAdicionar = selecionados.length < MAX_COMPARAR && disponiveis.length > 0;
-  // Com bairros escolhidos, a comparação aparece já com a base de reserva (mesmos números aprovados)
-  // enquanto a base do Radar carrega; o esqueleto só ocupa o lugar quando ainda não há seleção.
-  const mostrarComparacao = selecionados.length > 0;
+  const achado = achadoComparacao(selecionados.map((b) => ({ nome: b.name, valor: receitaDe(b) })));
+  const comMarca = (nome: string) => { const m = marcaDoBairro(nome); return m ? `${nome} (${m})` : nome; };
+  const titulo: ReactNode =
+    achado.tipo === "maior" ? <>{achado.maiores.map(comMarca).join(" e ")} {achado.maiores.length > 1 ? "têm" : "tem"} a maior receita de referência: {formatBRL(achado.valor)} por mês, {formatBRL(achado.diferenca)} acima {bairrosNaFrase([achado.menor], "de", marcaDoBairro)}</>
+    : achado.tipo === "empate" ? <>{achado.nomes.map(comMarca).join(" e ")} têm a mesma receita de referência: {formatBRL(achado.valor)} por mês</>
+    : achado.tipo === "unico" ? <>{comMarca(achado.nome)}: receita de referência de {formatBRL(achado.valor)} por mês. Escolha mais bairros para comparar</>
+    : "Escolha até três bairros para comparar";
+  const larga = faixaMaisLarga(selecionados);
+  const temAprox = selecionados.some((b) => naturezaBairro(b) !== "observado");
+  const comAmostraPequena = selecionados.filter(temAmostraPequena);
 
   return (
-    <main id="conteudo" tabIndex={-1} className="mx-auto max-w-[1280px] px-4 pb-16 pt-5 md:px-10 md:pt-10">
-      <h1 className="mb-1.5 font-display text-[28px] font-bold leading-[1.1] text-foreground md:mb-2 md:text-[40px]">Comparar bairros</h1>
-      <p className="mb-4 max-w-[680px] text-sm text-muted-foreground md:mb-6 md:text-base">
-        <span className="md:hidden">Até {MAX_COMPARAR} bairros. Cada número com a sua fonte.</span>
-        <span className="hidden md:inline">Escolha até {MAX_COMPARAR} bairros e veja diária, ocupação e faixa de preço lado a lado, cada número com a sua fonte.</span>
-      </p>
-
-      {/* Seleção: chips com remover, adicionar e compartilhar */}
-      <div className="mb-3 flex flex-wrap items-center gap-1.5 md:gap-2">
-        {selecionados.map((b, i) => (
-          <span key={b.name} className="inline-flex min-h-[44px] items-center gap-0.5 rounded-[22px] border border-input bg-card pl-3 pr-1 text-sm font-medium text-foreground md:pl-4 md:text-[15px]">
-            <span className="mr-1.5 h-2 w-2 shrink-0 rounded-full md:hidden" style={{ background: COR_SERIE[i] }} aria-hidden="true" />
-            {b.name}
-            <button type="button" onClick={() => remover(b)} className="inline-flex h-9 w-9 items-center justify-center rounded-full text-foreground-medium transition-colors hover:bg-secondary" aria-label={`Remover ${b.name}`}>
-              <X className="h-4 w-4" />
-            </button>
-          </span>
-        ))}
-        {botaoAdicionar && (
-          <button
-            type="button"
-            onClick={() => setEscolhendo((v) => !v)}
-            aria-expanded={escolhendo}
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-[22px] border border-dashed border-serie-3 px-4 text-sm font-semibold text-primary transition-colors hover:bg-accent-light md:text-[15px]"
-          >
-            <Plus className="h-4 w-4" aria-hidden="true" /><span className="md:hidden">Adicionar</span><span className="hidden md:inline">Adicionar bairro</span>
-          </button>
-        )}
-        <span className="ml-1 text-sm text-muted-foreground" aria-live="polite">{selecionados.length} de {MAX_COMPARAR}</span>
+    <>
+      <CabecalhoTela
+        rotulo={`Comparar · até ${MAX_COMPARAR} bairros de São Paulo`}
+        titulo={titulo}
+        lead="Diária, quartis, ocupação e amostra lado a lado, com a fonte de cada bairro. Em cada linha, o maior valor está em negrito e os demais mostram a diferença até ele."
+      >
+        <div className="grid gap-4 sm:grid-cols-3 sm:gap-6">
+          {Array.from({ length: MAX_COMPARAR }, (_, i) => {
+            const b = selecionados[i] ?? null;
+            return (
+              <div key={i} className="min-w-0">
+                <SeletorBairro
+                  rotulo={`Bairro ${i + 1}`}
+                  bairros={bairros}
+                  valor={b?.name ?? null}
+                  incluirVazio={b ? undefined : "Escolher bairro"}
+                  onChange={(nome) => trocar(i, nome)}
+                />
+                {b && selecionados.length > 1 && (
+                  <button type="button" onClick={() => remover(b)} className="e-link inline-flex min-h-[44px] items-center text-[13px]" aria-label={`Remover ${b.name} da comparação`}>
+                    Remover
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
         {selecionados.length > 0 && (
-          <Button variant="outline" className="ml-auto hidden min-h-[44px] px-4 text-[15px] font-semibold md:inline-flex" onClick={() => void compartilhar()}>
+          <Button variant="outline" className="mt-4 min-h-[44px] px-5 text-[15px] font-semibold" onClick={() => void compartilhar()}>
             <Share2 className="h-4 w-4" aria-hidden="true" />Compartilhar comparação
           </Button>
         )}
-      </div>
-      {escolhendo && (
-        <div className="mb-3 flex flex-wrap gap-1.5 rounded-lg border border-border bg-card p-3">
-          {disponiveis.map((b) => (
-            <button key={b.name} type="button" onClick={() => adicionar(b)} className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-background px-3.5 text-sm font-medium text-foreground transition-colors hover:bg-accent-light">
-              {b.name}
-              {marcaNatureza(b) && <span className={cn("text-xs font-medium", naturezaBairro(b) === "aproximacao" ? "text-accent-text" : "text-estimate-text")}>{marcaNatureza(b)}</span>}
-              {avisoAmostraBairro(b) && <span className="text-xs font-medium text-estimate-text">amostra pequena</span>}
-              <span className="tabular-nums text-muted-foreground">{formatBRL(receitaMensalReferencia(b))}</span>
-            </button>
-          ))}
-        </div>
-      )}
+      </CabecalhoTela>
 
       {offline && (
-        <AvisoBase className="mt-4" onTentar={recarregar}>
-          Não foi possível carregar a base do Radar. Mostrando a reserva offline (coleta de {COLETA_GUESTFAVORITES}).
-        </AvisoBase>
+        <Container className="mb-6">
+          <AvisoBase tom="aviso" onTentar={recarregar}>A base do Radar não respondeu agora. Mostrando a reserva aprovada (coleta de {COLETA_GUESTFAVORITES}); nenhum número foi alterado.</AvisoBase>
+        </Container>
       )}
 
-      {/* Estados */}
-      {isLoading && selecionados.length === 0 && (
-        <div aria-busy="true" aria-label="Carregando bairros" className="mt-6 grid gap-4 md:grid-cols-[180px_repeat(3,minmax(0,1fr))] lg:grid-cols-[240px_repeat(3,minmax(0,1fr))]">
-          <div className="hidden md:block" />
-          {[0, 1, 2].map((i) => <div key={i} className="h-[200px] rounded-md bg-secondary md:h-[420px]" />)}
-        </div>
-      )}
-      {!isLoading && selecionados.length === 0 && (
-        <div className="mt-6 rounded-lg border border-dashed border-input p-12 text-center text-muted-foreground">Nenhum bairro escolhido. Use “Adicionar bairro” para começar.</div>
-      )}
+      <Container>
+        {isLoading && selecionados.length === 0 && <p className="e-apoio py-10" aria-busy="true">Carregando os bairros…</p>}
+        {!isLoading && selecionados.length === 0 && (
+          <p className="e-apoio e-fina border-y py-10">Nenhum bairro escolhido. Use os seletores acima para começar.</p>
+        )}
 
-      {/* Desktop/tablet: tabela com rótulos à esquerda */}
-      {mostrarComparacao && (
-        <div role="table" aria-label="Comparação de bairros" className="mt-6 hidden rounded-md border border-border bg-card md:block">
-          <div role="row" className="grid grid-cols-[180px_repeat(3,minmax(0,1fr))] border-b-2 border-foreground lg:grid-cols-[240px_repeat(3,minmax(0,1fr))]">
-            <div role="columnheader" className="self-end p-5 text-[13px] text-muted-foreground">Indicador</div>
-            {vagas.map((b, i) => (
-              <div key={b?.name ?? `vaga-${i}`} role="columnheader" className="min-w-0 border-l border-border p-5">
-                {b ? (
-                  <>
-                    <h2 className="mb-2 font-display text-2xl font-bold leading-[1.15] text-foreground">{b.name}</h2>
-                    <NaturezaTag tipo={naturezaBairro(b)} />
-                    <div className="mt-1.5 text-xs text-muted-foreground"><FonteBairro nome={b.name} semNatureza /></div>
-                  </>
-                ) : botaoAdicionar ? (
-                  <button type="button" onClick={() => setEscolhendo(true)} className="inline-flex min-h-[72px] w-full items-center justify-center gap-1.5 rounded-md border border-dashed border-input text-sm font-semibold text-primary transition-colors hover:bg-accent-light">
-                    <Plus className="h-4 w-4" aria-hidden="true" />Adicionar bairro
-                  </button>
-                ) : null}
-              </div>
-            ))}
-          </div>
-
-          {linhasCalculadas.map((l) => (
-            <div key={l.rotulo} role="row" className="grid grid-cols-[180px_repeat(3,minmax(0,1fr))] border-b border-border lg:grid-cols-[240px_repeat(3,minmax(0,1fr))]">
-              <div role="rowheader" className="px-5 py-[18px]">
-                <div className="text-[15px] font-medium text-foreground">{l.rotulo}</div>
-                {l.ajuda && <div className="mt-0.5 text-xs text-muted-foreground">{l.ajuda}</div>}
-              </div>
-              {vagas.map((b, i) => {
-                if (!b) return <div key={`vaga-${i}`} role="cell" className="border-l border-border" />;
-                const bruto = l.valor(b);
-                const v = l.valores[i];
-                const dif = l.diferencas[i];
-                return (
-                  <div key={b.name} role="cell" className="min-w-0 border-l border-border px-5 py-[18px]">
-                    <span className="block text-[22px] font-semibold tabular-nums text-foreground lg:text-[26px]">{l.texto(bruto)}</span>
-                    <div className="mt-2"><Barra fracao={v / l.maior} serie={i} natureza={naturezaBairro(b)} /></div>
-                    {/* Diferença até o maior da linha, embaixo da barra (as barras ficam alinhadas); quem tem o maior fica sem texto. */}
-                    {dif && <span className="mt-1.5 block text-xs font-semibold leading-snug text-accent-text">{l.frase(dif.diferenca)}</span>}
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-
-          <div role="row" className="grid grid-cols-[180px_repeat(3,minmax(0,1fr))] border-b border-border lg:grid-cols-[240px_repeat(3,minmax(0,1fr))]">
-            <div role="rowheader" className="px-5 py-[18px]">
-              <div className="text-[15px] font-medium text-foreground">Faixa de diárias</div>
-              <div className="mt-0.5 text-xs text-muted-foreground">25% mais baratos · mediana · 25% mais caros, em escala comum de R$ 0 a {formatBRL(fimEscala)}</div>
-            </div>
-            {vagas.map((b, i) => (
-              <div key={b?.name ?? `vaga-${i}`} role="cell" className="min-w-0 border-l border-border px-5 py-[18px]">
-                {b && (b.dailyQuartiles
-                  ? <FaixaQuartis quartis={b.dailyQuartiles} escala={[0, fimEscala]} variante="linha" legendaMedia={false} />
-                  : <p className="text-[13px] leading-[1.45] text-muted-foreground">{textoSemQuartis(b)}</p>)}
-              </div>
-            ))}
-          </div>
-
-          {temVariacao && (
-            <div role="row" className="grid grid-cols-[180px_repeat(3,minmax(0,1fr))] border-b border-border lg:grid-cols-[240px_repeat(3,minmax(0,1fr))]">
-              <div role="rowheader" className="px-5 py-[18px]">
-                <div className="text-[15px] font-medium text-foreground">O que mudou nesta coleta</div>
-                <div className="mt-0.5 text-xs text-muted-foreground">comparação com a coleta anterior da mesma fonte</div>
-              </div>
-              {vagas.map((b, i) => (
-                <div key={b?.name ?? `vaga-${i}`} role="cell" className="min-w-0 border-l border-border px-5 py-[18px]">
-                  {b && <VariacaoColetaBairro bairro={b.name} className="border-0 bg-transparent p-0" />}
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div role="row" className="grid grid-cols-[180px_repeat(3,minmax(0,1fr))] lg:grid-cols-[240px_repeat(3,minmax(0,1fr))]">
-            <div role="rowheader" className="px-5 py-[18px]"><span className="sr-only">Ações</span></div>
-            {vagas.map((b, i) => (
-              <div key={b?.name ?? `vaga-${i}`} role="cell" className="grid min-w-0 content-start gap-1.5 border-l border-border px-5 py-[18px]">
-                {b && (
-                  <>
-                    <Button asChild className="min-h-[44px] whitespace-normal font-semibold">
-                      <Link to={linkProjecaoBairro(slugifyBairro(b.name))} onClick={() => simular(b)}>Simular {b.name}</Link>
-                    </Button>
-                    <Button asChild variant="ghost" className="min-h-[44px] whitespace-normal font-semibold text-primary">
-                      <Link to={`/bairro/${slugifyBairro(b.name)}`}>Ver análise do bairro</Link>
-                    </Button>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Celular: leitura por indicador, com o nome junto de cada valor */}
-      {mostrarComparacao && (
-        <div className="md:hidden">
-          {linhasCalculadas.map((l) => (
-            <section key={l.rotulo} className="border-t border-border py-4">
-              <h2 className="font-body text-[15px] font-semibold text-foreground">{l.rotulo}</h2>
-              {l.ajuda && <p className="mt-0.5 text-xs text-muted-foreground">{l.ajuda}</p>}
-              {l.maiores && <p className="mt-0.5 text-xs text-accent-text">Diferença até o maior valor: {bairrosNaFrase(l.maiores, null, marcaDoBairro)}</p>}
-              <ul className="mt-2.5 space-y-1">
-                {selecionados.map((b, i) => (
-                  <li key={b.name} className="grid min-h-[32px] grid-cols-[110px_minmax(0,1fr)_84px] items-center gap-2.5">
-                    <span className="flex min-w-0 items-center gap-1.5 text-[13px]">
-                      <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: COR_SERIE[i] }} aria-hidden="true" />
-                      <span className="min-w-0">
-                        <span className="block truncate">{b.name}</span>
-                        {marcaBairro(b) && <span className={cn("block truncate text-[11px] leading-tight", naturezaBairro(b) === "aproximacao" ? "text-accent-text" : "text-estimate-text")}>{marcaBairro(b)}</span>}
-                      </span>
+        {selecionados.length > 0 && (
+          <TabelaNumerada
+            numero={1}
+            titulo={<>{selecionados.length === 1 ? "Os números" : `Os ${selecionados.length === 2 ? "dois" : "três"} bairros`} em 8 linhas: o maior valor de cada linha em negrito</>}
+            unidade={<>Diária em R$ por noite; ocupação em %; receita de referência em R$/mês (<span className="e-var">R</span> = <span className="e-var">d</span> × 30 × <span className="e-var">o</span>, antes de custos). Quartis de diária não são faixas de metragem. Fonte: GuestFavorites, {periodoPrincipal(selecionados) ?? "jan–set/2026"}{textoColeta(selecionados)}.</>}
+            nota={
+              <>
+                {temAprox && <p>{TEXTO_APROXIMACAO} Por isso não têm amostra própria.</p>}
+                {comAmostraPequena.length > 0 && <p className="mt-1">Amostra pequena (menos de 200 anúncios) em {comAmostraPequena.map((b) => b.name).join(" e ")}: leia com cautela.</p>}
+                <p className="mt-1">A diferença (no celular, com sinal: “−R$ 60”) é contada até o bairro com o maior valor da linha, a partir dos números exibidos.</p>
+              </>
+            }
+          >
+            <thead>
+              <tr>
+                <th scope="col" className={cn(TH, "hidden w-[30%] min-w-[128px] md:table-cell")}>Indicador</th>
+                {selecionados.map((b) => (
+                  <th key={b.name} scope="col" className={cn(TH, "relative px-1 text-right md:min-w-[132px] md:px-2")}>
+                    <span data-bairro className="block text-[15px] font-semibold md:text-[17px] normal-case leading-6 tracking-normal text-foreground">{b.name}</span>
+                    <span className="mt-1 flex flex-wrap justify-end gap-x-2 gap-y-1 normal-case tracking-normal">
+                      <TagBairro b={b} className="px-1 text-[11px] md:px-1.5 md:text-xs" />
+                      <NotaAmostra b={b} curta />
                     </span>
-                    <Barra fracao={l.valores[i] / l.maior} serie={i} natureza={naturezaBairro(b)} alto={8} />
-                    <span className="text-right">
-                      <span className="block text-[15px] font-semibold tabular-nums">{l.texto(l.valor(b))}</span>
-                      {l.diferencas[i] && (
-                        <span className="block text-[11px] font-semibold leading-tight tabular-nums text-accent-text">
-                          <span aria-hidden="true">{l.curta(l.diferencas[i]!.diferenca)}</span>
-                          <span className="sr-only">{l.frase(l.diferencas[i]!.diferenca)}</span>
-                        </span>
-                      )}
-                    </span>
-                  </li>
+                  </th>
                 ))}
-              </ul>
-            </section>
-          ))}
-          <section className="border-t border-border py-4">
-            <h2 className="font-body text-[15px] font-semibold text-foreground">Faixa de diárias</h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">Escala comum de R$ 0 a {formatBRL(fimEscala)}</p>
-            <ul className="mt-2.5 space-y-3">
-              {selecionados.map((b, i) => (
-                <li key={b.name}>
-                  <span className="flex flex-wrap items-center gap-1.5 text-[13px]"><span className="h-2 w-2 rounded-full" style={{ background: COR_SERIE[i] }} aria-hidden="true" />{b.name}{marcaBairro(b) && <span className={cn("text-[11px]", naturezaBairro(b) === "aproximacao" ? "text-accent-text" : "text-estimate-text")}>· {marcaBairro(b)}</span>}</span>
-                  {b.dailyQuartiles
-                    ? <FaixaQuartis quartis={b.dailyQuartiles} escala={[0, fimEscala]} variante="linha" legendaMedia={false} />
-                    : <p className="mt-1 text-[13px] text-muted-foreground">{textoSemQuartis(b)}</p>}
-                </li>
+              </tr>
+            </thead>
+            <tbody>
+              {linhasCalculadas.map((l) => (
+                <Fragment key={l.rotulo}>
+                {/* Celular: o indicador vira uma linha inteira acima dos valores, para os três bairros caberem. */}
+                <tr className="md:hidden">
+                  <th scope="colgroup" colSpan={selecionados.length} className="px-0 pb-0 pt-3 text-left font-normal">
+                    <span className="font-semibold">{l.rotulo}</span> <span className="e-legenda">{l.unidade}</span>
+                  </th>
+                </tr>
+                <tr>
+                  <th scope="row" className={cn(TD, "relative hidden font-normal md:table-cell")}>
+                    <span className="block font-semibold">{l.rotulo}</span>
+                    <span className="e-legenda block">{l.unidade}</span>
+                  </th>
+                  {selecionados.map((b, i) => {
+                    const v = l.brutos[i];
+                    const dif = l.diferencas[i];
+                    const maior = v != null && l.maiores != null && l.maiores.includes(b.name);
+                    const aprox = naturezaBairro(b) !== "observado";
+                    return (
+                      <td key={b.name} className={cn(TD_NUM, "relative px-1 md:px-2", maior ? "font-bold" : "font-normal", v == null && "text-tinta-70")}>
+                        <span className={cn("text-[15px] md:text-[17px]", v == null && "text-[13px]", aprox && v != null && "underline decoration-dashed decoration-neutro-500 underline-offset-4")}>{l.texto(v)}</span>
+                        {maior && <span className="sr-only"> (maior da linha)</span>}
+                        {dif && (
+                          <>
+                            <span className="e-legenda sr-only font-normal md:not-sr-only md:block">{l.frase(dif.diferenca)}</span>
+                            <span className="e-legenda block font-normal md:hidden" aria-hidden="true">{l.curta(dif.diferenca)}</span>
+                          </>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+                </Fragment>
               ))}
-            </ul>
-          </section>
-          <section className="border-t border-border py-4">
-            <h2 className="font-body text-[15px] font-semibold text-foreground">Fontes</h2>
-            <ul className="mt-2 space-y-3">
-              {selecionados.map((b) => (
-                <li key={b.name} className="text-[13px]">
-                  <span className="flex flex-wrap items-center gap-2"><strong className="font-semibold">{b.name}</strong><NaturezaTag tipo={naturezaBairro(b)} /></span>
-                  <FonteBairro nome={b.name} semNatureza />
-                  <VariacaoColetaBairro bairro={b.name} className="mt-1 p-3" />
-                  <span className="flex flex-wrap gap-x-4">
-                    <Link to={linkProjecaoBairro(slugifyBairro(b.name))} onClick={() => simular(b)} className="inline-flex min-h-[44px] items-center font-medium text-primary underline underline-offset-4">Simular imóvel em {b.name}</Link>
-                    <Link to={`/bairro/${slugifyBairro(b.name)}`} className="inline-flex min-h-[44px] items-center font-medium text-primary underline underline-offset-4">Ver análise de {b.name}</Link>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
-          <p className="mb-4 mt-2 text-xs text-muted-foreground">Receita de referência = diária média × 30 × ocupação média, antes de custos. Estimativas Bewild aparecem com listras âmbar; aproximações pelo Itaim Bibi, com listras azuis.</p>
-          <div className="grid gap-2">
-            <Button asChild className="min-h-[48px] text-[15px] font-semibold">
-              <Link to={linkProjecaoBairro(slugifyBairro(selecionados[0].name))} onClick={() => simular(selecionados[0])}>Simular {selecionados[0].name}</Link>
-            </Button>
-            <Button variant="outline" className="min-h-[48px] text-[15px] font-semibold" onClick={() => void compartilhar()}>
-              <Share2 className="h-4 w-4" aria-hidden="true" />Compartilhar comparação
-            </Button>
+              <tr className="md:hidden">
+                <th scope="colgroup" colSpan={selecionados.length} className="px-0 pb-0 pt-3 text-left font-normal">
+                  <span className="font-semibold">Natureza e fonte</span> <span className="e-legenda">fonte, período e coleta</span>
+                </th>
+              </tr>
+              <tr>
+                <th scope="row" className={cn(TD, "relative hidden font-normal md:table-cell")}>
+                  <span className="block font-semibold">Natureza e fonte</span>
+                  <span className="e-legenda block">fonte, período e coleta</span>
+                </th>
+                {selecionados.map((b) => (
+                  <td key={b.name} className={cn(TD, "relative px-1 text-right md:px-2")}>
+                    <span className="hidden flex-wrap justify-end gap-2 md:flex"><TagBairro b={b} /></span>
+                    <NotaAmostra b={b} className="mt-1 block" />
+                    <FonteDoBairro b={b} />
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </TabelaNumerada>
+        )}
+
+        {temVariacao && (
+          <details className="group e-fina mt-8 border-y">
+            <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-4 py-3 text-[17px] font-semibold [&::-webkit-details-marker]:hidden">
+              O que mudou nesta coleta
+              <span aria-hidden="true" className="text-tinta-70 transition-transform group-open:rotate-45 motion-reduce:transition-none">+</span>
+            </summary>
+            <div className="grid gap-4 pb-6 md:grid-cols-3">
+              {selecionados.map((b) => <VariacaoColetaBairro key={b.name} bairro={b.name} className="p-3" />)}
+            </div>
+          </details>
+        )}
+
+        {selecionados.length > 0 && (
+          <Figura
+            numero={1}
+            className="mt-14"
+            titulo={larga
+              ? <>{bairrosNaFrase([larga.bairro.name], null, marcaDoBairro).replace(/^./, (c) => c.toUpperCase())} tem a faixa central de diárias mais larga: de {formatBRL(larga.p25)} a {formatBRL(larga.p75)}</>
+              : "Faixas de diária no mesmo eixo"}
+            unidade="Diária em R$ por noite, eixo comum de R$ 0 a 600. Barra do P25 ao P75 (metade central das diárias), traço na mediana e ponto na média."
+            legenda={
+              <div className="grid gap-2">
+                <LegendaFaixas comAproximacao={temAprox} />
+                {selecionados.filter((b) => !b.dailyQuartiles).map((b) => <p key={b.name}>{b.name}: {textoSemQuartis(b)}</p>)}
+                {comAmostraPequena.length > 0 && <p className="e-amostra">{comAmostraPequena.map((b) => b.name).join(" e ")}: amostra pequena, a faixa pode não representar o bairro.</p>}
+              </div>
+            }
+            fonte={<>GuestFavorites, {periodoPrincipal(selecionados) ?? "jan–set/2026"}{temAprox ? "; aproximações pelo Itaim Bibi" : ""}.</>}
+          >
+            <FaixasDiaria bairros={selecionados} />
+          </Figura>
+        )}
+      </Container>
+
+      {selecionados.length > 0 && (
+        <Secao id="proximo-passo" rotulo="Método e próximo passo" titulo="Simule a operação no bairro escolhido">
+          <FormulaReceita />
+          <AvisoReceita className="mt-4" />
+          <div className="mt-8 flex flex-wrap gap-2">
+            {selecionados.map((b, i) => (
+              <Button key={b.name} asChild variant={i === 0 ? "default" : "outline"} className="min-h-[44px] px-5 text-[15px] font-semibold">
+                <Link to={linkProjecaoBairro(slugifyBairro(b.name))} onClick={() => simular(b)}>Simular {b.name}</Link>
+              </Button>
+            ))}
           </div>
-        </div>
+          <p className="mt-2 flex flex-wrap gap-x-6">
+            {selecionados.map((b) => (
+              <Link key={b.name} to={bairroPath(b.name)} className="e-link inline-flex min-h-[44px] items-center text-[15px]">Ver a página de {b.name}</Link>
+            ))}
+          </p>
+          <div className="e-fina mt-8 flex flex-col gap-4 border-t pt-6 md:flex-row md:items-center md:justify-between">
+            <p className="e-corpo max-w-[560px]">Já escolheu o bairro? A Bewild orça a reforma completa do seu studio.</p>
+            <OrcamentoButton local="comparar" rotulo="Solicitar orçamento" icone={false} className="min-h-[44px] shrink-0 px-5 text-[15px] font-semibold" />
+          </div>
+        </Secao>
       )}
-
-      <p className="mb-10 mt-4 hidden max-w-[820px] text-[13px] text-muted-foreground md:block">
-        Em cada linha, a diferença é contada até o bairro com o maior valor, a partir dos números exibidos.
-        Receita de referência é uma conta simples (diária média × 30 × ocupação média) para comparar bairros; não inclui custos de operação nem é garantia de resultado.
-      </p>
-
-      <div className="regua mt-8 flex flex-col gap-4 py-6 md:mt-0 md:flex-row md:items-center md:justify-between md:gap-6">
-        <p className="font-display text-xl font-semibold leading-snug text-foreground md:text-[22px]">Já escolheu o bairro? A Bewild orça a reforma completa do seu studio.</p>
-        <OrcamentoButton local="comparar" rotulo="Solicitar orçamento" icone={false} className="min-h-[48px] shrink-0 whitespace-nowrap px-[22px] text-[15px] font-semibold" />
-      </div>
 
       <Dialog open={compartilharAberto} onOpenChange={setCompartilharAberto}>
         <DialogContent className="max-w-[480px] gap-0 p-7 font-body">
-          <DialogTitle className="mb-2 pr-6 font-display text-[26px] font-bold leading-[1.2]">Compartilhar comparação</DialogTitle>
-          <DialogDescription className="mb-3.5 text-[15px] text-muted-foreground">Quem abrir o link vê os mesmos bairros lado a lado.</DialogDescription>
+          <DialogTitle className="e-h2 mb-2 pr-6">Compartilhar comparação</DialogTitle>
+          <DialogDescription className="e-apoio mb-3.5">Quem abrir o link vê os mesmos bairros lado a lado.</DialogDescription>
           <Input readOnly value={compartilharAberto ? link() : ""} onFocus={(e) => e.currentTarget.select()} className="mb-3 min-h-[48px] text-base" aria-label="Link da comparação" />
           <div className="grid gap-2 sm:grid-cols-2">
             <Button onClick={() => void copiar()} className="min-h-[44px] text-[15px] font-semibold">
@@ -412,13 +350,41 @@ function CompararConteudo() {
             </Button>
             <Button asChild variant="outline" className="min-h-[44px] text-[15px] font-semibold">
               <a href={compartilharAberto ? `https://wa.me/?text=${encodeURIComponent(`${texto} ${link()}`)}` : "#"} target="_blank" rel="noopener noreferrer" onClick={() => registrar("whatsapp")}>
-                <MessageCircle className="h-4 w-4" aria-hidden="true" />Enviar no WhatsApp
+                Enviar no WhatsApp
               </a>
             </Button>
           </div>
-          <Button variant="ghost" onClick={() => setCompartilharAberto(false)} className="mt-3 min-h-[44px] w-full text-sm font-medium text-muted-foreground">Fechar</Button>
+          <Button variant="ghost" onClick={() => setCompartilharAberto(false)} className="mt-3 min-h-[44px] w-full text-sm font-medium">Fechar</Button>
         </DialogContent>
       </Dialog>
-    </main>
+    </>
   );
+}
+
+/**
+ * Fonte do bairro na Tab. 1: fonte, período e coleta com link para a página pública.
+ * Na aproximação, a estimativa Bewild anterior aparece só como referência extra, fora das contas.
+ */
+function FonteDoBairro({ b }: { b: BairroBase }) {
+  const aprox = naturezaBairro(b) === "aproximacao";
+  const texto = `${fonteCurtaBairro(b)}${aprox ? " (Itaim Bibi)" : ""}`;
+  // No celular a coluna é estreita: só o link "Fonte" (fonte, período e coleta estão na legenda da tabela).
+  const curto = aprox ? "Fonte (Itaim Bibi)" : "Fonte";
+  const rotulo = <><span className="md:hidden">{curto}</span><span className="hidden md:inline">{texto}</span></>;
+  return (
+    <span className="e-legenda mt-1 block">
+      {b.sourceUrl
+        ? <a href={b.sourceUrl} target="_blank" rel="noopener noreferrer" className="e-link inline-flex min-h-[44px] items-center justify-end break-words [overflow-wrap:anywhere]">{rotulo}<NovaAba /></a>
+        : <span className="inline-flex min-h-[44px] items-center">{rotulo}</span>}
+      {aprox && b.referenciaBewild && <span className="block text-left md:text-right">Referência extra, fora das contas: {rotuloReferenciaBewild(b.referenciaBewild)}.</span>}
+    </span>
+  );
+}
+
+/** ", coleta de 18/10/2026 (Moema: 13/10/2026)" a partir dos bairros comparados. */
+function textoColeta(bairros: BairroBase[]): string {
+  const c = resumoColetas(bairros);
+  if (!c) return "";
+  const exc = c.excecoes.map((e) => `${e.nomes.join(", ")}: ${e.data}`).join("; ");
+  return `, coleta de ${c.principal}${exc ? ` (${exc})` : ""}`;
 }

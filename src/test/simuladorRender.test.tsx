@@ -50,8 +50,8 @@ describe("renderização", () => {
 
   it("o comparador monta com os bairros da URL e a fonte de cada um", async () => {
     const texto = await montar(<CompararBairros />, "/comparar?b=pinheiros,mooca");
-    // Os bairros são os títulos das colunas da tabela (no celular, a leitura é por indicador).
-    const titulos = [...container!.querySelectorAll('[role="table"] h2')].map((h) => h.textContent);
+    // Os bairros são os títulos das colunas da Tab. 1.
+    const titulos = [...container!.querySelectorAll("table thead [data-bairro]")].map((h) => h.textContent);
     expect(titulos).toEqual(["Pinheiros", "Mooca"]);
     expect(texto).toContain("amostra pequena");
     // Em vez da etiqueta "maior", cada valor mostra quanto fica abaixo do maior da linha (R$ 299 − R$ 243).

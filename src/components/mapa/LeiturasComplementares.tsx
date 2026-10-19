@@ -30,6 +30,7 @@ export default function LeiturasComplementares({
   perfis,
   onPerfis,
   onSelecionarBairro,
+  embutido = false,
 }: {
   eventoAtivo: CityEvent | null;
   onEvento: (e: CityEvent | null) => void;
@@ -37,6 +38,8 @@ export default function LeiturasComplementares({
   onPerfis: (perfis: string[]) => void;
   /** Leva o bairro para o painel do mapa (quando ele está na base do Radar). */
   onSelecionarBairro: (nome: string) => void;
+  /** Dentro de uma seção do /mapa ("Estudo aberto"): sem margens da página e com título de nível 3. */
+  embutido?: boolean;
 }) {
   const { bairros } = useBairroData();
   const [comparando, setComparando] = useState(false);
@@ -57,10 +60,12 @@ export default function LeiturasComplementares({
   const alternarPerfil = (k: string) => onPerfis(perfis.includes(k) ? perfis.filter((x) => x !== k) : [...perfis, k]);
 
   return (
-    <section aria-labelledby="leituras-titulo" className="mx-auto max-w-[1280px] px-5 pb-14 pt-5 lg:px-10 lg:pt-14">
-      <p className="rotulo-secao mb-2.5">Outras leituras dos bairros</p>
-      <h2 id="leituras-titulo" className="mb-3 font-display text-[28px] font-bold leading-[1.15] text-foreground md:text-[36px]">Perfil de demanda, eventos e ranking</h2>
-      <p className="mb-6 max-w-[760px] text-[15px] leading-[1.55] text-muted-foreground">
+    <section aria-labelledby="leituras-titulo" className={embutido ? "min-w-0 pt-12" : "mx-auto max-w-[1280px] px-5 pb-14 pt-5 lg:px-10 lg:pt-14"}>
+      <p className={embutido ? "e-rotulo mb-2" : "rotulo-secao mb-2.5"}>Outras leituras dos bairros</p>
+      {embutido
+        ? <h3 id="leituras-titulo" className="e-h2 mb-3">Perfil de demanda, eventos e ranking</h3>
+        : <h2 id="leituras-titulo" className="mb-3 font-display text-[28px] font-bold leading-[1.15] text-foreground md:text-[36px]">Perfil de demanda, eventos e ranking</h2>}
+      <p className={embutido ? "e-apoio mb-6 max-w-[720px]" : "mb-6 max-w-[760px] text-[15px] leading-[1.55] text-muted-foreground"}>
         Diária, ocupação e receita vêm da base do Radar, a mesma do painel acima. Score, concorrência e perfil de demanda são critérios internos da Bewild, não estatísticas de mercado.
       </p>
 

@@ -1,24 +1,20 @@
 import { formatDecimal } from "@/lib/numberFormat";
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Target, ChevronRight, ChevronLeft, CheckCircle2,
-  Banknote, TrendingUp, Scale, Shield, Gauge, Rocket,
-  CalendarCheck, ArrowUpRight, Sparkles, User,
-  type LucideIcon,
-} from "lucide-react";
-import SectionBlock from "./SectionBlock";
+import { useRastrearSecao } from "./SectionBlock";
 import { QUIZ_QUESTIONS, resolveProfile, type QuizAnswers, type InvestorProfile } from "@/lib/investorQuiz";
 import { useGuideDecision } from "@/hooks/useGuideDecision";
+import { cn } from "@/lib/utils";
 
-const ICON_MAP: Record<string, LucideIcon> = {
-  Banknote, TrendingUp, Scale, Shield, Gauge, Rocket,
-  CalendarCheck, ArrowUpRight, Sparkles,
-};
+const ROTULO_PESO: Record<string, string> = { retorno: "Retorno", demanda: "Demanda", operacao: "Operação", futuro: "Futuro" };
 
+/**
+ * Autoavaliação do investidor (/ferramentas#diagnostico), no padrão "Estudo aberto":
+ * três perguntas em opções de texto (sem ícones), resultado com os pesos do perfil em
+ * barras finas. Os pesos são critério interno da Bewild, não estatística de mercado.
+ * O título da seção vem da tela (Secao); aqui fica o conteúdo.
+ */
 export default function DiagnosticoInvestidorSection() {
   const { investorProfile, setInvestorDiagnostic } = useGuideDecision();
   const [step, setStep] = useState(0);
@@ -55,26 +51,20 @@ export default function DiagnosticoInvestidorSection() {
     );
   };
 
+  const ref = useRastrearSecao<HTMLDivElement>("diagnostico");
+
   return (
-    <SectionBlock
-      id="diagnostico"
-      title="Autoavaliação do investidor"
-      takeaway="Responda 3 perguntas rápidas. A plataforma vai personalizar recomendações para o seu perfil."
-    >
+    <div ref={ref}>
       {!isComplete ? (
         <>
           {/* Progress */}
-          <div className="flex items-center gap-3 mb-6">
-            {QUIZ_QUESTIONS.map((_, i) => (
-              <div key={i} className="flex items-center gap-1.5">
-                <div className={`h-2 w-8 rounded-full transition-all duration-300 ${
-                  i < step ? "bg-primary" : i === step ? "bg-primary/60" : "bg-muted"
-                }`} />
-              </div>
-            ))}
-            <span className="text-xs text-muted-foreground font-body ml-1">
-              {step + 1} de {totalSteps}
-            </span>
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex gap-1.5" aria-hidden="true">
+              {QUIZ_QUESTIONS.map((_, i) => (
+                <span key={i} className={cn("h-1 w-8", i <= step ? "bg-ciano" : "bg-neutro-200")} />
+              ))}
+            </div>
+            <span className="e-legenda tabular-nums">Pergunta {step + 1} de {totalSteps}</span>
           </div>
 
           <AnimatePresence mode="wait">
@@ -85,121 +75,68 @@ export default function DiagnosticoInvestidorSection() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.2 }}
             >
-              <h3 className="font-display text-xl font-bold text-foreground mb-1">
-                {currentQ.question}
-              </h3>
-              <p className="text-sm text-muted-foreground font-body mb-5">
-                {currentQ.subtitle}
-              </p>
+              <h3 className="e-h3">{currentQ.question}</h3>
+              <p className="e-apoio mb-5 mt-1">{currentQ.subtitle}</p>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <ul className="grid grid-cols-1 border-t border-foreground md:grid-cols-3 md:gap-x-8">
                 {currentQ.options.map((opt) => {
                   const isSelected = answers[currentQ.id] === opt.value;
-                  const Icon = ICON_MAP[opt.icon] || Target;
                   return (
-                    <button
-                      key={opt.value}
-                      onClick={() => selectOption(currentQ.id, opt.value)}
-                      className={`text-left p-4 rounded-xl border-2 transition-all duration-200 ${
-                        isSelected
-                          ? "border-primary bg-primary/5 shadow-md"
-                          : "border-border hover:border-primary/30 hover:bg-muted/30"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 mb-2">
-                        <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${
-                          isSelected ? "bg-primary/10" : "bg-muted"
-                        }`}>
-                          <Icon size={18} className={isSelected ? "text-primary" : "text-muted-foreground"} />
-                        </div>
-                        <span className="font-display font-bold text-foreground text-sm">
-                          {opt.label}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground font-body leading-relaxed">
-                        {opt.description}
-                      </p>
-                    </button>
+                    <li key={opt.value} className="e-fina border-b md:border-b-0">
+                      <button
+                        type="button"
+                        aria-pressed={isSelected}
+                        onClick={() => selectOption(currentQ.id, opt.value)}
+                        className={cn(
+                          "group flex min-h-[44px] w-full flex-col items-start gap-1 border-l-[3px] py-4 pl-3 pr-2 text-left transition-colors",
+                          isSelected ? "border-ciano bg-ciano-100/60" : "border-transparent hover:bg-foreground/[0.03]",
+                        )}
+                      >
+                        <span className="text-[16px] font-semibold leading-6 group-hover:underline">{opt.label}</span>
+                        <span className="e-apoio">{opt.description}</span>
+                      </button>
+                    </li>
                   );
                 })}
-              </div>
+              </ul>
 
               {step > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setStep(step - 1)}
-                  className="mt-4 text-muted-foreground"
-                >
-                  <ChevronLeft size={14} className="mr-1" /> Voltar
+                <Button variant="outline" onClick={() => setStep(step - 1)} className="mt-5 min-h-[44px] px-5 text-[15px] font-semibold">
+                  Voltar à pergunta anterior
                 </Button>
               )}
             </motion.div>
           </AnimatePresence>
         </>
       ) : (
-        /* ── Profile Result ── */
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          <Card className="border-2 border-primary/20 bg-primary/[0.02]">
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <User size={28} className="text-primary" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge className={`${investorProfile.color} ${investorProfile.textColor} font-body text-xs`}>
-                      {investorProfile.name}
-                    </Badge>
-                    <CheckCircle2 size={16} className="text-primary" />
-                  </div>
-                  <p className="text-sm text-muted-foreground font-body leading-relaxed mb-4">
-                    {investorProfile.description}
-                  </p>
+        /* ── Resultado do perfil ── */
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="border-t border-foreground pt-4">
+          <p className="e-rotulo">Seu perfil</p>
+          <p className="e-h3 mt-1">{investorProfile.name}</p>
+          <p className="e-apoio mt-2 max-w-[720px]">{investorProfile.description}</p>
 
-                  {/* Weight visualization */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {Object.entries(investorProfile.weights).map(([key, weight]) => {
-                      const labels: Record<string, string> = {
-                        retorno: "Retorno", demanda: "Demanda",
-                        operacao: "Operação", futuro: "Futuro",
-                      };
-                      const pct = Math.round(weight * 100);
-                      return (
-                        <div key={key} className="text-center">
-                          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden mb-1">
-                            <div
-                              className="h-full bg-primary rounded-full transition-all duration-500"
-                              style={{ width: `${formatDecimal(pct, 0)}%` }}
-                            />
-                          </div>
-                          <p className="text-xs font-body">
-                            <span className="font-semibold text-foreground">{formatDecimal(pct, 0)}%</span>{" "}
-                            <span className="text-muted-foreground">{labels[key]}</span>
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
+          <p className="e-rotulo mt-6">Pesos na recomendação (critério interno)</p>
+          <dl className="mt-2 grid grid-cols-2 gap-x-8 gap-y-4 md:grid-cols-4">
+            {Object.entries(investorProfile.weights).map(([key, weight]) => {
+              const pct = Math.round(weight * 100);
+              return (
+                <div key={key} className="min-w-0">
+                  <dt className="e-legenda">{ROTULO_PESO[key]}</dt>
+                  <dd className="m-0">
+                    <span className="e-numero-sm block">{formatDecimal(pct, 0)}%</span>
+                    <span aria-hidden="true" className="mt-1 block h-1 bg-neutro-200"><span className="block h-full bg-ciano" style={{ width: `${pct}%` }} /></span>
+                  </dd>
                 </div>
-              </div>
+              );
+            })}
+          </dl>
 
-              <div className="mt-4 pt-4 border-t border-border/50 flex items-center justify-between">
-                <p className="text-xs text-muted-foreground font-body">
-                  Seu perfil personaliza as recomendações ao longo do guia.
-                </p>
-                <Button variant="ghost" size="sm" onClick={reset} className="text-xs text-muted-foreground">
-                  Refazer
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="mt-6 flex flex-wrap items-center gap-4">
+            <p className="e-legenda">O perfil personaliza a recomendação e o plano de ação abaixo.</p>
+            <Button variant="outline" onClick={reset} className="min-h-[44px] px-5 text-[15px] font-semibold">Refazer a autoavaliação</Button>
+          </div>
         </motion.div>
       )}
-    </SectionBlock>
+    </div>
   );
 }

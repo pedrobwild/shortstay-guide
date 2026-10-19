@@ -5,16 +5,16 @@
     {
       "path": "/",
       "title": "Radar Bewild: guia do investidor em studios para short stay em SP",
-      "description": "Guia completo para investir em studios compactos para Airbnb em São Paulo: dados de mercado por bairro, simulador de rentabilidade e checklist do investidor.",
-      "h1": "Guia do Investidor em Studios para Short Stay",
+      "description": "Estudo aberto sobre studios para Airbnb em São Paulo: diária, ocupação e amostra de 28 bairros, custo de reforma e as contas do short stay, com fonte.",
+      "h1": "Dados para decidir cada etapa de um studio para short stay: comprar, reformar e operar",
       "keywords": "studio para airbnb em são paulo, investir em short stay, diária média por bairro, ocupação airbnb são paulo, simulador de receita airbnb, guia do investidor em studios, Radar Bewild",
       "priority": "1.0"
     },
     {
       "path": "/mercado",
       "title": "Mercado de short stay em São Paulo: dados por bairro",
-      "description": "Inteligência de mercado para studios no Airbnb em São Paulo: diária, ocupação, receita e score de investimento por bairro.",
-      "h1": "Inteligência de mercado",
+      "description": "Receita de referência dos 28 bairros de São Paulo para studios no Airbnb, comparada à cidade, com fonte, período e amostra de cada número.",
+      "h1": "Mercado de short stay em São Paulo",
       "keywords": "mercado de short stay são paulo, diária airbnb por bairro, ocupação airbnb por bairro, dados airbnb são paulo, inteligência de mercado short stay",
       "priority": "0.9"
     },
@@ -22,7 +22,7 @@
       "path": "/ranking",
       "title": "Comparador de bairros para Airbnb em SP",
       "description": "Compare diária, ocupação e receita de referência dos bairros de São Paulo, com fonte e período de cada número. Ferramenta gratuita do Radar Bewild.",
-      "h1": "Comparador de bairros para short stay",
+      "h1": "Ranking dos bairros para short stay em São Paulo",
       "keywords": "melhores bairros para airbnb em são paulo, ranking de bairros short stay, comparador de bairros airbnb, receita por bairro airbnb sp",
       "priority": "0.9"
     },
@@ -45,7 +45,7 @@
     {
       "path": "/mapa",
       "title": "Mapa de bairros rentáveis para Airbnb em SP",
-      "description": "Mapa interativo dos bairros de São Paulo com diária, ocupação e potencial de retorno para studios de short stay.",
+      "description": "Mapa dos 28 bairros de São Paulo com receita de referência, diária e ocupação de studios para short stay, com fonte e amostra de cada número.",
       "h1": "Mapa de bairros",
       "keywords": "mapa airbnb são paulo, bairros rentáveis para airbnb, mapa de bairros short stay, metrô e short stay",
       "priority": "0.8"
@@ -53,16 +53,16 @@
     {
       "path": "/ferramentas",
       "title": "Ferramentas do investidor em short stay",
-      "description": "Simulador de financiamento para quem ainda busca o imóvel, autoavaliação do investidor e plano de ação para studios no Airbnb.",
-      "h1": "Ferramentas do Investidor",
+      "description": "Ferramentas do investidor em studio para short stay: financiamento para quem vai comprar, estimativa de reforma por área e o seu studio contra o bairro.",
+      "h1": "Faça a conta da sua etapa: financiamento, reforma ou operação",
       "keywords": "simulador de financiamento imobiliário, financiamento de studio, ferramentas para investidor airbnb, autoavaliação do investidor, plano de ação short stay",
       "priority": "0.7"
     },
     {
       "path": "/projecao",
       "title": "Projeção de receita do seu studio",
-      "description": "Veja a projeção de receita, ocupação e retorno do seu studio para short stay em São Paulo.",
-      "h1": "Projeção do seu studio",
+      "description": "Simule receita, custos e resultado líquido de um studio para short stay em São Paulo, com as premissas do bairro e cada hipótese editável.",
+      "h1": "Simule quanto sobra por mês de um studio",
       "keywords": "simulador de receita airbnb, projeção de receita studio, quanto rende um studio no airbnb, rentabilidade short stay são paulo",
       "priority": "0.6"
     },
