@@ -1,4 +1,5 @@
 import seo from "@/data/seoRoutes.json";
+import { getBairroCurado } from "@/data/bairrosCurados";
 
 export const SITE_URL = seo.siteUrl;
 export const SITE_NAME = seo.siteName;
@@ -43,10 +44,22 @@ export const bairroPath = (name: string) => `/bairro/${slugifyBairro(name)}`;
 
 /** Título da página de bairro, sem a marca (tituloComMarca decide se ela cabe). */
 export function bairroTitle(name: string) {
-  return `Studio para Airbnb em ${name}: diária, ocupação e receita`;
+  return `Airbnb em ${name}: diária e ocupação`;
 }
 export function bairroDescription(name: string) {
-  return `Diária média, ocupação, receita estimada e score de investimento para studios de short stay em ${name}, São Paulo.`;
+  const bairro = getBairroCurado(name);
+  if (!bairro) {
+    return `Airbnb em ${name}, São Paulo: consulte a cobertura do Radar, as fontes disponíveis e o comparador de bairros. Sem coleta aprovada na base offline.`;
+  }
+  const numero = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 });
+  const diaria = `R$ ${numero.format(bairro.dailyAvg)}`;
+  const ocupacao = `${numero.format(bairro.avgOccupancy)}%`;
+  if (bairro.ocupacaoFonte === "aproximacao") {
+    return `Airbnb em ${name}: diária de referência ${diaria} e ocupação ${ocupacao}. Aproximação pelo Itaim Bibi, GuestFavorites, ${bairro.period}.`;
+  }
+  const fonte = bairro.ocupacaoFonte === "guestfavorites" ? "GuestFavorites" : bairro.ocupacaoFonte === "airdna" ? "AirDNA" : "estimativa Bewild";
+  const amostra = bairro.activeListings != null && bairro.activeListings < 200 ? " Amostra pequena." : "";
+  return `Airbnb em ${name}: diária média ${diaria}, ocupação ${ocupacao}. ${fonte}, ${bairro.period ?? "sem período informado"}.${amostra}`;
 }
 export function bairroH1(name: string) {
   return `Studio para Airbnb em ${name}`;
