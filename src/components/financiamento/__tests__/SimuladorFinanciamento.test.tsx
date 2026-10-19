@@ -17,6 +17,11 @@ import {
 } from "@/components/financiamento/SimuladorFinanciamento";
 import { registrarSimulacaoBusca } from "@/lib/demandaBusca";
 
+vi.mock("@/lib/radarBase", async (importOriginal) => {
+  const real = await importOriginal<typeof import("@/lib/radarBase")>();
+  return { ...real, useRadarBase: () => ({ data: { bairros: real.bairrosReserva(), offline: false }, isLoading: false, refetch: vi.fn() }) };
+});
+
 vi.mock("@/lib/demandaBusca", async (importOriginal) => {
   const real = await importOriginal<typeof import("@/lib/demandaBusca")>();
   return { ...real, registrarSimulacaoBusca: vi.fn(async () => true) };
