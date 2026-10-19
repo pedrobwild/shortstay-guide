@@ -172,6 +172,112 @@
     --shadow-card-hover: 0 4px 12px -2px hsl(0 0% 0% / 0.3);
     --shadow-elevated: 0 10px 30px -8px hsl(0 0% 0% / 0.4);
   }
+
+  /*
+   * ─── Estudo aberto (direção 2a, out/2026) ───
+   * Telas públicas: papel e tinta + ciano (interação e dado observado) + magenta
+   * (bairro selecionado e alertas). A classe `estudo` fica no <html> das rotas
+   * públicas (index.html e EscopoVisual); conta, painel e admin seguem com os
+   * tokens acima até a vez deles. Só tema claro: o direcionamento não tem fundo
+   * escuro (decisão do Pedro, 19/10/2026), por isso não há par `.dark` aqui.
+   * Valores de base do documento: papel #f3f2f2, tinta #201e1d, ciano #0088b0.
+   * Ciano 700, magenta e neutros foram derivados com contraste conferido
+   * (texto ≥ 4,5:1 sobre o papel; elementos gráficos ≥ 3:1).
+   */
+  :root.estudo {
+    /* papel e tinta */
+    --background: 0 4% 95%;          /* #f3f2f2 */
+    --foreground: 20 5% 12%;         /* #201e1d — 14,9:1 sobre o papel */
+    --card: 0 11% 98%;               /* #fbfafa — superfície só para itens discretos */
+    --card-foreground: 20 5% 12%;
+    --popover: 0 11% 98%;
+    --popover-foreground: 20 5% 12%;
+    --tinta-78: 15 3% 30%;           /* #4f4c4b — lead e texto de apoio (7,6:1) */
+    --tinta-70: 15 2% 36%;           /* #5e5b5a — rótulos e legendas (6,0:1) */
+
+    /* ciano: interação e dado observado */
+    --ciano: 194 100% 35%;           /* #0088b0 — gráficos e foco (3,7:1) */
+    --ciano-700: 194 100% 27%;       /* #006a8a — texto em ciano e botão primário (5,5:1; branco sobre ele 6,1:1) */
+    --ciano-800: 194 100% 22%;       /* #00556f — hover do primário */
+    --ciano-100: 195 50% 92%;        /* #e1f0f5 — fundo da tag "observado" */
+    --ciano-200: 195 53% 82%;        /* #b8dde9 — escala do mapa, 1ª classe */
+    --ciano-400: 195 54% 59%;        /* #5fb3cf — escala do mapa, 2ª classe */
+    --ciano-600: 194 100% 35%;       /* #0088b0 — escala do mapa, 3ª classe */
+    --ciano-900: 194 100% 16%;       /* #003f53 — escala do mapa, 4ª classe (substitui o 800 para separar das demais) */
+
+    /* magenta: bairro selecionado (no máximo um por tela) e alertas */
+    --magenta: 329 67% 47%;          /* #c7287a — seleção nos gráficos (4,7:1) */
+    --magenta-700: 329 70% 38%;      /* #a31d63 — texto de alerta e valores negativos (6,5:1) */
+    --magenta-100: 329 54% 92%;      /* #f6e1ec */
+
+    /* neutros (linhas de custo nos gráficos) */
+    --neutro-100: 20 7% 92%;         /* #ebe9e8 */
+    --neutro-200: 24 6% 85%;         /* #dad7d5 */
+    --neutro-300: 20 5% 78%;         /* #c9c5c3 */
+    --neutro-400: 22 4% 64%;         /* #a8a3a0 */
+    --neutro-500: 20 4% 51%;         /* #86807d — bordas de campo (3,5:1) */
+    --neutro-600: 20 5% 39%;         /* #67615e */
+    --neutro-700: 23 6% 28%;         /* #4c4744 */
+    --neutro-800: 20 6% 19%;         /* #34302e */
+
+    /* tokens do shadcn reapontados para o estudo (os componentes existentes herdam) */
+    --primary: 194 100% 27%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 194 100% 22%;
+    --primary-label: 195 50% 92%;
+    --primary-soft: 195 50% 92%;
+    --secondary: 20 6% 90%;          /* #e8e6e5 — trilho do segmentado */
+    --secondary-foreground: 20 5% 12%;
+    --muted: 20 7% 92%;
+    --muted-foreground: 15 2% 36%;
+    --foreground-medium: 15 3% 30%;
+    --accent: 194 100% 35%;
+    --accent-foreground: 0 0% 100%;
+    --accent-text: 194 100% 27%;
+    --accent-light: 195 50% 92%;
+    --destructive: 329 70% 38%;
+    --destructive-foreground: 0 0% 100%;
+    --destructive-light: 329 54% 92%;
+    --destructive-border: 330 58% 85%;
+    --destructive-text: 329 71% 30%;
+    /* estimativa (só ajuste manual do admin): neutro tracejado, sem âmbar */
+    --estimate: 20 5% 39%;
+    --estimate-light: 20 7% 92%;
+    --estimate-border: 22 4% 64%;
+    --estimate-text: 23 6% 28%;
+    --estimate-stripe: 24 6% 85%;
+    --cost: 20 5% 78%;
+    --hipotese-1: 20 7% 92%;
+    --hipotese-2: 24 6% 85%;
+    /* escala do mapa e da receita: ciano 200 → 900 (mais escuro = maior) */
+    --escala-1: 195 53% 82%;
+    --escala-2: 195 54% 59%;
+    --escala-3: 194 100% 35%;
+    --escala-4: 194 100% 27%;
+    --escala-5: 194 100% 16%;
+    /* séries da comparação: tinta, ciano e neutro */
+    --serie-1: 20 5% 12%;
+    --serie-2: 194 100% 35%;
+    --serie-3: 20 4% 51%;
+    --mapa-fundo: 0 4% 95%;
+    --mapa-grade: 20 5% 12% / 0.08;
+    --trilho: 20 6% 90%;
+    --border: 20 4% 87%;             /* #dfdddc ≈ tinta a 8% sobre o papel */
+    --input: 20 4% 51%;              /* campos: borda com 3,5:1 */
+    --ring: 194 100% 35%;
+    --radius: 0.125rem;
+
+    --font-display: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+
+    --shadow-card: none;
+    --shadow-card-hover: none;
+    --shadow-segmented: 0 0 0 1px hsl(20 5% 12% / 0.12);
+    --hero-gradient: none;
+    --hero-gradient-subtle: none;
+    --gold: 194 100% 35%;
+    --gold-light: 195 50% 92%;
+  }
 }
 
 @layer base {
@@ -201,6 +307,19 @@
   :focus-visible {
     outline: 2px solid hsl(var(--ring));
     outline-offset: 2px;
+  }
+
+  /* Estudo aberto: Source Serif 4 é a interface; números sempre tabulares e alinhados. */
+  :root.estudo body {
+    font-variant-numeric: tabular-nums lining-nums;
+    font-optical-sizing: auto;
+  }
+  :root.estudo h1, :root.estudo h2, :root.estudo h3, :root.estudo h4 {
+    letter-spacing: -0.005em;
+  }
+  /* Seleção de texto em ciano claro, como o resto da interação */
+  :root.estudo ::selection {
+    background: hsl(var(--ciano-100));
   }
 }
 
@@ -280,6 +399,145 @@
       linear-gradient(90deg, hsl(var(--mapa-grade)) 1px, transparent 1px);
     background-size: var(--grade, 48px) var(--grade, 48px);
   }
+
+  /* ─── Estudo aberto: escala tipográfica (Source Serif 4; celular primeiro) ─── */
+  .e-h1 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    line-height: 2.5rem;
+    font-weight: 600;
+  }
+  .e-h1-home {
+    font-family: var(--font-display);
+    font-size: 2.125rem;
+    line-height: 2.625rem;
+    font-weight: 600;
+  }
+  .e-h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    line-height: 1.875rem;
+    font-weight: 600;
+  }
+  .e-h3 {
+    font-family: var(--font-display);
+    font-size: 1.1875rem;
+    line-height: 1.625rem;
+    font-weight: 600;
+  }
+  .e-lead {
+    font-size: 1.125rem;
+    line-height: 1.8125rem;
+    color: hsl(var(--tinta-78));
+  }
+  .e-corpo {
+    font-size: 1rem;
+    line-height: 1.625rem;
+  }
+  .e-apoio {
+    font-size: 0.9375rem;
+    line-height: 1.375rem;
+    color: hsl(var(--tinta-78));
+  }
+  /* Rótulo: Fig., Tab., dt e coluna lateral — 12/16, caixa-alta, 0,06em, tinta a 70% */
+  .e-rotulo {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: hsl(var(--tinta-70));
+  }
+  .e-legenda {
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    color: hsl(var(--tinta-70));
+  }
+  .e-numero {
+    font-size: 2.125rem;
+    line-height: 2.5rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  .e-numero-sm {
+    font-size: 1.625rem;
+    line-height: 2rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  @media (min-width: 768px) {
+    .e-h1 { font-size: 2.5rem; line-height: 3rem; }
+    .e-h1-home { font-size: 2.75rem; line-height: 3.375rem; }
+    .e-h2 { font-size: 1.625rem; line-height: 2rem; }
+  }
+  @media (min-width: 1024px) {
+    .e-h1 { font-size: 2.875rem; line-height: 3.375rem; }      /* 46/54 */
+    .e-h1-home { font-size: 3.375rem; line-height: 3.875rem; } /* 54/62 */
+    .e-h2 { font-size: 1.75rem; line-height: 2.125rem; }       /* 28/34 */
+    .e-lead { font-size: 1.25rem; line-height: 2rem; }         /* 20/32 */
+    .e-numero { font-size: 2.75rem; line-height: 3rem; }       /* 44/48 */
+  }
+  /* Variável de fórmula: itálico verdadeiro (arquivo itálico próprio) */
+  .e-var {
+    font-style: italic;
+  }
+  .e-link {
+    color: hsl(var(--ciano-700));
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .e-link:hover {
+    color: hsl(var(--ciano-800));
+  }
+  /* Linhas: fina (8% de tinta) dentro de tabelas e gráficos; cheia só em eixos e cabeçalhos */
+  .e-fina {
+    border-color: hsl(var(--foreground) / 0.08);
+  }
+  .e-cheia {
+    border-color: hsl(var(--foreground));
+  }
+  /* Tag de natureza do dado: observado (ciano), aproximação (neutra, tracejada), hipótese (pontilhada) */
+  .e-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    white-space: nowrap;
+    border: 1px solid;
+    border-radius: 2px;
+    padding: 1px 6px;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .e-tag-observado {
+    border-color: hsl(var(--ciano));
+    background: hsl(var(--ciano-100));
+    color: hsl(var(--ciano-700));
+  }
+  .e-tag-aproximacao {
+    border-style: dashed;
+    border-color: hsl(var(--neutro-500));
+    color: hsl(var(--neutro-700));
+  }
+  .e-tag-hipotese {
+    border-style: dotted;
+    border-color: hsl(var(--neutro-500));
+    color: hsl(var(--neutro-700));
+  }
+  .e-tag-ajuste {
+    border-color: hsl(var(--neutro-500));
+    color: hsl(var(--neutro-700));
+  }
+  /* Aviso de amostra pequena: itálico em magenta 700 */
+  .e-amostra {
+    font-style: italic;
+    color: hsl(var(--magenta-700));
+  }
+  /* Valores com sinal: ciano 700 positivo, magenta 700 negativo */
+  .e-positivo { color: hsl(var(--ciano-700)); }
+  .e-negativo { color: hsl(var(--magenta-700)); }
 
   /* Premium gradient text */
   .text-gradient-premium {

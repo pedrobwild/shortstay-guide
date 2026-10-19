@@ -107,6 +107,38 @@
       "priority": "0.6"
     },
     {
+      "path": "/guia/escolha-do-ativo",
+      "title": "Como escolher o studio para short stay em São Paulo",
+      "description": "O que avaliar no prédio e na unidade antes de comprar um studio para Airbnb: convenção, metragem, planta, andar e localização.",
+      "h1": "Escolha do imóvel",
+      "keywords": "como escolher studio para airbnb, comprar studio short stay, avaliar unidade airbnb",
+      "priority": "0.6"
+    },
+    {
+      "path": "/guia/rentabilidade",
+      "title": "Como ler a rentabilidade de um studio no Airbnb",
+      "description": "Da receita bruta ao resultado líquido de um studio para short stay: DRE do guia, investimento total, rentabilidade anual e prazo de retorno.",
+      "h1": "Como ler a rentabilidade",
+      "keywords": "rentabilidade studio airbnb, quanto sobra no airbnb, custos de short stay",
+      "priority": "0.6"
+    },
+    {
+      "path": "/guia/reforma",
+      "title": "Reforma de studio para short stay: quanto investir",
+      "description": "Quanto investir na reforma de um studio para Airbnb em São Paulo e como comparar materiais e serviços, com o estudo de 188 contratos.",
+      "h1": "Reforma inteligente",
+      "keywords": "reforma de studio para airbnb, custo de reforma studio, reforma turnkey são paulo",
+      "priority": "0.6"
+    },
+    {
+      "path": "/guia/checklist",
+      "title": "Checklist do investidor em studio para short stay",
+      "description": "Avalie a sua preparação antes de investir em um studio para Airbnb em São Paulo: bairro, imóvel, conta, reforma e operação.",
+      "h1": "Checklist do investidor",
+      "keywords": "checklist investidor airbnb, investir em studio short stay, preparação investimento airbnb",
+      "priority": "0.6"
+    },
+    {
       "path": "/metodologia",
       "title": "Metodologia e dados abertos do Radar Bewild: fontes, cálculos e atualizações",
       "description": "Como o Radar Bewild produz os números de short stay em SP: fontes públicas por bairro, dado observado ou hipótese, atualizações e base aberta em CSV e JSON.",

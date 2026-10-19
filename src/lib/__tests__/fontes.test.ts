@@ -13,13 +13,24 @@ describe("fontes servidas pelo próprio site", () => {
     }
   });
 
-  it("o @font-face das duas famílias do tailwind.config.ts aponta para arquivos que existem em public/fonts", () => {
-    for (const familia of ["DM Sans", "Playfair Display"]) expect(fontsCss).toContain(`font-family: "${familia}"`);
+  it("cada @font-face aponta para um arquivo que existe em public/fonts, com a licença ao lado", () => {
+    for (const familia of ["Source Serif 4", "DM Sans", "Playfair Display"]) expect(fontsCss).toContain(`font-family: "${familia}"`);
     for (const arquivo of fontsCss.matchAll(/url\("\/fonts\/([^"]+)"\)/g)) {
       expect(existsSync(`public/fonts/${arquivo[1]}`), arquivo[1]).toBe(true);
-      expect(indexHtml, `preload de ${arquivo[1]}`).toContain(`href="/fonts/${arquivo[1]}" as="font" type="font/woff2" crossorigin`);
     }
+    expect(existsSync("public/fonts/LICENSE-source-serif-4.txt")).toBe(true);
     expect(existsSync("public/fonts/LICENSE-dm-sans.txt")).toBe(true);
     expect(existsSync("public/fonts/LICENSE-playfair-display.txt")).toBe(true);
+  });
+
+  it("a fonte das telas públicas (Source Serif 4, normal) tem preload; as do admin e o itálico das fórmulas não", () => {
+    expect(indexHtml).toContain('href="/fonts/source-serif-4-latin-variavel.woff2" as="font" type="font/woff2" crossorigin');
+    for (const sem of ["dm-sans-latin-variavel", "playfair-display-latin-variavel", "source-serif-4-italico-latin-variavel"]) {
+      expect(indexHtml, sem).not.toContain(`href="/fonts/${sem}.woff2" as="font"`);
+    }
+  });
+
+  it("o index.html sai com a classe do Estudo aberto (telas públicas pré-renderizadas herdam)", () => {
+    expect(indexHtml).toMatch(/<html lang="pt-BR" class="estudo">/);
   });
 });

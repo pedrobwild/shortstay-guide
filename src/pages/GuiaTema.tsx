@@ -12,6 +12,12 @@ import DecoracaoSection from "@/components/guide/DecoracaoSection";
 import AnuncioPrecificacaoSection from "@/components/guide/AnuncioPrecificacaoSection";
 // Carregada junto com a página (na home é sob demanda): a pré-renderização estática precisa do conteúdo pronto.
 import TendenciasSection from "@/components/guide/TendenciasSection";
+import EscolhaAtivoSection from "@/components/guide/EscolhaAtivoSection";
+import RentabilidadeSection from "@/components/guide/RentabilidadeSection";
+import ReformaSection from "@/components/guide/ReformaSection";
+import ChecklistSection from "@/components/guide/ChecklistSection";
+import { BairroProvider } from "@/hooks/useBairroData";
+import { GuideDecisionProvider } from "@/hooks/useGuideDecision";
 import { Button } from "@/components/ui/button";
 import { TEMAS_GUIA, temaPorSlug, type SlugTemaGuia } from "@/data/temasGuia";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
@@ -24,6 +30,10 @@ const SECOES: Record<SlugTemaGuia, ComponentType> = {
   decoracao: DecoracaoSection,
   tendencias: TendenciasSection,
   "anuncio-e-precificacao": AnuncioPrecificacaoSection,
+  "escolha-do-ativo": EscolhaAtivoSection,
+  rentabilidade: RentabilidadeSection,
+  reforma: ReformaSection,
+  checklist: ChecklistSection,
 };
 
 /**
@@ -37,17 +47,19 @@ export function ConteudoTema({ slug }: { slug: SlugTemaGuia }) {
   const indice = TEMAS_GUIA.findIndex((t) => t.slug === slug);
   const proximo = TEMAS_GUIA[(indice + 1) % TEMAS_GUIA.length];
   return (
+    <BairroProvider>
+    <GuideDecisionProvider>
     <ModoPaginaGuia.Provider value>
-      <main id="conteudo" tabIndex={-1} className="mx-auto w-full max-w-[1280px] px-5 pb-16 lg:px-10">
+      <main id="conteudo" tabIndex={-1} className="mx-auto w-full max-w-[1280px] px-4 pb-16 sm:px-6 lg:px-[72px]">
         <nav aria-label="Caminho" className="flex min-h-[44px] flex-wrap items-center gap-1.5 pt-6 text-xs text-muted-foreground">
-          <Link to="/" className="hover:text-foreground">Guia do investidor</Link>
+          <Link to="/#guia" className="hover:text-foreground">Guia por tema</Link>
           <ChevronRight className="h-3 w-3" aria-hidden="true" />
           <span className="text-foreground">{tema.titulo}</span>
         </nav>
         <Secao />
         <div className="regua flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <p className="font-display text-[22px] font-semibold leading-tight text-foreground">Próximo passo</p>
+            <p className="e-h3">Próximo passo</p>
             <p className="mt-1 text-sm text-muted-foreground">Leve o que leu para a conta do seu studio ou peça o orçamento da reforma.</p>
           </div>
           <div className="flex flex-shrink-0 flex-wrap gap-2">
@@ -58,11 +70,13 @@ export function ConteudoTema({ slug }: { slug: SlugTemaGuia }) {
           </div>
         </div>
         <div className="flex flex-col gap-2 py-4 text-sm sm:flex-row sm:items-center sm:justify-between">
-          <Link to={`/#${tema.secaoId}`} className="inline-flex min-h-[44px] items-center gap-1.5 font-semibold text-primary underline underline-offset-4"><ArrowLeft className="h-4 w-4" aria-hidden="true" />Voltar ao guia</Link>
+          <Link to="/#guia" className="inline-flex min-h-[44px] items-center gap-1.5 font-semibold text-primary underline underline-offset-4"><ArrowLeft className="h-4 w-4" aria-hidden="true" />Todos os temas</Link>
           <Link to={`/guia/${proximo.slug}`} className="inline-flex min-h-[44px] items-center gap-1 font-semibold text-primary underline underline-offset-4">Próximo tema: {proximo.titulo}<ChevronRight className="h-4 w-4" aria-hidden="true" /></Link>
         </div>
       </main>
     </ModoPaginaGuia.Provider>
+    </GuideDecisionProvider>
+    </BairroProvider>
   );
 }
 

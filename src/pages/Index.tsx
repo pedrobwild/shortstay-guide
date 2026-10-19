@@ -1,73 +1,55 @@
-import { useEffect, useRef, lazy, Suspense, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
+import { Link } from "react-router-dom";
 import AppNavbar from "@/components/AppNavbar";
 import RodapeRadar from "@/components/RodapeRadar";
-import { CheckSquare } from "lucide-react";
-import { useGuideAnalytics, setGlobalTrack, setGlobalSessionId } from "@/hooks/useGuideAnalytics";
-import { useScrollspy } from "@/hooks/useScrollspy";
-import { useReadingProgress } from "@/hooks/useReadingProgress";
-import ScrollProgressBar from "@/components/guide/ScrollProgressBar";
-import ResumeToast from "@/components/guide/ResumeToast";
-import ClientOnly from "@/components/ClientOnly";
+import OrcamentoButton from "@/components/OrcamentoButton";
+import FonteLink from "@/components/guide/FonteLink";
+import LinkArtigoBewild from "@/components/guide/LinkArtigoBewild";
+import { FAQ_ITEMS } from "@/components/guide/FAQSection";
+import { CabecalhoTela, Container, Secao } from "@/components/estudo/Estrutura";
+import MetadadosBase from "@/components/estudo/MetadadosBase";
+import { FormulaReceita, AvisoReceita } from "@/components/estudo/Numeros";
+import { NotaAmostra, TagBairro } from "@/components/estudo/Natureza";
+import SeletorBairro from "@/components/estudo/SeletorBairro";
+import { Button } from "@/components/ui/button";
+import { useGuideAnalytics, setGlobalTrack, setGlobalSessionId, trackGlobal } from "@/hooks/useGuideAnalytics";
 import { BairroProvider } from "@/hooks/useBairroData";
-import { GuideDecisionProvider } from "@/hooks/useGuideDecision";
-import { SECTIONS, PHASES } from "@/data/guide-data";
+import { useBaseEstudo } from "@/hooks/useBaseEstudo";
+import { useBairroSelecionado } from "@/hooks/useBairroSelecionado";
+import { PERFIS_RADAR, type PerfilRadar } from "@/data/perfisRadar";
+import { TEMAS_GUIA, caminhoTema } from "@/data/temasGuia";
+import {
+  AREA_MEDIANA_M2, CONTRATOS_ANALISADOS, ESTUDO_REFORMA_DATA, ESTUDO_REFORMA_URL, ORCAMENTO_MEDIANO,
+  SELO_BAIRROS, SELO_PROJETOS, SELO_REFORMAS,
+} from "@/data/provasBewild";
+import { definirMomento, useMomento } from "@/lib/momento";
+import { extremos, receitaDe } from "@/lib/estudo";
+import { formatBRL, formatDecimal } from "@/lib/numberFormat";
+import { bairroPath } from "@/lib/seo";
 import { cn } from "@/lib/utils";
+import type { BairroCurado } from "@/data/bairrosCurados";
+import NovaAba from "@/components/NovaAba";
 
-// Guide section components
-import HeroSection from "@/components/guide/HeroSection";
-import PreviaDadosSection from "@/components/guide/PreviaDadosSection";
-import FontesAtualizacaoSection from "@/components/guide/FontesAtualizacaoSection";
-import FaixaBewild from "@/components/guide/FaixaBewild";
-import TableOfContents from "@/components/guide/TableOfContents";
-import MenuSecoesGuia from "@/components/guide/MobileMenu";
-import MobileStickyBar from "@/components/guide/MobileStickyBar";
-import SectionIntro from "@/components/guide/SectionIntro";
-import PhaseHeader from "@/components/guide/PhaseHeader";
-import ReservasSection from "@/components/guide/ReservasSection";
-import MercadoSection from "@/components/guide/MercadoSection";
-import SimuladorSection from "@/components/guide/SimuladorSection";
-import EscolhaAtivoSection from "@/components/guide/EscolhaAtivoSection";
-import RentabilidadeSection from "@/components/guide/RentabilidadeSection";
-import AnuncioPrecificacaoSection from "@/components/guide/AnuncioPrecificacaoSection";
-import MidPageCTA from "@/components/guide/MidPageCTA";
-import ReformaSection from "@/components/guide/ReformaSection";
-import AntiChecklistSection from "@/components/guide/AntiChecklistSection";
-import DecoracaoSection from "@/components/guide/DecoracaoSection";
-import CaseStudySection from "@/components/guide/CaseStudySection";
-import ChecklistSection from "@/components/guide/ChecklistSection";
-import TrustSignals from "@/components/guide/TrustSignals";
-import PerfilInvestidorAtalho from "@/components/guide/PerfilInvestidorAtalho";
-import FAQSection from "@/components/guide/FAQSection";
-import FinalCTASection from "@/components/guide/FinalCTASection";
-
-const TendenciasSection = lazy(() => import("@/components/guide/TendenciasSection"));
-
+/**
+ * Home do Radar no redesign "Estudo aberto" (direção 2a, out/2026): porta de entrada
+ * enxuta. Os três perfis (comprar, reformar, operar) com as perguntas que o Radar
+ * responde, um número de referência e as ferramentas; a base de dados com fonte,
+ * período, coleta e amostra; três achados. O conteúdo do guia vive nas páginas de
+ * tema (/guia/<tema>) e nas ferramentas; o simulador e o case, em /projecao.
+ * Pré-renderizada com SSR e hidratada: bairro e perfil guardados são lidos depois
+ * da montagem.
+ */
 export default function Index() {
   return (
     <BairroProvider>
-      <GuideDecisionProvider>
-        <IndexInner />
-      </GuideDecisionProvider>
+      <IndexInner />
     </BairroProvider>
   );
 }
 
-/** Faixa de conteúdo: até 1280px com margens de 40px; `branca` vira superfície com linhas finas em cima e embaixo. */
-function Faixa({ children, branca = false }: { children: ReactNode; branca?: boolean }) {
-  return (
-    <div className={cn("w-full", branca && "border-y border-border bg-card")}>
-      <div className="mx-auto max-w-[1280px] px-5 lg:px-10">{children}</div>
-    </div>
-  );
-}
-
-function IndexInner() {
-  const sectionIds = SECTIONS.map((s) => s.id);
-  const activeId = useScrollspy(sectionIds);
+function useMedicaoHome() {
   const { trackEvent, sessionId } = useGuideAnalytics();
-  const scrollMilestones = useRef(new Set<string>());
-  const { scrollPercent, visitedSections, sectionIndex, sectionCount, resumeData, dismissResume } = useReadingProgress(activeId);
-
+  const marcos = useRef(new Set<string>());
   useEffect(() => {
     setGlobalTrack(trackEvent);
     setGlobalSessionId(sessionId);
@@ -76,133 +58,260 @@ function IndexInner() {
       setGlobalSessionId(null);
     };
   }, [trackEvent, sessionId]);
-
   useEffect(() => {
     trackEvent("page_view", { referrer: document.referrer, ua: navigator.userAgent });
   }, [trackEvent]);
-
   useEffect(() => {
-    const handler = () => {
-      const pct = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+    const aoRolar = () => {
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      if (total <= 0) return;
+      const pct = Math.round((window.scrollY / total) * 100);
       for (const m of [25, 50, 75, 100]) {
-        if (pct >= m && !scrollMilestones.current.has(`scroll_${m}`)) {
-          scrollMilestones.current.add(`scroll_${m}`);
+        if (pct >= m && !marcos.current.has(`scroll_${m}`)) {
+          marcos.current.add(`scroll_${m}`);
           trackEvent(`scroll_${m}`, {});
         }
       }
     };
-    window.addEventListener("scroll", handler, { passive: true });
-    return () => window.removeEventListener("scroll", handler);
+    window.addEventListener("scroll", aoRolar, { passive: true });
+    return () => window.removeEventListener("scroll", aoRolar);
   }, [trackEvent]);
+}
 
-  const phase = (n: number) => PHASES[n - 1];
+function IndexInner() {
+  useMedicaoHome();
+  const { bairros, cidade } = useBaseEstudo();
+  const { bairro, selecionar } = useBairroSelecionado(bairros, { naUrl: false });
+  const momento = useMomento();
+  const ativo = momento ?? "procurando";
+  const ocupacao = extremos(bairros, (b) => b.avgOccupancy);
+  const receitaSP = receitaDe(cidade);
 
   return (
-    <>
-      <AppNavbar
-        comTrilhoGuia
-        menuGuia={(fechar) => <MenuSecoesGuia activeId={activeId} onNavegar={fechar} />}
-        progressoGuia={`Guia do investidor · seção ${sectionIndex} de ${sectionCount}`}
-      />
-      <ClientOnly><ScrollProgressBar percent={scrollPercent} /></ClientOnly>
-      <ClientOnly><ResumeToast data={resumeData} onDismiss={dismissResume} /></ClientOnly>
-      <TableOfContents activeId={activeId} visitedSections={visitedSections} />
-      <MobileStickyBar />
+    <div className="min-h-screen bg-background font-body text-foreground">
+      <AppNavbar />
+      <main id="conteudo" tabIndex={-1} className="pb-8 outline-none">
+        <CabecalhoTela
+          home
+          rotulo="Radar Bewild · estudo aberto sobre studios em São Paulo"
+          titulo="Dados para decidir cada etapa de um studio para short stay: comprar, reformar e operar."
+          lead={<>Diária, ocupação e amostra de {bairros.length} bairros, o custo de {CONTRATOS_ANALISADOS} reformas e as contas do short stay, com fonte, período e método à vista.</>}
+        />
 
-      <main id="conteudo" tabIndex={-1} className="flex w-full flex-col items-center pb-24 lg:ml-[60px] lg:w-[calc(100%-60px)] lg:pb-0">
+        {/* Três perfis: cada um com perguntas, número de referência, ferramentas e um botão */}
+        <section id="perfis" aria-labelledby="perfis-titulo" className="scroll-mt-20 pb-12 lg:pb-16">
+          <Container>
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <h2 id="perfis-titulo" className="e-h2">Em que etapa você está?</h2>
+              {bairro && (
+                <SeletorBairro
+                  className="sm:w-[280px]"
+                  rotulo="Bairro em análise"
+                  bairros={bairros}
+                  valor={bairro.name}
+                  onChange={(nome) => { selecionar(nome); trackGlobal("cta_clicked", { cta_id: "home_bairro", section: "perfis", bairro: nome }); }}
+                />
+              )}
+            </div>
+            <div className="grid gap-12 md:grid-cols-3 md:gap-8 lg:gap-12">
+              {PERFIS_RADAR.map((p) => (
+                <ColunaPerfil key={p.numero} perfil={p} ativo={p.momento === ativo} bairro={bairro} />
+              ))}
+            </div>
+          </Container>
+        </section>
 
-        {/* ═══ HERO: três portas (bairro → conta → reforma) e carimbo de referência ═══ */}
-        <Faixa><HeroSection /></Faixa>
+        <Secao
+          id="base"
+          rotulo="Base de dados"
+          titulo="Os números vêm de uma coleta pública, com data e amostra"
+          lead="Cada bairro tem a sua página na GuestFavorites. O Radar registra a leitura, o período e o tamanho da amostra; nada entra na base sem aprovação."
+        >
+          <MetadadosBase bairros={bairros} cidade={cidade} />
+          <div className="mt-8 max-w-[720px]">
+            <p className="e-rotulo mb-2">Método</p>
+            <FormulaReceita />
+          </div>
+          <p className="mt-6 flex flex-wrap gap-x-6 gap-y-1 text-[15px]">
+            <Link to="/metodologia" className="e-link inline-flex min-h-[44px] items-center">Metodologia completa</Link>
+            <a href="/dados/bairros.csv" className="e-link inline-flex min-h-[44px] items-center" download>Baixar a base (CSV)</a>
+            <a href="/dados/bairros.json" className="e-link inline-flex min-h-[44px] items-center">JSON</a>
+          </p>
+        </Secao>
 
-        {/* ═══════════════════════════════════════════════════════
-            BLOCO 1 — Onde investir (01 · Escolher o bairro)
-        ═══════════════════════════════════════════════════════ */}
-        <PreviaDadosSection />
-        <Faixa><FontesAtualizacaoSection /></Faixa>
+        <Secao id="resumo" rotulo="Resumo" titulo="Três achados para começar">
+          <dl className="grid gap-10 md:grid-cols-3 md:gap-8">
+            <Achado
+              valor={formatBRL(receitaSP)}
+              rotulo="Receita de referência por mês em São Paulo"
+              nota={<>{formatBRL(cidade.dailyAvg)} de diária × 30 × {formatDecimal(cidade.avgOccupancy, 0)}% de ocupação, {cidade.period}. Antes de custos.</>}
+            />
+            {ocupacao && (
+              <Achado
+                valor={`${formatDecimal(ocupacao.min, 0)}–${formatDecimal(ocupacao.max, 0)}%`}
+                rotulo={`Ocupação média nos ${bairros.length} bairros`}
+                nota={<>Da menor ({ocupacao.nomesMin.join(", ")}) à maior ({ocupacao.nomesMax.join(", ")}). A ocupação varia menos que a diária entre os bairros.</>}
+              />
+            )}
+            <Achado
+              valor={formatBRL(ORCAMENTO_MEDIANO)}
+              rotulo={`Reforma completa mediana, ${formatDecimal(AREA_MEDIANA_M2, 1)} m²`}
+              nota={<>{CONTRATOS_ANALISADOS} contratos turnkey em SP, estudo Bewild de {ESTUDO_REFORMA_DATA}. <a href={ESTUDO_REFORMA_URL} target="_blank" rel="noopener noreferrer" className="e-link">Ver o estudo<NovaAba /></a></>}
+            />
+          </dl>
+          <AvisoReceita className="mt-8" />
+        </Secao>
 
-        {/* Quem produz o Radar: autoridade perto das decisões, provas oficiais */}
-        <FaixaBewild />
+        <Secao id="guia" rotulo="Guia por tema" titulo="O que estudar antes de cada decisão">
+          <ul className="e-fina border-t">
+            {TEMAS_GUIA.map((t) => (
+              <li key={t.slug} className="e-fina border-b">
+                <Link
+                  to={caminhoTema(t.slug)}
+                  onClick={() => trackGlobal("cta_clicked", { cta_id: "tema_guia", section: t.slug })}
+                  className="group grid min-h-[44px] gap-1 py-4 sm:grid-cols-[minmax(0,320px)_minmax(0,1fr)] sm:gap-8"
+                >
+                  <span className="text-[17px] font-semibold leading-6 group-hover:underline">{t.titulo}</span>
+                  <span className="e-apoio">{t.resumo}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Secao>
 
-        {/* Fase 1 do guia (a prévia acima é a porta de entrada): mercado e indicadores */}
-        <Faixa><PhaseHeader {...phase(1)} /></Faixa>
+        <Secao id="bewild" rotulo="Quem produz" titulo="O Radar é produzido pela Bewild, que reforma studios compactos em São Paulo">
+          <p className="e-corpo max-w-[720px] text-tinta-78">
+            Os dados de mercado vêm de fontes públicas identificadas; o custo e o prazo de reforma, dos contratos da própria Bewild.
+            {" "}<a href="https://bewild.com.br" target="_blank" rel="noopener noreferrer" className="e-link">Conheça a Bewild<NovaAba /></a>
+          </p>
+          <ul className="mt-6 flex flex-wrap gap-x-8 gap-y-2 text-[15px]">
+            <li>{SELO_REFORMAS}</li>
+            <li>{SELO_PROJETOS}</li>
+            <li>{SELO_BAIRROS}</li>
+          </ul>
+          <OrcamentoButton local="final" rotulo="Solicitar orçamento de reforma" variant="outline" className="mt-8 min-h-[44px] px-5 text-[15px] font-semibold" />
+        </Secao>
 
-        {/* Mercado e Precificação */}
-        <Faixa branca><MercadoSection /></Faixa>
-
-        {/* ═══════════════════════════════════════════════════════
-            BLOCO 2 — Como validar a conta
-        ═══════════════════════════════════════════════════════ */}
-        <Faixa>
-          <PhaseHeader {...phase(2)} />
-          <PerfilInvestidorAtalho />
-        </Faixa>
-
-        {/* Escolha do Ativo */}
-        <Faixa><EscolhaAtivoSection /></Faixa>
-
-        {/* Rentabilidade didática */}
-        <Faixa branca><RentabilidadeSection /></Faixa>
-
-        {/* Simulador de Receita */}
-        <Faixa><SimuladorSection /></Faixa>
-
-        {/* Case de operação ao lado da análise: evidência junto do tema */}
-        <Faixa branca><CaseStudySection /></Faixa>
-
-        {/* CTA intermediário */}
-        <Faixa><MidPageCTA variant="slim" /></Faixa>
-
-        {/* ═══════════════════════════════════════════════════════
-            BLOCO 3 — O que faz um studio performar
-        ═══════════════════════════════════════════════════════ */}
-        <Faixa><PhaseHeader {...phase(3)} /></Faixa>
-
-        {/* O que influencia a escolha do hóspede */}
-        <Faixa branca><ReservasSection /></Faixa>
-
-        {/* Reforma inteligente */}
-        <Faixa><ReformaSection /></Faixa>
-
-        {/* Anti-checklist */}
-        <Faixa branca><AntiChecklistSection /></Faixa>
-
-        {/* Decoração estratégica */}
-        <Faixa><DecoracaoSection /></Faixa>
-
-        {/* Tendências */}
-        <Faixa>
-          <Suspense fallback={<div className="py-16"><div className="mx-auto h-4 w-4 animate-spin rounded-full border-2 border-primary/40 border-t-primary" /></div>}>
-            <TendenciasSection />
-          </Suspense>
-        </Faixa>
-
-        {/* ═══════════════════════════════════════════════════════
-            BLOCO 4 — Como agir com confiança
-        ═══════════════════════════════════════════════════════ */}
-        <Faixa><PhaseHeader {...phase(4)} /></Faixa>
-
-        {/* Anúncio e Precificação */}
-        <Faixa><AnuncioPrecificacaoSection /></Faixa>
-
-        {/* Checklist */}
-        <Faixa>
-          <SectionIntro icon={CheckSquare} text="Avalie se você está pronto para dar o próximo passo" />
-          <ChecklistSection />
-        </Faixa>
-
-        {/* Trust + FAQ */}
-        <Faixa>
-          <TrustSignals />
-          <FAQSection />
-        </Faixa>
-
-        {/* Próximo passo: preparar a reforma */}
-        <div className="w-full border-t border-border bg-card">
-          <div className="mx-auto max-w-[1280px] px-5 lg:px-10"><FinalCTASection /></div>
-        </div>
-
-        <RodapeRadar />
+        <Secao id="faq" rotulo="Perguntas frequentes" titulo="Respostas curtas, com a fonte de cada número">
+          <div className="e-fina border-t">
+            {FAQ_ITEMS.map((item, i) => (
+              <details key={i} className="group e-fina border-b">
+                <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-4 py-4 text-left text-[17px] font-semibold leading-6 hover:underline [&::-webkit-details-marker]:hidden">
+                  {item.q}
+                  <span aria-hidden="true" className="shrink-0 text-tinta-70 transition-transform group-open:rotate-45 motion-reduce:transition-none">+</span>
+                </summary>
+                <div className="max-w-[720px] pb-5">
+                  <p className="e-apoio">{item.a}</p>
+                  {item.source && <FonteLink fonte={item.source} />}
+                  {item.artigo && <LinkArtigoBewild artigo={item.artigo} />}
+                  {item.link && (
+                    <a href={item.link} target="_blank" rel="noopener noreferrer" className="e-link inline-flex min-h-[44px] items-center text-[15px]">
+                      Ver a análise completa<NovaAba />
+                    </a>
+                  )}
+                </div>
+              </details>
+            ))}
+          </div>
+        </Secao>
       </main>
-    </>
+      <RodapeRadar />
+    </div>
+  );
+}
+
+function Achado({ valor, rotulo, nota }: { valor: string; rotulo: string; nota: ReactNode }) {
+  return (
+    <div className="min-w-0">
+      <dt className="e-rotulo">{rotulo}</dt>
+      <dd className="m-0">
+        <span className="e-numero mt-2 block">{valor}</span>
+        <span className="e-apoio mt-2 block">{nota}</span>
+      </dd>
+    </div>
+  );
+}
+
+/** Número de referência de cada perfil, a partir do bairro em análise e do estudo de reforma. */
+function referenciaPerfil(p: PerfilRadar, bairro: BairroCurado | null) {
+  if (p.momento === "reformar") {
+    return {
+      rotulo: `Reforma mediana · ${formatDecimal(AREA_MEDIANA_M2, 1)} m²`,
+      valor: formatBRL(ORCAMENTO_MEDIANO),
+      nota: `${CONTRATOS_ANALISADOS} contratos turnkey em SP · estudo Bewild, ${ESTUDO_REFORMA_DATA}`,
+    };
+  }
+  if (!bairro) return null;
+  if (p.momento === "procurando") {
+    return {
+      rotulo: `Receita de referência · ${bairro.name}`,
+      valor: `${formatBRL(receitaDe(bairro))}/mês`,
+      nota: `${formatBRL(bairro.dailyAvg)} × 30 × ${formatDecimal(bairro.avgOccupancy, 0)}%, antes de custos`,
+    };
+  }
+  return {
+    rotulo: `Diária média e ocupação · ${bairro.name}`,
+    valor: `${formatBRL(bairro.dailyAvg)} · ${formatDecimal(bairro.avgOccupancy, 0)}%`,
+    nota: bairro.period ? `Média do bairro, ${bairro.period}` : "Média do bairro",
+  };
+}
+
+function ColunaPerfil({ perfil, ativo, bairro }: { perfil: PerfilRadar; ativo: boolean; bairro: BairroCurado | null }) {
+  const ref = referenciaPerfil(perfil, bairro);
+  const idTitulo = `perfil-${perfil.numero}`;
+  const escolher = (cta: string) => {
+    definirMomento(perfil.momento);
+    trackGlobal("cta_clicked", { cta_id: cta, section: "perfis", momento: perfil.momento });
+  };
+  const comBairroDeDados = perfil.momento !== "reformar" && bairro;
+  return (
+    <article
+      aria-labelledby={idTitulo}
+      className={cn("flex min-w-0 flex-col pt-6", ativo ? "border-t-[3px] border-ciano" : "border-t border-foreground")}
+    >
+      <p className="e-rotulo" id={idTitulo}>
+        <span className="tabular-nums">{perfil.numero}</span> · {perfil.rotulo}
+      </p>
+      <h3 className="e-h3 mt-2">{perfil.situacao}</h3>
+
+      <p className="e-rotulo mt-6">O Radar responde</p>
+      <ul className="mt-2 space-y-1.5">
+        {perfil.perguntas.map((q) => <li key={q} className="e-apoio">{q}</li>)}
+      </ul>
+
+      {ref && (
+        <dl className="e-fina mt-6 border-t pt-4">
+          <dt className="e-rotulo">{ref.rotulo}</dt>
+          <dd className="m-0">
+            <span className="e-numero-sm mt-1 block">{ref.valor}</span>
+            <span className="e-legenda mt-1 block">{ref.nota}</span>
+            {comBairroDeDados && (
+              <span className="mt-2 flex flex-wrap items-center gap-2">
+                <TagBairro b={bairro} />
+                <NotaAmostra b={bairro} curta />
+                <Link to={bairroPath(bairro.name)} className="e-link text-[13px]">Ver o bairro</Link>
+              </span>
+            )}
+          </dd>
+        </dl>
+      )}
+
+      <p className="e-rotulo mt-6">Ferramentas</p>
+      <ul className="mt-1">
+        {perfil.ferramentas.map((f) => (
+          <li key={f.to}>
+            <Link to={f.to} onClick={() => escolher(`perfil_${perfil.numero}_ferramenta`)} className="e-link inline-flex min-h-[44px] items-center text-[15px]">
+              {f.rotulo}
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-auto pt-6">
+        <Button asChild variant={ativo ? "default" : "outline"} className="min-h-[44px] w-full px-5 text-[15px] font-semibold sm:w-auto">
+          <Link to={perfil.acao.to} onClick={() => escolher(`perfil_${perfil.numero}`)}>{perfil.acao.rotulo}</Link>
+        </Button>
+      </div>
+    </article>
   );
 }
