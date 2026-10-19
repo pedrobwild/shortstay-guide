@@ -82,6 +82,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { formatDecimal, formatPercent } from "@/lib/numberFormat";
 import { trackSimulationShared, trackSimulationUsed } from "@/lib/marketingConsent";
 import FinancingGuide from "./GuiaFinanciamento";
+import ReceitaBairroFinanciamento from "./ReceitaBairroFinanciamento";
+import { useRadarBase } from "@/lib/radarBase";
 
 const SLIDER_TOUCH =
   "[&_[role=slider]]:h-5 [&_[role=slider]]:w-5 [&_[role=slider]]:relative [&_[role=slider]]:after:content-[''] [&_[role=slider]]:after:absolute [&_[role=slider]]:after:-inset-3";
@@ -788,6 +790,7 @@ function ImovelBuscado({
 }) {
   const [textoMetragem, setTextoMetragem] = useState(metragem > 0 ? fmtMetragem(metragem) : "");
   const [editando, setEditando] = useState(false);
+  const radar = useRadarBase();
   useEffect(() => {
     if (!editando) setTextoMetragem(metragem > 0 ? fmtMetragem(metragem) : "");
   }, [metragem, editando]);
@@ -823,9 +826,13 @@ function ImovelBuscado({
             autoComplete="off"
             maxLength={80}
             placeholder="Ex.: Vila Mariana"
+            list={fid("bairros-coletados")}
             value={bairro}
             onChange={(e) => setBairro(e.target.value)}
           />
+          <datalist id={fid("bairros-coletados")}>
+            {radar.data?.bairros.map((b) => <option key={b.name} value={b.name} />)}
+          </datalist>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor={fid("metragem")}>Metragem</Label>
@@ -857,6 +864,7 @@ function ImovelBuscado({
         </div>
       </div>
       <FieldError id={fid("metragem-error")} msg={erroMetragem} />
+      <ReceitaBairroFinanciamento nome={bairro} idPrefix={fid("mercado")} />
 
       {precoM2 > 0 && !erroMetragem && (
         <p className="text-xs text-muted-foreground tabular-nums">
@@ -1667,6 +1675,7 @@ function ResultsView({ snap, stale, onRegenerate, onReset, onCopyLink, showCopyL
       )}
 
       {/* KPIs */}
+      <ReceitaBairroFinanciamento key={snap.bairro} nome={snap.bairro ?? ""} parcela={active.firstInstallment} idPrefix="resultado-mercado" />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Kpi label="1ª parcela" value={BRL(active.firstInstallment)} highlight />
         <Kpi label={system === "SAC" ? "Última parcela" : "Parcela (fixa)"} value={BRL(active.lastInstallment)} />
