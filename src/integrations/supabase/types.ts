@@ -870,6 +870,72 @@ export type Database = {
         }
         Relationships: []
       }
+      simulacoes_busca: {
+        Row: {
+          bairro: string | null
+          bairro_chave: string | null
+          banco_id: string | null
+          consentimento_versao: string
+          created_at: string
+          elegivel_mcmv: boolean
+          empreendimento: string | null
+          entrada_pct: number
+          faixa_idade: string | null
+          faixa_renda: string | null
+          id: string
+          metragem: number | null
+          prazo_compra: string | null
+          prazo_financiamento_meses: number
+          preco_m2: number | null
+          sessao: string
+          sistema: string
+          usa_fgts: boolean
+          valor_imovel: number
+        }
+        Insert: {
+          bairro?: string | null
+          bairro_chave?: string | null
+          banco_id?: string | null
+          consentimento_versao: string
+          created_at?: string
+          elegivel_mcmv?: boolean
+          empreendimento?: string | null
+          entrada_pct: number
+          faixa_idade?: string | null
+          faixa_renda?: string | null
+          id?: string
+          metragem?: number | null
+          prazo_compra?: string | null
+          prazo_financiamento_meses: number
+          preco_m2?: number | null
+          sessao: string
+          sistema: string
+          usa_fgts?: boolean
+          valor_imovel: number
+        }
+        Update: {
+          bairro?: string | null
+          bairro_chave?: string | null
+          banco_id?: string | null
+          consentimento_versao?: string
+          created_at?: string
+          elegivel_mcmv?: boolean
+          empreendimento?: string | null
+          entrada_pct?: number
+          faixa_idade?: string | null
+          faixa_renda?: string | null
+          id?: string
+          metragem?: number | null
+          prazo_compra?: string | null
+          prazo_financiamento_meses?: number
+          preco_m2?: number | null
+          sessao?: string
+          sistema?: string
+          usa_fgts?: boolean
+          valor_imovel?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -927,6 +993,25 @@ export type Database = {
     Functions: {
       admin_aprovar_coleta_pendente: { Args: { p_id: string }; Returns: number }
       admin_ativar_coleta_radar: { Args: { p_id: string }; Returns: undefined }
+      admin_demanda_busca_por_bairro: {
+        Args: { _desde?: string }
+        Returns: {
+          bairro: string
+          bairro_chave: string
+          empreendimentos: Json
+          entrada_pct_mediana: number
+          faixa_renda: Json
+          metragem_mediana: number
+          pct_fgts: number
+          pct_mcmv: number
+          pessoas: number
+          prazo_compra: Json
+          preco_m2_mediano: number
+          simulacoes: number
+          ultima_simulacao: string
+          valor_mediano: number
+        }[]
+      }
       admin_descartar_coleta_pendente: {
         Args: { p_id: string; p_motivo?: string }
         Returns: undefined
