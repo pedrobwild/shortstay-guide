@@ -6,6 +6,7 @@ const ABAS = [
   { to: "/admin/bairros", label: "Bairros" },
   { to: "/admin/coletas", label: "Coletas" },
   { to: "/admin/fontes", label: "Fontes" },
+  { to: "/admin/seo", label: "SEO" },
   { to: "/admin/simulacoes", label: "Simulações" },
   { to: "/admin/demanda", label: "Demanda" },
   { to: "/admin/leads", label: "Leads" },
