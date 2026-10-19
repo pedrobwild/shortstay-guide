@@ -58,7 +58,7 @@ describe("rotas públicas em seoRoutes.json", () => {
   });
 
   it("título de bairro não depende da marca: ela só entra quando o conjunto cabe em 60 caracteres", () => {
-    expect(bairroTitle("Pinheiros")).toBe("Studio para Airbnb em Pinheiros: diária, ocupação e receita");
+    expect(bairroTitle("Pinheiros")).toBe("Airbnb em Pinheiros: diária e ocupação");
     for (const nome of SEO_BAIRROS) {
       const titulo = tituloComMarca(bairroTitle(nome));
       expect(titulo.length <= TITULO_VISIVEL_MAX || titulo === bairroTitle(nome), nome).toBe(true);
