@@ -1,15 +1,30 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { BookOpen, Printer, FileText } from "lucide-react";
+import { Printer, FileText } from "lucide-react";
 import {
   INSTITUTION_RATES,
   MODALITY_LABEL,
   SITUATION_LABEL,
 } from "@/data/taxasFinanciamento";
 import { PCT_PT } from "@/lib/financiamento";
+
+/* Blocos sem caixa nem sombra (padrão "Estudo aberto"): linha de tinta no topo. */
+function Card({ children }: { className?: string; children?: React.ReactNode }) {
+  return <div className="min-w-0 border-t border-foreground pt-3">{children}</div>;
+}
+function CardHeader({ children }: { className?: string; children?: React.ReactNode }) {
+  return <div className="pb-2">{children}</div>;
+}
+function CardTitle({ children }: { className?: string; children?: React.ReactNode }) {
+  return <h3 className="e-h3">{children}</h3>;
+}
+function CardContent({ children, className }: { className?: string; children?: React.ReactNode }) {
+  return <div className={cn("min-w-0", className)}>{children}</div>;
+}
 
 const STEPS = [
   "Simulação inicial (valor, entrada, prazo, sistema).",
@@ -81,7 +96,7 @@ export default function FinancingGuide() {
       <Card className="border-border/60 shadow-card">
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
-            <BookOpen className="h-4 w-4 text-primary" /> Como conseguir a liberação do financiamento
+            Como conseguir a liberação do financiamento
           </CardTitle>
         </CardHeader>
         <CardContent>

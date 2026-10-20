@@ -97,8 +97,7 @@ describe("head global (index.html) e robots.txt", () => {
       'rel="manifest" href="/site.webmanifest"',
       'name="theme-color"',
       'name="geo.region" content="BR-SP"',
-      'rel="preload" href="/fonts/dm-sans-latin-variavel.woff2" as="font"',
-      'rel="preload" href="/fonts/playfair-display-latin-variavel.woff2" as="font"',
+      'rel="preload" href="/fonts/source-serif-4-latin-variavel.woff2" as="font"',
       "viewport-fit=cover",
     ]) expect(indexHtml).toContain(trecho);
   });

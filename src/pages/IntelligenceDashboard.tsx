@@ -1,19 +1,35 @@
-import AppNavbar from "@/components/AppNavbar";
-import { useState, useMemo, lazy, Suspense } from "react";
-import { useBairrosData, rotuloEstimativa } from "@/hooks/useIntelligenceData";
-import FonteBairro from "@/components/guide/FonteBairro";
-import { FONTE_BAIRROS_CURADOS } from "@/data/bairrosCurados";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  ArrowLeft, MapPin, Lightbulb, BookOpen, BarChart3, Target,
-  Building2, Trophy, ChevronRight, GraduationCap,
-} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FOOTER_DISCLAIMER } from "@/lib/uiHelpers";
+import { CabecalhoTela, Container, PaginaEstudo, Secao } from "@/components/estudo/Estrutura";
+import { Figura, TabelaNumerada, TD, TD_NUM, TH } from "@/components/estudo/Figura";
+import MetadadosBase from "@/components/estudo/MetadadosBase";
+import { NotaAmostra, Tag, TagBairro, TEXTO_APROXIMACAO } from "@/components/estudo/Natureza";
+import { AvisoReceita, FormulaReceita, GradeIndicadores, Indicador } from "@/components/estudo/Numeros";
+import HistogramaPontos from "@/components/estudo/graficos/HistogramaPontos";
+import { LegendaPontos } from "@/components/estudo/graficos/LegendaPontos";
+import AvisoBase from "@/components/radar/AvisoBase";
+import FonteBairro from "@/components/guide/FonteBairro";
+import LinkArtigoBewild from "@/components/guide/LinkArtigoBewild";
+import { Button } from "@/components/ui/button";
+import { ARTIGOS_BEWILD } from "@/data/artigosBewild";
+import { FONTE_BAIRROS_CURADOS, ROTULO_ESTIMATIVA_MERCADO } from "@/data/bairrosCurados";
+import { FONTES_GUIA } from "@/data/fontesGuia";
+import NovaAba from "@/components/NovaAba";
+import { BairroProvider } from "@/hooks/useBairroData";
+import { useBaseEstudo } from "@/hooks/useBaseEstudo";
+import { useBairroSelecionado } from "@/hooks/useBairroSelecionado";
+import { useBairrosData, rotuloEstimativa } from "@/hooks/useIntelligenceData";
+import { definirBairroAtual } from "@/lib/bairroAtual";
+import { classeModal, classesHistograma, contagemContra, extremos, nomesComNatureza, periodoPrincipal, receitaDe } from "@/lib/estudo";
+import { faixaConcentracao } from "@/lib/estudoMercado";
+import { formatBRL, formatDecimal } from "@/lib/numberFormat";
+import { naturezaBairro } from "@/lib/radarUi";
+import { bairroPath } from "@/lib/seo";
+import { cn } from "@/lib/utils";
 import type { QuizAnswers, InvestorProfile } from "@/lib/investorQuiz";
-// Cada etapa da jornada é carregada só quando a pessoa chega nela (antes: um arquivo de 2.000 linhas).
+
+// Cada etapa da jornada guiada é carregada só quando a pessoa chega nela.
 const Step1Context = lazy(() => import("@/components/intelligence/jornada/Step1").then((m) => ({ default: m.Step1Context })));
 const Step2Highlights = lazy(() => import("@/components/intelligence/jornada/Step2").then((m) => ({ default: m.Step2Highlights })));
 const Step3Learn = lazy(() => import("@/components/intelligence/jornada/Step3").then((m) => ({ default: m.Step3Learn })));
@@ -23,188 +39,306 @@ const Step6Profile = lazy(() => import("@/components/intelligence/jornada/Step6"
 const Step7Explore = lazy(() => import("@/components/intelligence/jornada/Step7").then((m) => ({ default: m.Step7Explore })));
 const Step8Recommendation = lazy(() => import("@/components/intelligence/jornada/Step8").then((m) => ({ default: m.Step8Recommendation })));
 
-function EtapaCarregando() {
+/**
+ * /mercado no redesign "Estudo aberto": o mercado dos 28 bairros da base do Radar.
+ * Indicadores de São Paulo, Fig. 1 (histograma de pontos da receita de referência em
+ * classes de R$ 500, com a linha de SP), destaques calculados e o método. A jornada
+ * guiada antiga (8 etapas, quiz e recomendação, sobre a estimativa de mercado — base
+ * 2025) segue no fim, atrás de "Começar a jornada". Pré-renderizada como HTML estático
+ * (PreRenderMercado) e substituída ao abrir.
+ */
+export default function IntelligenceDashboard() {
   return (
-    <div className="space-y-3 py-6" aria-busy="true" aria-label="Carregando etapa">
-      <div className="h-6 w-2/3 rounded bg-muted animate-pulse" />
-      <div className="h-4 w-1/2 rounded bg-muted/70 animate-pulse" />
-      <div className="h-48 rounded-lg bg-muted/40 animate-pulse" />
-    </div>
+    <BairroProvider>
+      <PaginaEstudo>
+        <Mercado />
+      </PaginaEstudo>
+    </BairroProvider>
   );
 }
 
-// ── Step definitions ─────────────────────────────────────────────
+function Mercado() {
+  const { bairros, cidade, offline, recarregar } = useBaseEstudo();
+  const { bairro: selecionado } = useBairroSelecionado(bairros, { naUrl: false });
 
-const STEPS = [
-  { id: 1, label: "Contexto", icon: MapPin, shortLabel: "1" },
-  { id: 2, label: "Destaques", icon: Lightbulb, shortLabel: "2" },
-  { id: 3, label: "Indicadores", icon: BookOpen, shortLabel: "3" },
-  { id: 4, label: "Aprendizados", icon: GraduationCap, shortLabel: "4" },
-  { id: 5, label: "Compare", icon: BarChart3, shortLabel: "5" },
-  { id: 6, label: "Seu perfil", icon: Target, shortLabel: "6" },
-  { id: 7, label: "Explore", icon: Building2, shortLabel: "7" },
-  { id: 8, label: "Recomendação", icon: Trophy, shortLabel: "8" },
-];
+  const receitaSP = receitaDe(cidade);
+  const classes = classesHistograma(bairros);
+  const modal = classeModal(classes);
+  const faixa = faixaConcentracao(classes);
+  const contra = contagemContra(bairros, receitaDe, receitaSP);
+  const receita = extremos(bairros, receitaDe);
+  const ocupacao = extremos(bairros, (b) => b.avgOccupancy);
+  const diaria = extremos(bairros, (b) => b.dailyAvg);
+  const periodo = periodoPrincipal(bairros) ?? cidade.period;
+  const maior = receita ? bairros.find((b) => b.name === receita.nomesMax[0]) : undefined;
 
-const IntelligenceDashboard = () => {
-  const { data: bairros, isLoading } = useBairrosData();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [quizAnswers, setQuizAnswers] = useState<QuizAnswers | null>(null);
-  const [investorProfile, setInvestorProfile] = useState<InvestorProfile | null>(null);
-
-  if (isLoading) {
+  if (!bairros.length) {
     return (
-      <div className="min-h-screen bg-background">
-        <AppNavbar fixo={false} />
-        <div className="flex min-h-[60vh] items-center justify-center">
-          <div className="space-y-4 w-full max-w-md px-4">
-            <div className="h-8 bg-muted rounded-lg animate-pulse" />
-            <div className="h-4 bg-muted/70 rounded animate-pulse w-3/4" />
-            <div className="grid grid-cols-3 gap-3 mt-6">
-              {[1, 2, 3].map(i => <div key={i} className="h-24 bg-muted rounded-lg animate-pulse" />)}
-            </div>
-          </div>
-        </div>
-      </div>
+      <Container className="py-16">
+        <h1 className="e-h1">Não há dados de mercado para mostrar agora</h1>
+        <AvisoBase className="mt-6" onTentar={recarregar}>A base do Radar não respondeu ou está vazia. Tente de novo em instantes.</AvisoBase>
+      </Container>
     );
   }
-
-  if (!bairros?.length) {
-    return (
-      <div className="min-h-screen bg-background">
-        <AppNavbar fixo={false} />
-        <main className="mx-auto max-w-xl px-4 py-16 text-center space-y-4">
-          <h1 className="font-display text-2xl font-bold text-foreground">Não há dados de mercado para mostrar agora</h1>
-          <p className="text-sm text-muted-foreground">A base do Radar não respondeu ou está vazia. Tente recarregar a página em instantes.</p>
-          <Button className="min-h-[44px]" onClick={() => window.location.reload()}>Recarregar</Button>
-        </main>
-      </div>
-    );
-  }
-
-  const goTo = (step: number) => setCurrentStep(step);
-  const goNext = () => setCurrentStep(prev => Math.min(prev + 1, 8));
-
-  const handleQuizComplete = (answers: QuizAnswers, profile: InvestorProfile) => {
-    setQuizAnswers(answers);
-    setInvestorProfile(profile);
-    goNext();
-  };
 
   return (
-    <div className="min-h-screen bg-background">
-      <AppNavbar fixo={false} />
-      {/* ── HERO ──────────────────────────────────────────── */}
-      <header className="bg-hero-gradient text-primary-foreground relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(200_60%_35%_/_0.3),_transparent_70%)]" />
-        <div className="container mx-auto px-4 py-8 md:py-10 relative z-10">
-          <div className="flex items-start justify-between">
-            <div className="max-w-2xl">
-              <div className="flex items-center gap-2 mb-3">
-                <Badge className="bg-primary-foreground/15 text-primary-foreground border-primary-foreground/20 text-[10px] uppercase tracking-wider">
-                  Guia de investimento
-                </Badge>
-                <Badge className="bg-primary-foreground/10 text-primary-foreground/70 border-primary-foreground/10 text-[10px]">
-                  {bairros.length} bairros · 30+ variáveis
-                </Badge>
-              </div>
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold font-[var(--font-display)] leading-tight">
-                Inteligência de mercado
-              </h1>
-              <p className="mt-2 text-primary-foreground/80 text-sm md:text-base leading-relaxed max-w-xl">
-                Uma jornada guiada para ajudar você a decidir onde investir em studios de short stay em São Paulo.
-              </p>
-              {bairros[0] && (
-                <p className="mt-2 text-xs text-primary-foreground/70 max-w-xl">
-                  {FONTE_BAIRROS_CURADOS} Demais métricas: {rotuloEstimativa(bairros[0])}.
-                </p>
-              )}
-              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">{bairros.map((b) => <div key={b.bairro}><span className="text-xs">{b.bairro}</span><FonteBairro nome={b.bairro} inverse /></div>)}</div>
-              <div className="flex items-center gap-2 mt-3">
-                <div className="h-1.5 w-32 bg-primary-foreground/10 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary-foreground/40 rounded-full transition-all duration-500"
-                    style={{ width: `${(currentStep / 8) * 100}%` }}
-                  />
-                </div>
-                <span className="text-[10px] text-primary-foreground/50 font-medium">
-                  Etapa {currentStep} de 8
-                </span>
-              </div>
-            </div>
-            <Link to="/" className="shrink-0">
-              <Button variant="secondary" size="sm" className="shadow-lg">
-                <ArrowLeft className="mr-1 h-4 w-4" /> Voltar
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+    <>
+      <CabecalhoTela
+        rotulo={`Mercado · ${bairros.length} bairros de São Paulo`}
+        titulo={
+          faixa
+            ? <>A maioria dos bairros ({faixa.quantidade} de {faixa.total}) fica entre {formatBRL(faixa.inicio)} e {formatBRL(faixa.fim)} por mês</>
+            : <>Receita de referência dos bairros de São Paulo</>
+        }
+        lead={<>Receita de referência é a diária média × 30 × a ocupação média, antes de custos. São Paulo fica em {formatBRL(receitaSP)} por mês; cada bairro é comparado a esse número, com a mesma fonte e o mesmo período.</>}
+      >
+        <MetadadosBase bairros={bairros} cidade={cidade} compacto />
+      </CabecalhoTela>
 
-      {/* ── TAB NAV (sticky) ──────────────────────────────── */}
-      <nav className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border/50 shadow-sm">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-none py-2">
-            {STEPS.map((step) => {
-              const isActive = currentStep === step.id;
-              const isPast = currentStep > step.id;
-              const Icon = step.icon;
-              return (
-                <button
-                  key={step.id}
-                  onClick={() => goTo(step.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-sm whitespace-nowrap transition-all ${
-                    isActive
-                      ? "bg-primary text-primary-foreground font-medium"
-                      : isPast
-                      ? "text-primary hover:bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                  }`}
-                >
-                  <span className={`flex items-center justify-center h-5 w-5 rounded-full text-[10px] font-bold shrink-0 ${
-                    isActive ? "bg-primary-foreground/20" : isPast ? "bg-primary/10" : "bg-muted"
-                  }`}>
-                    {isPast ? "✓" : step.shortLabel}
-                  </span>
-                  <span className="hidden sm:inline">{step.label}</span>
-                </button>
-              );
-            })}
+      {offline && (
+        <Container className="mb-6">
+          <AvisoBase tom="aviso" onTentar={recarregar}>A base do Radar não respondeu agora. Os números são da reserva aprovada (mesma coleta).</AvisoBase>
+        </Container>
+      )}
+
+      <Secao id="sao-paulo" rotulo="São Paulo · referência" titulo={<>A referência da cidade: {formatBRL(cidade.dailyAvg)} de diária e {formatDecimal(cidade.avgOccupancy, 0)}% de ocupação</>}>
+        <GradeIndicadores className="max-[399px]:grid-cols-1">
+          <Indicador rotulo="Diária média (R$)" valor={formatBRL(cidade.dailyAvg)} nota={`São Paulo, ${cidade.period}`} />
+          <Indicador rotulo="Ocupação média (%)" valor={`${formatDecimal(cidade.avgOccupancy, 0)}%`} nota="Noites ocupadas no período" />
+          <Indicador rotulo="Anúncios (n)" valor={formatDecimal(cidade.activeListings, 0)} nota="Anúncios ativos na cidade" />
+          <Indicador rotulo="Receita de referência (R$/mês)" valor={formatBRL(receitaSP)} nota={<>{formatBRL(cidade.dailyAvg)} × 30 × {formatDecimal(cidade.avgOccupancy / 100, 2)}, antes de custos</>} />
+        </GradeIndicadores>
+      </Secao>
+
+      <Secao id="distribuicao" rotulo="Distribuição">
+        <Figura
+          numero={1}
+          titulo={modal ? <>A classe de {formatBRL(modal.inicio)} a {formatBRL(modal.fim)} reúne {modal.itens.length} dos {bairros.length} bairros</> : "Receita de referência por bairro"}
+          unidade={<>Receita de referência por mês, em classes de R$ 500. Cada ponto é um bairro; dentro da classe, o maior valor fica no topo. Toque num ponto para abrir o bairro.</>}
+          legenda={
+            <>
+              <LegendaPontos
+                bairros={bairros}
+                selecionado={selecionado?.name}
+                referencia={<>São Paulo: {formatBRL(receitaSP)} por mês ({formatBRL(cidade.dailyAvg)} × 30 × {formatDecimal(cidade.avgOccupancy, 0)}%)</>}
+              />
+              <p className="mt-3">{TEXTO_APROXIMACAO}</p>
+            </>
+          }
+          fonte={<><a href={FONTES_GUIA.guestfavoritesSP.url} target="_blank" rel="noopener noreferrer" className="e-link">GuestFavorites<NovaAba /></a>, {periodo}. Cálculo do Radar Bewild.</>}
+        >
+          <HistogramaPontos
+            bairros={bairros}
+            referencia={{ valor: receitaSP, rotulo: `São Paulo ${formatBRL(receitaSP)}` }}
+            selecionado={selecionado?.name}
+            hrefDe={(b) => bairroPath(b.name)}
+            aoAbrir={(b) => definirBairroAtual(b.name)}
+          />
+        </Figura>
+
+        <details className="group e-fina mt-8 border-y">
+          <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-4 py-3 text-[17px] font-semibold [&::-webkit-details-marker]:hidden">
+            Ver os valores em tabela
+            <span aria-hidden="true" className="text-tinta-70 transition-transform group-open:rotate-45 motion-reduce:transition-none">+</span>
+          </summary>
+          <div className="pb-6">
+            <TabelaNumerada numero={1} titulo="Receita de referência dos bairros, por classe" unidade="R$/mês, do maior para o menor valor. Os mesmos números da Fig. 1.">
+              <thead>
+                <tr>
+                  <th scope="col" className={TH}>Classe (R$/mês)</th>
+                  <th scope="col" className={TH}>Bairro</th>
+                  <th scope="col" className={cn(TH, "text-right")}>R$/mês</th>
+                  <th scope="col" className={cn(TH, "hidden sm:table-cell")}>Natureza</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...classes].reverse().flatMap((c) =>
+                  [...c.itens].reverse().map(({ bairro: b, receita: r }, i) => (
+                    <tr key={b.name}>
+                      <td className={cn(TD, "whitespace-nowrap tabular-nums text-tinta-70")}>{i === 0 ? `${formatDecimal(c.inicio, 0)}–${formatDecimal(c.fim, 0)}` : ""}</td>
+                      <td className={TD}>
+                        <Link to={bairroPath(b.name)} onClick={() => definirBairroAtual(b.name)} className={cn("e-link", b.name === selecionado?.name && "font-semibold text-magenta-700")}>{b.name}</Link>
+                        <span className="mt-0.5 flex flex-wrap gap-2 sm:hidden">
+                          {naturezaBairro(b) !== "observado" && <TagBairro b={b} />}
+                          <NotaAmostra b={b} curta />
+                        </span>
+                      </td>
+                      <td className={cn(TD_NUM, "font-semibold")}>{formatBRL(r)}</td>
+                      <td className={cn(TD, "hidden sm:table-cell")}>
+                        <span className="flex flex-wrap items-center gap-2"><TagBairro b={b} /><NotaAmostra b={b} curta /></span>
+                      </td>
+                    </tr>
+                  )),
+                )}
+              </tbody>
+            </TabelaNumerada>
           </div>
+        </details>
+      </Secao>
+
+      <Secao id="destaques" rotulo="Destaques" titulo={<>{contra.abaixo} de {contra.total} bairros ficam abaixo da receita de referência de São Paulo</>}>
+        <dl className="grid gap-10 md:grid-cols-3 md:gap-8">
+          <Indicador
+            rotulo="Abaixo de São Paulo (bairros)"
+            valor={<>{contra.abaixo} de {contra.total}</>}
+            nota={<>Receita de referência menor que {formatBRL(receitaSP)} por mês. {contra.acima} ficam acima{contra.iguais ? ` e ${contra.iguais} no mesmo valor` : ""}.</>}
+          />
+          {receita && maior && (
+            <Indicador
+              rotulo="Maior receita de referência (R$/mês)"
+              valor={formatBRL(receita.max)}
+              nota={<>{nomesComNatureza(receita.nomesMax, bairros).join(", ")}: {formatBRL(maior.dailyAvg)} × 30 × {formatDecimal(maior.avgOccupancy, 0)}%. A menor é {nomesComNatureza(receita.nomesMin, bairros).join(", ")}, com {formatBRL(receita.min)}.</>}
+            />
+          )}
+          {ocupacao && (
+            <Indicador
+              rotulo="Ocupação média, maior e menor (%)"
+              valor={<>{formatDecimal(ocupacao.max, 0)}% e {formatDecimal(ocupacao.min, 0)}%</>}
+              nota={<>
+                Da maior ({nomesComNatureza(ocupacao.nomesMax, bairros).join(", ")}) à menor ({nomesComNatureza(ocupacao.nomesMin, bairros).join(", ")}).
+                {diaria && <> A diária varia mais: de {formatBRL(diaria.min)} ({nomesComNatureza(diaria.nomesMin, bairros).join(", ")}) a {formatBRL(diaria.max)} ({nomesComNatureza(diaria.nomesMax, bairros).join(", ")}).</>}
+              </>}
+            />
+          )}
+        </dl>
+        <p className="mt-8 flex flex-wrap gap-x-6 text-[15px]">
+          <Link to="/ranking" className="e-link inline-flex min-h-[44px] items-center">Ver o ranking dos {bairros.length} bairros</Link>
+          <Link to="/mapa" className="e-link inline-flex min-h-[44px] items-center">Ver no mapa</Link>
+          <Link to="/comparar" className="e-link inline-flex min-h-[44px] items-center">Comparar até três bairros</Link>
+        </p>
+      </Secao>
+
+      <Secao id="metodo" rotulo="Método" titulo="A conta é a mesma para todos os bairros e para São Paulo">
+        <div className="max-w-[720px]">
+          <div className="overflow-x-auto"><FormulaReceita diaria={cidade.dailyAvg} ocupacaoPct={cidade.avgOccupancy} receita={receitaSP} /></div>
+          <AvisoReceita className="mt-4" />
+          <p className="mt-4 flex flex-wrap gap-x-6 text-[15px]">
+            <Link to="/metodologia" className="e-link inline-flex min-h-[44px] items-center">Metodologia</Link>
+            <a href="/dados/bairros.csv" download className="e-link inline-flex min-h-[44px] items-center">Baixar a base (CSV)</a>
+            <Link to="/projecao" className="e-link inline-flex min-h-[44px] items-center">Simular custos e resultado</Link>
+          </p>
+          <LinkArtigoBewild artigo={ARTIGOS_BEWILD.melhoresBairros} prefixo="Quer a análise bairro a bairro? Leia" className="e-apoio" />
         </div>
+      </Secao>
+
+      <JornadaGuiada />
+    </>
+  );
+}
+
+/* ─── Jornada guiada (secundária): 8 etapas sobre a estimativa de mercado — base 2025 ─── */
+
+const ETAPAS = ["Contexto", "Destaques", "Indicadores", "Aprendizados", "Compare", "Seu perfil", "Explore", "Recomendação"];
+
+function JornadaGuiada() {
+  const [aberta, setAberta] = useState(false);
+  return (
+    <Secao
+      id="jornada"
+      rotulo="Jornada guiada"
+      titulo="Uma leitura em 8 etapas, com quiz de perfil e recomendação"
+      lead="Parte da estimativa de mercado — base 2025, uma base à parte da coleta pública do Radar: preço do m², aluguel, liquidez e scores internos da Bewild. Use como leitura estratégica, não como verdade absoluta."
+    >
+      <p className="flex flex-wrap items-center gap-3">
+        <Tag tipo="estimativa">{ROTULO_ESTIMATIVA_MERCADO}</Tag>
+        <span className="e-legenda">{FONTE_BAIRROS_CURADOS}</span>
+      </p>
+      {!aberta ? (
+        <Button variant="outline" className="mt-6 min-h-[44px] px-5 text-[15px] font-semibold" onClick={() => setAberta(true)} aria-expanded={false}>
+          Começar a jornada
+        </Button>
+      ) : (
+        <div id="jornada-conteudo" className="mt-6">
+          <Jornada />
+        </div>
+      )}
+    </Secao>
+  );
+}
+
+function EtapaCarregando() {
+  return <p className="e-apoio py-6" aria-busy="true">Carregando a etapa…</p>;
+}
+
+function Jornada() {
+  const { data: bairros, isLoading, isError, refetch } = useBairrosData();
+  const [etapa, setEtapa] = useState(1);
+  const [respostas, setRespostas] = useState<QuizAnswers | null>(null);
+  const [perfil, setPerfil] = useState<InvestorProfile | null>(null);
+  const topo = useRef<HTMLDivElement>(null);
+  const primeira = useRef(true);
+
+  useEffect(() => {
+    if (primeira.current) { primeira.current = false; return; }
+    topo.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+  }, [etapa]);
+
+  if (isLoading) return <p className="e-apoio py-4" aria-busy="true">Carregando a estimativa de mercado — base 2025…</p>;
+  if (isError) return <AvisoBase onTentar={() => void refetch()}>A estimativa de mercado — base 2025 não carregou agora. A base do Radar acima não foi afetada.</AvisoBase>;
+  if (!bairros?.length) return <p className="e-apoio py-4">Não há estimativa de mercado para mostrar agora.</p>;
+
+  const proxima = () => setEtapa((e) => Math.min(e + 1, ETAPAS.length));
+  const concluirQuiz = (a: QuizAnswers, p: InvestorProfile) => { setRespostas(a); setPerfil(p); proxima(); };
+
+  return (
+    <div ref={topo} className="scroll-mt-20">
+      <p className="e-legenda mb-3">{rotuloEstimativa(bairros[0])}. Etapa {etapa} de {ETAPAS.length}.</p>
+      <nav aria-label="Etapas da jornada" className="overflow-x-auto">
+        <ol className="flex min-w-max border-b border-foreground">
+          {ETAPAS.map((rotulo, i) => {
+            const n = i + 1;
+            const ativa = etapa === n;
+            return (
+              <li key={rotulo}>
+                <button
+                  type="button"
+                  onClick={() => setEtapa(n)}
+                  aria-current={ativa ? "step" : undefined}
+                  className={cn(
+                    "-mb-px inline-flex min-h-[44px] items-center gap-1.5 border-b-[3px] px-3 text-[15px] transition-colors",
+                    ativa ? "border-ciano font-semibold text-foreground" : "border-transparent text-tinta-70 hover:text-foreground",
+                  )}
+                >
+                  <span className="tabular-nums">{n}</span>
+                  <span className={cn(!ativa && "hidden sm:inline")}>{rotulo}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ol>
       </nav>
 
-      {/* ── STEP CONTENT ─────────────────────────────────── */}
-      <main id="conteudo" tabIndex={-1} className="container mx-auto px-4 py-8 max-w-5xl">
+      <div className="mt-6">
         <AnimatePresence mode="wait">
-          <motion.div
-            key={currentStep}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.25 }}
-          >
+          <motion.div key={etapa} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
             <Suspense fallback={<EtapaCarregando />}>
-            {currentStep === 1 && <Step1Context bairros={bairros} onNext={goNext} />}
-            {currentStep === 2 && <Step2Highlights bairros={bairros} onNext={goNext} />}
-            {currentStep === 3 && <Step3Learn onNext={goNext} />}
-            {currentStep === 4 && <Step4Learnings bairros={bairros} onNext={goNext} />}
-            {currentStep === 5 && <Step5Compare bairros={bairros} onNext={goNext} />}
-            {currentStep === 6 && <Step6Profile bairros={bairros} onComplete={handleQuizComplete} />}
-            {currentStep === 7 && <Step7Explore bairros={bairros} onNext={goNext} />}
-            {currentStep === 8 && (
-              <Step8Recommendation
-                bairros={bairros}
-                profile={investorProfile}
-                answers={quizAnswers}
-              />
-            )}
+              {etapa === 1 && <Step1Context bairros={bairros} onNext={proxima} />}
+              {etapa === 2 && <Step2Highlights bairros={bairros} onNext={proxima} />}
+              {etapa === 3 && <Step3Learn onNext={proxima} />}
+              {etapa === 4 && <Step4Learnings bairros={bairros} onNext={proxima} />}
+              {etapa === 5 && <Step5Compare bairros={bairros} onNext={proxima} />}
+              {etapa === 6 && <Step6Profile bairros={bairros} onComplete={concluirQuiz} />}
+              {etapa === 7 && <Step7Explore bairros={bairros} onNext={proxima} />}
+              {etapa === 8 && <Step8Recommendation bairros={bairros} profile={perfil} answers={respostas} />}
             </Suspense>
           </motion.div>
         </AnimatePresence>
-      </main>
+      </div>
+
+      <details className="group e-fina mt-10 border-y">
+        <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-4 py-3 text-[15px] font-semibold [&::-webkit-details-marker]:hidden">
+          Fonte da diária e da ocupação de cada bairro
+          <span aria-hidden="true" className="text-tinta-70 transition-transform group-open:rotate-45 motion-reduce:transition-none">+</span>
+        </summary>
+        <ul className="grid gap-x-8 gap-y-3 pb-6 sm:grid-cols-2 lg:grid-cols-3">
+          {bairros.map((b) => (
+            <li key={b.bairro} className="min-w-0">
+              <span className="text-[15px] font-semibold">{b.bairro}</span>
+              <FonteBairro nome={b.bairro} />
+            </li>
+          ))}
+        </ul>
+      </details>
     </div>
   );
-};
-
-export default IntelligenceDashboard;
+}

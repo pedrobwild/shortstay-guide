@@ -55,10 +55,10 @@ export default function SectionBlock({ id, title, takeaway, children, className,
         <Link
           to={resumido}
           onClick={() => trackGlobal("cta_clicked", { cta_id: "tema_guia", section: id })}
-          className="group flex items-start justify-between gap-4 rounded-[4px] border border-border bg-card p-5 transition-colors hover:bg-accent-light md:p-6"
+          className="group flex items-start justify-between gap-4 rounded-[2px] border border-border bg-card p-5 transition-colors hover:bg-accent-light md:p-6"
         >
           <span className="min-w-0">
-            <h2 className="mb-2 font-display text-[24px] font-bold leading-[1.15] text-foreground text-balance md:text-[30px]">{title}</h2>
+            <h2 className="mb-2 font-display text-[24px] font-semibold leading-[1.15] text-foreground text-balance md:text-[30px]">{title}</h2>
             <p className="max-w-[720px] text-[16px] leading-[1.55] text-muted-foreground">{takeaway}</p>
             <span className="mt-3 inline-flex min-h-[44px] items-center gap-1 text-sm font-semibold text-primary underline underline-offset-4">Ler o conteúdo completo<ArrowRight className="h-3.5 w-3.5" aria-hidden="true" /></span>
           </span>
@@ -69,7 +69,7 @@ export default function SectionBlock({ id, title, takeaway, children, className,
   }
   return (
     <section ref={sectionRef} id={id} className={`scroll-mt-24 py-14 md:py-[72px] ${className ?? ""}`}>
-      <h2 className="mb-3 font-display text-[28px] font-bold leading-[1.15] text-foreground text-balance md:text-[36px]">{title}</h2>
+      <h2 className="mb-3 font-display text-[28px] font-semibold leading-[1.15] text-foreground text-balance md:text-[36px]">{title}</h2>
       <p className="mb-8 max-w-[720px] text-[17px] leading-[1.55] text-muted-foreground">{takeaway}</p>
       {children}
       {artigo && <LinkArtigoBewild artigo={artigo} className="mt-6" />}

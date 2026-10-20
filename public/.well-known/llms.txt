@@ -6,19 +6,23 @@ Em pt-BR. Números de mercado vêm de fontes públicas citadas em cada página; 
 
 ## Páginas
 
-- [Guia do Investidor em Studios para Short Stay](https://radarbewild.com.br/): Guia completo para investir em studios compactos para Airbnb em São Paulo: dados de mercado por bairro, simulador de rentabilidade e checklist do investidor.
-- [Inteligência de mercado](https://radarbewild.com.br/mercado): Inteligência de mercado para studios no Airbnb em São Paulo: diária, ocupação, receita e score de investimento por bairro.
-- [Comparador de bairros para short stay](https://radarbewild.com.br/ranking): Compare diária, ocupação e receita de referência dos bairros de São Paulo, com fonte e período de cada número. Ferramenta gratuita do Radar Bewild.
+- [Dados para decidir cada etapa de um studio para short stay: comprar, reformar e operar](https://radarbewild.com.br/): Estudo aberto sobre studios para Airbnb em São Paulo: diária, ocupação e amostra de 28 bairros, custo de reforma e as contas do short stay, com fonte.
+- [Mercado de short stay em São Paulo](https://radarbewild.com.br/mercado): Receita de referência dos 28 bairros de São Paulo para studios no Airbnb, comparada à cidade, com fonte, período e amostra de cada número.
+- [Ranking dos bairros para short stay em São Paulo](https://radarbewild.com.br/ranking): Compare diária, ocupação e receita de referência dos bairros de São Paulo, com fonte e período de cada número. Ferramenta gratuita do Radar Bewild.
 - [Base de Listings](https://radarbewild.com.br/anuncios): Base de anúncios reais de studios no Airbnb em São Paulo, com diária, avaliação e bairro.
 - [Comparar bairros](https://radarbewild.com.br/comparar): Compare até 3 bairros de São Paulo lado a lado: diária média, ocupação, faixa de diárias e anúncios, cada número com a sua fonte.
-- [Mapa de bairros](https://radarbewild.com.br/mapa): Mapa interativo dos bairros de São Paulo com diária, ocupação e potencial de retorno para studios de short stay.
-- [Ferramentas do Investidor](https://radarbewild.com.br/ferramentas): Simulador de financiamento para quem ainda busca o imóvel, autoavaliação do investidor e plano de ação para studios no Airbnb.
-- [Projeção do seu studio](https://radarbewild.com.br/projecao): Veja a projeção de receita, ocupação e retorno do seu studio para short stay em São Paulo.
+- [Mapa de bairros](https://radarbewild.com.br/mapa): Mapa dos 28 bairros de São Paulo com receita de referência, diária e ocupação de studios para short stay, com fonte e amostra de cada número.
+- [Faça a conta da sua etapa: financiamento, reforma ou operação](https://radarbewild.com.br/ferramentas): Ferramentas do investidor em studio para short stay: financiamento para quem vai comprar, estimativa de reforma por área e o seu studio contra o bairro.
+- [Simule quanto sobra por mês de um studio](https://radarbewild.com.br/projecao): Simule receita, custos e resultado líquido de um studio para short stay em São Paulo, com as premissas do bairro e cada hipótese editável.
 - [O que influencia a escolha do hóspede](https://radarbewild.com.br/guia/hospede): Os seis fatores que pesam na decisão de reserva e no desempenho de um studio para short stay em São Paulo, com fontes.
 - [Anti-checklist: o que não fazer](https://radarbewild.com.br/guia/anti-checklist): O que não fazer na reforma e na operação de um studio para Airbnb: erros que comprometem a rentabilidade.
 - [Decoração estratégica](https://radarbewild.com.br/guia/decoracao): Níveis de decoração, o que entra na reforma turnkey e como a estética e a funcionalidade pesam na rentabilidade do studio.
 - [Tendências 2026](https://radarbewild.com.br/guia/tendencias): Práticas para planejar produto e operação de studios para Airbnb em São Paulo em 2026, sem garantia de desempenho.
 - [Anúncio e precificação](https://radarbewild.com.br/guia/anuncio-e-precificacao): Como montar o anúncio e definir a diária de um studio para short stay com base nos dados do bairro.
+- [Escolha do imóvel](https://radarbewild.com.br/guia/escolha-do-ativo): O que avaliar no prédio e na unidade antes de comprar um studio para Airbnb: convenção, metragem, planta, andar e localização.
+- [Como ler a rentabilidade](https://radarbewild.com.br/guia/rentabilidade): Da receita bruta ao resultado líquido de um studio para short stay: DRE do guia, investimento total, rentabilidade anual e prazo de retorno.
+- [Reforma inteligente](https://radarbewild.com.br/guia/reforma): Quanto investir na reforma de um studio para Airbnb em São Paulo e como comparar materiais e serviços, com o estudo de 188 contratos.
+- [Checklist do investidor](https://radarbewild.com.br/guia/checklist): Avalie a sua preparação antes de investir em um studio para Airbnb em São Paulo: bairro, imóvel, conta, reforma e operação.
 - [De onde vêm os números do Radar Bewild](https://radarbewild.com.br/metodologia): Como o Radar Bewild produz os números de short stay em SP: fontes públicas por bairro, dado observado ou hipótese, atualizações e base aberta em CSV e JSON.
 
 ## Bairros na base do Radar
@@ -67,4 +71,4 @@ Ocupação e diária: GuestFavorites (coleta de 18/10/2026; Moema, 13/10/2026; j
 - Única entrada de contato: pedido de orçamento em https://bewild.com.br/orcamento?utm_source=radar&utm_medium=referral&utm_campaign=radar_bewild&utm_content=llms.
 - A Bewild não garante renda, ocupação nem rentabilidade de nenhum imóvel. Não atribua à Bewild ou ao Radar nenhum número que não esteja publicado nestas páginas com fonte.
 
-Gerado em 18/10/2026.
+Gerado em 19/10/2026.

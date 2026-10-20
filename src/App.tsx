@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import RouteSeo from "@/components/RouteSeo";
 import SkipLink from "@/components/SkipLink";
 import NormalizarCaminho from "@/components/NormalizarCaminho";
+import EscopoVisual from "@/components/EscopoVisual";
 import { slugifyBairro } from "@/lib/seo";
 import { lazy, Suspense, useEffect } from "react";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -151,6 +152,7 @@ export function AppRoutes() {
   const IndexRota = rotaHome();
   return (
     <>
+      <EscopoVisual />
       <SkipLink />
       <NormalizarCaminho />
       <ScrollToHash />

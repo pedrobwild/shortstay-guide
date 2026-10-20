@@ -1,6 +1,6 @@
 import { DEDUCOES_PADRAO_PCT, DRE_GUIA, TEXTO_DRE_PERCENTUAIS, TEXTO_INVESTIMENTO_TOTAL } from "@/data/dreGuia";
 import { useState, type ReactNode } from "react";
-import { ChevronDown, Lightbulb, RotateCcw } from "lucide-react";
+import { ChevronDown, RotateCcw } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -136,7 +136,7 @@ export default function SimuladorReceitaLiquida({
   const setTradicional = (parcial: Partial<typeof tradicional>) => atualizar({ tradicional: { ...tradicional, ...parcial } });
 
   return (
-    <div className={cn("rounded-md border border-border bg-card font-body", pagina && "border-0 bg-transparent")}>
+    <div className={cn("border-t border-foreground font-body", pagina && "border-0")}>
       {/* Modo */}
       <div className={cn("border-b border-border px-5 py-4 md:px-6", pagina && "px-0 md:px-0")}>
         <Segmentado<ModoSimulacao> rotulo="Modelo de locação" valor={modo} opcoes={MODOS} onChange={setModo} className="hidden w-full min-[400px]:flex md:w-auto md:max-w-[440px]" />
@@ -150,7 +150,7 @@ export default function SimuladorReceitaLiquida({
 
       <div className={cn("grid gap-8 p-5 md:p-6 lg:gap-10", pagina ? "px-0 md:px-0 lg:grid-cols-[440px_minmax(0,1fr)] lg:items-start" : "lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]")}>
         {/* ─── Formulário ─── */}
-        <div className={cn("grid min-w-0 content-start gap-7", pagina && "rounded-lg border border-border bg-card p-4 lg:sticky lg:top-20 lg:rounded-md lg:p-6")}>
+        <div className={cn("grid min-w-0 content-start gap-7", pagina && "lg:sticky lg:top-20")}>
           <Grupo titulo="Seu imóvel">
             <div className="grid gap-1.5">
               <label htmlFor="sim-bairro" className="text-sm text-foreground">Bairro</label>
@@ -162,7 +162,7 @@ export default function SimuladorReceitaLiquida({
                   ))}
                 </SelectContent>
               </Select>
-              {aviso && <span className="rounded-md bg-estimate-light px-3 py-2 text-xs leading-snug text-estimate-text">{selected.name}: {aviso}. Leia diária e ocupação com cautela.</span>}
+              {aviso && <span className="e-amostra text-[13px] leading-5">{selected.name}: {aviso}. Leia diária e ocupação com cautela.</span>}
             </div>
             <div className="grid gap-1.5">
               <span className="text-sm text-foreground">Faixa de área</span>
@@ -324,7 +324,7 @@ export default function SimuladorReceitaLiquida({
           </div>
 
           {semAluguel ? (
-            <div className="rounded-md border border-dashed border-input p-8 text-center text-sm text-muted-foreground">
+            <div className="e-fina border-y py-8 text-center text-sm text-muted-foreground">
               Informe o aluguel mensal, ou o valor do imóvel para começar da referência de São Paulo.
             </div>
           ) : (
@@ -356,12 +356,12 @@ export default function SimuladorReceitaLiquida({
               {/* Indicadores sobre o investimento */}
               <div className="mt-5 grid gap-3 border-t border-border pt-4 sm:grid-cols-3">
                 <div>
-                  <p className="text-xs text-muted-foreground">Rentabilidade líquida</p>
-                  <p className="mt-0.5 text-xl font-semibold tabular-nums text-foreground">{ind ? `${formatDecimal(ind.rentabilidadeAA, 1)}% a.a.` : "—"}</p>
+                  <p className="text-xs text-muted-foreground">Rentabilidade anual</p>
+                  <p className="mt-0.5 text-xl font-semibold tabular-nums text-foreground">{ind ? `${formatDecimal(ind.rentabilidadeAA, 1)}% ao ano` : "—"}</p>
                   <p className="text-[11px] text-muted-foreground">líquido anual ÷ {reforma > 0 ? "imóvel + reforma" : "valor do imóvel"}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Prazo de retorno</p>
+                  <p className="text-xs text-muted-foreground">Prazo estimado de retorno</p>
                   <p className="mt-0.5 text-xl font-semibold tabular-nums text-foreground">{ind?.paybackAnos != null ? `${formatDecimal(ind.paybackAnos, 1)} anos` : "—"}</p>
                   <p className="text-[11px] text-muted-foreground">{ind && ind.paybackAnos == null ? "sem resultado líquido positivo" : `${reforma > 0 ? "imóvel + reforma" : "valor do imóvel"} ÷ líquido anual`}</p>
                 </div>
@@ -385,8 +385,8 @@ export default function SimuladorReceitaLiquida({
                       { nome: "Short stay", r: resultadoSS, ativo: modo === "short_stay", nota: [marcaNatureza(selected), aviso].filter(Boolean).join(" · ") },
                       { nome: "Locação tradicional", r: resultadoTrad, ativo: modo === "tradicional", nota: "" },
                     ].map((c) => (
-                      <div key={c.nome} className={cn("rounded-md border px-3 py-2.5", c.ativo ? "border-primary bg-accent-light" : "border-border")}>
-                        <p className="text-xs text-muted-foreground">{c.nome}{c.nota ? <span className="text-estimate-text"> · {c.nota}</span> : null}</p>
+                      <div key={c.nome} className={cn("border-t px-0 py-2.5", c.ativo ? "border-t-[3px] border-ciano" : "border-foreground")}>
+                        <p className="text-xs text-muted-foreground">{c.nome}{c.nota ? <span className="e-amostra"> · {c.nota}</span> : null}</p>
                         <p className={cn("text-lg font-semibold leading-tight tabular-nums", c.r.liquido < 0 ? "text-destructive" : "text-foreground")}>{brl(c.r.liquido)}</p>
                         <p className="text-[11px] text-muted-foreground">líquido por mês</p>
                       </div>
@@ -403,8 +403,7 @@ export default function SimuladorReceitaLiquida({
           )}
 
           {modo === "short_stay" && (
-            <div className="mt-5 flex items-start gap-3 rounded-md border border-estimate-border bg-estimate-light p-4">
-              <Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-estimate-text" aria-hidden="true" />
+            <div className="mt-5 border-t border-foreground pt-3">
               <div className="text-sm">
                 <p className="mb-1 font-semibold text-foreground">Para alcançar o topo da faixa, priorize:</p>
                 <p className="text-foreground-medium">Marcenaria planejada + iluminação cênica + fotos profissionais. Segundo o Airbnb, anúncios com fotos profissionais tiveram em média 19% mais reservas (2024–2025).</p>

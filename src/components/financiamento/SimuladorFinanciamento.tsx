@@ -1,39 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
-import {
-  AreaChart,
-  Area,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip as RTooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-} from "recharts";
-import {
-  Calculator,
-  Info,
-  Printer,
-  MessageCircle,
-  TrendingDown,
-  Sparkles,
-  RefreshCw,
-  RotateCcw,
-  CheckCircle2,
-  AlertTriangle,
-  Play,
-  ClipboardList,
-  Loader2,
-  Link2,
-  ArrowDown,
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -43,6 +11,11 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import GraficoSerie from "@/components/estudo/graficos/GraficoSerie";
+import BarraEmpilhada from "@/components/estudo/graficos/BarraEmpilhada";
+import { Figura } from "@/components/estudo/Figura";
+import { amostrarSerie } from "@/lib/estudoFerramentas";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -90,6 +63,24 @@ const SLIDER_TOUCH =
 
 const DEFAULT_STORAGE_KEY = "radar_financiamento_busca_v1";
 
+/* ---------- blocos no padrão "Estudo aberto" ----------
+ * O demonstrativo era montado com cartões (borda e sombra). No redesign a hierarquia
+ * vem do espaço e de uma linha de tinta no topo de cada bloco; os nomes ficam para
+ * não mexer no resto do arquivo. */
+type PropsBloco = { className?: string; children?: React.ReactNode };
+function Card({ children }: PropsBloco) {
+  return <div className="min-w-0 border-t border-foreground pt-3">{children}</div>;
+}
+function CardHeader({ children }: PropsBloco) {
+  return <div className="pb-2">{children}</div>;
+}
+function CardTitle({ children, className }: PropsBloco) {
+  return <h3 className={cn("e-h3", className?.includes("flex") && "flex items-center gap-2")}>{children}</h3>;
+}
+function CardContent({ children, className }: PropsBloco) {
+  return <div className={cn("min-w-0", className?.includes("overflow-x-auto") && "overflow-x-auto", className?.includes("space-y-3") && "space-y-3")}>{children}</div>;
+}
+
 /* ---------- helpers ---------- */
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
@@ -109,9 +100,9 @@ function InfoHint({ text, label }: { text: string; label?: string }) {
           <button
             type="button"
             aria-label={label ? `Mais informações: ${label}` : "Mais informações"}
-            className="inline-flex items-center justify-center text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm h-4 w-4"
+            className="relative inline-flex h-4 w-4 items-center justify-center rounded-full border border-tinta-70 text-[11px] font-semibold leading-none text-tinta-70 after:absolute after:-inset-3 after:content-[''] hover:text-foreground"
           >
-            <Info className="h-3.5 w-3.5" aria-hidden="true" />
+            <span aria-hidden="true">?</span>
           </button>
         </TooltipTrigger>
         <TooltipContent className="max-w-xs text-xs leading-relaxed">{text}</TooltipContent>
@@ -177,7 +168,7 @@ function CurrencyInput({
 function Fieldset({ title, children, id }: { title: string; children: React.ReactNode; id?: string }) {
   return (
     <fieldset id={id} className="space-y-4 pt-4 border-t border-border/60 first:border-t-0 first:pt-0">
-      <legend className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-1">
+      <legend className="e-rotulo mb-1">
         {title}
       </legend>
       {children}
@@ -188,8 +179,7 @@ function Fieldset({ title, children, id }: { title: string; children: React.Reac
 function FieldError({ msg, id }: { msg?: string; id?: string }) {
   if (!msg) return null;
   return (
-    <p id={id} role="alert" className="text-xs text-destructive mt-1 flex items-center gap-1">
-      <AlertTriangle className="h-3 w-3 shrink-0" aria-hidden="true" />
+    <p id={id} role="alert" className="mt-1 text-[13px] text-destructive">
       {msg}
     </p>
   );
@@ -199,7 +189,7 @@ function Val({ children, bold, top }: { children: React.ReactNode; bold?: boolea
   return (
     <TableCell
       className={[
-        "text-right tabular-nums",
+        "whitespace-nowrap text-right tabular-nums",
         bold ? "font-semibold text-foreground" : "text-foreground/90",
         top ? "border-t border-border" : "",
       ].join(" ")}
@@ -211,9 +201,7 @@ function Val({ children, bold, top }: { children: React.ReactNode; bold?: boolea
 
 function EstimatedBadge() {
   return (
-    <Badge variant="outline" className="ml-1 h-4 px-1 text-[9px] uppercase tracking-wide text-muted-foreground border-muted-foreground/30">
-      estimado
-    </Badge>
+    <span className="e-tag e-tag-hipotese ml-1 align-middle">estimado</span>
   );
 }
 
@@ -933,12 +921,12 @@ export function FinancingSimulatorForm({ ctl }: { ctl: FinancingSimulatorControl
     <>
       <Card className="border-border/60">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
+          <CardTitle>
             Premissas da simulação
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
+          <div className="space-y-6">
           {/* ============= IMÓVEL ============= */}
           <Fieldset title="Imóvel">
             <ImovelBuscado
@@ -1048,7 +1036,6 @@ export function FinancingSimulatorForm({ ctl }: { ctl: FinancingSimulatorControl
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor={fid("financed")} className="flex items-center gap-1.5">
-                  <RefreshCw className="h-3 w-3 text-primary" aria-hidden="true" />
                   Valor financiado
                   <InfoHint text="Valor financiado = valor do imóvel − entrada. O FGTS, quando informado, compõe a entrada e reduz o valor financiado." label="Valor financiado" />
                 </Label>
@@ -1289,7 +1276,7 @@ export function FinancingSimulatorForm({ ctl }: { ctl: FinancingSimulatorControl
               />
             </div>
 
-            <div className="space-y-2 rounded-lg border border-border/60 p-3">
+            <div className="space-y-2">
               <Label className="flex items-center gap-1.5">
                 Aporte extra anual <span className="text-[10px] uppercase tracking-wide text-muted-foreground">(opcional)</span>
                 <InfoHint text="Aporte extra a cada 12 meses. Escolha se reduz o prazo ou a parcela." label="Amortização extra" />
@@ -1303,16 +1290,17 @@ export function FinancingSimulatorForm({ ctl }: { ctl: FinancingSimulatorControl
               </Tabs>
             </div>
           </Fieldset>
+          </div>
         </CardContent>
 
-        <div className="border-t border-border/60 px-6 py-3 flex flex-wrap gap-1.5 bg-muted/10">
+        <div className="e-fina mt-6 flex flex-wrap gap-1.5 border-t pt-3">
           <Chip>Financiado {BRL(financedAmount)}</Chip>
           <Chip>LTV {formatPercent(ltvPctForm, 0)}</Chip>
           <Chip>{currentSnap.termMonths} meses</Chip>
           <Chip>{system === "SAC" ? "SAC" : "Price"}</Chip>
         </div>
 
-        <div className="border-t border-border/60 px-6 py-4">
+        <div className="e-fina mt-3 border-t pt-4">
           <>
             <div className="flex items-start gap-3 mb-4">
               <Checkbox
@@ -1329,7 +1317,7 @@ export function FinancingSimulatorForm({ ctl }: { ctl: FinancingSimulatorControl
           <Button
             type="button"
             size="lg"
-            className="w-full h-12 gap-2 text-base"
+            className="min-h-[48px] w-full gap-2 text-base font-semibold"
             onClick={handleGenerate}
             disabled={isLoading}
             aria-busy={isLoading}
@@ -1340,15 +1328,12 @@ export function FinancingSimulatorForm({ ctl }: { ctl: FinancingSimulatorControl
                 Calculando...
               </>
             ) : (
-              <>
-                <Play className="h-4 w-4" aria-hidden="true" />
-                {snapshot ? "Atualizar simulação" : "Gerar simulação"}
-              </>
+              snapshot ? "Atualizar simulação" : "Gerar simulação"
             )}
           </Button>
           {Object.keys(errors).length > 0 && (
-            <p className="text-xs text-destructive mt-2 flex items-center gap-1">
-              <AlertTriangle className="h-3 w-3" /> Corrija os campos destacados para gerar a simulação.
+            <p className="mt-2 text-[13px] text-destructive">
+              Corrija os campos destacados para gerar a simulação.
             </p>
           )}
         </div>
@@ -1368,7 +1353,6 @@ export function FinancingSimulatorForm({ ctl }: { ctl: FinancingSimulatorControl
               Cancelar
             </Button>
             <Button variant="destructive" className="w-full sm:w-auto gap-2" onClick={handleReset}>
-              <RotateCcw className="h-4 w-4" aria-hidden="true" />
               Descartar e refazer
             </Button>
           </DialogFooter>
@@ -1436,11 +1420,10 @@ export default function FinancingSimulator({
       className="scroll-mt-24 py-12 md:py-16"
     >
       <header className="mb-6">
-        <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground flex items-center gap-2">
-          <Calculator className="h-6 w-6 text-primary shrink-0" />
+        <h2 className="e-h2">
           {titulo ?? "Simulador de financiamento imobiliário"}
         </h2>
-        <p className="text-muted-foreground mt-1 max-w-2xl">
+        <p className="e-apoio mt-2 max-w-2xl">
           {descricao ?? (
             <>
               Preencha as premissas e clique em <strong>Gerar simulação</strong> para ver KPIs, comparativo entre bancos,
@@ -1467,33 +1450,17 @@ export default function FinancingSimulator({
 
 function EmptyResults({ onStart }: { onStart: () => void; modo?: ModoImovel }) {
   return (
-    <Card className="border-dashed border-border/70 bg-muted/10">
-      <CardContent className="py-14 md:py-20 flex flex-col items-center text-center gap-4">
-        <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-          <ClipboardList className="h-8 w-8 text-primary" aria-hidden="true" />
-        </div>
-        <div className="space-y-1 max-w-sm">
-          <h3 className="font-display text-xl font-semibold text-foreground">Preencha os campos ao lado</h3>
-          <p className="text-sm text-muted-foreground">
-            Descreva o imóvel que está avaliando e informe o banco, o valor, a entrada e o prazo. Depois clique em{" "}
-            <strong className="text-foreground">Gerar simulação</strong> para ver KPIs, comparativo entre bancos,
-            gráficos e o relatório completo.
-          </p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm pt-2">
-          <Button size="lg" className="flex-1 gap-2 min-h-[48px]" onClick={onStart}>
-            <Play className="h-4 w-4" aria-hidden="true" />
-            Começar a simulação
-          </Button>
-        </div>
-
-        <p className="text-xs text-muted-foreground flex items-center gap-1">
-          <ArrowDown className="h-3.5 w-3.5" aria-hidden="true" />
-          Os campos estão logo acima
-        </p>
-      </CardContent>
-    </Card>
+    <div className="e-fina flex flex-col items-start gap-3 border-y py-8">
+      <p className="e-h3">Preencha as premissas para gerar o demonstrativo</p>
+      <p className="e-apoio max-w-md">
+        Descreva o imóvel que está avaliando e informe o banco, o valor, a entrada e o prazo. Depois use{" "}
+        <strong className="text-foreground">Gerar simulação</strong> para ver a composição do contrato, os gráficos, o
+        comparativo entre bancos e o relatório.
+      </p>
+      <Button variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold" onClick={onStart}>
+        Começar pelo imóvel
+      </Button>
+    </div>
   );
 }
 
@@ -1580,32 +1547,30 @@ function ResultsView({ snap, stale, onRegenerate, onReset, onCopyLink, showCopyL
   const downPctActual = propertyValue > 0 ? (downPayment / propertyValue) * 100 : 0;
   const ltvPct = propertyValue > 0 ? (active.financedAmount / propertyValue) * 100 : 0;
 
+  // Séries dos gráficos (até ~60 pontos, sempre com o primeiro e o último mês).
   const balanceData = useMemo(() => {
-    const step = Math.max(1, Math.floor(termMonths / 60));
-    return sac.schedule
-      .filter((_, i) => i % step === 0 || i === sac.schedule.length - 1)
-      .map((row, idx) => ({
-        month: row.n,
-        SAC: Math.round(row.balance),
-        PRICE: Math.round(price.schedule[sac.schedule.indexOf(row)]?.balance ?? 0),
-        _idx: idx,
-      }));
-  }, [sac, price, termMonths]);
+    const linhas = amostrarSerie(sac.schedule, 60);
+    return {
+      x: linhas.map((r) => r.n),
+      sac: linhas.map((r) => Math.round(r.balance)),
+      price: linhas.map((r) => Math.round(price.schedule[r.n - 1]?.balance ?? 0)),
+    };
+  }, [sac, price]);
 
   const compositionData = useMemo(() => {
-    const step = Math.max(1, Math.floor(active.schedule.length / 60));
-    return active.schedule
-      .filter((_, i) => i % step === 0 || i === active.schedule.length - 1)
-      .map((row) => ({ month: row.n, Juros: Math.round(row.interest), Amortização: Math.round(row.amortization) }));
+    const linhas = amostrarSerie(active.schedule, 60);
+    return { x: linhas.map((r) => r.n), juros: linhas.map((r) => Math.round(r.interest)), amortizacao: linhas.map((r) => Math.round(r.amortization)) };
   }, [active]);
 
+  // Desembolso total no contrato: neutros para o que é capital, magenta só para juros (custo do dinheiro).
   const donutData = [
-    { name: "Entrada + custos", value: Math.round(upfrontCash) },
-    { name: "Principal financiado", value: Math.round(active.financedAmount) },
-    { name: "Juros", value: Math.round(active.totalInterest) },
-    { name: "Seguros + tarifas", value: Math.round(active.totalInsurance) },
+    { chave: "entrada", rotulo: "Entrada + custos de aquisição", valor: Math.round(upfrontCash), tom: "--neutro-700" },
+    { chave: "principal", rotulo: "Principal financiado", valor: Math.round(active.financedAmount), tom: "--neutro-400" },
+    { chave: "juros", rotulo: "Juros", valor: Math.round(active.totalInterest), tom: "--ciano" },
+    { chave: "seguros", rotulo: "Seguros e tarifas", valor: Math.round(active.totalInsurance), tom: "--neutro-200" },
   ];
-  const donutColors = ["hsl(var(--primary))", "hsl(var(--muted-foreground))", "hsl(var(--destructive))", "hsl(var(--accent))"];
+  const desembolsoTotal = donutData.reduce((t, d) => t + d.valor, 0);
+  const milReais = (v: number) => (v >= 1000 ? `${formatDecimal(v / 1000, 0)} mil` : formatDecimal(v, 0));
 
   const yearlySchedule = useMemo(() => {
     const rows: { year: number; totalPayment: number; totalInterest: number; balance: number }[] = [];
@@ -1641,11 +1606,11 @@ function ResultsView({ snap, stale, onRegenerate, onReset, onCopyLink, showCopyL
   return (
     <div className={["space-y-4 transition-opacity", stale ? "opacity-60" : ""].join(" ")}>
       {stale && (
-        <div className="sticky top-16 z-10 flex items-center justify-between gap-3 rounded-md border border-estimate-border bg-estimate-light px-3 py-2 text-xs text-estimate-text">
-          <span className="flex items-center gap-1.5">
-            <AlertTriangle className="h-3.5 w-3.5" /> Premissas alteradas — clique em <strong>Gerar simulação</strong> para atualizar.
+        <div className="sticky top-2 z-10 flex items-center justify-between gap-3 border border-magenta bg-card px-3 py-2 text-[13px] text-magenta-700">
+          <span>
+            Premissas alteradas — clique em <strong>Gerar simulação</strong> para atualizar.
           </span>
-          <Button size="sm" variant="outline" className="h-7 text-xs" onClick={onRegenerate}>
+          <Button size="sm" variant="outline" className="min-h-[44px] text-[13px]" onClick={onRegenerate}>
             Atualizar agora
           </Button>
         </div>
@@ -1654,14 +1619,12 @@ function ResultsView({ snap, stale, onRegenerate, onReset, onCopyLink, showCopyL
       {(showCopyLink || showResetButton) && (
         <div className="flex items-center justify-end gap-2 print:hidden">
           {showCopyLink && (
-            <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={onCopyLink}>
-              <Link2 className="h-3.5 w-3.5" />
+            <Button type="button" variant="outline" size="sm" className="min-h-[44px] gap-1.5" onClick={onCopyLink}>
               Copiar link
             </Button>
           )}
           {showResetButton && (
-            <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={onReset}>
-              <RotateCcw className="h-3.5 w-3.5" />
+            <Button type="button" variant="outline" size="sm" className="min-h-[44px] gap-1.5" onClick={onReset}>
               Refazer
             </Button>
           )}
@@ -1676,7 +1639,7 @@ function ResultsView({ snap, stale, onRegenerate, onReset, onCopyLink, showCopyL
 
       {/* KPIs */}
       <ReceitaBairroFinanciamento key={snap.bairro} nome={snap.bairro ?? ""} parcela={active.firstInstallment} idPrefix="resultado-mercado" />
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 gap-x-6 gap-y-6 border-t border-foreground pt-4 xl:grid-cols-4">
         <Kpi label="1ª parcela" value={BRL(active.firstInstallment)} highlight />
         <Kpi label={system === "SAC" ? "Última parcela" : "Parcela (fixa)"} value={BRL(active.lastInstallment)} />
         <Kpi label="CET a.a." value={PCT(active.cetAnnual)} hint="Custo Efetivo Total: inclui seguros e tarifas." />
@@ -1715,7 +1678,7 @@ function ResultsView({ snap, stale, onRegenerate, onReset, onCopyLink, showCopyL
       </Card>
 
       {/* Recursos próprios + 1ª parcela */}
-      <div className="grid md:grid-cols-2 gap-3">
+      <div className="grid gap-x-8 gap-y-6 xl:grid-cols-2">
         <Card className="border-border/60">
           <CardHeader className="pb-2"><CardTitle className="text-base">Recursos próprios na assinatura</CardTitle></CardHeader>
           <CardContent>
@@ -1808,55 +1771,53 @@ function ResultsView({ snap, stale, onRegenerate, onReset, onCopyLink, showCopyL
         </CardContent>
       </Card>
 
-      {/* Charts */}
-      <Tabs defaultValue="balance">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="balance">Saldo devedor</TabsTrigger>
-          <TabsTrigger value="composition">Juros × amortização</TabsTrigger>
-          <TabsTrigger value="donut">Desembolso total</TabsTrigger>
+      {/* Gráficos (SVG próprio, paleta do estudo) */}
+      <Tabs defaultValue="balance" className="min-w-0">
+        <TabsList className="grid h-auto w-full grid-cols-3">
+          <TabsTrigger value="balance" className="min-h-[40px] whitespace-normal text-[13px] leading-tight">Saldo devedor</TabsTrigger>
+          <TabsTrigger value="composition" className="min-h-[40px] whitespace-normal text-[13px] leading-tight">Juros × amortização</TabsTrigger>
+          <TabsTrigger value="donut" className="min-h-[40px] whitespace-normal text-[13px] leading-tight">Desembolso total</TabsTrigger>
         </TabsList>
-        <TabsContent value="balance">
-          <Card className="border-border/60"><CardContent className="pt-6">
-            <ResponsiveContainer width="100%" height={260}>
-              <LineChart data={balanceData}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => (v / 1000).toFixed(0) + "k"} />
-                <RTooltip formatter={(v: number) => BRL(v)} />
-                <Legend />
-                <Line type="monotone" dataKey="SAC" stroke="hsl(var(--accent))" strokeWidth={2.5} dot={false} />
-                <Line type="monotone" dataKey="PRICE" stroke="hsl(215 12% 55%)" strokeWidth={2} strokeDasharray="5 4" dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent></Card>
+        <TabsContent value="balance" className="pt-4">
+          <Figura numero={1} titulo="No SAC o saldo cai mais rápido que na Price" unidade="Saldo devedor (R$) por mês do contrato.">
+            <GraficoSerie
+              x={balanceData.x}
+              series={[
+                { nome: "SAC", tom: "--ciano", valores: balanceData.sac },
+                { nome: "Price", tom: "--neutro-600", valores: balanceData.price, tracejada: true },
+              ]}
+              formatarY={milReais}
+              formatarX={(m) => `${formatDecimal(m, 0)}`}
+              rotuloAcessivel={`Saldo devedor por mês: SAC começa em ${BRL(balanceData.sac[0] ?? 0)} e Price em ${BRL(balanceData.price[0] ?? 0)}; os dois chegam a zero no mês ${termMonths}.`}
+            />
+            <p className="e-legenda mt-1">Eixo horizontal: mês do contrato.</p>
+          </Figura>
         </TabsContent>
-        <TabsContent value="composition">
-          <Card className="border-border/60"><CardContent className="pt-6">
-            <ResponsiveContainer width="100%" height={260}>
-              <AreaChart data={compositionData}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => (v / 1000).toFixed(0) + "k"} />
-                <RTooltip formatter={(v: number) => BRL(v)} />
-                <Legend />
-                <Area type="monotone" dataKey="Juros" stackId="1" stroke="hsl(var(--destructive))" fill="hsl(var(--destructive) / 0.4)" />
-                <Area type="monotone" dataKey="Amortização" stackId="1" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.4)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </CardContent></Card>
+        <TabsContent value="composition" className="pt-4">
+          <Figura numero={2} titulo={`Juros e amortização em cada parcela (${system})`} unidade="R$ por parcela, sem seguros e tarifa.">
+            <GraficoSerie
+              x={compositionData.x}
+              empilhar
+              series={[
+                { nome: "Amortização", tom: "--neutro-500", valores: compositionData.amortizacao },
+                { nome: "Juros", tom: "--ciano", valores: compositionData.juros },
+              ]}
+              formatarY={milReais}
+              formatarX={(m) => `${formatDecimal(m, 0)}`}
+              rotuloAcessivel={`Composição das parcelas no sistema ${system}: a primeira tem ${BRL(compositionData.juros[0] ?? 0)} de juros e ${BRL(compositionData.amortizacao[0] ?? 0)} de amortização.`}
+            />
+            <p className="e-legenda mt-1">Eixo horizontal: mês do contrato.</p>
+          </Figura>
         </TabsContent>
-        <TabsContent value="donut">
-          <Card className="border-border/60"><CardContent className="pt-6">
-            <ResponsiveContainer width="100%" height={260}>
-              <PieChart>
-                <Pie data={donutData} innerRadius={60} outerRadius={100} paddingAngle={2} dataKey="value">
-                  {donutData.map((_, i) => <Cell key={i} fill={donutColors[i]} />)}
-                </Pie>
-                <RTooltip formatter={(v: number) => BRL(v)} />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent></Card>
+        <TabsContent value="donut" className="pt-4">
+          <Figura numero={3} titulo={`Desembolso total no contrato: ${BRL(desembolsoTotal)}`} unidade="R$ ao longo de todo o prazo, incluindo a entrada e os custos de aquisição (hipóteses).">
+            <BarraEmpilhada
+              segmentos={donutData.map((d) => ({ chave: d.chave, rotulo: d.rotulo, valor: d.valor, tom: d.tom }))}
+              total={desembolsoTotal}
+              formatar={BRL}
+              rotuloAcessivel={donutData.map((d) => `${d.rotulo}: ${BRL(d.valor)}`).join("; ")}
+            />
+          </Figura>
         </TabsContent>
       </Tabs>
 
@@ -1876,18 +1837,18 @@ function ResultsView({ snap, stale, onRegenerate, onReset, onCopyLink, showCopyL
       {/* Actions */}
       <div className="flex flex-col sm:flex-row gap-3 print:hidden">
         <Button size="lg" className="flex-1 min-h-[48px] gap-2" onClick={openReport}>
-          <Printer className="h-4 w-4" /> Gerar relatório completo
+          Gerar relatório completo
         </Button>
         <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="flex-1" onClick={() => trackSimulationShared("whatsapp-financiamento")}>
           <Button size="lg" variant="outline" className="w-full min-h-[48px] gap-2">
-            <MessageCircle className="h-4 w-4" /> Compartilhar por WhatsApp
+            Compartilhar por WhatsApp
           </Button>
         </a>
       </div>
 
       {/* Amortization preview */}
       <Card className="border-border/60 mt-2">
-        <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><TrendingDown className="h-4 w-4" />Primeiras 12 parcelas ({system})</CardTitle></CardHeader>
+        <CardHeader className="pb-2"><CardTitle>Primeiras 12 parcelas ({system})</CardTitle></CardHeader>
         <CardContent className="overflow-x-auto">
           <Table>
             <TableHeader><TableRow>
@@ -1973,14 +1934,14 @@ function ResultsView({ snap, stale, onRegenerate, onReset, onCopyLink, showCopyL
             <DialogTitle className="flex items-center justify-between">
               <span>Demonstrativo da simulação</span>
               <Button size="sm" onClick={() => window.print()} className="gap-2">
-                <Printer className="h-4 w-4" /> Imprimir / salvar em PDF
+                Imprimir / salvar em PDF
               </Button>
             </DialogTitle>
           </DialogHeader>
 
           <div className="print-report space-y-6 py-4">
             <div className="border-b border-border/60 pb-4">
-              <p className="text-xs uppercase tracking-wider text-primary font-semibold">
+              <p className="e-rotulo">
                 Radar Bewild · simulação de financiamento
               </p>
               <h1 className="font-display text-2xl font-bold text-foreground mt-1">Demonstrativo de financiamento imobiliário</h1>
@@ -2097,7 +2058,7 @@ function ResultsView({ snap, stale, onRegenerate, onReset, onCopyLink, showCopyL
 
             <section>
               <h2 className="font-display font-bold text-lg mb-2 flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-estimate-text" /> Pontos que exigem confirmação
+                Pontos que exigem confirmação
               </h2>
               <ul className="text-sm space-y-1.5 text-foreground/90 list-disc pl-5">
                 <li>Análise de crédito e comprovação de renda pela instituição.</li>
@@ -2150,7 +2111,7 @@ function ResultsView({ snap, stale, onRegenerate, onReset, onCopyLink, showCopyL
 
 function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-border/60 bg-background px-2.5 py-0.5 text-[11px] font-medium text-foreground/90 tabular-nums">
+    <span className="inline-flex items-center rounded-[2px] border border-foreground/20 px-2 py-0.5 text-[13px] tabular-nums text-tinta-78">
       {children}
     </span>
   );
@@ -2158,15 +2119,11 @@ function Chip({ children }: { children: React.ReactNode }) {
 
 function Kpi({ label, value, hint, highlight }: { label: string; value: string; hint?: string; highlight?: boolean }) {
   return (
-    <div
-      className={`rounded-lg p-3 ${
-        highlight ? "bg-card border border-accent/40 border-l-4 border-l-accent shadow-sm" : "bg-card border border-border/60"
-      }`}
-    >
-      <p className="text-[11px] text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+    <div className="min-w-0">
+      <p className="e-rotulo flex items-center gap-1.5">
         {label} {hint && <InfoHint text={hint} label={label} />}
       </p>
-      <p className={`font-display font-bold mt-1 tabular-nums ${highlight ? "text-accent text-lg" : "text-foreground text-base"}`}>{value}</p>
+      <p className={cn("mt-1 whitespace-nowrap text-[22px] font-semibold leading-7 tabular-nums", highlight && "text-ciano-700")}>{value}</p>
     </div>
   );
 }
@@ -2189,13 +2146,10 @@ function ConferenceSeal({ ok, checks }: { ok: boolean; checks: { label: string; 
             type="button"
             aria-label={ok ? "Conferência automática aprovada" : "Conferência automática com aviso"}
             className={[
-              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              ok
-                ? "border-accent/40 bg-accent-light text-accent-text"
-                : "border-estimate-border bg-estimate-light text-estimate-text",
+              "e-tag min-h-[28px]",
+              ok ? "e-tag-observado" : "border-magenta text-magenta-700",
             ].join(" ")}
           >
-            {ok ? <CheckCircle2 className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
             {ok ? "Números conferidos" : "Verificar composição"}
           </button>
         </TooltipTrigger>

@@ -12,7 +12,7 @@ export interface LinkNavegacao {
 }
 
 export const LINKS_PUBLICOS: LinkNavegacao[] = [
-  { to: "/", label: "Guia", id: "guia" },
+  { to: "/", label: "Início", id: "guia" },
   { to: "/mercado", label: "Mercado", id: "mercado" },
   { to: "/mapa", label: "Mapa", id: "mapa" },
   { to: "/ranking", label: "Ranking", id: "ranking" },
@@ -24,9 +24,9 @@ export const LINKS_PUBLICOS: LinkNavegacao[] = [
 /** Atalhos da barra no celular: o fluxo principal explorar → comparar → simular. */
 export const ATALHOS_CELULAR = ["mapa", "comparar", "simular"] as const;
 
-/** Link para o simulador da home com o bairro já escolhido (slug na query). */
+/** Link para o simulador com o bairro já escolhido (o simulador saiu da home e vive em /projecao). */
 export function linkSimuladorBairro(slug: string) {
-  return `/?bairro=${encodeURIComponent(slug)}#simulador`;
+  return `/projecao?bairro=${encodeURIComponent(slug)}`;
 }
 
 /** Link para a projeção do studio com o bairro já escolhido (slug na query). */

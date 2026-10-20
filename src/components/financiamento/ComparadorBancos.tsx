@@ -1,10 +1,10 @@
 import { useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Info, Award } from "lucide-react";
+import { cn } from "@/lib/utils";
+
 import {
   INSTITUTION_RATES,
   MODALITY_LABEL,
@@ -23,6 +23,20 @@ import {
   simulate,
   type AmortSystem,
 } from "@/lib/financiamento";
+
+/* Blocos sem caixa nem sombra (padrão "Estudo aberto"): linha de tinta no topo. */
+function Card({ children }: { className?: string; children?: React.ReactNode }) {
+  return <div className="min-w-0 border-t border-foreground pt-3">{children}</div>;
+}
+function CardHeader({ children }: { className?: string; children?: React.ReactNode }) {
+  return <div className="pb-3">{children}</div>;
+}
+function CardTitle({ children }: { className?: string; children?: React.ReactNode }) {
+  return <h3 className="e-h3">{children}</h3>;
+}
+function CardContent({ children, className }: { className?: string; children?: React.ReactNode }) {
+  return <div className={cn("min-w-0", className)}>{children}</div>;
+}
 
 interface Props {
   propertyValue: number;
@@ -141,16 +155,16 @@ export default function BankComparator({
           <div className="flex items-start justify-between gap-3 flex-wrap">
             <div>
               <CardTitle className="text-base flex items-center gap-2">
-                <Award className="h-4 w-4 text-primary" /> Comparar bancos
+                Comparar bancos
               </CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="e-legenda mt-1">
                 Cenário atual aplicado a cada instituição — comparação por indexador. Não misturamos IPCA/poupança com TR na ordenação.
               </p>
             </div>
-            <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+            <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-[13px] text-tinta-78">
               <input
                 type="checkbox"
-                className="h-4 w-4 accent-primary"
+                className="h-5 w-5 accent-[hsl(var(--ciano-700))]"
                 checked={eligibleProCotista}
                 onChange={(e) => onToggleProCotista(e.target.checked)}
               />
@@ -160,7 +174,7 @@ export default function BankComparator({
         </CardHeader>
         <CardContent className="space-y-5">
           {/* Winners */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3 xl:grid-cols-5">
             <WinnerCard
               title="Menor CET (+TR)"
               value={winners.byCET ? `${winners.byCET.rate.bank}` : "—"}
@@ -222,7 +236,7 @@ export default function BankComparator({
               <TabsContent key={g} value={g} className="mt-3">
                 {GROUP_HINT[g] && (
                   <p className="text-[11px] text-muted-foreground mb-2 flex items-center gap-1">
-                    <Info className="h-3 w-3" /> {GROUP_HINT[g]}
+                    {GROUP_HINT[g]}
                   </p>
                 )}
                 <div className="overflow-x-auto">
@@ -324,11 +338,11 @@ export default function BankComparator({
 
 function WinnerCard({ title, value, caption, note }: { title: string; value: string; caption: string; note: string }) {
   return (
-    <div className="rounded-lg border border-border/60 bg-card p-3">
-      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{title}</p>
-      <p className="font-display font-bold text-sm text-foreground mt-0.5 leading-tight">{value}</p>
-      <p className="text-[11px] text-primary tabular-nums">{caption}</p>
-      <p className="text-[10px] text-muted-foreground mt-1 leading-snug">{note}</p>
+    <div className="min-w-0">
+      <p className="e-rotulo">{title}</p>
+      <p className="mt-1 text-[16px] font-semibold leading-6">{value}</p>
+      <p className="text-[15px] tabular-nums text-ciano-700">{caption}</p>
+      <p className="e-legenda mt-1">{note}</p>
     </div>
   );
 }

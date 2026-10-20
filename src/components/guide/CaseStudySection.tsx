@@ -1,8 +1,7 @@
 import { useMemo, useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Calendar, MapPin, Ruler, DollarSign, Percent, Award, type LucideIcon } from "lucide-react";
-import SectionBlock from "./SectionBlock";
+import { useRastrearSecao } from "./SectionBlock";
+import NovaAba from "@/components/NovaAba";
+import { formatBRL } from "@/lib/numberFormat";
 import { useGuideDecision } from "@/hooks/useGuideDecision";
 import { loadPendingProvision } from "@/lib/leadProvisioning";
 import { selectCaseStudies, type MatchLevel } from "@/data/caseStudies";
@@ -30,7 +29,13 @@ function relevanceCopy(matchLevel: MatchLevel, leadBairro: string | null, region
   }
 }
 
+/**
+ * Case real da Bewild (prova social contextual), no padrão "Estudo aberto": vive na
+ * /projecao. Só números publicados no depoimento (caseStudies.ts); campo sem dado não
+ * aparece. O título da seção vem da tela; aqui ficam o contexto, os números e o link.
+ */
 export default function CaseStudySection() {
+  const ref = useRastrearSecao<HTMLDivElement>("casestudy");
   const { selectedBairro, investorProfile } = useGuideDecision();
 
   // Bairro do lead: seleção em sessão (quiz/recomendação) ou bairro informado
@@ -53,106 +58,72 @@ export default function CaseStudySection() {
 
   const { matchLevel, leadBairro, region } = selection;
   const copy = relevanceCopy(matchLevel, leadBairro, region ?? null);
-  const isContextual = matchLevel !== "geral";
-  const brl = (v: number) => `R$ ${v.toLocaleString("pt-BR")}`;
-  const cartoes: { icone: LucideIcon; valor: string; rotulo: string }[] = [
-    { icone: MapPin, valor: caseData.bairro, rotulo: "Bairro" },
-    ...(caseData.metragem != null ? [{ icone: Ruler, valor: `${caseData.metragem}m²`, rotulo: "Metragem" }] : []),
-    ...(caseData.ocupacao != null ? [{ icone: Percent, valor: `${caseData.ocupacao}%`, rotulo: `Ocupação ${caseData.ocupacaoContexto ?? "média"}` }] : []),
-    ...(caseData.diaria != null ? [{ icone: DollarSign, valor: brl(caseData.diaria), rotulo: `Diária ${caseData.diariaContexto ?? ""}`.trim() }] : []),
-    ...(caseData.receitaMensal != null ? [{ icone: DollarSign, valor: `${brl(caseData.receitaMensal)}/mês`, rotulo: "Receita média" }] : []),
-    ...(caseData.yieldBruto ? [{ icone: TrendingUp, valor: caseData.yieldBruto, rotulo: "Rentabilidade bruta" }] : []),
+  const numeros: { valor: string; rotulo: string }[] = [
+    { valor: caseData.bairro, rotulo: "Bairro" },
+    ...(caseData.metragem != null ? [{ valor: `${caseData.metragem} m²`, rotulo: "Metragem" }] : []),
+    ...(caseData.ocupacao != null ? [{ valor: `${caseData.ocupacao}%`, rotulo: `Ocupação ${caseData.ocupacaoContexto ?? "média"}` }] : []),
+    ...(caseData.diaria != null ? [{ valor: formatBRL(caseData.diaria), rotulo: `Diária ${caseData.diariaContexto ?? ""}`.trim() }] : []),
+    ...(caseData.receitaMensal != null ? [{ valor: `${formatBRL(caseData.receitaMensal)}/mês`, rotulo: "Receita média" }] : []),
+    ...(caseData.yieldBruto ? [{ valor: caseData.yieldBruto, rotulo: "Rentabilidade bruta" }] : []),
   ];
 
   return (
-    <SectionBlock
-      id="casestudy"
-      title={`Case real: studio na ${caseData.bairro}`}
-      takeaway="Studio reformado pela Bewild: números publicados no depoimento da cliente."
-    >
-      {/* Banner de relevância contextual */}
-      <div
-        className={`flex items-start gap-3 rounded-lg border p-4 mb-6 ${
-          isContextual ? "border-primary/40 bg-primary/5" : "border-border bg-muted/30"
-        }`}
-        role="note"
-      >
-        <MapPin size={18} className="text-primary mt-0.5 shrink-0" aria-hidden="true" />
-        <div>
-          <Badge variant={isContextual ? "default" : "secondary"} className="font-body text-xs mb-1">
-            {copy.label}
-          </Badge>
-          <p className="text-sm text-muted-foreground">{copy.text}</p>
-        </div>
-      </div>
+    <div ref={ref} id="casestudy">
+      <p className="e-rotulo">{copy.label}</p>
+      <p className="e-apoio mt-1 max-w-[720px]">{copy.text}</p>
 
       {caseData.fotos?.length ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {caseData.fotos.map((foto) => (
-            <figure key={foto.src} className="overflow-hidden rounded-lg border border-border">
-              <img src={foto.src} alt={foto.alt} loading="lazy" className="w-full h-auto object-cover" />
-              {foto.label && (
-                <figcaption className="px-3 py-2 text-xs font-body text-muted-foreground bg-muted/40">{foto.label}</figcaption>
-              )}
+            <figure key={foto.src} className="m-0">
+              <img src={foto.src} alt={foto.alt} loading="lazy" className="h-auto w-full object-cover" />
+              {foto.label && <figcaption className="e-legenda mt-1">{foto.label}</figcaption>}
             </figure>
           ))}
         </div>
       ) : null}
 
+      {/* Só números publicados; campo vazio não aparece (nunca zero). */}
+      <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6 border-t border-foreground pt-4 md:grid-cols-4">
+        {numeros.map((c) => (
+          <div key={c.rotulo} className="min-w-0">
+            <dt className="e-rotulo">{c.rotulo}</dt>
+            <dd className="e-numero-sm m-0 mt-1">{c.valor}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="e-legenda mt-3 max-w-[720px]">Números publicados no depoimento da cliente, com o período de cada um: não são média anual nem dado da base do Radar.</p>
+
       {caseData.destaques?.length ? (
-        <ul className="mb-6 space-y-2">
-          {caseData.destaques.map((d) => (
-            <li key={d} className="flex items-start gap-2 text-sm text-foreground"><Award size={16} className="text-primary mt-0.5 shrink-0" aria-hidden="true" />{d}</li>
-          ))}
+        <ul className="mt-6 space-y-1">
+          {caseData.destaques.map((d) => <li key={d} className="e-corpo">{d}</li>)}
         </ul>
       ) : null}
 
-      {/* Só cartões com dado publicado; campo vazio não aparece (nunca zero). */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-        {cartoes.map((c) => (
-          <Card key={c.rotulo} className="border-border"><CardContent className="p-4 text-center"><c.icone size={18} className="text-primary mx-auto mb-1" aria-hidden="true" /><p className="text-lg font-display font-bold text-foreground">{c.valor}</p><p className="text-xs text-muted-foreground">{c.rotulo}</p></CardContent></Card>
-        ))}
-      </div>
-
       {caseData.investimento && (
-        <>
-          <h3 className="font-display text-xl font-bold text-foreground mb-4">Investimento</h3>
-          <div className="grid grid-cols-3 gap-3 mb-8">
-            <Card className="border-border"><CardContent className="p-4 text-center"><p className="text-sm text-muted-foreground">Imóvel</p><p className="font-display font-bold text-foreground">R$ {caseData.investimento.imovel.toLocaleString("pt-BR")}</p></CardContent></Card>
-            <Card className="border-border"><CardContent className="p-4 text-center"><p className="text-sm text-muted-foreground">Reforma</p><p className="font-display font-bold text-foreground">R$ {caseData.investimento.reforma.toLocaleString("pt-BR")}</p></CardContent></Card>
-            <Card className="border-border"><CardContent className="p-4 text-center"><p className="text-sm text-muted-foreground">Decoração</p><p className="font-display font-bold text-foreground">R$ {caseData.investimento.decoracao.toLocaleString("pt-BR")}</p></CardContent></Card>
-          </div>
-        </>
+        <dl className="mt-6 grid grid-cols-3 gap-x-6 border-t border-foreground pt-4">
+          <div><dt className="e-rotulo">Imóvel</dt><dd className="e-numero-sm m-0 mt-1">{formatBRL(caseData.investimento.imovel)}</dd></div>
+          <div><dt className="e-rotulo">Reforma</dt><dd className="e-numero-sm m-0 mt-1">{formatBRL(caseData.investimento.reforma)}</dd></div>
+          <div><dt className="e-rotulo">Decoração</dt><dd className="e-numero-sm m-0 mt-1">{formatBRL(caseData.investimento.decoracao)}</dd></div>
+        </dl>
       )}
 
       {caseData.timeline.length > 0 && (
-        <>
-          <h3 className="font-display text-xl font-bold text-foreground mb-4">Timeline do Projeto</h3>
-          <div className="space-y-3">
-            {caseData.timeline.map((step, i) => (
-              <div key={step.month} className="flex items-start gap-4">
-                <div className="flex flex-col items-center">
-                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Calendar size={14} className="text-primary" aria-hidden="true" />
-                  </div>
-                  {i < caseData.timeline.length - 1 && <div className="w-px h-6 bg-border" />}
-                </div>
-                <div>
-                  <Badge variant="secondary" className="font-body text-xs mb-1">{step.month}</Badge>
-                  <p className="font-semibold text-foreground text-sm">{step.label}</p>
-                  <p className="text-sm text-muted-foreground">{step.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
+        <ol className="mt-6 border-t border-foreground">
+          {caseData.timeline.map((step) => (
+            <li key={step.month} className="e-fina grid gap-1 border-b py-3 sm:grid-cols-[120px_minmax(0,1fr)] sm:gap-6">
+              <span className="e-rotulo pt-0.5">{step.month}</span>
+              <span><span className="block font-semibold">{step.label}</span><span className="e-apoio block">{step.desc}</span></span>
+            </li>
+          ))}
+        </ol>
       )}
 
       {caseData.depoimentoUrl && (
-        <a href={caseData.depoimentoUrl} className="inline-flex min-h-[44px] items-center text-sm font-medium text-primary underline underline-offset-4">
-          Ver o depoimento{caseData.cliente ? ` da ${caseData.cliente}` : ""}
+        <a href={caseData.depoimentoUrl} target="_blank" rel="noopener noreferrer" className="e-link mt-4 inline-flex min-h-[44px] items-center text-[15px]">
+          Ver o depoimento{caseData.cliente ? ` da ${caseData.cliente}` : ""}<NovaAba />
         </a>
       )}
-    </SectionBlock>
+    </div>
   );
 }

@@ -1,19 +1,15 @@
 import OrcamentoButton from "@/components/OrcamentoButton";
 import { useMemo } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import {
-  MapPin, Building2, Calculator, Paintbrush, Megaphone, ShieldCheck,
-  CheckCircle2, AlertCircle, ArrowRight, Rocket, Target,
-  type LucideIcon,
-} from "lucide-react";
-import SectionBlock from "./SectionBlock";
+import { Link } from "react-router-dom";
+import { useRastrearSecao } from "./SectionBlock";
 import { useGuideDecision } from "@/hooks/useGuideDecision";
+import { cn } from "@/lib/utils";
 
+/**
+ * Plano de ação (/ferramentas#plano-acao), no padrão "Estudo aberto": etapas numeradas
+ * com o estado em tag de texto (não só cor), cada uma levando à tela que resolve a etapa.
+ */
 interface ActionStep {
-  icon: LucideIcon;
   title: string;
   description: string;
   status: "done" | "action" | "warning" | "pending";
@@ -22,37 +18,35 @@ interface ActionStep {
 
 export default function PlanoAcaoSection() {
   const { investorProfile, hasProfile, unitScore, hasUnitScore } = useGuideDecision();
+  const ref = useRastrearSecao<HTMLDivElement>("plano-acao");
 
   const steps = useMemo((): ActionStep[] => {
     const result: ActionStep[] = [];
 
     // Step 1: Profile
     result.push({
-      icon: Target,
       title: "Definir perfil de investidor",
       description: hasProfile
         ? `Perfil definido: ${investorProfile!.name}. Recomendações personalizadas ativas.`
         : "Complete a autoavaliação para personalizar suas recomendações.",
       status: hasProfile ? "done" : "action",
-      href: "#diagnostico",
+      href: "/ferramentas#diagnostico",
     });
 
     // Step 2: Bairro
     result.push({
-      icon: MapPin,
       title: "Escolher o bairro",
       description: hasProfile
         ? "Use o ranking personalizado e o mapa para identificar os melhores bairros para seu perfil."
         : "Analise o mapa de bairros e os indicadores de mercado.",
       status: hasProfile ? "action" : "pending",
-      href: "#mapa-bairros",
+      href: "/mapa",
     });
 
     // Step 3: Unit
     const unitGood = hasUnitScore && unitScore!.pct >= 70;
     const unitWeak = hasUnitScore && unitScore!.pct < 50;
     result.push({
-      icon: Building2,
       title: "Avaliar a unidade",
       description: hasUnitScore
         ? unitGood
@@ -62,53 +56,48 @@ export default function PlanoAcaoSection() {
             : `Score ${unitScore!.total}/${unitScore!.max} — pontos de atenção. Revise os critérios pendentes.`
         : "Use o scorecard para avaliar a unidade que está considerando.",
       status: hasUnitScore ? (unitWeak ? "warning" : "done") : "action",
-      href: "#escolha-ativo",
+      href: "/guia/escolha-do-ativo",
     });
 
     // Step 4: Numbers
     result.push({
-      icon: Calculator,
       title: "Validar a conta",
       description: "Rode o simulador com os dados do bairro e da unidade escolhidos. Teste cenários conservador e base.",
       status: "action",
-      href: "#simulador",
+      href: "/projecao",
     });
 
     // Step 5: Product — conditional
     if (hasUnitScore && !unitGood) {
       result.push({
-        icon: Paintbrush,
         title: "Priorizar projeto e reforma",
         description: "A unidade precisa de melhorias. Revise as seções de projeto, reforma e decoração para maximizar o potencial.",
         status: "warning",
-        href: "#projeto",
+        href: "/ferramentas#reformar",
       });
     } else {
       result.push({
-        icon: Paintbrush,
         title: "Planejar o produto",
         description: "Defina o conceito do studio: projeto, reforma, decoração e diferenciação.",
         status: "pending",
-        href: "#projeto",
+        href: "/ferramentas#reformar",
       });
     }
 
     // Step 6: Pricing
     result.push({
-      icon: Megaphone,
       title: "Montar anúncio e precificação",
       description: "Estruture o anúncio, defina a estratégia de preço e prepare-se para capturar receita.",
       status: "pending",
-      href: "#anuncio-pricing",
+      href: "/guia/anuncio-e-precificacao",
     });
 
     // Step 7: Go
     result.push({
-      icon: ShieldCheck,
       title: "Checklist final e decisão",
       description: "Revise o checklist do investidor e confirme que todos os fundamentos estão cobertos.",
       status: "pending",
-      href: "#checklist",
+      href: "/guia/checklist",
     });
 
     return result;
@@ -116,92 +105,57 @@ export default function PlanoAcaoSection() {
 
   const completedCount = steps.filter(s => s.status === "done").length;
   const progressPct = Math.round((completedCount / steps.length) * 100);
+  const ROTULO: Record<ActionStep["status"], string> = { done: "Concluído", action: "Próximo passo", warning: "Atenção", pending: "Pendente" };
 
   return (
-    <SectionBlock
-      id="plano-acao"
-      title="Seu Plano de Ação"
-      takeaway="Baseado no que você preencheu até aqui, estes são seus próximos passos."
-    >
-      {/* Progress bar */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="h-2 flex-1 bg-muted rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary rounded-full transition-all duration-500"
-            style={{ width: `${progressPct}%` }}
-          />
+    <div ref={ref}>
+      <div className="mb-6 flex items-center gap-3">
+        <div className="h-1 flex-1 bg-neutro-200" aria-hidden="true">
+          <div className="h-full bg-ciano transition-[width] duration-500" style={{ width: `${progressPct}%` }} />
         </div>
-        <span className="text-xs font-body text-muted-foreground">
-          {completedCount}/{steps.length} etapas concluídas
-        </span>
+        <span className="e-legenda tabular-nums">{completedCount} de {steps.length} etapas concluídas</span>
       </div>
 
-      {/* Steps */}
-      <div className="space-y-3">
-        {steps.map((step, i) => {
-          const Icon = step.icon;
-          const statusConfig = {
-            done: { badge: "Concluído", badgeClass: "bg-primary/10 text-primary", iconClass: "text-primary bg-primary/10", dot: <CheckCircle2 size={14} className="text-primary" /> },
-            action: { badge: "Próximo passo", badgeClass: "bg-amber-100 text-amber-800", iconClass: "text-amber-600 bg-amber-50", dot: <ArrowRight size={14} className="text-amber-600" /> },
-            warning: { badge: "Atenção", badgeClass: "bg-destructive/10 text-destructive", iconClass: "text-destructive bg-destructive/5", dot: <AlertCircle size={14} className="text-destructive" /> },
-            pending: { badge: "Pendente", badgeClass: "bg-muted text-muted-foreground", iconClass: "text-muted-foreground bg-muted", dot: <span className="h-2 w-2 rounded-full bg-muted-foreground/30" /> },
-          };
-          const cfg = statusConfig[step.status];
-
-          return (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -8 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.05 }}
+      <ol className="border-t border-foreground">
+        {steps.map((step, i) => (
+          <li key={step.title} className="e-fina border-b">
+            <Link
+              to={step.href ?? "#"}
+              className="group grid min-h-[44px] grid-cols-[28px_minmax(0,1fr)] gap-x-3 py-4 sm:grid-cols-[28px_minmax(0,1fr)_auto]"
             >
-              <a href={step.href} className="block">
-                <Card className={`border-border transition-all hover:shadow-md ${
-                  step.status === "action" ? "border-amber-300/50" :
-                  step.status === "warning" ? "border-destructive/30" : ""
-                }`}>
-                  <CardContent className="p-4 flex items-start gap-3">
-                    <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${cfg.iconClass}`}>
-                      <Icon size={18} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <p className="font-display font-bold text-foreground text-sm">{step.title}</p>
-                        <Badge className={`${cfg.badgeClass} font-body text-[10px]`}>{cfg.badge}</Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground font-body leading-relaxed">{step.description}</p>
-                    </div>
-                    <div className="shrink-0 mt-1">{cfg.dot}</div>
-                  </CardContent>
-                </Card>
-              </a>
-            </motion.div>
-          );
-        })}
-      </div>
+              <span className="tabular-nums text-tinta-70">{String(i + 1).padStart(2, "0")}</span>
+              <span className="min-w-0">
+                <span className="block text-[16px] font-semibold leading-6 group-hover:underline">{step.title}</span>
+                <span className="e-apoio block">{step.description}</span>
+              </span>
+              <span
+                className={cn(
+                  "col-start-2 mt-2 justify-self-start sm:col-start-3 sm:mt-0.5",
+                  "e-tag",
+                  step.status === "done" && "e-tag-observado",
+                  step.status === "action" && "border-ciano-700 text-ciano-700",
+                  step.status === "warning" && "border-magenta text-magenta-700",
+                  step.status === "pending" && "e-tag-hipotese",
+                )}
+              >
+                {ROTULO[step.status]}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ol>
 
-      {/* Summary insight */}
       {hasProfile && (
-        <div className="mt-6 bg-primary/5 border border-primary/20 rounded-xl p-5 flex items-start gap-3">
-          <Rocket className="text-primary mt-0.5 shrink-0" size={20} />
-          <div>
-            <p className="font-display font-bold text-foreground text-sm mb-1">
-              {completedCount >= 3
-                ? "Você está avançado na jornada"
-                : "Bom começo — continue preenchendo"
-              }
-            </p>
-            <p className="text-sm text-muted-foreground font-body">
-              {completedCount >= 3
-                ? "Seu perfil e análises estão tomando forma. Valide a conta no simulador e revise o checklist final para tomar sua decisão com confiança."
-                : "Quanto mais etapas você completar, mais precisa será a recomendação. Avalie uma unidade e rode o simulador para ganhar clareza."
-              }
-            </p>
-          </div>
+        <div className="mt-8 max-w-[720px]">
+          <p className="e-h3">{completedCount >= 3 ? "Você está avançado na jornada" : "Bom começo: continue preenchendo"}</p>
+          <p className="e-apoio mt-1">
+            {completedCount >= 3
+              ? "Seu perfil e análises estão tomando forma. Valide a conta no simulador e revise o checklist final antes de decidir."
+              : "Quanto mais etapas você completar, mais precisa fica a recomendação. Avalie uma unidade e rode o simulador para ganhar clareza."}
+          </p>
         </div>
       )}
-      <OrcamentoButton local="plano-acao" className="mt-6 min-h-[44px]" />
-    </SectionBlock>
+      <OrcamentoButton local="plano-acao" className="mt-8 min-h-[44px] px-5 text-[15px] font-semibold" />
+    </div>
   );
 }

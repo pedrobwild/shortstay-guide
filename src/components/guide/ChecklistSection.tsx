@@ -18,17 +18,17 @@ const TIER_DESCRIPTIONS: Record<string, string> = {
 };
 
 function getTierColor(score: number) {
-  if (score <= 3) return "bg-red-400";
-  if (score <= 6) return "bg-amber-400";
-  if (score <= 8) return "bg-blue-400";
-  return "bg-emerald-400";
+  if (score <= 3) return "bg-magenta";
+  if (score <= 6) return "bg-neutro-600";
+  if (score <= 8) return "bg-ciano-400";
+  return "bg-ciano-700";
 }
 
 function getTierBadgeColor(score: number) {
-  if (score <= 3) return "bg-red-400 text-white";
-  if (score <= 6) return "bg-amber-400 text-white";
-  if (score <= 8) return "bg-blue-400 text-white";
-  return "bg-emerald-400 text-white";
+  if (score <= 3) return "bg-magenta-700 text-white";
+  if (score <= 6) return "bg-neutro-600 text-white";
+  if (score <= 8) return "bg-ciano-700 text-white";
+  return "bg-ciano-900 text-white";
 }
 
 // Mini confetti component
@@ -115,13 +115,13 @@ export default function ChecklistSection() {
             <Card
               className={`border-border cursor-pointer transition-all duration-300 ${
                 checked[i] ? "bg-primary/5 border-primary/30" : ""
-              } ${flashIndex === i ? "!bg-emerald-500/10" : ""}`}
+              } ${flashIndex === i ? "!bg-ciano-100" : ""}`}
               onClick={() => toggle(i)}
             >
               <CardContent className="p-4 flex items-center gap-3 min-h-[48px]">
                 <Checkbox checked={checked[i]} onCheckedChange={() => toggle(i)} />
                 <span className={`text-sm font-body flex-1 transition-colors duration-300 ${
-                  checked[i] ? "text-emerald-600 font-medium" : "text-muted-foreground"
+                  checked[i] ? "text-ciano-700 font-medium" : "text-muted-foreground"
                 }`}>
                   {item}
                 </span>
@@ -133,7 +133,7 @@ export default function ChecklistSection() {
                       exit={{ opacity: 0, scale: 0.5 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <Check size={16} className="text-emerald-500 flex-shrink-0" />
+                      <Check size={16} className="text-ciano-700 flex-shrink-0" />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -190,10 +190,10 @@ export default function ChecklistSection() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 12 }}
                 transition={{ duration: 0.4, delay: 0.2 }}
-                className="mt-6 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4"
+                className="mt-6 bg-ciano-100 border border-ciano/30 rounded-xl p-4"
               >
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <PartyPopper size={20} className="text-emerald-500" />
+                  <PartyPopper size={20} className="text-ciano-700" />
                   <p className="text-sm font-semibold text-foreground font-body">
                     Você completou o checklist! Seu projeto parece pronto para o próximo passo.
                   </p>

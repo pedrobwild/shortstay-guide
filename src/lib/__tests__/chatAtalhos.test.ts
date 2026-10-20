@@ -18,7 +18,7 @@ describe("atalhos do chat", () => {
     const a = atalhosDaResposta("Pinheiros tem diária maior que Bela Vista e Mooca.", nomes);
     expect(a.map((x) => x.rotulo)).toEqual(["Ver Pinheiros", "Simular Pinheiros", "Ver Bela Vista", "Simular Bela Vista", "Comparar Pinheiros, Bela Vista, Mooca"]);
     expect(a[0].para).toBe("/bairro/pinheiros");
-    expect(a[1].para).toBe("/?bairro=pinheiros#simulador");
+    expect(a[1].para).toBe("/projecao?bairro=pinheiros");
     expect(a[4].para).toBe("/comparar?b=pinheiros,bela-vista,mooca");
   });
 

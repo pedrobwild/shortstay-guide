@@ -8,6 +8,7 @@ describe("pedido de orçamento", () => {
   it("a URL é a oficial com o UTM do local, também nas telas novas", () => {
     expect(orcamentoUrl("projecao")).toBe(`https://bewild.com.br/orcamento?${UTM}&utm_content=projecao`);
     expect(orcamentoUrl("comparar")).toBe(`https://bewild.com.br/orcamento?${UTM}&utm_content=comparar`);
+    expect(orcamentoUrl("ferramentas")).toBe(`https://bewild.com.br/orcamento?${UTM}&utm_content=ferramentas`);
   });
 
   it("não leva dados da simulação nem nada além do UTM", () => {

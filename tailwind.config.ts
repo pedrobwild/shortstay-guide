@@ -15,8 +15,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Playfair Display", "serif"],
-        body: ["DM Sans", "sans-serif"],
+        // As famílias vêm das variáveis: Source Serif 4 nas telas públicas (Estudo aberto),
+        // Playfair Display + DM Sans na conta, no painel e no admin.
+        display: ["var(--font-display)"],
+        body: ["var(--font-body)"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -60,6 +62,38 @@ export default {
           light: "hsl(var(--estimate-light))",
           border: "hsl(var(--estimate-border))",
           text: "hsl(var(--estimate-text))",
+        },
+        // Estudo aberto (só existem com a classe `estudo` no <html>, isto é, nas telas públicas)
+        tinta: {
+          DEFAULT: "hsl(var(--foreground))",
+          78: "hsl(var(--tinta-78))",
+          70: "hsl(var(--tinta-70))",
+        },
+        papel: "hsl(var(--background))",
+        ciano: {
+          DEFAULT: "hsl(var(--ciano))",
+          100: "hsl(var(--ciano-100))",
+          200: "hsl(var(--ciano-200))",
+          400: "hsl(var(--ciano-400))",
+          600: "hsl(var(--ciano-600))",
+          700: "hsl(var(--ciano-700))",
+          800: "hsl(var(--ciano-800))",
+          900: "hsl(var(--ciano-900))",
+        },
+        magenta: {
+          DEFAULT: "hsl(var(--magenta))",
+          100: "hsl(var(--magenta-100))",
+          700: "hsl(var(--magenta-700))",
+        },
+        neutro: {
+          100: "hsl(var(--neutro-100))",
+          200: "hsl(var(--neutro-200))",
+          300: "hsl(var(--neutro-300))",
+          400: "hsl(var(--neutro-400))",
+          500: "hsl(var(--neutro-500))",
+          600: "hsl(var(--neutro-600))",
+          700: "hsl(var(--neutro-700))",
+          800: "hsl(var(--neutro-800))",
         },
         cost: "hsl(var(--cost))",
         trilho: "hsl(var(--trilho))",

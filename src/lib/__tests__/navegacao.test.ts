@@ -21,8 +21,8 @@ describe("navegação pública", () => {
     for (const id of ATALHOS_CELULAR) expect(LINKS_PUBLICOS.some((l) => l.id === id), id).toBe(true);
   });
 
-  it("monta o link do simulador da home com o bairro pré-selecionado", () => {
-    expect(linkSimuladorBairro("vila-mariana")).toBe("/?bairro=vila-mariana#simulador");
+  it("monta o link do simulador (/projecao) com o bairro pré-selecionado", () => {
+    expect(linkSimuladorBairro("vila-mariana")).toBe("/projecao?bairro=vila-mariana");
   });
 
   it("monta o link da projeção com o bairro pré-selecionado", () => {

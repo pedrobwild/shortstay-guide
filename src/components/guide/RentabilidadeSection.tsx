@@ -46,8 +46,8 @@ const SCENARIOS = [
     key: "conservador",
     label: "Conservador",
     icon: TrendingDown,
-    color: "border-amber-500/30 bg-amber-500/[0.03]",
-    badgeColor: "bg-amber-100 text-amber-800",
+    color: "border-neutro-500/40 bg-neutro-100/40",
+    badgeColor: "bg-neutro-100 text-neutro-800",
     metrics: cenario(65, 280),
     desc: "Primeiros meses, baixa temporada ou bairro menos aquecido.",
   },
@@ -64,8 +64,8 @@ const SCENARIOS = [
     key: "agressivo",
     label: "Otimista",
     icon: TrendingUp,
-    color: "border-emerald-500/30 bg-emerald-500/[0.03]",
-    badgeColor: "bg-emerald-100 text-emerald-800",
+    color: "border-ciano/40 bg-ciano-100/40",
+    badgeColor: "bg-ciano-100 text-ciano-800",
     metrics: cenario(85, 420),
     desc: "Studio premium, fotos profissionais, preço dinâmico e localização top.",
   },
@@ -75,8 +75,8 @@ const SCENARIOS = [
 const SENSITIVITY = [
   { driver: "Ocupação", impact: "Alto", desc: `Cada 5pp de ocupação = ~${brlExemplo(exemplo.impactoOcupacao)}/mês de receita bruta`, icon: Percent, color: "text-primary" },
   { driver: "Diária média (ADR)", impact: "Alto", desc: `Cada R$ 50 a mais na diária = ~${brlExemplo(exemplo.impactoDiaria)}/mês bruto a ${formatPercent(exemplo.bairro.avgOccupancy, 0)} de ocupação`, icon: DollarSign, color: "text-primary" },
-  { driver: "Condomínio", impact: "Médio", desc: "Custo fixo que não escala — condomínios > R$ 1.200 comprimem margem", icon: Building2, color: "text-amber-600" },
-  { driver: "Gestão (administradora)", impact: "Médio", desc: `Na hipótese de gestão de ${pct(DRE_GUIA.gestaoPct)}, a operação própria evita essa comissão, mas exige tempo e processo`, icon: Zap, color: "text-amber-600" },
+  { driver: "Condomínio", impact: "Médio", desc: "Custo fixo que não escala — condomínios > R$ 1.200 comprimem margem", icon: Building2, color: "text-magenta-700" },
+  { driver: "Gestão (administradora)", impact: "Médio", desc: `Na hipótese de gestão de ${pct(DRE_GUIA.gestaoPct)}, a operação própria evita essa comissão, mas exige tempo e processo`, icon: Zap, color: "text-magenta-700" },
 ];
 
 type ActiveScenario = "conservador" | "base" | "agressivo";

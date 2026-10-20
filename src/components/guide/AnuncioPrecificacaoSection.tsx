@@ -53,7 +53,7 @@ const PRICING_PHASES = [
     period: "Mês 1–2",
     strategy: "Entrada agressiva: -20% do mercado",
     desc: "Priorize volume de reservas e reviews. Acompanhe as avaliações e a resposta dos hóspedes, sem assumir um limiar fixo de posicionamento.",
-    color: "bg-amber-500",
+    color: "bg-neutro-500",
   },
   {
     phase: "Estabilização",
@@ -74,7 +74,7 @@ const PRICING_PHASES = [
     period: "Eventos e feriados",
     strategy: "+30% a +50% sobre base",
     desc: "Carnaval, F1, Lollapalooza, feriados prolongados e eventos corporativos. Antecipe a precificação.",
-    color: "bg-emerald-500",
+    color: "bg-ciano",
   },
 ];
 
@@ -82,7 +82,7 @@ const PRICING_PHASES = [
 const SEASONALITY = [
   { period: "Alta", months: "Mar, Jun, Jul, Out, Nov, Dez", occupancy: "Demanda potencialmente maior", pricing: "Revisar conforme procura", color: "bg-primary/10 text-primary" },
   { period: "Média", months: "Fev, Abr, Mai, Ago, Set", occupancy: "Demanda variável", pricing: "Base", color: "bg-muted text-muted-foreground" },
-  { period: "Baixa", months: "Jan (pós-feriados)", occupancy: "Demanda potencialmente menor", pricing: "Revisar conforme procura", color: "bg-amber-100 text-amber-800" },
+  { period: "Baixa", months: "Jan (pós-feriados)", occupancy: "Demanda potencialmente menor", pricing: "Revisar conforme procura", color: "bg-neutro-100 text-neutro-800" },
 ];
 
 /* ── Rate optimization tips ── */

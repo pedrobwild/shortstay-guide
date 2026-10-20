@@ -1,306 +1,261 @@
-import AppNavbar from "@/components/AppNavbar";
-import FonteBairro from "@/components/guide/FonteBairro";
+import { useMemo, useState } from "react";
+import { COLETA_GUESTFAVORITES } from "@/data/fontesGuia";
+import { Link, useNavigate } from "react-router-dom";
+import { CabecalhoTela, Container, PaginaEstudo, Secao } from "@/components/estudo/Estrutura";
+import { TabelaNumerada, TD, TD_NUM, TH } from "@/components/estudo/Figura";
+import MetadadosBase from "@/components/estudo/MetadadosBase";
+import { NotaAmostra, TagBairro, TEXTO_APROXIMACAO } from "@/components/estudo/Natureza";
+import { AvisoReceita, FormulaReceita } from "@/components/estudo/Numeros";
+import Segmentado from "@/components/radar/Segmentado";
+import AvisoBase from "@/components/radar/AvisoBase";
 import LinkArtigoBewild from "@/components/guide/LinkArtigoBewild";
 import { ARTIGOS_BEWILD } from "@/data/artigosBewild";
-import { formatDecimal } from "@/lib/numberFormat";
-import { bairroPath } from "@/lib/seo";
-import { useState, useMemo } from "react";
-import { useBairrosData, fmtBRL, fmtPct, fmtScore, rotuloEstimativa } from "@/hooks/useIntelligenceData";
-import { FONTE_BAIRROS_CURADOS } from "@/data/bairrosCurados";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Link } from "react-router-dom";
-import { ArrowLeft, Download, TrendingUp, HelpCircle, ChevronRight, BarChart3, Filter, ArrowUpDown } from "lucide-react";
-import { motion } from "framer-motion";
-import type { BairroAirbnb } from "@/types/intelligence";
-import { ComparativeNarrativesSection, ContextualNote } from "@/components/intelligence/StorytellingComponents";
-import OutrosBairrosRadar from "@/components/intelligence/OutrosBairrosRadar";
+import { BairroProvider } from "@/hooks/useBairroData";
+import { useBaseEstudo } from "@/hooks/useBaseEstudo";
+import { useBairroSelecionado } from "@/hooks/useBairroSelecionado";
+import { useBairrosData, rotuloEstimativa } from "@/hooks/useIntelligenceData";
 import { calculateInvestmentScore } from "@/lib/investmentScore";
-import { getGradeStyle, FOOTER_DISCLAIMER } from "@/lib/uiHelpers";
-import {
-  COLUMN_TOOLTIPS,
-  getBairroProfile,
-  getTableHighlights,
-} from "@/lib/intelligenceInsights";
+import { definirBairroAtual } from "@/lib/bairroAtual";
+import { contagemContra, nomeComNatureza, receitaDe } from "@/lib/estudo";
+import { formatBRL, formatDecimal } from "@/lib/numberFormat";
+import { CRITERIOS_RANKING, naturezaBairro, ordenarRanking, type CriterioRanking } from "@/lib/radarUi";
+import { bairroPath } from "@/lib/seo";
+import { cn } from "@/lib/utils";
+import type { BairroCurado } from "@/data/bairrosCurados";
 
-type SortKey = "investment_score" | "score_rentabilidade" | "score_liquidez" | "score_crescimento_potencial" | "adr_medio_studio" | "ocupacao_media_studio" | "yield_bruto_airbnb" | "delta_yield";
-
-const confBadge = (nivel: string) => {
-  if (nivel === "alto") return <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100 text-[10px]">Alto</Badge>;
-  if (nivel === "medio") return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 text-[10px]">Médio</Badge>;
-  return <Badge variant="destructive" className="text-[10px]">Baixo</Badge>;
-};
-
-const HeaderTooltip = ({ colKey }: { colKey: string }) => {
-  const info = COLUMN_TOOLTIPS[colKey];
-  if (!info) return null;
+/**
+ * /ranking no redesign "Estudo aberto": Tab. 1 com os 28 bairros da base do Radar,
+ * por critério (receita de referência, diária, ocupação, anúncios) e filtro de natureza
+ * (todos ou só observados). Clicar abre o bairro. Os critérios internos da Bewild
+ * (scores da estimativa de mercado — base 2025) seguem numa tabela recolhida.
+ */
+export default function IntelligenceRanking() {
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <HelpCircle className="inline h-3 w-3 ml-0.5 text-muted-foreground/50 cursor-help" />
-      </TooltipTrigger>
-      <TooltipContent side="top" className="max-w-[220px] text-xs">
-        <p className="font-semibold mb-0.5">{info.friendly}</p>
-        <p className="text-muted-foreground">{info.tip}</p>
-      </TooltipContent>
-    </Tooltip>
+    <BairroProvider>
+      <PaginaEstudo>
+        <Ranking />
+      </PaginaEstudo>
+    </BairroProvider>
   );
+}
+
+const UNIDADE: Record<CriterioRanking, string> = {
+  receita: "Receita de referência (R$/mês)",
+  diaria: "Diária média (R$)",
+  ocupacao: "Ocupação média (%)",
+  anuncios: "Anúncios na amostra (n)",
 };
 
-const IntelligenceRanking = () => {
-  const { data: bairros, isLoading } = useBairrosData();
-  const [sortKey, setSortKey] = useState<SortKey>("investment_score");
-  const [filterConf, setFilterConf] = useState<string>("todos");
+const TITULO_CRITERIO: Record<CriterioRanking, string> = {
+  receita: "a maior receita de referência",
+  diaria: "a maior diária média",
+  ocupacao: "a maior ocupação média",
+  anuncios: "a maior amostra de anúncios",
+};
 
-  const allBairros = bairros ?? [];
-  const scoreMap = useMemo(
-    () => new Map(allBairros.map(b => [b.bairro, calculateInvestmentScore(b, allBairros)])),
-    [allBairros]
-  );
+function formatar(valor: number, criterio: CriterioRanking) {
+  if (criterio === "ocupacao") return `${formatDecimal(valor, 0)}%`;
+  if (criterio === "anuncios") return formatDecimal(valor, 0);
+  return formatBRL(valor);
+}
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <AppNavbar fixo={false} />
-        <div className="flex min-h-[60vh] items-center justify-center">
-          <div className="space-y-3 w-full max-w-sm px-4">
-            <div className="h-6 bg-muted rounded animate-pulse" />
-            <div className="h-4 bg-muted/60 rounded animate-pulse w-2/3" />
-            <div className="h-64 bg-muted/40 rounded-lg animate-pulse mt-4" />
-          </div>
-        </div>
-      </div>
-    );
-  }
+function Ranking() {
+  const { bairros, cidade, offline, recarregar } = useBaseEstudo();
+  const { bairro: selecionado } = useBairroSelecionado(bairros, { naUrl: false });
+  const navigate = useNavigate();
+  const [criterio, setCriterio] = useState<CriterioRanking>("receita");
+  const [filtro, setFiltro] = useState<"todos" | "observados">("todos");
 
-  let filtered = allBairros;
-  if (filterConf !== "todos") filtered = filtered.filter(b => b.nivel_confianca_dados === filterConf);
-
-  const sorted = [...filtered].sort((a, b) => {
-    if (sortKey === "investment_score") {
-      return (scoreMap.get(b.bairro)?.score ?? 0) - (scoreMap.get(a.bairro)?.score ?? 0);
-    }
-    return Number(b[sortKey]) - Number(a[sortKey]);
+  const linhas = useMemo(() => ordenarRanking(bairros, criterio, filtro === "observados"), [bairros, criterio, filtro]);
+  // Anúncios: aproximações não têm contagem por bairro e ficam no fim, sem barra.
+  const max = Math.max(...linhas.map((l) => l.valor), 1);
+  const referenciaSP = criterio === "receita" ? receitaDe(cidade) : criterio === "diaria" ? cidade.dailyAvg : criterio === "ocupacao" ? cidade.avgOccupancy : null;
+  const escala = Math.max(max, referenciaSP ?? 0);
+  const primeiro = linhas[0];
+  // Empate de valor (ex.: Brooklin e Vila Olímpia repetem o Itaim Bibi) vira faixa "2–4", sem ordem alfabética inventada.
+  const posicoes = linhas.map((l) => {
+    const primeira = 1 + linhas.filter((x) => x.valor > l.valor).length;
+    const ultima = primeira + linhas.filter((x) => x.valor === l.valor).length - 1;
+    return primeira === ultima ? `${primeira}` : `${primeira}–${ultima}`;
   });
+  const abaixo = contagemContra(bairros, receitaDe, receitaDe(cidade));
 
-  const tableHighlights = getTableHighlights(allBairros);
-  const isHighlighted = (bairro: string, type: string) => tableHighlights.some(h => h.bairro === bairro && h.type === type);
-
-  const exportCSV = () => {
-    const headers = ["bairro", "adr_medio_studio", "ocupacao_media_studio", "yield_bruto_airbnb", "delta_yield", "score_rentabilidade", "score_liquidez", "score_crescimento_potencial", "nivel_confianca_dados"];
-    const rows = sorted.map(b => headers.map(h => b[h as keyof BairroAirbnb]));
-    const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "ranking_bairros.csv"; a.click();
+  const abrir = (b: BairroCurado) => {
+    definirBairroAtual(b.name);
+    navigate(bairroPath(b.name));
   };
 
   return (
-    <TooltipProvider delayDuration={200}>
-      <div className="min-h-screen bg-background">
-        <AppNavbar fixo={false} />
-        {/* Hero */}
-        <header className="bg-hero-gradient text-primary-foreground">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex items-center justify-between">
-              <div>
-                {/* Breadcrumb */}
-                <div className="flex items-center gap-1.5 text-primary-foreground/50 text-xs mb-3">
-                  <Link to="/mercado" className="hover:text-primary-foreground/80 transition-colors">Inteligência de mercado</Link>
-                  <ChevronRight className="h-3 w-3" />
-                  <span className="text-primary-foreground/80">Ranking</span>
-                </div>
-                <h1 className="text-2xl md:text-3xl font-bold font-[var(--font-display)]">Comparador de bairros para short stay</h1>
-                <p className="text-sm text-primary-foreground/70 mt-1">
-                  {allBairros.length} bairros comparados por Investment Score, yield, ocupação e mais
-                </p>
-                {allBairros[0] && (
-                  <p className="text-xs text-primary-foreground/70 mt-1">
-                    {FONTE_BAIRROS_CURADOS} Bairros marcados com * incluem estimativas Bewild. Demais métricas: {rotuloEstimativa(allBairros[0])}.
-                  </p>
-                )}
-              </div>
-              <Link to="/mercado">
-                <Button variant="secondary" size="sm" className="shadow-lg">
-                  <ArrowLeft className="mr-1 h-4 w-4" /> Voltar
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </header>
+    <>
+      <CabecalhoTela
+        rotulo={`Ranking · ${bairros.length} bairros de São Paulo`}
+        titulo={<>{abaixo.abaixo} de {abaixo.total} bairros ficam abaixo da receita de referência de São Paulo</>}
+        lead={<>São Paulo: {formatBRL(receitaDe(cidade))} por mês ({formatBRL(cidade.dailyAvg)} × 30 × {formatDecimal(cidade.avgOccupancy, 0)}%). Ordene os bairros pelo critério que importa para a sua decisão e abra cada um para ver o detalhe.</>}
+      >
+        <MetadadosBase bairros={bairros} cidade={cidade} compacto />
+      </CabecalhoTela>
 
-        {/* Sticky filter bar */}
-        <div className="sticky top-0 z-30 glass-nav">
-          <div className="container mx-auto px-4 py-2.5">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2">
-                <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-                <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
-                  <SelectTrigger className="w-48 h-8 text-xs"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="investment_score">Investment Score</SelectItem>
-                    <SelectItem value="score_rentabilidade">Score Rentabilidade</SelectItem>
-                    <SelectItem value="score_liquidez">Score Liquidez</SelectItem>
-                    <SelectItem value="score_crescimento_potencial">Score Crescimento</SelectItem>
-                    <SelectItem value="adr_medio_studio">ADR Médio</SelectItem>
-                    <SelectItem value="ocupacao_media_studio">Ocupação</SelectItem>
-                    <SelectItem value="yield_bruto_airbnb">Yield Airbnb</SelectItem>
-                    <SelectItem value="delta_yield">Delta Yield</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center gap-2">
-                <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-                <Select value={filterConf} onValueChange={setFilterConf}>
-                  <SelectTrigger className="w-28 h-8 text-xs"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todos</SelectItem>
-                    <SelectItem value="alto">Alto</SelectItem>
-                    <SelectItem value="medio">Médio</SelectItem>
-                    <SelectItem value="baixo">Baixo</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex-1" />
-              <Badge variant="secondary" className="text-[10px]">{sorted.length} bairros</Badge>
-              <Button variant="outline" size="sm" className="h-8 text-xs" onClick={exportCSV}>
-                <Download className="h-3.5 w-3.5 mr-1" /> CSV
-              </Button>
-            </div>
+      {offline && (
+        <Container className="mb-6">
+          <AvisoBase tom="aviso" onTentar={recarregar}>A base do Radar não respondeu agora. A tabela mostra a reserva aprovada (mesmos números da coleta de {COLETA_GUESTFAVORITES}).</AvisoBase>
+        </Container>
+      )}
+
+      <Container>
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:gap-10">
+          <div className="min-w-0">
+            <p className="e-rotulo mb-1.5">Critério</p>
+            <Segmentado<CriterioRanking> rotulo="Critério de ordenação" valor={criterio} opcoes={CRITERIOS_RANKING} onChange={setCriterio} className="w-full max-w-[460px]" itemClassName="min-w-0 px-1.5 text-[14px] sm:px-2.5 sm:text-[15px]" />
+          </div>
+          <div className="min-w-0">
+            <p className="e-rotulo mb-1.5">Dados</p>
+            <Segmentado<"todos" | "observados">
+              rotulo="Natureza do dado"
+              valor={filtro}
+              opcoes={[{ valor: "todos", rotulo: "Todos" }, { valor: "observados", rotulo: "Só observados" }]}
+              onChange={setFiltro}
+              className="w-full max-w-[300px]"
+              itemClassName="px-2.5 text-[15px]"
+            />
           </div>
         </div>
 
-        <main id="conteudo" tabIndex={-1} className="container mx-auto px-4 py-6 space-y-6">
-
-          {/* Insights section — compact */}
-          <ComparativeNarrativesSection bairros={allBairros} />
-
-          <ContextualNote sectionKey="before_table" />
-
+        <TabelaNumerada
+          numero={1}
+          titulo={primeiro ? <>{nomeComNatureza(primeiro.bairro)} tem {TITULO_CRITERIO[criterio]}: {formatar(primeiro.valor, criterio)}{criterio === "receita" ? " por mês" : ""}</> : "Nenhum bairro com esse filtro"}
+          unidade={<>{UNIDADE[criterio]}. {linhas.length} bairros{filtro === "observados" ? ", só dados observados" : ""}.{referenciaSP != null && <> A linha vertical marca São Paulo ({formatar(referenciaSP, criterio)}).</>}</>}
+          nota={
+            <>
+              <p>{TEXTO_APROXIMACAO} Aproximações não têm amostra própria: no critério “anúncios” ficam no fim, sem barra.</p>
+              <p className="mt-1">Amostra pequena (menos de 200 anúncios) aparece em itálico: leia com cautela. Clique no nome para abrir o bairro.</p>
+            </>
+          }
+        >
+          <thead>
+            <tr>
+              <th scope="col" className={cn(TH, "w-12 text-right")}>Pos.</th>
+              <th scope="col" className={TH}>Bairro</th>
+              <th scope="col" className={cn(TH, "hidden w-[34%] md:table-cell")}><span className="sr-only">Barra</span></th>
+              <th scope="col" className={cn(TH, "text-right")}>{criterio === "receita" ? "R$/mês" : criterio === "diaria" ? "R$" : criterio === "ocupacao" ? "%" : "n"}</th>
+              <th scope="col" className={cn(TH, "hidden text-right sm:table-cell")}><span className="e-var normal-case">n</span></th>
+              <th scope="col" className={cn(TH, "hidden lg:table-cell")}>Natureza</th>
+            </tr>
+          </thead>
+          <tbody>
+            {linhas.map((l, i) => {
+              const b = l.bairro;
+              const sel = selecionado?.name === b.name;
+              const aprox = naturezaBairro(b) !== "observado";
+              const semBarra = criterio === "anuncios" && !b.activeListings;
+              return (
+                <tr key={b.name} className={cn("cursor-pointer transition-colors hover:bg-foreground/[0.03]", sel && "bg-magenta-100/60")} onClick={() => abrir(b)}>
+                  <td className={cn(TD_NUM, "text-tinta-70")}>{posicoes[i]}</td>
+                  <td className={TD}>
+                    <Link
+                      to={bairroPath(b.name)}
+                      onClick={(e) => { e.stopPropagation(); definirBairroAtual(b.name); }}
+                      className={cn("inline-flex min-h-[28px] items-center font-semibold underline-offset-4 hover:underline", sel && "text-magenta-700")}
+                    >
+                      {b.name}
+                    </Link>
+                    <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 lg:hidden">
+                      {aprox && <TagBairro b={b} />}
+                      <NotaAmostra b={b} curta />
+                    </span>
+                    {sel && <span className="sr-only"> (bairro selecionado)</span>}
+                  </td>
+                  <td className={cn(TD, "hidden align-middle md:table-cell")}>
+                    <div className="relative h-3" aria-hidden="true">
+                      {!semBarra && (
+                        <div
+                          className={cn("absolute inset-y-0 left-0", aprox ? "border border-dashed border-neutro-600" : sel ? "bg-magenta" : "bg-ciano")}
+                          style={{ width: `${(l.valor / escala) * 100}%` }}
+                        />
+                      )}
+                      {referenciaSP != null && <div className="absolute -inset-y-1 w-px bg-foreground" style={{ left: `${(referenciaSP / escala) * 100}%` }} />}
+                    </div>
+                  </td>
+                  <td className={cn(TD_NUM, "font-semibold")}>{semBarra ? "—" : formatar(l.valor, criterio)}</td>
+                  <td className={cn(TD_NUM, "hidden text-tinta-78 sm:table-cell")}>
+                    {b.activeListings != null ? formatDecimal(b.activeListings, 0) : "—"}
+                  </td>
+                  <td className={cn(TD, "hidden lg:table-cell")}>
+                    <span className="flex flex-wrap items-center gap-2">
+                      <TagBairro b={b} />
+                      <NotaAmostra b={b} curta />
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </TabelaNumerada>
+        <div className="mt-8 max-w-[720px]">
+          {criterio === "receita" && <FormulaReceita />}
+          <AvisoReceita className="mt-4" />
+          <p className="mt-4 flex flex-wrap gap-x-6 text-[15px]">
+            <a href="/dados/bairros.csv" download className="e-link inline-flex min-h-[44px] items-center">Baixar a base (CSV)</a>
+            <Link to="/comparar" className="e-link inline-flex min-h-[44px] items-center">Comparar até três bairros</Link>
+            <Link to="/metodologia" className="e-link inline-flex min-h-[44px] items-center">Metodologia</Link>
+          </p>
           <LinkArtigoBewild artigo={ARTIGOS_BEWILD.melhoresBairros} prefixo="Quer a análise bairro a bairro? Leia" />
+        </div>
+      </Container>
 
-          {/* Table */}
-          <Card className="overflow-hidden">
-            <CardContent className="p-0">
-              <div className="overflow-x-auto scrollbar-thin">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-muted/30">
-                      <TableHead className="w-8 font-semibold">#</TableHead>
-                      <TableHead className="font-semibold">Bairro</TableHead>
-                      <TableHead className="text-center font-semibold">Score <HeaderTooltip colKey="investment_score" /></TableHead>
-                      <TableHead className="text-center font-semibold">Grade</TableHead>
-                      <TableHead className="text-center font-semibold">Perfil</TableHead>
-                      <TableHead className="text-right font-semibold">ADR <HeaderTooltip colKey="adr" /></TableHead>
-                      <TableHead className="text-right font-semibold">Occ <HeaderTooltip colKey="ocupacao" /></TableHead>
-                      <TableHead className="text-right font-semibold">Yield <HeaderTooltip colKey="yield_airbnb" /></TableHead>
-                      <TableHead className="text-right font-semibold">Δ Yield <HeaderTooltip colKey="delta_yield" /></TableHead>
-                      <TableHead className="text-right font-semibold">Rent. <HeaderTooltip colKey="rentabilidade" /></TableHead>
-                      <TableHead className="text-right font-semibold">Liq. <HeaderTooltip colKey="liquidez" /></TableHead>
-                      <TableHead className="text-right font-semibold">Cresc. <HeaderTooltip colKey="crescimento" /></TableHead>
-                      <TableHead className="text-center font-semibold">Conf. <HeaderTooltip colKey="confianca" /></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sorted.map((b, i) => {
-                      const profile = getBairroProfile(b, allBairros);
-                      const invScore = scoreMap.get(b.bairro);
-                      const badgeStyle = getGradeStyle(invScore?.gradeColor ?? "");
-                      return (
-                        <TableRow key={b.bairro} className="group hover:bg-muted/40">
-                          <TableCell className="font-bold text-muted-foreground text-xs">{i + 1}</TableCell>
-                          <TableCell>
-                            <Link
-                              to={bairroPath(b.bairro)}
-                              className="font-medium text-foreground hover:text-primary transition-colors inline-flex items-center gap-1 group/link"
-                            >
-                              {b.bairro}
-                              <ChevronRight className="h-3 w-3 text-muted-foreground opacity-0 group-hover/link:opacity-100 transition-opacity" />
-                            </Link>
-                            <FonteBairro nome={b.bairro} />
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {invScore && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div className="flex items-center justify-center gap-1 cursor-help">
-                                    <span className="text-sm font-bold">{formatDecimal(invScore.score, 1)}</span>
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent side="bottom" className="max-w-[240px] text-xs space-y-1.5 p-3">
-                                  <p className="font-semibold">Composição do score</p>
-                                  {invScore.pillars.map(p => (
-                                    <div key={p.key} className="flex justify-between">
-                                      <span className="text-muted-foreground capitalize">{p.key === "operacao" ? "Operação" : p.key === "futuro" ? "Futuro" : p.key.charAt(0).toUpperCase() + p.key.slice(1)}</span>
-                                      <span className="font-medium">{formatDecimal(p.normalized, 0)}/100</span>
-                                    </div>
-                                  ))}
-                                  {invScore.confidenceFactor < 1 && <p className="text-amber-600 pt-1">Ajuste confiança: −{formatDecimal(((1 - invScore.confidenceFactor) * 100), 0)}%</p>}
-                                  {invScore.liquidityRiskFactor < 1 && <p className="text-orange-600">Ajuste liquidez: −{formatDecimal(((1 - invScore.liquidityRiskFactor) * 100), 0)}%</p>}
-                                </TooltipContent>
-                              </Tooltip>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {invScore && (
-                              <Badge className={`${badgeStyle} text-[10px] px-1.5`}>{invScore.grade}</Badge>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Badge className={`${profile.color} ${profile.textColor} hover:${profile.color} text-[10px] cursor-help`}>{profile.label}</Badge>
-                              </TooltipTrigger>
-                              <TooltipContent side="bottom" className="max-w-[220px] text-xs">
-                                <p className="font-semibold mb-0.5">{profile.label}</p>
-                                <p className="text-muted-foreground">{profile.description}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TableCell>
-                          <TableCell className={`text-right tabular-nums ${isHighlighted(b.bairro, "max-adr") ? "font-bold text-primary" : ""}`}>
-                            {fmtBRL(b.adr_medio_studio)}{b.diaria_ocupacao_curadas ? "*" : ""}
-                            {isHighlighted(b.bairro, "max-adr") && <span className="ml-0.5 text-[9px] text-primary">★</span>}
-                          </TableCell>
-                          <TableCell className={`text-right tabular-nums ${isHighlighted(b.bairro, "max-occ") ? "font-bold text-primary" : ""}`}>
-                            {fmtPct(b.ocupacao_media_studio)}{b.diaria_ocupacao_curadas ? "*" : ""}
-                            {isHighlighted(b.bairro, "max-occ") && <span className="ml-0.5 text-[9px] text-primary">★</span>}
-                          </TableCell>
-                          <TableCell className={`text-right tabular-nums ${isHighlighted(b.bairro, "max-yield") ? "font-bold text-emerald-600" : ""}`}>
-                            {fmtPct(b.yield_bruto_airbnb)}
-                            {isHighlighted(b.bairro, "max-yield") && <span className="ml-0.5 text-[9px] text-emerald-600">★</span>}
-                          </TableCell>
-                          <TableCell className="text-right tabular-nums font-medium text-emerald-600">{fmtPct(b.delta_yield)}</TableCell>
-                          <TableCell className="text-right tabular-nums font-bold">{fmtScore(b.score_rentabilidade)}</TableCell>
-                          <TableCell className="text-right tabular-nums">{fmtScore(b.score_liquidez)}</TableCell>
-                          <TableCell className="text-right tabular-nums">{fmtScore(b.score_crescimento_potencial)}</TableCell>
-                          <TableCell className="text-center">{confBadge(b.nivel_confianca_dados)}</TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Bairros que só existem na base do Radar (sem scores) */}
-          <OutrosBairrosRadar jaListados={(bairros ?? []).map((b) => b.bairro)} />
-
-          {/* Compact footer */}
-          <footer className="border-t border-border/40 pt-6 pb-4 text-center">
-            <p className="text-xs text-foreground/60 leading-relaxed max-w-2xl mx-auto mb-3">
-              O melhor investimento não é só o bairro mais famoso ou a diária mais alta — é aquele que melhor equilibra preço, ocupação, liquidez e potencial.
-            </p>
-            <p className="text-[11px] text-muted-foreground/60 leading-relaxed max-w-2xl mx-auto">{FOOTER_DISCLAIMER}</p>
-          </footer>
-        </main>
-      </div>
-    </TooltipProvider>
+      <Secao id="criterios-internos" rotulo="Critérios internos" titulo="Scores da Bewild, à parte da base" lead="Combinam a diária e a ocupação da base com preço do m², liquidez e crescimento de uma estimativa de mercado (base 2025). São critérios internos, não estatística de mercado, e cobrem só parte dos bairros.">
+        <CriteriosInternos />
+      </Secao>
+    </>
   );
-};
+}
 
-export default IntelligenceRanking;
+/** Tabela recolhida dos scores internos (bairro_airbnb_sp, estimativa de mercado — base 2025). */
+function CriteriosInternos() {
+  const { data, isLoading, isError, refetch } = useBairrosData();
+  const todos = useMemo(() => data ?? [], [data]);
+  const scores = useMemo(() => new Map(todos.map((b) => [b.bairro, calculateInvestmentScore(b, todos)])), [todos]);
+  const ordenados = [...todos].sort((a, b) => (scores.get(b.bairro)?.score ?? 0) - (scores.get(a.bairro)?.score ?? 0));
+  return (
+    <details className="group e-fina border-y">
+      <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-4 py-3 text-[17px] font-semibold [&::-webkit-details-marker]:hidden">
+        Ver a tabela de critérios internos
+        <span aria-hidden="true" className="text-tinta-70 transition-transform group-open:rotate-45">+</span>
+      </summary>
+      <div className="pb-6">
+        {isLoading && <p className="e-apoio py-4" aria-busy="true">Carregando os critérios internos…</p>}
+        {isError && <AvisoBase onTentar={() => void refetch()}>Os critérios internos não carregaram agora.</AvisoBase>}
+        {!isLoading && !isError && !ordenados.length && <p className="e-apoio py-4">Não há critérios internos para mostrar.</p>}
+        {ordenados.length > 0 && (
+          <TabelaNumerada
+            numero={2}
+            titulo="Score de investimento (0–10) e seus pilares"
+            unidade={`Critério interno. ${rotuloEstimativa(ordenados[0])}.`}
+          >
+            <thead>
+              <tr>
+                <th scope="col" className={TH}>Bairro</th>
+                <th scope="col" className={cn(TH, "text-right")}>Score</th>
+                <th scope="col" className={cn(TH, "text-right")}>Rentab.</th>
+                <th scope="col" className={cn(TH, "text-right")}>Liquidez</th>
+                <th scope="col" className={cn(TH, "text-right")}>Cresc.</th>
+                <th scope="col" className={TH}>Confiança</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ordenados.map((b) => (
+                <tr key={b.bairro}>
+                  <td className={TD}><Link to={bairroPath(b.bairro)} className="e-link">{b.bairro}</Link></td>
+                  <td className={cn(TD_NUM, "font-semibold")}>{formatDecimal(scores.get(b.bairro)?.score ?? 0, 1)}</td>
+                  <td className={TD_NUM}>{formatDecimal(b.score_rentabilidade, 1)}</td>
+                  <td className={TD_NUM}>{formatDecimal(b.score_liquidez, 1)}</td>
+                  <td className={TD_NUM}>{formatDecimal(b.score_crescimento_potencial, 1)}</td>
+                  <td className={TD}>{b.nivel_confianca_dados === "alto" ? "Alta" : b.nivel_confianca_dados === "medio" ? "Média" : "Baixa"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </TabelaNumerada>
+        )}
+      </div>
+    </details>
+  );
+}

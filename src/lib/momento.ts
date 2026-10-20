@@ -9,11 +9,15 @@ import { useEffect, useState } from "react";
 export const MOMENTOS = ["procurando", "tenho", "reformar"] as const;
 export type Momento = (typeof MOMENTOS)[number];
 
-/** Situação → ação principal (texto da home) e destino do atalho. */
+/**
+ * Situação → ação principal e destino do atalho, nos três perfis do redesign
+ * (perfisRadar.ts): procurando = 01 Vou comprar, reformar = 02 Vou reformar,
+ * tenho = 03 Já opero. As chaves seguem as mesmas para quem já tinha escolhido.
+ */
 export const CAMINHOS_MOMENTO: Record<Momento, { situacao: string; acao: string; texto: string; destino: string }> = {
-  procurando: { situacao: "Estou procurando um studio", acao: "Comparar bairros", texto: "Diária, ocupação e fonte de cada bairro, lado a lado.", destino: "/comparar" },
-  tenho: { situacao: "Já tenho um imóvel", acao: "Simular meu resultado", texto: "Receita, custos e resultado líquido com as premissas do seu imóvel.", destino: "/projecao" },
-  reformar: { situacao: "Vou reformar para alugar", acao: "Planejar meu investimento", texto: "O que faz um studio performar e o orçamento da reforma.", destino: "#reforma" },
+  procurando: { situacao: "Vou comprar", acao: "Ver o ranking", texto: "Em qual bairro um studio rende mais e se a conta fecha antes da compra.", destino: "/ranking" },
+  tenho: { situacao: "Já opero", acao: "Comparar meu studio", texto: "Diária e ocupação contra o bairro e quanto sobra depois dos custos.", destino: "/ferramentas#operar" },
+  reformar: { situacao: "Vou reformar", acao: "Estimar a reforma", texto: "Quanto custa, quanto tempo leva e o que faz um studio performar.", destino: "/ferramentas#reformar" },
 };
 
 const CHAVE = "radar_momento";
