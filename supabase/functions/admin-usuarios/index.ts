@@ -12,6 +12,13 @@ const Corpo = z.discriminatedUnion("acao", [
   z.object({ acao: z.literal("papel"), userId: z.string().uuid(), admin: z.boolean() }),
 ]);
 
+async function darPapel(db: ReturnType<typeof createClient>, userId: string, role: "admin" | "user") {
+  const { data } = await db.from("user_roles").select("id").eq("user_id", userId).eq("role", role).maybeSingle();
+  if (data) return;
+  const { error } = await db.from("user_roles").insert({ user_id: userId, role });
+  if (error) throw error;
+}
+
 const json = (corpo: unknown, status = 200) => new Response(JSON.stringify(corpo), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
 Deno.serve(async (req) => {
@@ -53,15 +60,14 @@ Deno.serve(async (req) => {
       const destino = new URL(c.redirectTo);
       const { data, error } = await admin.auth.admin.inviteUserByEmail(c.email, { data: { full_name: c.nome }, redirectTo: `${destino.origin}/reset-password` });
       if (error) return json({ error: /already|registered|exists/i.test(error.message) ? "Este e-mail já tem conta." : "Não foi possível enviar o convite." }, 400);
-      await admin.from("user_roles").upsert({ user_id: data.user.id, role: "user" }, { onConflict: "user_id,role" });
-      if (c.papel === "admin") await admin.from("user_roles").upsert({ user_id: data.user.id, role: "admin" }, { onConflict: "user_id,role" });
+      await darPapel(admin, data.user.id, "user");
+      if (c.papel === "admin") await darPapel(admin, data.user.id, "admin");
       return json({ ok: true });
     }
 
     if (c.userId === u.user.id && !c.admin) return json({ error: "Você não pode tirar o seu próprio acesso de administrador." }, 400);
     if (c.admin) {
-      const { error } = await admin.from("user_roles").upsert({ user_id: c.userId, role: "admin" }, { onConflict: "user_id,role" });
-      if (error) throw error;
+      await darPapel(admin, c.userId, "admin");
     } else {
       const { error } = await admin.from("user_roles").delete().eq("user_id", c.userId).eq("role", "admin");
       if (error) throw error;
