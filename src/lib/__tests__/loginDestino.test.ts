@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { destinoAposLogin } from "@/lib/loginDestino";
 describe("destino após login", () => {
+  it("retoma a página pública de posts após login sem conceder escrita", () => {
+    expect(destinoAposLogin(true, "/posts#enviar")).toBe("/posts#enviar");
+    expect(destinoAposLogin(false, "/posts")).toBe("/posts");
+  });
   it("retoma analytics com parâmetros somente para administrador", () => {
     expect(destinoAposLogin(true, "/admin/analytics?dias=7#eventos")).toBe("/admin/analytics?dias=7#eventos");
     expect(destinoAposLogin(false, "/admin/analytics")).toBe("/painel");

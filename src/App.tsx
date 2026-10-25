@@ -43,6 +43,7 @@ const AdminSeo = lazy(() => import("./pages/AdminSeo"));
 const AdminGoogle = lazy(() => import("./pages/AdminGoogle"));
 const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
 const AdminNoticias = lazy(() => import("./pages/AdminNoticias"));
+const Posts = lazy(() => import("./pages/Posts"));
 const AdminUsuarios = lazy(() => import("./pages/AdminUsuarios"));
 const AdminCategorias = lazy(() => import("./pages/AdminCategorias"));
 const AdminCompartilhamento = lazy(() => import("./pages/AdminCompartilhamento"));
@@ -174,6 +175,7 @@ export function AppRoutes() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/mercado" element={<IntelligenceDashboard />} />
+          <Route path="/posts" element={<Posts />} />
           <Route path="/ranking" element={<IntelligenceRanking />} />
           <Route path="/bairro/:bairro" element={<IntelligenceBairroDetail />} />
           <Route path="/anuncios" element={<IntelligenceListings />} />

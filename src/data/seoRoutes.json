@@ -3,6 +3,14 @@
   "siteName": "Radar Bewild",
   "routes": [
     {
+      "path": "/posts",
+      "title": "Posts e análises do Bewild",
+      "description": "Artigos do Bewild sobre studios e short stay em São Paulo, reunidos no Radar com links para análises e dados de mercado por bairro.",
+      "h1": "Posts",
+      "keywords": "artigos bewild, análises short stay, studios são paulo",
+      "priority": "0.5"
+    },
+    {
       "path": "/",
       "title": "Radar Bewild: guia do investidor em studios para short stay em SP",
       "description": "Estudo aberto sobre studios para Airbnb em São Paulo: diária, ocupação e amostra de 28 bairros, custo de reforma e as contas do short stay, com fonte.",
