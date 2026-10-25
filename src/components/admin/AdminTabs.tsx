@@ -7,6 +7,7 @@ const ABAS = [
   { to: "/admin/coletas", label: "Coletas" },
   { to: "/admin/fontes", label: "Fontes" },
   { to: "/admin/seo", label: "SEO" },
+  { to: "/admin/google", label: "Google" },
   { to: "/admin/simulacoes", label: "Simulações" },
   { to: "/admin/demanda", label: "Demanda" },
   { to: "/admin/leads", label: "Leads" },
