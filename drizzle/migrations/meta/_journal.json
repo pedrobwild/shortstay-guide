@@ -71,6 +71,13 @@
       "when": 1792309238110,
       "tag": "0009_guestfavorites_execucoes",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792941259225,
+      "tag": "0010_radar_noticias",
+      "breakpoints": true
     }
   ]
 }
