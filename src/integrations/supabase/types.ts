@@ -479,6 +479,50 @@ export type Database = {
         }
         Relationships: []
       }
+      radar_bairro_categorias: {
+        Row: {
+          bairro: string
+          categoria_id: string
+        }
+        Insert: {
+          bairro: string
+          categoria_id: string
+        }
+        Update: {
+          bairro?: string
+          categoria_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "radar_bairro_categorias_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "radar_categorias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      radar_categorias: {
+        Row: {
+          criado_em: string
+          id: string
+          nome: string
+          tipo: string
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          nome: string
+          tipo: string
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          nome?: string
+          tipo?: string
+        }
+        Relationships: []
+      }
       radar_coleta_auditoria: {
         Row: {
           autor_nome: string
@@ -658,6 +702,7 @@ export type Database = {
       radar_noticias: {
         Row: {
           atualizado_em: string
+          categoria_id: string | null
           criado_em: string
           destino: string
           id: string
@@ -668,6 +713,7 @@ export type Database = {
         }
         Insert: {
           atualizado_em?: string
+          categoria_id?: string | null
           criado_em?: string
           destino?: string
           id?: string
@@ -678,6 +724,7 @@ export type Database = {
         }
         Update: {
           atualizado_em?: string
+          categoria_id?: string | null
           criado_em?: string
           destino?: string
           id?: string
@@ -686,7 +733,15 @@ export type Database = {
           titulo?: string
           url?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "radar_noticias_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "radar_categorias"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       radar_observacao_revisoes: {
         Row: {

@@ -85,6 +85,13 @@
       "when": 1792941730055,
       "tag": "0011_coletas_preco_m2",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792957900218,
+      "tag": "0012_radar_categorias",
+      "breakpoints": true
     }
   ]
 }
