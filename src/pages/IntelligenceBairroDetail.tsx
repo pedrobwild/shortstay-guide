@@ -19,6 +19,7 @@ import BlocoReformaBairro from "@/components/intelligence/BlocoReformaBairro";
 import ProximoPassoBairro from "@/components/intelligence/ProximoPassoBairro";
 import BairroSomenteRadar from "@/components/intelligence/BairroSomenteRadar";
 import EstimativaBairro from "@/components/intelligence/EstimativaBairro";
+import PrecoImovelBairro from "@/components/intelligence/PrecoImovelBairro";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import { Button } from "@/components/ui/button";
 import { ARTIGOS_BEWILD } from "@/data/artigosBewild";
@@ -146,6 +147,7 @@ function PaginaBairro() {
       )}
     </Secao>
   );
+  const precoImovel = <Secao id="preco-imovel" rotulo="Compra" titulo={`Preço médio por m² em ${nome}`}><PrecoImovelBairro bairro={nome} /></Secao>;
 
   // Bairro sem dado na base do Radar (ex.: só na lista de SEO): não publicamos números sem fonte.
   if (!b) {
@@ -165,6 +167,7 @@ function PaginaBairro() {
           </div>
         </Secao>
         {criterios}
+        {precoImovel}
       </>
     );
   }
@@ -407,6 +410,7 @@ function PaginaBairro() {
       </Secao>
 
       {criterios}
+      {precoImovel}
 
       <Container className="pb-4">
         <AvisoReceita />

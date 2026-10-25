@@ -20,6 +20,7 @@ import ImportacaoAirdna from "@/components/admin/ImportacaoAirdna";
 import ColetasPendentes from "@/components/admin/ColetasPendentes";
 import HistoricoGuestFavorites from "@/components/admin/HistoricoGuestFavorites";
 import ComparacaoFontes from "@/components/admin/ComparacaoFontes";
+import ColetaPrecoImovel from "@/components/admin/ColetaPrecoImovel";
 
 const inicial = () => ({ bairro: "Mooca", fonte_id: "guestfavorites" as const, periodo_inicio: "", periodo_fim: "", coletado_em: new Date().toISOString().slice(0, 10), publicado_em: "", amostra_n: "", url_origem: "", observacao: "" });
 const dataBR = (v: string | null) => v ? v.split("-").reverse().join("/") : "Sem período";
@@ -53,7 +54,7 @@ export default function AdminColetas() {
     finally { setSaving(false); setConfirmar(false); }
   };
   const campo = (key: keyof ReturnType<typeof inicial>, label: string, type = "text") => <label className="block space-y-1 text-sm"><span>{label}</span><Input required={!["publicado_em", "observacao"].includes(key)} type={type} className="text-base min-h-[44px]" value={form[key]} onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))} /></label>;
-  return <div className="min-h-screen bg-background"><AppNavbar /><main className="mx-auto max-w-5xl px-4 py-8 space-y-6"><AdminTabs />
+  return <div className="min-h-screen bg-background"><AppNavbar /><main id="conteudo" tabIndex={-1} className="mx-auto max-w-5xl px-4 py-8 space-y-6"><AdminTabs />
     <h1 className="font-display text-2xl font-bold">Coletas de mercado</h1>
     <HistoricoGuestFavorites />
     <p className="break-all text-sm text-muted-foreground">UTMs deste acesso: {rotuloUtms(utms)}</p>
@@ -74,6 +75,7 @@ export default function AdminColetas() {
       {erro && <p role="alert" className="text-sm text-destructive">{erro}</p>}
       <Button disabled={saving} className="min-h-[44px]" type="submit">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Registrar nova coleta</Button>
     </form>
+    <ColetaPrecoImovel key={form.bairro} bairro={form.bairro} utms={utms} />
     <section className="space-y-3 border-t border-border pt-5"><h2 className="font-display text-xl font-semibold">Histórico — {form.bairro}</h2>
       {historico.isLoading && <p role="status">Carregando…</p>}
       {historico.isError && <p role="alert">Não foi possível carregar. <Button variant="link" onClick={() => historico.refetch()}>Tentar novamente</Button></p>}

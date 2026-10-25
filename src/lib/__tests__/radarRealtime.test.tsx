@@ -28,7 +28,7 @@ describe("avisos de coletas", () => {
     try {
       await act(async () => root.render(<QueryClientProvider client={qc}><Assinante /><Assinante /></QueryClientProvider>));
       expect(mocks.channel).toHaveBeenCalledTimes(1);
-      expect(channel.on.mock.calls.map((call) => call[1].event)).toEqual(["INSERT", "UPDATE"]);
+      expect(channel.on.mock.calls.map((call) => call[1].event)).toEqual(["INSERT", "UPDATE", "INSERT", "UPDATE"]);
       await act(async () => {
         mocks.callbacks[0]?.();
         mocks.callbacks[1]?.();
@@ -36,7 +36,8 @@ describe("avisos de coletas", () => {
       });
       expect(invalidar).toHaveBeenCalledWith({ queryKey: ["radar_historico"] });
       expect(invalidar).toHaveBeenCalledWith({ queryKey: ["radar_bairro_atual"] });
-      expect(invalidar).toHaveBeenCalledTimes(5);
+      expect(invalidar).toHaveBeenCalledWith({ queryKey: ["radar_preco_atual"] });
+      expect(invalidar).toHaveBeenCalledTimes(7);
       await act(async () => root.unmount());
       expect(mocks.remove).toHaveBeenCalledWith(channel);
     } finally {
