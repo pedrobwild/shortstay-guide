@@ -15,7 +15,7 @@ export function useRadarRealtime() {
         clearTimeout(timer);
         // Uma coleta insere vários indicadores na mesma transação.
         timer = setTimeout(() => {
-          for (const chave of ["radar_bairro_atual", "radar_historico", "radar_ultima_coleta_base", "radar_variacoes", "bairro_airbnb_sp"]) {
+          for (const chave of ["radar_bairro_atual", "radar_historico", "radar_ultima_coleta_base", "radar_variacoes", "bairro_airbnb_sp", "radar_preco_atual", "radar_precos_historico"]) {
             void qc.invalidateQueries({ queryKey: [chave] });
           }
         }, 300);
@@ -23,6 +23,8 @@ export function useRadarRealtime() {
       const channel = supabase.channel("radar-coletas-abertas")
         .on("postgres_changes", { event: "INSERT", schema: "public", table: "radar_observacoes", filter: "cidade=eq.São Paulo" }, atualizar)
         .on("postgres_changes", { event: "UPDATE", schema: "public", table: "radar_observacoes", filter: "cidade=eq.São Paulo" }, atualizar)
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "radar_precos_imoveis" }, atualizar)
+        .on("postgres_changes", { event: "UPDATE", schema: "public", table: "radar_precos_imoveis" }, atualizar)
         .subscribe((status) => {
           // Reconsulta também ao reconectar, recuperando avisos perdidos.
           if (status === "SUBSCRIBED") atualizar();

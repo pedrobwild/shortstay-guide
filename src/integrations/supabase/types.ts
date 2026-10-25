@@ -792,6 +792,83 @@ export type Database = {
           },
         ]
       }
+      radar_precos_auditoria: {
+        Row: {
+          coleta_id: string
+          id: string
+          registrado_em: string
+          registrado_por: string
+          utms: Json
+        }
+        Insert: {
+          coleta_id: string
+          id?: string
+          registrado_em?: string
+          registrado_por: string
+          utms?: Json
+        }
+        Update: {
+          coleta_id?: string
+          id?: string
+          registrado_em?: string
+          registrado_por?: string
+          utms?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "radar_precos_auditoria_coleta_id_fkey"
+            columns: ["coleta_id"]
+            isOneToOne: false
+            referencedRelation: "radar_precos_imoveis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      radar_precos_imoveis: {
+        Row: {
+          amostra_n: number
+          ativo: boolean
+          bairro: string
+          coletado_em: string
+          criado_em: string
+          fonte_nome: string
+          id: string
+          observacao: string
+          periodo_fim: string
+          periodo_inicio: string
+          preco_m2: number
+          url_origem: string
+        }
+        Insert: {
+          amostra_n: number
+          ativo?: boolean
+          bairro: string
+          coletado_em: string
+          criado_em?: string
+          fonte_nome: string
+          id?: string
+          observacao?: string
+          periodo_fim: string
+          periodo_inicio: string
+          preco_m2: number
+          url_origem: string
+        }
+        Update: {
+          amostra_n?: number
+          ativo?: boolean
+          bairro?: string
+          coletado_em?: string
+          criado_em?: string
+          fonte_nome?: string
+          id?: string
+          observacao?: string
+          periodo_fim?: string
+          periodo_inicio?: string
+          preco_m2?: number
+          url_origem?: string
+        }
+        Relationships: []
+      }
       raw_listings: {
         Row: {
           adr_estimado: number | null
@@ -1097,6 +1174,10 @@ export type Database = {
       admin_registrar_coleta_radar_auditada: {
         Args: { p_coleta: Json; p_utms?: Json }
         Returns: number
+      }
+      admin_registrar_preco_imovel: {
+        Args: { p_coleta: Json; p_utms?: Json }
+        Returns: string
       }
       has_role: {
         Args: {
