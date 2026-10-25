@@ -18,6 +18,7 @@
 - Use native details/summary and FAQ_ITEMS for homepage FAQ. Why: answers and links stay in initial HTML and work without JavaScript.
 - Admin user management goes only through the admin-usuarios Edge Function (JWT + has_role, invite by e-mail, admin role toggle; cannot remove own admin). Categories live in radar_categorias (tipo post|bairro) with radar_bairro_categorias; posts remain Bewild links in radar_noticias.categoria_id. Why: manage the Radar without exposing service keys or hosting articles.
 - Subdirectories have their own AGENTS.md (src/AGENTS.md); read it before changing files there.
+- /posts lists only published radar_noticias with pagination; its direct submission reuses noticiaSchema and existing admin-only database policies, with categories shared with admin. Why: public reading and independent authoring without anonymous publishing or a second content store.
 <!-- LOVABLE:BEGIN -->
 - Keep /admin/seo read-only and derive neighborhood metadata from seo.ts and seoJsonLd.ts, without local overrides or claimed Google status. Why: inspect the public SEO source without diverging from prerendered pages.
 <!-- LOVABLE:END -->

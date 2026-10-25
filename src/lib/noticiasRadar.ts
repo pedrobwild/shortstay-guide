@@ -41,3 +41,12 @@ export async function noticiasPublicadas(destino: string) {
   if (error) throw error;
   return (data ?? []) as NoticiaRadar[];
 }
+
+/** Lista pública paginada; rascunhos e dados privados nunca entram na consulta. */
+export async function listarPostsPublicos(pagina: number, categoria?: string) {
+  let consulta = supabase.from("radar_noticias").select("id,titulo,resumo,url,destino,status,categoria_id,atualizado_em", { count: "exact" }).eq("status", "publicado").order("atualizado_em", { ascending: false }).order("id");
+  if (categoria) consulta = consulta.eq("categoria_id", categoria);
+  const { data, count, error } = await consulta.range(pagina * 12, pagina * 12 + 11);
+  if (error) throw error;
+  return { posts: (data ?? []) as NoticiaRadar[], total: count ?? 0 };
+}

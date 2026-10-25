@@ -19,6 +19,7 @@ export const LINKS_PUBLICOS: LinkNavegacao[] = [
   { to: "/comparar", label: "Comparar", id: "comparar" },
   { to: "/projecao", label: "Simular", id: "simular" },
   { to: "/ferramentas", label: "Ferramentas", id: "ferramentas" },
+  { to: "/posts", label: "Posts", id: "posts" },
 ];
 
 /** Atalhos da barra no celular: o fluxo principal explorar → comparar → simular. */
