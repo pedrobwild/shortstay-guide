@@ -23,7 +23,7 @@ export default function EnviarPost({ aberto, fechar }: { aberto: boolean; fechar
     fechar();
   }, onError: () => setErro("Não foi possível publicar. Confira seu acesso de administrador e tente novamente.") });
   return <Dialog open={aberto} onOpenChange={(v) => { if (!v && !salvar.isPending) fechar(); }}>
-    <DialogContent className="max-h-[90dvh] w-[calc(100%-2rem)] overflow-y-auto rounded-lg">
+    <DialogContent className="z-[110] max-h-[90dvh] w-[calc(100%-2rem)] overflow-y-auto rounded-lg bg-background">
       <DialogHeader><DialogTitle>Enviar artigo</DialogTitle><DialogDescription>Artigo do Bewild · publicação no Radar</DialogDescription></DialogHeader>
       <form onSubmit={(e) => { e.preventDefault(); setErro(""); const resultado = noticiaSchema.safeParse(form); if (!resultado.success) { setErro(resultado.error.issues[0]?.message ?? "Confira os campos."); return; } salvar.mutate(); }}>
         <fieldset disabled={salvar.isPending} className="min-w-0 space-y-4">
