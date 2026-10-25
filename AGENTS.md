@@ -6,7 +6,7 @@
 - Format display-only decimals and percentage points through src/lib/numberFormat.ts; never apply localized strings to calculation inputs or CSS dimensions, to preserve numeric behavior.
 - Keep the home profitability waterfall and its sensitivities in src/lib/rentabilidadeExample.ts, reading neighborhood inputs from the curated source while preserving operating cost assumptions and deriving yield/payback denominators from the official study investment example; this prevents drift between neighborhood metrics and reform examples.
 
-- Route all budget CTAs through OrcamentoButton and orcamentoUrl; centralize consent and GA4/Meta events in marketingConsent, gating both vendor and guide telemetry by stored consent and public pathname, to prevent unconsented/private tracking.
+- Suppress budget CTAs centrally in OrcamentoButton, including prerendered pages. Gate marketingConsent telemetry by consent and public pathname. Why: consistent controls and private tracking protection.
 - Derive reform investment examples from provasBewild study inputs, counting the turnkey median once; do not infer individual service quotes from aggregate contract statistics.
 
 - Admin overrides of neighborhood daily rate/occupancy live in the bairro_ajustes table and are applied only via src/lib/bairroAjustes.ts at display time; bairrosCurados.ts and the Pinheiros example keep reading the approved base. Why: editable numbers without altering the approved source.
