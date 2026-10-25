@@ -1,10 +1,11 @@
 project_id = "zxdjgifncmkvjbjmrjss"
 
-[functions.chat]
-verify_jwt = false
-
-[functions.sync-airbnb-ical]
-verify_jwt = false
-
-[functions.claude-bridge]
-verify_jwt = false
+[functions]
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.chat]
+    verify_jwt = false
+  [functions.claude-bridge]
+    verify_jwt = false
+  [functions.sync-airbnb-ical]
+    verify_jwt = false
