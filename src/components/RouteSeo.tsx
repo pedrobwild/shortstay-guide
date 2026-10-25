@@ -62,6 +62,7 @@ export default function RouteSeo() {
   }
   return (
     <Seo
+      key={pathname}
       title={route.title}
       description={route.description}
       path={route.path}

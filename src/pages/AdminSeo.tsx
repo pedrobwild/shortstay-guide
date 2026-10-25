@@ -6,13 +6,13 @@ import AdminTabs from "@/components/admin/AdminTabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { bairrosSeoAdmin } from "@/lib/seoBairrosAdmin";
+import { paginasSeoAdmin } from "@/lib/seoBairrosAdmin";
 import { toast } from "@/hooks/use-toast";
 
 const normalizar = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
 export default function AdminSeo() {
-  const bairros = useMemo(bairrosSeoAdmin, []);
+  const bairros = useMemo(paginasSeoAdmin, []);
   const [busca, setBusca] = useState("");
   const [selecionado, setSelecionado] = useState(bairros[0]?.nome ?? "");
   const filtrados = bairros.filter((b) => normalizar(b.nome).includes(normalizar(busca)));
@@ -33,20 +33,20 @@ export default function AdminSeo() {
         <AdminTabs />
         <header className="space-y-2">
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-display text-2xl font-bold text-foreground md:text-3xl">SEO dos bairros</h1>
+            <h1 className="font-display text-2xl font-bold text-foreground md:text-3xl">SEO do comparador e dos bairros</h1>
             <Badge variant="outline">{bairros.length} páginas</Badge>
           </div>
           <p className="text-sm text-muted-foreground">Metadados atuais · somente consulta · indexação no Google não verificada</p>
         </header>
         <div className="grid items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
-          <aside className="min-w-0 space-y-3" aria-label="Selecionar bairro">
-            <label htmlFor="busca-seo" className="text-sm font-medium">Buscar bairro</label>
-            <Input id="busca-seo" value={busca} onChange={(e) => setBusca(e.target.value)} className="min-h-[44px] text-base" placeholder="Nome do bairro" />
-            <nav aria-label="Bairros com SEO" className="flex max-h-64 flex-col gap-1 overflow-y-auto lg:max-h-[640px]">
+          <aside className="min-w-0 space-y-3" aria-label="Selecionar página">
+            <label htmlFor="busca-seo" className="text-sm font-medium">Buscar página</label>
+            <Input id="busca-seo" value={busca} onChange={(e) => setBusca(e.target.value)} className="min-h-[44px] text-base" placeholder="Comparador ou bairro" />
+            <nav aria-label="Páginas com SEO" className="flex max-h-64 flex-col gap-1 overflow-y-auto lg:max-h-[640px]">
               {filtrados.map((b) => <Button key={b.path} variant={atual?.nome === b.nome ? "secondary" : "ghost"} aria-pressed={atual?.nome === b.nome} onClick={() => setSelecionado(b.nome)} className="min-h-[44px] justify-start whitespace-normal text-left">{b.nome}</Button>)}
             </nav>
           </aside>
-          {!atual ? <p role="status" className="py-8 text-muted-foreground">Nenhum bairro encontrado.</p> : (
+          {!atual ? <p role="status" className="py-8 text-muted-foreground">Nenhuma página encontrada.</p> : (
             <section aria-label={`Metadados de ${atual.nome}`} className="min-w-0 space-y-6">
               <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
                 <h2 className="font-display text-xl font-semibold">{atual.nome}</h2>
