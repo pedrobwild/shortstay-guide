@@ -655,6 +655,39 @@ export type Database = {
         }
         Relationships: []
       }
+      radar_noticias: {
+        Row: {
+          atualizado_em: string
+          criado_em: string
+          destino: string
+          id: string
+          resumo: string
+          status: string
+          titulo: string
+          url: string
+        }
+        Insert: {
+          atualizado_em?: string
+          criado_em?: string
+          destino?: string
+          id?: string
+          resumo?: string
+          status?: string
+          titulo: string
+          url: string
+        }
+        Update: {
+          atualizado_em?: string
+          criado_em?: string
+          destino?: string
+          id?: string
+          resumo?: string
+          status?: string
+          titulo?: string
+          url?: string
+        }
+        Relationships: []
+      }
       radar_observacao_revisoes: {
         Row: {
           anterior: Json
