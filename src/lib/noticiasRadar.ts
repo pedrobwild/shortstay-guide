@@ -16,6 +16,7 @@ export const noticiaSchema = z.object({
   url: z.string().trim().regex(/^https:\/\/(www\.)?bewild\.com\.br\/conteudos\/[a-z0-9][a-z0-9/-]*$/, "Use o endereço https://bewild.com.br/conteudos/ do artigo, sem parâmetros."),
   destino: z.string().refine((v) => DESTINOS_NOTICIAS.some((d) => d.caminho === v), "Escolha uma página do Radar."),
   status: z.enum(["rascunho", "publicado", "arquivado"]),
+  categoria_id: z.string().uuid().nullable().optional(),
 });
 export type NoticiaEntrada = z.infer<typeof noticiaSchema>;
 export type NoticiaRadar = NoticiaEntrada & { id: string; atualizado_em: string };
@@ -29,7 +30,7 @@ export async function listarNoticias(pagina: number, status: string) {
 }
 export async function salvarNoticia(entrada: NoticiaEntrada, id?: string) {
   const dados = noticiaSchema.parse(entrada);
-  const linha = { titulo: dados.titulo ?? "", url: dados.url ?? "", resumo: dados.resumo ?? "", destino: dados.destino ?? "/mercado", status: dados.status ?? "rascunho" };
+  const linha = { titulo: dados.titulo ?? "", url: dados.url ?? "", resumo: dados.resumo ?? "", destino: dados.destino ?? "/mercado", status: dados.status ?? "rascunho", categoria_id: dados.categoria_id ?? null };
   const consulta = id ? supabase.from("radar_noticias").update(linha).eq("id", id) : supabase.from("radar_noticias").insert(linha);
   const { data, error } = await consulta.select("id").single();
   if (error) throw error;

@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
+import { listarCategorias } from "@/lib/categoriasRadar";
 import { DESTINOS_NOTICIAS, STATUS_NOTICIA, listarNoticias, salvarNoticia, noticiaSchema, type NoticiaEntrada, type NoticiaRadar } from "@/lib/noticiasRadar";
 
 const vazio: NoticiaEntrada = { titulo: "", resumo: "", url: "", destino: "/mercado", status: "rascunho" };
@@ -22,13 +23,14 @@ export default function AdminNoticias() {
   const [form, setForm] = useState<NoticiaEntrada>(vazio);
   const [erro, setErro] = useState("");
   const consulta = useQuery({ queryKey: ["noticias_admin", pagina, filtro], queryFn: () => listarNoticias(pagina, filtro), refetchInterval: 60000 });
+  const categorias = useQuery({ queryKey: ["radar_categorias"], queryFn: listarCategorias });
   const salvar = useMutation({ mutationFn: () => salvarNoticia(form, id), onSuccess: (novoId) => {
     setId(novoId); setErro("");
     void cache.invalidateQueries({ queryKey: ["noticias_admin"] });
     void cache.invalidateQueries({ queryKey: ["noticias_publicadas"] });
     toast({ title: form.status === "publicado" ? "Link publicado no Radar" : "Artigo salvo" });
   }, onError: () => setErro("Não foi possível salvar. Confira seu acesso e tente novamente.") });
-  function editar(n: NoticiaRadar) { setId(n.id); setForm({ titulo: n.titulo, resumo: n.resumo, url: n.url, destino: n.destino, status: n.status }); setErro(""); }
+  function editar(n: NoticiaRadar) { setId(n.id); setForm({ titulo: n.titulo, resumo: n.resumo, url: n.url, destino: n.destino, status: n.status, categoria_id: n.categoria_id ?? null }); setErro(""); }
   return <div className="min-h-screen bg-background">
     <AppNavbar />
     <main id="conteudo" tabIndex={-1} className="mx-auto max-w-6xl space-y-6 px-4 py-8">
@@ -56,6 +58,7 @@ export default function AdminNoticias() {
             <div className="space-y-2"><Label htmlFor="url-noticia">Link do artigo no Bewild</Label><Input id="url-noticia" type="url" required value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="https://bewild.com.br/conteudos/…" className="min-h-[44px] text-base" /></div>
             <div className="space-y-2"><Label htmlFor="resumo-noticia">Resumo (opcional)</Label><Textarea id="resumo-noticia" maxLength={600} value={form.resumo} onChange={(e) => setForm({ ...form, resumo: e.target.value })} className="text-base" /></div>
             <div className="space-y-2"><Label htmlFor="destino-noticia">Página do Radar</Label><Select value={form.destino} onValueChange={(v) => setForm({ ...form, destino: v })}><SelectTrigger id="destino-noticia" className="min-h-[44px]"><SelectValue /></SelectTrigger><SelectContent>{DESTINOS_NOTICIAS.map((d) => <SelectItem key={d.caminho} value={d.caminho}>{d.nome}</SelectItem>)}</SelectContent></Select></div>
+            <div className="space-y-2"><Label htmlFor="categoria-noticia">Categoria</Label><Select value={form.categoria_id ?? "nenhuma"} onValueChange={(v) => setForm({ ...form, categoria_id: v === "nenhuma" ? null : v })}><SelectTrigger id="categoria-noticia" className="min-h-[44px]"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="nenhuma">Sem categoria</SelectItem>{(categorias.data ?? []).filter((c) => c.tipo === "post").map((c) => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}</SelectContent></Select></div>
             <div className="space-y-2"><Label htmlFor="status-noticia">Publicação</Label><Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v as NoticiaEntrada["status"] })}><SelectTrigger id="status-noticia" className="min-h-[44px]"><SelectValue /></SelectTrigger><SelectContent>{Object.entries(STATUS_NOTICIA).map(([k,v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent></Select></div>
             {erro && <p role="alert" className="text-sm text-destructive">{erro}</p>}
             <Button type="submit" className="min-h-[44px]"><Save className="mr-2 h-4 w-4" />{salvar.isPending ? "Salvando…" : "Salvar artigo"}</Button>
