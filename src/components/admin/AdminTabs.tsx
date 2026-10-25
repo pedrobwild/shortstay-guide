@@ -10,6 +10,8 @@ const ABAS = [
   { to: "/admin/google", label: "Google" },
   { to: "/admin/analytics", label: "Analytics" },
   { to: "/admin/noticias", label: "Notícias" },
+  { to: "/admin/categorias", label: "Categorias" },
+  { to: "/admin/usuarios", label: "Usuários" },
   { to: "/admin/compartilhamento", label: "Compartilhamento" },
   { to: "/admin/simulacoes", label: "Simulações" },
   { to: "/admin/demanda", label: "Demanda" },

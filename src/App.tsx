@@ -43,6 +43,8 @@ const AdminSeo = lazy(() => import("./pages/AdminSeo"));
 const AdminGoogle = lazy(() => import("./pages/AdminGoogle"));
 const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
 const AdminNoticias = lazy(() => import("./pages/AdminNoticias"));
+const AdminUsuarios = lazy(() => import("./pages/AdminUsuarios"));
+const AdminCategorias = lazy(() => import("./pages/AdminCategorias"));
 const AdminCompartilhamento = lazy(() => import("./pages/AdminCompartilhamento"));
 const AdminColetas = lazy(() => import("./pages/AdminColetas"));
 const AdminMercado = lazy(() => import("./pages/AdminMercado"));
@@ -200,6 +202,8 @@ export function AppRoutes() {
           <Route path="/admin/google" element={<AdminRoute><AdminGoogle /></AdminRoute>} />
           <Route path="/admin/analytics" element={<AdminRoute><AdminAnalytics /></AdminRoute>} />
           <Route path="/admin/noticias" element={<AdminRoute><AdminNoticias /></AdminRoute>} />
+          <Route path="/admin/usuarios" element={<AdminRoute><AdminUsuarios /></AdminRoute>} />
+          <Route path="/admin/categorias" element={<AdminRoute><AdminCategorias /></AdminRoute>} />
           <Route path="/admin/compartilhamento" element={<AdminRoute><AdminCompartilhamento /></AdminRoute>} />
           <Route path="/admin/coletas" element={<AdminRoute><AdminColetas /></AdminRoute>} />
           <Route path="/admin/mercado" element={<AdminRoute><AdminMercado /></AdminRoute>} />
