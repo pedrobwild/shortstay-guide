@@ -11,4 +11,10 @@ describe("destino após login", () => {
   it("recusa destinos externos ou desconhecidos", () => {
     for (const caminho of ["https://bewild.com.br", "//example.com", "/admin/../login", "/admin/falso"]) expect(destinoAposLogin(true, caminho)).toBe("/admin");
   });
+  it("preserva Google após login para admin", () => {
+    expect(destinoAposLogin(true, "/admin/google")).toBe("/admin/google");
+  });
+  it("não encaminha usuário comum à tela Google", () => {
+    expect(destinoAposLogin(false, "/admin/google")).toBe("/painel");
+  });
 });

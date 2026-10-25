@@ -40,6 +40,7 @@ const AdminSimulacoes = lazy(() => import("./pages/AdminSimulacoes"));
 const AdminDemanda = lazy(() => import("./pages/AdminDemanda"));
 const AdminFontes = lazy(() => import("./pages/AdminFontes"));
 const AdminSeo = lazy(() => import("./pages/AdminSeo"));
+const AdminGoogle = lazy(() => import("./pages/AdminGoogle"));
 const AdminColetas = lazy(() => import("./pages/AdminColetas"));
 const AdminMercado = lazy(() => import("./pages/AdminMercado"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -192,6 +193,7 @@ export function AppRoutes() {
           <Route path="/admin/demanda" element={<AdminRoute><AdminDemanda /></AdminRoute>} />
           <Route path="/admin/fontes" element={<AdminRoute><AdminFontes /></AdminRoute>} />
           <Route path="/admin/seo" element={<AdminRoute><AdminSeo /></AdminRoute>} />
+          <Route path="/admin/google" element={<AdminRoute><AdminGoogle /></AdminRoute>} />
           <Route path="/admin/coletas" element={<AdminRoute><AdminColetas /></AdminRoute>} />
           <Route path="/admin/mercado" element={<AdminRoute><AdminMercado /></AdminRoute>} />
           <Route path="*" element={<NotFound />} />
