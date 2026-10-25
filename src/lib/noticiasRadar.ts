@@ -29,7 +29,8 @@ export async function listarNoticias(pagina: number, status: string) {
 }
 export async function salvarNoticia(entrada: NoticiaEntrada, id?: string) {
   const dados = noticiaSchema.parse(entrada);
-  const consulta = id ? supabase.from("radar_noticias").update(dados).eq("id", id) : supabase.from("radar_noticias").insert(dados);
+  const linha = { titulo: dados.titulo ?? "", url: dados.url ?? "", resumo: dados.resumo ?? "", destino: dados.destino ?? "/mercado", status: dados.status ?? "rascunho" };
+  const consulta = id ? supabase.from("radar_noticias").update(linha).eq("id", id) : supabase.from("radar_noticias").insert(linha);
   const { data, error } = await consulta.select("id").single();
   if (error) throw error;
   return data.id;
