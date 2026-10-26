@@ -19,6 +19,8 @@ export interface PerfilRadar {
   rotulo: string;
   /** Situação da pessoa. */
   situacao: string;
+  /** Uma frase com o que o Radar mostra para esse perfil (porta da home). */
+  resumo: string;
   /** Perguntas que o Radar responde para esse perfil. */
   perguntas: string[];
   ferramentas: FerramentaPerfil[];
@@ -32,6 +34,7 @@ export const PERFIS_RADAR: PerfilRadar[] = [
     momento: "procurando",
     rotulo: "Vou comprar",
     situacao: "Buscando um imóvel para comprar.",
+    resumo: "Compare os bairros pela receita de referência e veja se a conta fecha com o financiamento.",
     perguntas: [
       "Em qual bairro um studio rende mais?",
       "Quanto custa o financiamento?",
@@ -50,6 +53,7 @@ export const PERFIS_RADAR: PerfilRadar[] = [
     momento: "reformar",
     rotulo: "Vou reformar",
     situacao: "Já tem o imóvel e precisa reformar.",
+    resumo: "Veja quanto custa e quanto tempo leva a reforma completa de um studio, pela área.",
     perguntas: [
       "Quanto custa a reforma?",
       "Quanto tempo leva?",
@@ -67,6 +71,7 @@ export const PERFIS_RADAR: PerfilRadar[] = [
     momento: "tenho",
     rotulo: "Já opero",
     situacao: "Já opera o studio.",
+    resumo: "Compare a diária e a ocupação do seu studio com a média do bairro.",
     perguntas: [
       "Diária e ocupação estão no nível do bairro?",
       "Quanto sobra depois dos custos?",
