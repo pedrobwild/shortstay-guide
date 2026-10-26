@@ -12,6 +12,8 @@ Disallow: /painel/
 Disallow: /projetos
 Disallow: /projetos/
 Disallow: /projeto/
+Disallow: /area-exclusiva
+Disallow: /area-exclusiva/
 Disallow: /login
 Disallow: /signup
 Disallow: /forgot-password

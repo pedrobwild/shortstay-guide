@@ -22,3 +22,4 @@
 <!-- LOVABLE:BEGIN -->
 - Keep /admin/seo read-only and derive neighborhood metadata from seo.ts and seoJsonLd.ts, without local overrides or claimed Google status. Why: inspect the public SEO source without diverging from prerendered pages.
 <!-- LOVABLE:END -->
+- Login separa os públicos: /admin só para quem tem o papel admin (AdminRoute; quem não tem vai para /area-exclusiva); as demais contas caem na área exclusiva (destinoAposLogin, cadastro). A área exclusiva (/area-exclusiva e /area-exclusiva/<slug>, src/data/artigosExclusivos.ts) é privada: ProtectedRoute, prefixo privado em seoRoutes.json e robots.txt, sem medição em marketingConsent, mas com o visual Estudo aberto (usaEstudo). Os artigos calculam os números da base aprovada e do simulador padrão (src/lib/artigosExclusivos.ts) e artigosExclusivos.test.ts confere as afirmações do texto. Por quê: conteúdo exclusivo para quem cria conta sem expor o admin e sem número fora da base.

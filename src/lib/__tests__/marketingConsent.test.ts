@@ -23,7 +23,7 @@ describe("medição consentida", () => {
     expect(commands.filter((a) => a[1] === "page_view")).toHaveLength(1);
     expect(commands).toContainEqual(["set", "linker", { domains: ["radarbewild.com.br", "bewild.com.br"] }]);
   });
-  it.each(["/admin", "/admin/leads", "/painel", "/projetos", "/projeto/123"])("não mede %s mesmo com consentimento", async (path) => {
+  it.each(["/admin", "/admin/leads", "/painel", "/projetos", "/projeto/123", "/area-exclusiva", "/area-exclusiva/pinheiros"])("não mede %s mesmo com consentimento", async (path) => {
     const m = await import("@/lib/marketingConsent"); localStorage.setItem(m.CONSENT_KEY, "accepted"); window.history.replaceState({}, "", path); m.syncMeasurement(); m.trackBudgetClick("chat");
     expect(m.canMeasure()).toBe(false); expect(document.querySelectorAll("script").length).toBe(0); expect(window.dataLayer).toEqual([]);
   });

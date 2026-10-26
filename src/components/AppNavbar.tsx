@@ -4,7 +4,8 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import OrcamentoButton from "@/components/OrcamentoButton";
-import { LogOut, User, FolderOpen, LayoutDashboard, Flame, Menu } from "lucide-react";
+import { LogOut, User, FolderOpen, LayoutDashboard, Flame, Menu, BookOpen } from "lucide-react";
+import { CAMINHO_AREA_EXCLUSIVA } from "@/data/artigosExclusivos";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { ATALHOS_CELULAR, LINKS_PUBLICOS, type LinkNavegacao } from "@/data/navegacao";
@@ -27,7 +28,8 @@ const ATALHOS = ATALHOS_CELULAR.map((id) => LINKS_PUBLICOS.find((l) => l.id === 
 
 /**
  * Navbar global do Radar (direção Híbrida): logo + "Radar", links públicos com o
- * item ativo sublinhado em ciano, "Entrar" e "Solicitar orçamento".
+ * item ativo sublinhado em ciano, "Login" e "Solicitar orçamento". Com conta, a
+ * "Área exclusiva" vem primeiro; "Admin" só aparece para quem tem o papel de admin.
  * No celular (56px): atalhos Mapa / Comparar / Simular e o menu lateral com todos
  * os links, o orçamento e a conta. Na home, o menu também traz as seções do guia
  * (`menuGuia`) e a barra respeita o trilho do índice (`comTrilhoGuia`).
@@ -123,20 +125,26 @@ export default function AppNavbar({
             user ? (
               <div className="hidden lg:flex items-center gap-1">
                 <Button variant="ghost" size="sm" asChild className="min-h-[44px]">
-                  <Link to="/painel" className="gap-1.5" aria-label="Painel">
-                    <LayoutDashboard className="h-4 w-4" />
-                    <span className="hidden xl:inline">Painel</span>
+                  <Link to={CAMINHO_AREA_EXCLUSIVA} className="gap-1.5" aria-label="Área exclusiva" title="Área exclusiva">
+                    <BookOpen className="h-4 w-4" />
+                    <span className="hidden xl:inline">Área exclusiva</span>
                   </Link>
                 </Button>
                 <Button variant="ghost" size="sm" asChild className="min-h-[44px]">
-                  <Link to="/projetos" className="gap-1.5" aria-label="Meus Projetos">
+                  <Link to="/painel" className="gap-1.5" aria-label="Painel" title="Painel">
+                    <LayoutDashboard className="h-4 w-4" />
+                    <span className="hidden 2xl:inline">Painel</span>
+                  </Link>
+                </Button>
+                <Button variant="ghost" size="sm" asChild className="min-h-[44px]">
+                  <Link to="/projetos" className="gap-1.5" aria-label="Meus Projetos" title="Meus Projetos">
                     <FolderOpen className="h-4 w-4" />
-                    <span className="hidden xl:inline">Meus Projetos</span>
+                    <span className="hidden 2xl:inline">Meus Projetos</span>
                   </Link>
                 </Button>
                 {isAdmin && (
                   <Button variant="ghost" size="sm" asChild className="min-h-[44px]">
-                    <Link to="/admin" className="gap-1.5" aria-label="Admin">
+                    <Link to="/admin" className="gap-1.5" aria-label="Admin" title="Admin">
                       <Flame className="h-4 w-4" />
                       <span className="hidden xl:inline">Admin</span>
                     </Link>
@@ -152,7 +160,7 @@ export default function AppNavbar({
               </div>
             ) : (
               <Button variant="ghost" asChild className="hidden min-h-[44px] px-3.5 text-sm font-medium text-primary lg:inline-flex">
-                <Link to="/login">Entrar</Link>
+                <Link to="/login">Login</Link>
               </Button>
             )
           )}
@@ -220,6 +228,7 @@ export default function AppNavbar({
             {!loading && (
               user ? (
                 <div className="flex flex-col gap-1">
+                  <Link to={CAMINHO_AREA_EXCLUSIVA} onClick={fechar} className="flex min-h-[44px] items-center gap-2 rounded-lg px-3 text-sm hover:bg-secondary"><BookOpen className="h-4 w-4" />Área exclusiva</Link>
                   <Link to="/painel" onClick={fechar} className="flex min-h-[44px] items-center gap-2 rounded-lg px-3 text-sm hover:bg-secondary"><LayoutDashboard className="h-4 w-4" />Painel</Link>
                   <Link to="/projetos" onClick={fechar} className="flex min-h-[44px] items-center gap-2 rounded-lg px-3 text-sm hover:bg-secondary"><FolderOpen className="h-4 w-4" />Meus Projetos</Link>
                   {isAdmin && <Link to="/admin" onClick={fechar} className="flex min-h-[44px] items-center gap-2 rounded-lg px-3 text-sm hover:bg-secondary"><Flame className="h-4 w-4" />Admin</Link>}
@@ -227,7 +236,7 @@ export default function AppNavbar({
                 </div>
               ) : (
                 <div className="flex gap-2">
-                  <Button variant="outline" asChild className="flex-1 min-h-[44px]"><Link to="/login" onClick={fechar}>Entrar</Link></Button>
+                  <Button variant="outline" asChild className="flex-1 min-h-[44px]"><Link to="/login" onClick={fechar}>Login</Link></Button>
                   <Button variant="ghost" asChild className="flex-1 min-h-[44px]"><Link to="/signup" onClick={fechar}>Criar conta</Link></Button>
                 </div>
               )

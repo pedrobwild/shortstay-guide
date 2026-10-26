@@ -44,6 +44,8 @@ const AdminGoogle = lazy(() => import("./pages/AdminGoogle"));
 const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
 const AdminNoticias = lazy(() => import("./pages/AdminNoticias"));
 const Posts = lazy(() => import("./pages/Posts"));
+const AreaExclusiva = lazy(() => import("./pages/AreaExclusiva"));
+const ArtigoExclusivo = lazy(() => import("./pages/ArtigoExclusivo"));
 const AdminUsuarios = lazy(() => import("./pages/AdminUsuarios"));
 const AdminCategorias = lazy(() => import("./pages/AdminCategorias"));
 const AdminCompartilhamento = lazy(() => import("./pages/AdminCompartilhamento"));
@@ -191,6 +193,8 @@ export function AppRoutes() {
           <Route path="/mapa-bairros" element={<LegacyRedirect to="/mapa" />} />
           <Route path="/ferramentas" element={<Ferramentas />} />
           <Route path="/projecao" element={<StudioProjection />} />
+          <Route path="/area-exclusiva" element={<ProtectedRoute><AreaExclusiva /></ProtectedRoute>} />
+          <Route path="/area-exclusiva/:artigo" element={<ProtectedRoute><ArtigoExclusivo /></ProtectedRoute>} />
           <Route path="/painel" element={<ProtectedRoute><Painel /></ProtectedRoute>} />
           <Route path="/projetos" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
           <Route path="/projeto/:projectId" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />

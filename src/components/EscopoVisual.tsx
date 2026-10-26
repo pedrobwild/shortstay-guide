@@ -1,12 +1,16 @@
 import { useEffect, useLayoutEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { isPrivatePath } from "@/lib/seo";
+import { CAMINHO_AREA_EXCLUSIVA } from "@/data/artigosExclusivos";
 
 /** Classe do <html> que liga os tokens do redesign "Estudo aberto" (src/index.css). */
 export const CLASSE_ESTUDO = "estudo";
 
-/** As telas públicas usam o Estudo aberto; conta, painel e admin seguem no visual anterior. */
-export const usaEstudo = (pathname: string) => !isPrivatePath(pathname);
+/**
+ * As telas públicas usam o Estudo aberto; conta, painel e admin seguem no visual anterior.
+ * A área exclusiva é privada (sem indexação) mas tem o visual das telas de leitura.
+ */
+export const usaEstudo = (pathname: string) => !isPrivatePath(pathname) || pathname === CAMINHO_AREA_EXCLUSIVA || pathname.startsWith(`${CAMINHO_AREA_EXCLUSIVA}/`);
 
 const useLayoutIsomorfico = typeof window === "undefined" ? useEffect : useLayoutEffect;
 

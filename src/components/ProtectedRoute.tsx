@@ -1,9 +1,11 @@
 import { useAuth } from "@/hooks/useAuth";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 
+/** Rotas de quem tem conta. Sem login → /login, guardando a página pedida para voltar a ela depois de entrar. */
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -14,7 +16,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: `${location.pathname}${location.search}${location.hash}` }} replace />;
   }
 
   return <>{children}</>;

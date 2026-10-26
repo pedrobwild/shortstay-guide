@@ -8,7 +8,7 @@ declare global {
 }
 
 export function isMeasurementAllowedPath(path: string) {
-  return !/^\/(admin|painel|projetos|projeto)(\/|$)/.test(path);
+  return !/^\/(admin|painel|projetos|projeto|area-exclusiva)(\/|$)/.test(path);
 }
 export function readConsent(): ConsentChoice | null {
   if (typeof window === "undefined") return null;

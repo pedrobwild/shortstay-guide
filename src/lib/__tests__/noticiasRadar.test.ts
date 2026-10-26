@@ -11,6 +11,6 @@ describe("notícias por links do Bewild", () => {
   it("associa somente a páginas existentes do Radar", () => { expect(noticiaSchema.safeParse({ ...entrada, destino: "/bairro/inventado" }).success).toBe(false); });
   it("permite retomar Notícias somente como admin", () => {
     expect(destinoAposLogin(true, "/admin/noticias")).toBe("/admin/noticias");
-    expect(destinoAposLogin(false, "/admin/noticias")).toBe("/painel");
+    expect(destinoAposLogin(false, "/admin/noticias")).toBe("/area-exclusiva");
   });
 });

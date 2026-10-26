@@ -194,6 +194,7 @@
     "/painel",
     "/projetos",
     "/projeto",
-    "/admin"
+    "/admin",
+    "/area-exclusiva"
   ]
 }
