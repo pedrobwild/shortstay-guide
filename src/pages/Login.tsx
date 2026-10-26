@@ -42,6 +42,7 @@ export default function Login() {
         <div className="text-center">
           <Link to="/" className="inline-flex min-h-[44px] items-center mb-4"><img src={bwildLogo} alt="Bewild" className="h-8 w-auto" /></Link>
           <h1 className="font-display text-2xl font-bold text-foreground">Entrar no Radar</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Acesse a área exclusiva com as análises de bairro do Radar.</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">

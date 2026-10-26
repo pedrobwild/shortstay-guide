@@ -1,11 +1,12 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Navigate, useLocation } from "react-router-dom";
+import { DESTINO_PADRAO_CONTA } from "@/lib/loginDestino";
 import { Loader2 } from "lucide-react";
 
 /**
  * Protege rotas exclusivas de admin. Não autenticado → login;
- * autenticado mas sem role admin → painel (sem expor que a rota existe).
+ * autenticado mas sem role admin → área exclusiva (sem expor que a rota existe).
  * A segurança real é o RLS/RPC no banco; aqui é só UX de roteamento.
  */
 export default function AdminRoute({ children }: { children: React.ReactNode }) {
@@ -26,7 +27,7 @@ export default function AdminRoute({ children }: { children: React.ReactNode }) 
   }
 
   if (!isAdmin) {
-    return <Navigate to="/painel" replace />;
+    return <Navigate to={DESTINO_PADRAO_CONTA} replace />;
   }
 
   return <>{children}</>;
