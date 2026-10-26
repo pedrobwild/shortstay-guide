@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import type { ContaRadar, ResumoContas, TipoConta } from "@/lib/usuariosAdmin";
 
 export type TipoCategoria = "post" | "bairro";
 export type CategoriaRadar = { id: string; nome: string; tipo: TipoCategoria };
@@ -35,7 +36,7 @@ export async function alternarBairroCategoria(bairro: string, categoriaId: strin
   if (error) throw error;
 }
 
-export type UsuarioRadar = { id: string; email: string; nome: string; admin: boolean; criado_em: string; ultimo_acesso: string | null; confirmado: boolean };
+export type UsuarioRadar = ContaRadar;
 async function chamar<T>(corpo: Record<string, unknown>): Promise<T> {
   const { data, error } = await supabase.functions.invoke("admin-usuarios", { body: corpo });
   if (error) {
@@ -44,6 +45,9 @@ async function chamar<T>(corpo: Record<string, unknown>): Promise<T> {
   }
   return data as T;
 }
-export const listarUsuarios = (pagina: number) => chamar<{ usuarios: UsuarioRadar[]; temMais: boolean }>({ acao: "listar", pagina });
+export const listarUsuarios = (pagina: number, tipo: TipoConta = "todos", busca = "") =>
+  chamar<{ usuarios: UsuarioRadar[]; temMais: boolean; encontrados: number; resumo: ResumoContas }>({ acao: "listar", pagina, tipo, busca });
+/** Todas as contas do filtro, com projetos, para o CSV do admin. */
+export const exportarUsuarios = (tipo: TipoConta = "todos", busca = "") => chamar<{ usuarios: UsuarioRadar[] }>({ acao: "exportar", tipo, busca });
 export const convidarUsuario = (email: string, nome: string, papel: "admin" | "user") => chamar({ acao: "convidar", email, nome, papel, redirectTo: window.location.origin });
 export const mudarPapel = (userId: string, admin: boolean) => chamar({ acao: "papel", userId, admin });

@@ -32,7 +32,8 @@ export default function Signup() {
         email,
         password,
         options: {
-          data: { full_name: fullName },
+          // Origem do cadastro, para o admin saber de onde a conta veio (/admin/usuarios).
+          data: { full_name: fullName, origem_cadastro: params.get("origem") === "simulador" ? "simulador" : "area-exclusiva" },
           emailRedirectTo: window.location.origin,
         },
       });
