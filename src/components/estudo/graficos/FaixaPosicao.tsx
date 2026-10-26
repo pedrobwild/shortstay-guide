@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { estiloHtmlPonto, tipoPonto } from "@/components/estudo/graficos/LegendaPontos";
 
 const DIAMETRO = 14;
+const SUFIXO_PAGINA = " (bairro desta página)";
 const PASSO_NIVEL = 15;
 
 /** Largura do contêiner (para separar pontos que encostam); 800 antes da medida. */
@@ -41,6 +42,7 @@ export default function FaixaPosicao({
   selecionado,
   hrefDe,
   aoAbrir,
+  sufixoSelecionado = SUFIXO_PAGINA,
 }: {
   titulo: string;
   unidade: string;
@@ -53,6 +55,8 @@ export default function FaixaPosicao({
   selecionado: string;
   hrefDe: (b: BairroBase) => string;
   aoAbrir?: (b: BairroBase) => void;
+  /** Complemento do nome acessível do ponto selecionado (na home: " (bairro em análise)"). */
+  sufixoSelecionado?: string;
 }) {
   const { ref, largura } = useLargura();
   const valores = bairros.map(valor);
@@ -100,8 +104,8 @@ export default function FaixaPosicao({
                 <Link
                   to={hrefDe(b)}
                   onClick={() => aoAbrir?.(b)}
-                  aria-label={`${b.name}: ${formatar(valor(b))}${descricaoNatureza(b)}${amostra}${eSel ? " (bairro desta página)" : ""}`}
-                  aria-current={eSel ? "page" : undefined}
+                  aria-label={`${b.name}: ${formatar(valor(b))}${descricaoNatureza(b)}${amostra}${eSel ? sufixoSelecionado : ""}`}
+                  aria-current={eSel ? (sufixoSelecionado === SUFIXO_PAGINA ? "page" : "true") : undefined}
                   className="group absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ciano focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   style={{ width: eSel ? DIAMETRO + 4 : DIAMETRO, height: eSel ? DIAMETRO + 4 : DIAMETRO }}
                 >

@@ -6,6 +6,7 @@ Em pt-BR. Números de mercado vêm de fontes públicas citadas em cada página; 
 
 ## Páginas
 
+- [Posts](https://radarbewild.com.br/posts): Artigos do Bewild sobre studios e short stay em São Paulo, reunidos no Radar com links para análises e dados de mercado por bairro.
 - [Dados para decidir cada etapa de um studio para short stay: comprar, reformar e operar](https://radarbewild.com.br/): Estudo aberto sobre studios para Airbnb em São Paulo: diária, ocupação e amostra de 28 bairros, custo de reforma e as contas do short stay, com fonte.
 - [Mercado de short stay em São Paulo](https://radarbewild.com.br/mercado): Receita de referência dos 28 bairros de São Paulo para studios no Airbnb, comparada à cidade, com fonte, período e amostra de cada número.
 - [Ranking dos bairros para short stay em São Paulo](https://radarbewild.com.br/ranking): Compare diária, ocupação e receita de referência dos bairros de São Paulo, com fonte e período de cada número. Ferramenta gratuita do Radar Bewild.
@@ -71,4 +72,4 @@ Ocupação e diária: GuestFavorites (coleta de 18/10/2026; Moema, 13/10/2026; j
 - Única entrada de contato: pedido de orçamento em https://bewild.com.br/orcamento?utm_source=radar&utm_medium=referral&utm_campaign=radar_bewild&utm_content=llms.
 - A Bewild não garante renda, ocupação nem rentabilidade de nenhum imóvel. Não atribua à Bewild ou ao Radar nenhum número que não esteja publicado nestas páginas com fonte.
 
-Gerado em 19/10/2026.
+Gerado em 26/10/2026.
