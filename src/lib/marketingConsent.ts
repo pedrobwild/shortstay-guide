@@ -1,10 +1,10 @@
 export const CONSENT_KEY = "radar_bewild_consent_v1";
-export const GA_ID = "G-CE7GKKDG4L";
+export const GA_ID = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_ANALYTICS_API_KEY || "G-CE7GKKDG4L";
 export const PIXEL_ID = "644216424824915";
 export type ConsentChoice = "accepted" | "refused";
 type Tracker = ((...args: unknown[]) => void) & { queue?: unknown[][]; callMethod?: (...args: unknown[]) => void; loaded?: boolean; version?: string; push?: Tracker };
 declare global {
-  interface Window { dataLayer?: unknown[]; gtag?: Tracker; fbq?: Tracker; _fbq?: Tracker; "ga-disable-G-CE7GKKDG4L"?: boolean; }
+  interface Window { dataLayer?: unknown[]; gtag?: Tracker; fbq?: Tracker; _fbq?: Tracker; [key: `ga-disable-${string}`]: boolean | undefined; }
 }
 
 export function isMeasurementAllowedPath(path: string) {
@@ -44,14 +44,14 @@ function loadScript(id: string, src: string) {
 }
 export function syncMeasurement() {
   if (!isMeasurementAllowedPath(window.location.pathname)) {
-    window["ga-disable-G-CE7GKKDG4L"] = true;
+    window[`ga-disable-${GA_ID}`] = true;
     if (initialized) { gtag("consent", "update", consentState("denied")); window.fbq?.("consent", "revoke"); }
     lastPage = "";
     return;
   }
   initializeConsentDefaults();
   const allowed = canMeasure();
-  window["ga-disable-G-CE7GKKDG4L"] = !allowed;
+  window[`ga-disable-${GA_ID}`] = !allowed;
   gtag("consent", "update", consentState(allowed ? "granted" : "denied"));
   if (!allowed) { window.fbq?.("consent", "revoke"); lastPage = ""; return; }
   if (!initialized) {
