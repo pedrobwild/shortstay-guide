@@ -15,9 +15,9 @@ export type Momento = (typeof MOMENTOS)[number];
  * tenho = 03 Já opero. As chaves seguem as mesmas para quem já tinha escolhido.
  */
 export const CAMINHOS_MOMENTO: Record<Momento, { situacao: string; acao: string; texto: string; destino: string }> = {
-  procurando: { situacao: "Vou comprar", acao: "Ver o ranking", texto: "Em qual bairro um studio rende mais e se a conta fecha antes da compra.", destino: "/ranking" },
-  tenho: { situacao: "Já opero", acao: "Comparar meu studio", texto: "Diária e ocupação contra o bairro e quanto sobra depois dos custos.", destino: "/ferramentas#operar" },
-  reformar: { situacao: "Vou reformar", acao: "Estimar a reforma", texto: "Quanto custa, quanto tempo leva e o que faz um studio performar.", destino: "/ferramentas#reformar" },
+  procurando: { situacao: "Vou comprar", acao: "Saiba mais", texto: "Em qual bairro um studio rende mais e se a conta fecha antes da compra.", destino: "/ferramentas" },
+  tenho: { situacao: "Já opero", acao: "Comparar meu studio", texto: "Diária e ocupação contra o bairro e quanto sobra depois dos custos.", destino: "/operar" },
+  reformar: { situacao: "Vou reformar", acao: "Estimar a reforma", texto: "Quanto custa, quanto tempo leva e o que faz um studio performar.", destino: "/reformar" },
 };
 
 const CHAVE = "radar_momento";
