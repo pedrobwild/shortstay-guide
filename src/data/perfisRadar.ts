@@ -46,7 +46,7 @@ export const PERFIS_RADAR: PerfilRadar[] = [
       { rotulo: "Comparar bairros", to: "/comparar" },
       { rotulo: "Financiamento", to: "/ferramentas#comprar" },
     ],
-    acao: { rotulo: "Ver o ranking", to: "/ranking" },
+    acao: { rotulo: "Saiba mais", to: "/ferramentas" },
   },
   {
     numero: "02",
