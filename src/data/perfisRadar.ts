@@ -64,7 +64,7 @@ export const PERFIS_RADAR: PerfilRadar[] = [
       { rotulo: "O que influencia o hóspede", to: "/guia/hospede" },
       { rotulo: "Decoração estratégica", to: "/guia/decoracao" },
     ],
-    acao: { rotulo: "Estimar a reforma", to: "/ferramentas#reformar" },
+    acao: { rotulo: "Saiba mais", to: "/reformar" },
   },
   {
     numero: "03",
@@ -81,7 +81,7 @@ export const PERFIS_RADAR: PerfilRadar[] = [
       { rotulo: "Simular o resultado líquido", to: "/projecao" },
       { rotulo: "Anúncio e precificação", to: "/guia/anuncio-e-precificacao" },
     ],
-    acao: { rotulo: "Comparar meu studio", to: "/ferramentas#operar" },
+    acao: { rotulo: "Saiba mais", to: "/operar" },
   },
 ];
 

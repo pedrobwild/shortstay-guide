@@ -34,6 +34,7 @@ const Signup = lazy(() => import("./pages/Signup"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Ferramentas = lazy(() => import("./pages/Ferramentas"));
+const PerfilDestino = lazy(() => import("./pages/PerfilDestino"));
 const AdminLeads = lazy(() => import("./pages/AdminLeads"));
 const AdminBairros = lazy(() => import("./pages/AdminBairros"));
 const AdminSimulacoes = lazy(() => import("./pages/AdminSimulacoes"));
@@ -192,6 +193,8 @@ export function AppRoutes() {
           <Route path="/intelligence/bairro/:bairro" element={<LegacyBairroRedirect />} />
           <Route path="/mapa-bairros" element={<LegacyRedirect to="/mapa" />} />
           <Route path="/ferramentas" element={<Ferramentas />} />
+          <Route path="/reformar" element={<PerfilDestino etapa="reformar" />} />
+          <Route path="/operar" element={<PerfilDestino etapa="tenho" />} />
           <Route path="/projecao" element={<StudioProjection />} />
           <Route path="/area-exclusiva" element={<ProtectedRoute><AreaExclusiva /></ProtectedRoute>} />
           <Route path="/area-exclusiva/:artigo" element={<ProtectedRoute><ArtigoExclusivo /></ProtectedRoute>} />

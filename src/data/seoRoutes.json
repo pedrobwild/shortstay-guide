@@ -59,6 +59,22 @@
       "priority": "0.8"
     },
     {
+      "path": "/reformar",
+      "title": "Planeje a reforma do seu studio",
+      "description": "Estime custo e prazo de reforma completa pela área do studio, com o estudo Bewild. Consulte escopo, decoração e decisões para preparar seu imóvel.",
+      "h1": "Planeje a reforma do seu studio",
+      "keywords": "planejamento reforma studio, estimativa reforma por área, studio short stay",
+      "priority": "0.7"
+    },
+    {
+      "path": "/operar",
+      "title": "Acompanhe a operação do seu studio",
+      "description": "Compare diária e ocupação do seu studio com o bairro, com fonte e período. Avalie receita de referência, custos e resultado líquido no Radar Bewild.",
+      "h1": "Acompanhe a operação do seu studio",
+      "keywords": "operação studio airbnb, comparar diária ocupação bairro, resultado líquido short stay",
+      "priority": "0.7"
+    },
+    {
       "path": "/ferramentas",
       "title": "Ferramentas do investidor em short stay",
       "description": "Ferramentas do investidor em studio para short stay: financiamento para quem vai comprar, estimativa de reforma por área e o seu studio contra o bairro.",

@@ -27,9 +27,18 @@ describe("momento do investidor", () => {
 
   it("cada momento tem situação, ação e destino", () => {
     for (const m of MOMENTOS) expect(CAMINHOS_MOMENTO[m]).toMatchObject({ situacao: expect.any(String), acao: expect.any(String), destino: expect.any(String) });
-    expect(CAMINHOS_MOMENTO.procurando.acao).toBe("Ver o ranking");
     expect(CAMINHOS_MOMENTO.tenho.acao).toBe("Comparar meu studio");
     expect(CAMINHOS_MOMENTO.reformar.acao).toBe("Estimar a reforma");
+  });
+
+  it("compra mantém Ferramentas também nos atalhos", () => {
+    expect(CAMINHOS_MOMENTO.procurando.destino).toBe("/ferramentas");
+  });
+  it("reforma usa o destino dedicado nos atalhos", () => {
+    expect(CAMINHOS_MOMENTO.reformar.destino).toBe("/reformar");
+  });
+  it("operação usa o destino dedicado nos atalhos", () => {
+    expect(CAMINHOS_MOMENTO.tenho.destino).toBe("/operar");
   });
 
   it("grava e lê; expira em 30 dias; ignora valor inválido", () => {
