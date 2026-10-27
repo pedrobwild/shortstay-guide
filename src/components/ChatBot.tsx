@@ -11,6 +11,8 @@ import ReactMarkdown from "react-markdown";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { useProjectSummary } from "@/hooks/useProjectSummary";
 import { buildProjectChatContext } from "@/lib/projectChatContext";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -24,6 +26,7 @@ const QUICK_SUGGESTIONS = [
 ];
 
 export default function ChatBot() {
+  const { user, session, loading: authLoading } = useAuth();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([
     { role: "assistant", content: "Olá! 👋 Sou seu consultor de investimento em short-stay em São Paulo. Como posso ajudar?" },
@@ -32,7 +35,8 @@ export default function ChatBot() {
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const showSuggestions = messages.length <= 1 && !loading;
+  const canChat = Boolean(user && session?.access_token) && !authLoading;
+  const showSuggestions = canChat && messages.length <= 1 && !loading;
 
   // Contexto do projeto ativo do cliente (bairro, m², premissas e KPIs
   // projetados). Construído a partir de dados já filtrados por RLS para o
@@ -95,8 +99,8 @@ export default function ChatBot() {
   }, [hasActiveProject, summary.neighborhood]);
 
   const sendText = async (text: string) => {
-    if (!text.trim() || loading) return;
-    trackGlobal("chatbot_message", { message_preview: text.trim().slice(0, 50) });
+    if (!text.trim() || loading || !canChat) return;
+    trackGlobal("chatbot_message", {});
     setInput("");
     const userMsg: Msg = { role: "user", content: text.trim() };
     setMessages((prev) => [...prev, userMsg]);
@@ -116,7 +120,13 @@ export default function ChatBot() {
     };
 
     try {
-      const allMsgs = [...messages, userMsg].filter((m) => m.role === "user" || m.role === "assistant");
+      const { data, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !data.session?.access_token) {
+        upsert('Sua sessão terminou. Entre novamente para usar o assistente.');
+        setLoading(false);
+        return;
+      }
+      const allMsgs = [...messages, userMsg].filter((m) => m.role === "user" || m.role === "assistant").slice(-40);
       const { context: projectContext } = buildProjectChatContext({
         hasProject: summary.hasProject,
         projectName: summary.project?.name ?? null,
@@ -131,7 +141,8 @@ export default function ChatBot() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer ${data.session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
         },
         body: JSON.stringify({ messages: allMsgs, projectContext }),
       });
@@ -194,6 +205,7 @@ export default function ChatBot() {
               {/* Pulse ring */}
               <span className="pointer-events-none absolute inset-2 rounded-full bg-primary/20 animate-ping" />
               <Button
+                aria-label="Abrir assistente"
                 onClick={() => { setOpen(true); trackGlobal("chatbot_opened", {}); }}
                 className="relative h-14 w-14 rounded-full shadow-[0_8px_30px_-4px_hsl(var(--primary)/0.4)] bg-primary hover:bg-primary/90 transition-all duration-300 hover:shadow-[0_12px_40px_-4px_hsl(var(--primary)/0.5)] hover:scale-105"
                 size="icon"
@@ -238,6 +250,7 @@ export default function ChatBot() {
                 whileTap={{ scale: 0.9 }}
                 transition={{ type: "spring", stiffness: 400 }}
                 onClick={() => setOpen(false)}
+                aria-label="Fechar assistente"
                 className="relative z-10 h-8 w-8 rounded-lg bg-primary-foreground/10 hover:bg-primary-foreground/20 backdrop-blur-sm flex items-center justify-center transition-colors border border-primary-foreground/10"
               >
                 <X className="h-4 w-4 text-primary-foreground" />
@@ -375,6 +388,13 @@ export default function ChatBot() {
 
             {/* Input area */}
             <div className="p-3 border-t border-border/60 bg-card">
+              {!canChat ? (
+                authLoading ? <p role="status" className="text-sm text-muted-foreground">Conferindo acesso…</p> : (
+                  <Button asChild className="min-h-11 w-full">
+                    <Link to="/login" state={{ from: pathname + search }} onClick={() => setOpen(false)}>Entrar para conversar</Link>
+                  </Button>
+                )
+              ) : (
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -387,12 +407,15 @@ export default function ChatBot() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Pergunte sobre investimento..."
+                  aria-label="Mensagem para o assistente"
+                  maxLength={8000}
                   className="flex-1 rounded-xl border border-input bg-background px-4 py-2.5 text-sm font-body placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-200"
                   disabled={loading}
                 />
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button
                     type="submit"
+                    aria-label="Enviar mensagem"
                     size="icon"
                     disabled={loading || !input.trim()}
                     className="rounded-xl h-10 w-10 shadow-sm shadow-primary/10 disabled:shadow-none transition-shadow"
@@ -401,6 +424,7 @@ export default function ChatBot() {
                   </Button>
                 </motion.div>
               </form>
+              )}
             </div>
           </motion.div>
         )}

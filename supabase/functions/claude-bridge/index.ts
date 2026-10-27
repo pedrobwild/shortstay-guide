@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { bridgeTable, validateRows, validateSelect } from './validation.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -59,6 +60,7 @@ Deno.serve(async (req) => {
   let payload: BridgeRequest;
   try {
     payload = await req.json();
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return json({ error: 'Invalid request' }, 400);
   } catch {
     return json({ error: 'Invalid JSON' }, 400);
   }
@@ -66,9 +68,18 @@ Deno.serve(async (req) => {
   const { op, table } = payload;
   if (!op || !table) return json({ error: 'Missing op or table' }, 400);
 
-  const tableConfig = (ALLOWED as Record<string, Record<Op, boolean>>)[table];
-  if (!tableConfig) return json({ error: `Table not allowed: ${table}` }, 403);
-  if (!tableConfig[op]) return json({ error: `Operation '${op}' not allowed on '${table}'` }, 403);
+  if (!bridgeTable(table)) return json({ error: 'Table not allowed' }, 403);
+  const tableConfig = ALLOWED[table];
+  if (!Object.hasOwn(tableConfig, op) || !tableConfig[op]) return json({ error: 'Operation not allowed' }, 403);
+
+  let rows: Record<string, unknown>[] = [];
+  let selection: ReturnType<typeof validateSelect> | undefined;
+  try {
+    if (op === 'insert') rows = validateRows(table, payload.rows);
+    else selection = validateSelect(table, payload as unknown as Record<string, unknown>);
+  } catch (error) {
+    return json({ error: error instanceof Error ? error.message : 'Invalid input' }, 400);
+  }
 
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
@@ -79,24 +90,17 @@ Deno.serve(async (req) => {
   console.log(`[claude-bridge] op=${op} table=${table}`);
 
   try {
-    if (op === 'select') {
-      let q = supabase.from(table).select(payload.columns ?? '*');
-      if (payload.filters) {
-        for (const [k, v] of Object.entries(payload.filters)) q = q.eq(k, v as never);
-      }
-      const limit = Math.min(payload.limit ?? 100, 500);
-      const { data, error, count } = await q.limit(limit);
+    if (op === 'select' && selection) {
+      let q = supabase.from(table).select(selection.columns);
+      for (const [k, v] of Object.entries(selection.filters)) q = q.eq(k, v as never);
+      const { data, error, count } = await q.limit(selection.limit);
       if (error) return json({ error: error.message }, 400);
       console.log(`[claude-bridge] ok select rows=${data?.length ?? 0} ms=${Date.now() - started}`);
       return json({ data, count });
     }
 
     if (op === 'insert') {
-      if (!Array.isArray(payload.rows) || payload.rows.length === 0) {
-        return json({ error: 'rows[] required' }, 400);
-      }
-      if (payload.rows.length > 1000) return json({ error: 'Max 1000 rows per call' }, 400);
-      const { data, error } = await supabase.from(table).insert(payload.rows).select();
+      const { data, error } = await supabase.from(table).insert(rows).select();
       if (error) return json({ error: error.message }, 400);
       console.log(`[claude-bridge] ok insert rows=${data?.length ?? 0} ms=${Date.now() - started}`);
       return json({ data, inserted: data?.length ?? 0 });

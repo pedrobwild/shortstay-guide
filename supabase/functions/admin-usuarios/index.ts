@@ -19,8 +19,7 @@ const Corpo = z.discriminatedUnion("acao", [
 ]);
 
 // Cliente com service role; sem os tipos gerados do banco aqui (as consultas usam só colunas conhecidas).
-// deno-lint-ignore no-explicit-any
-type Db = any;
+type Db = ReturnType<typeof createClient>;
 
 async function darPapel(db: Db, userId: string, role: "admin" | "user") {
   const { data } = await db.from("user_roles").select("id").eq("user_id", userId).eq("role", role).maybeSingle();

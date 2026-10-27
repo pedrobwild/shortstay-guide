@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.98.0";
+import { authenticatedChat, validateChatBody } from './security.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -150,9 +151,22 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+  const jsonError = (error: string, status: number) => new Response(JSON.stringify({ error }), {
+    status, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+  if (req.method !== 'POST') return jsonError('Método não permitido.', 405);
+  const auth = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  if (!await authenticatedChat(req.headers.get('Authorization'), (token) => auth.auth.getUser(token))) {
+    return jsonError('Faça login para usar o assistente.', 401);
+  }
 
   try {
-    const { messages, projectContext } = await req.json();
+    let input: ReturnType<typeof validateChatBody>;
+    try { input = validateChatBody(await req.json()); }
+    catch (error) { return jsonError(error instanceof Error ? error.message : 'Mensagem inválida.', 400); }
+    const { messages, projectContext } = input;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -188,7 +202,7 @@ ${listingsStats}
 ${
   projectBlock
     ? `Estes são os dados REAIS do projeto do usuário com quem você está falando. Quando ele perguntar sobre "meu studio", "meu projeto", "minha projeção", "meu bairro" ou "meu ROI", responda EXCLUSIVAMENTE com os números abaixo — são os números dele, não estime nem invente.\n\n${projectBlock}`
-    : "O usuário não tem um projeto ativo carregado nesta conversa. Responda com base nos dados gerais de mercado dos bairros acima e convide-o a criar um projeto no painel ou a usar o botão Peça seu orçamento da Bewild para uma proposta."
+    : "O usuário não tem um projeto ativo carregado nesta conversa. Responda com base nos dados gerais de mercado dos bairros acima e convide-o a criar um projeto no painel ou a usar o simulador do Radar."
 }
 
 # FÓRMULAS UTILIZADAS
@@ -217,7 +231,7 @@ ${
 - NUNCA invente, estime ou arredonde números que não estejam nos dados reais dos bairros ou no contexto do projeto do cliente. Não há "achismo".
 - Se um dado não estiver disponível (ex.: ROI sem valor do imóvel informado, ou um bairro fora dos listados acima), diga claramente que NÃO tem esse dado e NÃO o invente.
 - Se perguntarem sobre um bairro fora dos listados acima, informe que não temos dados para aquele bairro.
-- Quando faltar dado, quando o usuário quiser avançar/fechar negócio, ou quando a pergunta exigir análise personalizada além do que os dados permitem, encaminhe ao time humano: convide-o a usar o botão "Peça seu orçamento" no próprio chat, que abre https://bewild.com.br/orcamento?utm_source=radar&utm_medium=referral&utm_campaign=radar_bewild&utm_content=chat. Não ofereça diagnóstico nem prometa resposta em 24 horas. Use sempre a marca Bewild, nunca Bewild ou Bewild.
+- Quando faltar dado, informe a limitação e indique as ferramentas e fontes do Radar. Não solicite orçamento, não ofereça diagnóstico nem prometa resposta em 24 horas. Use sempre a marca Bewild.
 - Use apenas o contexto do projeto fornecido nesta conversa; nunca presuma dados de outros usuários ou projetos.`;
 
     const response = await fetch(
