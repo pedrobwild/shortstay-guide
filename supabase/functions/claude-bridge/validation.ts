@@ -1,4 +1,5 @@
 type Rule = (value: unknown) => boolean;
+const hasOwn = (value: object, key: PropertyKey) => Object.prototype.hasOwnProperty.call(value, key);
 const text = (max = 200): Rule => (v) => typeof v === 'string' && v.trim().length > 0 && v.length <= max;
 const number = (min = 0, max = 1_000_000_000): Rule => (v) => typeof v === 'number' && Number.isFinite(v) && v >= min && v <= max;
 const integer = (max = 10_000_000): Rule => (v) => number(0, max)(v) && Number.isInteger(v);
@@ -39,7 +40,7 @@ const rawRules: Record<string, Rule> = {
 export const BRIDGE_RULES = { bairro_airbnb_sp: bairroRules, raw_listings: rawRules };
 export type BridgeTable = keyof typeof BRIDGE_RULES;
 export function bridgeTable(value: unknown): value is BridgeTable {
-  return typeof value === 'string' && Object.hasOwn(BRIDGE_RULES, value);
+  return typeof value === 'string' && hasOwn(BRIDGE_RULES, value);
 }
 export function validateRows(table: BridgeTable, value: unknown): Record<string, unknown>[] {
   if (!Array.isArray(value) || value.length === 0 || value.length > 1000) throw new Error('Envie entre 1 e 1000 linhas.');
@@ -50,10 +51,10 @@ export function validateRows(table: BridgeTable, value: unknown): Record<string,
   return value.map((row) => {
     if (!row || typeof row !== 'object' || Array.isArray(row)) throw new Error('Linha inválida.');
     const input = row as Record<string, unknown>;
-    if (required.some((key) => !Object.hasOwn(input, key))) throw new Error('Campos obrigatórios ausentes.');
+    if (required.some((key) => !hasOwn(input, key))) throw new Error('Campos obrigatórios ausentes.');
     const clean: Record<string, unknown> = {};
     for (const [key, v] of Object.entries(input)) {
-      if (!Object.hasOwn(rules, key) || !rules[key](v)) throw new Error('Campo não permitido ou valor inválido.');
+      if (!hasOwn(rules, key) || !rules[key](v)) throw new Error('Campo não permitido ou valor inválido.');
       clean[key] = v;
     }
     if (table === 'bairro_airbnb_sp' && (String(clean.periodo_inicio) > String(clean.periodo_fim) || Number(clean.n_listings_studio_1q) > Number(clean.n_listings_total))) throw new Error('Período ou contagem inválida.');
@@ -63,13 +64,13 @@ export function validateRows(table: BridgeTable, value: unknown): Record<string,
 export function validateSelect(table: BridgeTable, payload: Record<string, unknown>) {
   const allowed = BRIDGE_RULES[table];
   const columns = payload.columns ?? '*';
-  if (typeof columns !== 'string' || (columns !== '*' && !columns.split(',').every((c) => Object.hasOwn(allowed, c.trim()) || (table === 'bairro_airbnb_sp' && c.trim() === 'id')))) throw new Error('Colunas inválidas.');
+  if (typeof columns !== 'string' || (columns !== '*' && !columns.split(',').every((c) => hasOwn(allowed, c.trim()) || (table === 'bairro_airbnb_sp' && c.trim() === 'id')))) throw new Error('Colunas inválidas.');
   const limit = payload.limit ?? 100;
   if (typeof limit !== 'number' || !Number.isInteger(limit) || limit < 1 || limit > 500) throw new Error('Limite inválido (1 a 500).');
   const filters = payload.filters ?? {};
   if (!filters || typeof filters !== 'object' || Array.isArray(filters)) throw new Error('Filtros inválidos.');
   for (const [key, value] of Object.entries(filters)) {
-    if (!Object.hasOwn(allowed, key) || !allowed[key](value)) throw new Error('Filtro não permitido.');
+    if (!hasOwn(allowed, key) || !allowed[key](value)) throw new Error('Filtro não permitido.');
   }
   return { columns, limit, filters: filters as Record<string, unknown> };
 }
