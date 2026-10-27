@@ -21,6 +21,7 @@ const FROM_DOMAIN = "notify.bewild.com.br"
 const SITE_URL = "https://radarbewild.com.br"
 
 // Template mapping for preview mode
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- modelos gerados possuem propriedades distintas no modo de prévia
 const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
   signup: SignupEmail,
   invite: InviteEmail,
