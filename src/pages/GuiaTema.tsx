@@ -21,6 +21,8 @@ import { GuideDecisionProvider } from "@/hooks/useGuideDecision";
 import { Button } from "@/components/ui/button";
 import { TEMAS_GUIA, temaPorSlug, type SlugTemaGuia } from "@/data/temasGuia";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
+import ClientOnly from "@/components/ClientOnly";
+import PedidoMaterial from "@/components/captacao/PedidoMaterial";
 
 
 /** Seção do guia que cada tema renderiza por completo (mesmo componente da home, em modo página). */
@@ -35,6 +37,9 @@ const SECOES: Record<SlugTemaGuia, ComponentType> = {
   reforma: ReformaSection,
   checklist: ChecklistSection,
 };
+
+/** Temas que terminam com a oferta do checklist por e-mail (captura leve, P0.2). */
+const TEMAS_COM_CHECKLIST: ReadonlySet<SlugTemaGuia> = new Set<SlugTemaGuia>(["checklist", "escolha-do-ativo"]);
 
 /**
  * Conteúdo da página de um tema (sem navbar e rodapé), também usado pela
@@ -57,6 +62,14 @@ export function ConteudoTema({ slug }: { slug: SlugTemaGuia }) {
           <span className="text-foreground">{tema.titulo}</span>
         </nav>
         <Secao />
+        {/* Fora do HTML estático: o formulário só funciona com o app carregado (e nunca põe o e-mail na URL). */}
+        {TEMAS_COM_CHECKLIST.has(slug) && (
+          <ClientOnly>
+            <div className="py-6">
+              <PedidoMaterial material="checklist_compra" origem="guia" />
+            </div>
+          </ClientOnly>
+        )}
         <div className="regua flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p className="e-h3">Próximo passo</p>

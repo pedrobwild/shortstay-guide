@@ -21,6 +21,7 @@ import BairroSomenteRadar from "@/components/intelligence/BairroSomenteRadar";
 import EstimativaBairro from "@/components/intelligence/EstimativaBairro";
 import PrecoImovelBairro from "@/components/intelligence/PrecoImovelBairro";
 import OrcamentoButton from "@/components/OrcamentoButton";
+import PedidoMaterial from "@/components/captacao/PedidoMaterial";
 import { Button } from "@/components/ui/button";
 import { ARTIGOS_BEWILD } from "@/data/artigosBewild";
 import { ROTULO_ESTIMATIVA_MERCADO } from "@/data/bairrosCurados";
@@ -160,6 +161,9 @@ function PaginaBairro() {
             <Link to="/mapa" className="e-link inline-flex min-h-[44px] items-center">Abrir o mapa</Link>
           </p>
         </CabecalhoTela>
+        <Secao id="checklist-compra" rotulo="Antes de comprar">
+          <PedidoMaterial material="checklist_compra" origem="bairro" bairro={nome} />
+        </Secao>
         <Secao id="proximo-passo" rotulo="Próximo passo">
           <div className="space-y-10">
             <ProximoPassoBairro bairro={nome} />
@@ -261,6 +265,10 @@ function PaginaBairro() {
         <div className="mt-10">
           <FaixaQuartisBairro bairro={b.name} />
         </div>
+      </Secao>
+
+      <Secao id="checklist-compra" rotulo="Antes de comprar">
+        <PedidoMaterial material="checklist_compra" origem="bairro" bairro={b.name} />
       </Secao>
 
       <Secao
