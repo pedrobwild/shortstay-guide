@@ -25,7 +25,7 @@ export default function MidPageCTA({ variant = "default" }: { variant?: "default
             {principal.destino.startsWith("#") ? <a href={principal.destino}>{principal.rotulo}</a> : <Link to={principal.destino}>{principal.rotulo}</Link>}
           </Button>
           <Button asChild variant="outline" className="min-h-[44px] px-[18px] font-semibold" onClick={() => trackGlobal("cta_clicked", { cta_id: "ferramentas", section: `midpage_${variant}` })}>
-            <Link to="/ferramentas">Ferramentas</Link>
+            <Link to="/ferramentas">Comprar imóvel</Link>
           </Button>
         </div>
       </div>

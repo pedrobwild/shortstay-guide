@@ -18,7 +18,7 @@ export const LINKS_PUBLICOS: LinkNavegacao[] = [
   { to: "/ranking", label: "Ranking", id: "ranking" },
   { to: "/comparar", label: "Comparar", id: "comparar" },
   { to: "/projecao", label: "Simular", id: "simular" },
-  { to: "/ferramentas", label: "Ferramentas", id: "ferramentas" },
+  { to: "/ferramentas", label: "Comprar imóvel", id: "ferramentas" },
   { to: "/posts", label: "Posts", id: "posts" },
 ];
 
