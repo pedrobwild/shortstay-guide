@@ -1,8 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { orcamentoUrl } from "@/lib/orcamento";
 
-beforeEach(() => { vi.resetModules(); localStorage.clear(); document.head.innerHTML = ""; window.history.replaceState({}, "", "/"); window.dataLayer = []; delete window.fbq; delete window.gtag; });
+beforeEach(() => { vi.unstubAllEnvs(); vi.stubEnv("VITE_LOVABLE_CONNECTOR_GOOGLE_ANALYTICS_API_KEY", ""); vi.resetModules(); localStorage.clear(); document.head.innerHTML = ""; window.history.replaceState({}, "", "/"); window.dataLayer = []; delete window.fbq; delete window.gtag; });
 describe("medição consentida", () => {
+  it("usa o GA4 conectado e bloqueia essa propriedade ao entrar no admin", async () => {
+    vi.stubEnv("VITE_LOVABLE_CONNECTOR_GOOGLE_ANALYTICS_API_KEY", "G-CONNECTED123");
+    const m = await import("@/lib/marketingConsent");
+    expect(m.GA_ID).toBe("G-CONNECTED123");
+    m.saveConsent("accepted");
+    const commands = window.dataLayer?.map((a) => Array.from(a as ArrayLike<unknown>));
+    expect(commands).toContainEqual(["config", "G-CONNECTED123", { send_page_view: false }]);
+    window.history.replaceState({}, "", "/admin");
+    m.syncMeasurement();
+    expect(window["ga-disable-G-CONNECTED123"]).toBe(true);
+    expect(m.canMeasure()).toBe(false);
+  });
   it("começa com armazenamento negado, sem carregar rastreadores", async () => {
     const m = await import("@/lib/marketingConsent"); m.syncMeasurement();
     expect(m.canMeasure()).toBe(false); expect(document.querySelectorAll("script").length).toBe(0);
