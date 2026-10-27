@@ -13,6 +13,8 @@ export const ESTUDO_REFORMA_DATA = "out/2026";
 
 /** Contratos de reforma completa analisados (estudo out/2026). */
 export const CONTRATOS_ANALISADOS = 188;
+/** Como o estudo é citado nas telas: um histórico de contratos, com data (nunca "tabela vigente"). */
+export const ROTULO_ESTUDO_REFORMA = `histórico de ${CONTRATOS_ANALISADOS} contratos de reforma completa (${ESTUDO_REFORMA_DATA})`;
 /** Orçamento mediano, R$ (estudo out/2026). */
 export const ORCAMENTO_MEDIANO = 71850;
 /** Área mediana dos contratos, m² (estudo out/2026). */
@@ -116,7 +118,7 @@ export const num = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDig
 
 // ── Textos derivados (reusados em FAQ, JSON-LD e seções) ─────────
 export const RESPOSTA_CUSTO_REFORMA =
-  `Na análise de ${CONTRATOS_ANALISADOS} contratos de reforma completa da Bewild em São Paulo, ` +
+  `No ${ROTULO_ESTUDO_REFORMA} da Bewild em São Paulo, ` +
   `o orçamento mediano foi de ${brl(ORCAMENTO_MEDIANO)} para ${num(AREA_MEDIANA_M2)} m², ` +
   `já com projeto, obra, marcenaria sob medida, mobiliário e eletrodomésticos. ` +
   `Metade dos contratos ficou entre ${brl(CUSTO_M2_P25)} e ${brl(CUSTO_M2_P75)} por m², ` +
@@ -125,7 +127,7 @@ export const RESPOSTA_CUSTO_REFORMA =
 export const RESPOSTA_INVESTIMENTO_TOTAL =
   `Um studio de ${STUDIO_EXEMPLO_M2} m² ao preço médio de venda FipeZap ` +
   `(${brl(FIPEZAP_M2)}/m², ${FIPEZAP_DATA}) custa cerca de ${milReais(STUDIO_EXEMPLO_IMOVEL)}. ` +
-  `Somando a hipótese de ITBI de 3% (≈ ${milReais(STUDIO_EXEMPLO_ITBI)}) e a reforma completa mediana da Bewild ` +
+  `Somando a hipótese de ITBI de 3% (≈ ${milReais(STUDIO_EXEMPLO_ITBI)}) e a reforma mediana do ${ROTULO_ESTUDO_REFORMA} ` +
   `(${brl(ORCAMENTO_MEDIANO)}), o total fica em torno de ${milReais(STUDIO_EXEMPLO_TOTAL)} — ` +
   `a reforma é cerca de ${num(STUDIO_EXEMPLO_PCT_REFORMA)}% do investimento.`;
 

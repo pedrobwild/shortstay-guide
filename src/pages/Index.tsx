@@ -24,8 +24,8 @@ import { TEMAS_GUIA, caminhoTema, type SlugTemaGuia } from "@/data/temasGuia";
 import { linkSimuladorBairro } from "@/data/navegacao";
 import { COLETA_GUESTFAVORITES } from "@/data/fontesGuia";
 import {
-  AREA_MEDIANA_M2, CONTRATOS_ANALISADOS, CUSTO_M2_P25, CUSTO_M2_P75, ESTUDO_REFORMA_DATA, ESTUDO_REFORMA_URL,
-  GARANTIA_ANOS, ORCAMENTO_MEDIANO, PRAZO_DIAS_UTEIS_MAX, PRAZO_DIAS_UTEIS_MIN, SELO_BAIRROS, SELO_PROJETOS, SELO_REFORMAS,
+  AREA_MEDIANA_M2, CUSTO_M2_P25, CUSTO_M2_P75, ESTUDO_REFORMA_URL,
+  GARANTIA_ANOS, ORCAMENTO_MEDIANO, PRAZO_DIAS_UTEIS_MAX, PRAZO_DIAS_UTEIS_MIN, ROTULO_ESTUDO_REFORMA, SELO_BAIRROS, SELO_PROJETOS, SELO_REFORMAS,
 } from "@/data/provasBewild";
 import { definirMomento, useMomento } from "@/lib/momento";
 import { definirBairroAtual } from "@/lib/bairroAtual";
@@ -123,7 +123,7 @@ function IndexInner() {
                 <p className="e-rotulo mb-3">Radar Bewild · estudo aberto</p>
                 <h1 id="hero-titulo" className="e-h1-home text-balance">Studios para short stay em São Paulo, bairro a bairro</h1>
                 <p className="e-lead mt-4 max-w-[620px] text-pretty lg:mt-5">
-                  Diária, ocupação e receita de referência de {bairros.length} bairros, com fonte e data, e o custo de {CONTRATOS_ANALISADOS} reformas de studio da Bewild.
+                  Diária, ocupação e receita de referência de {bairros.length} bairros, com fonte e data, e o custo de reforma no {ROTULO_ESTUDO_REFORMA} da Bewild.
                 </p>
               </div>
               <div className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
@@ -195,7 +195,7 @@ function IndexInner() {
                 Reforma completa de um studio: <span className="whitespace-nowrap">{formatBRL(ORCAMENTO_MEDIANO)}</span> na mediana, de {PRAZO_DIAS_UTEIS_MIN} a {PRAZO_DIAS_UTEIS_MAX} dias úteis
               </h2>
               <p className="e-apoio mt-3 max-w-[620px] text-pretty">
-                Estudo Bewild com {CONTRATOS_ANALISADOS} contratos turnkey em São Paulo ({ESTUDO_REFORMA_DATA}): projeto, obra, marcenaria sob medida, mobiliário, eletrodomésticos e enxoval.
+                Escopo no {ROTULO_ESTUDO_REFORMA} da Bewild em São Paulo: projeto, obra, marcenaria sob medida, mobiliário, eletrodomésticos e enxoval.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-6">
                 <Button asChild variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold">

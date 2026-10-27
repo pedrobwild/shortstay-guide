@@ -12,7 +12,7 @@ import { BairroProvider } from "@/hooks/useBairroData";
 import { GuideDecisionProvider } from "@/hooks/useGuideDecision";
 import { useBaseEstudo } from "@/hooks/useBaseEstudo";
 import { PERFIS_RADAR } from "@/data/perfisRadar";
-import { CONTRATOS_ANALISADOS } from "@/data/provasBewild";
+import { ROTULO_ESTUDO_REFORMA } from "@/data/provasBewild";
 import { COLETA_GUESTFAVORITES } from "@/data/fontesGuia";
 
 /**
@@ -43,7 +43,7 @@ function FerramentasInner() {
       <CabecalhoTela
         rotulo="Compra · planejamento do investidor"
         titulo="Comprar imóvel"
-        lead={<>Cada ferramenta usa uma fonte declarada: as taxas dos bancos consultadas em {TAXAS_CONSULTADAS_EM.split("-").reverse().join("/")}, o estudo de {CONTRATOS_ANALISADOS} contratos de reforma da Bewild e a base de {bairros.length} bairros do Radar. Premissas suas ficam marcadas como hipótese.</>}
+        lead={<>Cada ferramenta usa uma fonte declarada: as taxas dos bancos consultadas em {TAXAS_CONSULTADAS_EM.split("-").reverse().join("/")}, o {ROTULO_ESTUDO_REFORMA} da Bewild e a base de {bairros.length} bairros do Radar. Premissas suas ficam marcadas como hipótese.</>}
       >
         <nav aria-label="Ferramentas nesta página">
           <ol className="grid gap-x-10 gap-y-2 border-t border-foreground pt-3 sm:grid-cols-3">
@@ -82,7 +82,7 @@ function FerramentasInner() {
         id="reformar"
         rotulo={rotuloPerfil("reformar")}
         titulo="Estime a reforma completa pela área do seu imóvel"
-        lead={`Faixa de custo e prazo em contrato a partir de ${CONTRATOS_ANALISADOS} contratos de reforma completa da Bewild em São Paulo. É uma estimativa do estudo, não um orçamento do seu projeto.`}
+        lead={`Faixa de custo e prazo em contrato a partir do ${ROTULO_ESTUDO_REFORMA} da Bewild em São Paulo. É uma estimativa do estudo, não um orçamento do seu projeto.`}
       >
         <FerramentaReformar />
       </Secao>

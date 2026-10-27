@@ -23,6 +23,7 @@ import { useSimuladorReceita } from "@/hooks/useSimuladorReceita";
 import { trackSimulationUsed } from "@/lib/marketingConsent";
 import { COLETA_GUESTFAVORITES } from "@/data/fontesGuia";
 import { TEXTO_DRE_PERCENTUAIS, TEXTO_INVESTIMENTO_TOTAL } from "@/data/dreGuia";
+import { ROTULO_ESTUDO_REFORMA } from "@/data/provasBewild";
 import { ACQUISITION_COSTS } from "@/lib/financiamento";
 import { DEFAULT_SP_SEASONALITY } from "@/lib/projectAnalytics";
 import { indicadores, LIMITES, LIMITES_MERCADO, mesAMes, SHORT_STAY_PADRAO, type MesSimulado } from "@/lib/simuladorReceita";
@@ -166,7 +167,7 @@ export default function ProjecaoStudio() {
                     valor={reforma}
                     onChange={(v) => { if (v == null) atualizar({ reforma: null }); else if (dentro(v, LIMITES_MERCADO.reforma)) atualizar({ reforma: v }); }}
                     tag={<Tag tipo="hipotese" />}
-                    ajuda={sugestaoReforma && !reformaAjustada ? `Sugestão: ${sugestaoReforma.areaM2} m² × ${formatBRL(sugestaoReforma.custoM2)}/m², a partir do estudo Bewild; sobe com a diária.` : "Valor informado por você."}
+                    ajuda={sugestaoReforma && !reformaAjustada ? `Sugestão: ${sugestaoReforma.areaM2} m² × ${formatBRL(sugestaoReforma.custoM2)}/m², a partir do ${ROTULO_ESTUDO_REFORMA} da Bewild; sobe com a diária.` : "Valor informado por você."}
                   />
                   {reformaAjustada && sugestaoReforma && (
                     <button type="button" onClick={() => atualizar({ reforma: null })} className="e-link inline-flex min-h-[44px] items-center text-[15px]">Voltar à sugestão ({formatBRL(sugestaoReforma.valor)})</button>

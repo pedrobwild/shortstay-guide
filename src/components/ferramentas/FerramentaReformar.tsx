@@ -7,8 +7,8 @@ import { TabelaNumerada, TD, TD_NUM, TH } from "@/components/estudo/Figura";
 import BarraEmpilhada from "@/components/estudo/graficos/BarraEmpilhada";
 import CampoNumero from "@/components/ferramentas/CampoNumero";
 import {
-  AREA_MEDIANA_M2, CONTRATOS_ANALISADOS, CUSTO_M2_MEDIANO, CUSTO_M2_P25, CUSTO_M2_P75, ESCOPO_REFORMA_COMPLETA,
-  ESTUDO_REFORMA_DATA, ESTUDO_REFORMA_URL, ORCAMENTO_MEDIANO, ORCAMENTO_MINIMO_BASE,
+  AREA_MEDIANA_M2, CUSTO_M2_MEDIANO, CUSTO_M2_P25, CUSTO_M2_P75, ESCOPO_REFORMA_COMPLETA,
+  ESTUDO_REFORMA_URL, ORCAMENTO_MEDIANO, ORCAMENTO_MINIMO_BASE, ROTULO_ESTUDO_REFORMA,
 } from "@/data/provasBewild";
 import { AREA_MAX_M2, AREA_MIN_M2, estimativaReformaCompleta, limitarArea, listaPt } from "@/lib/estudoFerramentas";
 import { formatBRL, formatDecimal } from "@/lib/numberFormat";
@@ -130,7 +130,7 @@ export default function FerramentaReformar() {
               unidade={`Área × custo por m² do estudo, arredondado a R$ 500; valores abaixo de ${formatBRL(ORCAMENTO_MINIMO_BASE)} sobem para o piso.`}
               nota={
                 <>
-                  Fonte: estudo Bewild de {ESTUDO_REFORMA_DATA}, {CONTRATOS_ANALISADOS} contratos de reforma completa em São Paulo (mediana de {formatBRL(ORCAMENTO_MEDIANO)} para {formatDecimal(AREA_MEDIANA_M2, 1)} m²).{" "}
+                  Fonte: {ROTULO_ESTUDO_REFORMA} da Bewild em São Paulo (mediana de {formatBRL(ORCAMENTO_MEDIANO)} para {formatDecimal(AREA_MEDIANA_M2, 1)} m²).{" "}
                   <a href={ESTUDO_REFORMA_URL} target="_blank" rel="noopener noreferrer" className="e-link">Ver o estudo<NovaAba /></a>
                   {e.algumNoPiso && <span className="e-amostra mt-1 block not-italic">Nessa área a conta fica abaixo de {formatBRL(ORCAMENTO_MINIMO_BASE)} em pelo menos um ponto da faixa: nenhum contrato do estudo ficou abaixo de {formatBRL(ORCAMENTO_MINIMO_BASE)}, então o valor sobe para o piso.</span>}
                 </>

@@ -8,7 +8,7 @@ import AvisoBase from "@/components/radar/AvisoBase";
 import { BairroProvider } from "@/hooks/useBairroData";
 import { useBaseEstudo } from "@/hooks/useBaseEstudo";
 import { perfilDoMomento } from "@/data/perfisRadar";
-import { CONTRATOS_ANALISADOS } from "@/data/provasBewild";
+import { ROTULO_ESTUDO_REFORMA } from "@/data/provasBewild";
 import type { BairroCurado } from "@/data/bairrosCurados";
 
 type Etapa = "reformar" | "tenho";
@@ -24,7 +24,7 @@ export function ConteudoPerfil({ etapa, bairros, aviso }: { etapa: Etapa; bairro
         rotulo={`${perfil.numero} · ${perfil.rotulo}`}
         titulo={reforma ? "Planeje a reforma do seu studio" : "Acompanhe a operação do seu studio"}
         lead={reforma
-          ? `Custo, escopo e prazo: uma referência dos ${CONTRATOS_ANALISADOS} contratos do estudo Bewild para planejar o imóvel que você já tem.`
+          ? `Custo, escopo e prazo: uma referência do ${ROTULO_ESTUDO_REFORMA} da Bewild para planejar o imóvel que você já tem.`
           : "Compare seus resultados com os dados do bairro e avalie o que sobra depois dos custos, sem tratar receita de referência como garantia."}
       >
         <nav aria-label="Etapas do investidor" className="flex flex-wrap gap-3 border-t border-foreground pt-4">
