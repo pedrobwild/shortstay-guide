@@ -41,8 +41,8 @@ function FerramentasInner() {
   return (
     <>
       <CabecalhoTela
-        rotulo="Ferramentas · uma por etapa"
-        titulo="Faça a conta da sua etapa: financiamento, reforma ou operação."
+        rotulo="Compra · planejamento do investidor"
+        titulo="Comprar imóvel"
         lead={<>Cada ferramenta usa uma fonte declarada: as taxas dos bancos consultadas em {TAXAS_CONSULTADAS_EM.split("-").reverse().join("/")}, o estudo de {CONTRATOS_ANALISADOS} contratos de reforma da Bewild e a base de {bairros.length} bairros do Radar. Premissas suas ficam marcadas como hipótese.</>}
       >
         <nav aria-label="Ferramentas nesta página">

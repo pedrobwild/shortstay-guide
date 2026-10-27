@@ -107,7 +107,7 @@ const pages = [
 // Links internos do HTML estático: todas as páginas públicas, para robôs e leitores sem JavaScript.
 const nav = [
   ["/", "Guia"], ["/mercado", "Mercado"], ["/ranking", "Ranking de bairros"], ["/mapa", "Mapa"], ["/comparar", "Comparar bairros"],
-  ["/anuncios", "Anúncios"], ["/projecao", "Simulador"], ["/ferramentas", "Ferramentas"],
+  ["/anuncios", "Anúncios"], ["/projecao", "Simulador"], ["/ferramentas", "Comprar imóvel"],
   ["/posts", "Posts"],
   ["/reformar", "Vou reformar"], ["/operar", "Já opero"],
   ...seo.routes.filter((r) => r.path.startsWith("/guia/")).map((r) => [r.path, r.h1]),
