@@ -2,6 +2,7 @@ import { useState } from "react";
 import AirbnbICalPanel from "@/components/ota/AirbnbICalPanel";
 import ProjectAnalytics from "@/components/ota/ProjectAnalytics";
 import ScenarioComparator from "@/components/ota/ScenarioComparator";
+import SimulacaoGuardada from "@/components/ota/SimulacaoGuardada";
 import AppNavbar from "@/components/AppNavbar";
 import { BairroProvider } from "@/hooks/useBairroData";
 import { useParams, Link } from "react-router-dom";
@@ -43,6 +44,9 @@ export default function ProjectDetail() {
               Potencial de receita, calendários e cenários de investimento do imóvel.
             </p>
           </div>
+
+          {/* Simulação guardada em "Guardar no Painel": reabre a mesma conta na /projecao */}
+          <SimulacaoGuardada projectId={projectId} />
 
           {/* Painel de integração Airbnb */}
           <AirbnbICalPanel

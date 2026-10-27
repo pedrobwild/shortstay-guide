@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import type { SimuladorReceita } from "@/hooks/useSimuladorReceita";
 import { criarProjetoDaSimulacao, savePendingProvision } from "@/lib/leadProvisioning";
+import { intentDaSimulacao } from "@/lib/projetoSimulacao";
 import { trackSimulationShared } from "@/lib/marketingConsent";
 import { formatBRL, formatDecimal, formatPercent } from "@/lib/numberFormat";
 import { avisoAmostraBairro, descricaoNatureza } from "@/lib/radarUi";
@@ -97,7 +98,8 @@ export default function AcoesSimulacao({ sim, resultado, indicadores }: {
   const remover = (id: string) => { const lista = cenarios.filter((c) => c.id !== id); setCenarios(lista); salvarCenarios(lista, armazenamentoLocal()); };
 
   const guardarNoPainel = async () => {
-    const intent = { neighborhood: nomeBairro, area_sqm: p.area };
+    // p.bairro é null enquanto a tela usa o bairro padrão: guarda o bairro exibido, para o projeto reabrir a mesma conta.
+    const intent = intentDaSimulacao({ ...p, bairro: bairro?.name ?? p.bairro }, bairro?.coletadoEm ?? null);
     trackGlobal("cta_clicked", { cta_id: user ? "guardar_painel" : "criar_conta_simulacao", section: "projecao", bairro: nomeBairro });
     if (!user) { savePendingProvision(intent); navigate("/signup?origem=simulador"); return; }
     setGuardando(true);
