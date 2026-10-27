@@ -11,6 +11,7 @@ import { TabelaBairrosEstatica, BairroEstatico } from "./components/PreRenderMer
 import { ConteudoTema } from "./pages/GuiaTema";
 import { temaPorSlug } from "./data/temasGuia";
 import { ConteudoMetodologia } from "./pages/Metodologia";
+import { ConteudoPerfil } from "./pages/PerfilDestino";
 import { csvDadosAbertos, datasetJsonLd, jsonDadosAbertos, linhasDadosAbertos } from "./lib/dadosAbertos";
 import { bairrosReserva } from "./lib/radarBase";
 import { bairroDescription, bairroH1, bairroTitle, tituloComMarca, OG_IMAGEM, OG_IMAGEM_ALT, ROBOTS_INDEXAVEL, ROBOTS_NOINDEX, caminhoCanonico } from "./lib/seo";
@@ -26,6 +27,15 @@ export {
 
 /** HTML estático das páginas de dados (/ranking, /mercado, /bairro/*); o app o substitui ao abrir. */
 export function renderEstatico(p: { path: string; h1: string; description: string; bairro?: string }): string | null {
+  if (p.path === "/reformar" || p.path === "/operar") {
+    return renderToStaticMarkup(
+      <AppShell helmetContext={{}}>
+        <StaticRouter location={p.path}>
+          <ConteudoPerfil etapa={p.path === "/reformar" ? "reformar" : "tenho"} bairros={bairrosReserva()} />
+        </StaticRouter>
+      </AppShell>,
+    );
+  }
   if (p.path === "/ranking" || p.path === "/mercado") return renderToStaticMarkup(<TabelaBairrosEstatica h1={p.h1} descricao={p.description} />);
   if (p.bairro) return renderToStaticMarkup(<BairroEstatico nome={p.bairro} h1={p.h1} descricao={p.description} />);
   // /guia/<tema>: a seção completa (mesmo componente da home) com links e fontes; o app a substitui ao abrir.
