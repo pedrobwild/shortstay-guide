@@ -19,7 +19,13 @@ function getDeviceType(): string {
   return "desktop";
 }
 
-export function useGuideAnalytics() {
+/**
+ * `page` é o caminho gravado em cada evento; sem ele vale window.location.pathname.
+ * Fica numa ref para o `trackEvent` continuar estável a cada troca de rota.
+ */
+export function useGuideAnalytics({ page }: { page?: string } = {}) {
+  const pageRef = useRef<string | undefined>(page);
+  pageRef.current = page;
   const sessionId = useRef(crypto.randomUUID());
   const buffer = useRef<EventPayload[]>([]);
   const flushTimer = useRef<ReturnType<typeof setInterval>>();
@@ -51,7 +57,7 @@ export function useGuideAnalytics() {
         event_data: eventData,
         session_id: sessionId.current,
         device_type: getDeviceType(),
-        page: "guide",
+        page: pageRef.current ?? window.location.pathname,
         created_at: new Date().toISOString(),
       });
     },

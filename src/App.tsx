@@ -15,6 +15,7 @@ import bwildLogo from "@/assets/bewild-logo.webp";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import PostLoginProvision from "@/components/PostLoginProvision";
+import MedicaoGlobal from "@/components/MedicaoGlobal";
 
 import { rotaHome } from "./rotaHome";
 const MapaBairros = lazy(() => import("./pages/MapaBairros"));
@@ -169,6 +170,7 @@ export function AppRoutes() {
       <ScrollToHash />
       <ClientOnly><CookieConsent /></ClientOnly>
       <PostLoginProvision />
+      <MedicaoGlobal />
       <Suspense fallback={<PageFallback />}>
         <RouteSeo />
         <Routes>

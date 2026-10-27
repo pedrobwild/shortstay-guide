@@ -15,7 +15,7 @@ import SeletorBairro from "@/components/estudo/SeletorBairro";
 import FaixaPosicao from "@/components/estudo/graficos/FaixaPosicao";
 import { LegendaPontos } from "@/components/estudo/graficos/LegendaPontos";
 import { Button } from "@/components/ui/button";
-import { useGuideAnalytics, setGlobalTrack, setGlobalSessionId, trackGlobal } from "@/hooks/useGuideAnalytics";
+import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { BairroProvider } from "@/hooks/useBairroData";
 import { useBaseEstudo } from "@/hooks/useBaseEstudo";
 import { useBairroSelecionado } from "@/hooks/useBairroSelecionado";
@@ -64,20 +64,9 @@ const TEMAS_DESTAQUE: SlugTemaGuia[] = ["escolha-do-ativo", "rentabilidade", "re
 /** Perguntas visíveis de cara; as demais ficam em "Mais perguntas" (continuam no HTML). */
 const FAQ_VISIVEIS = 5;
 
+/** A telemetria global (page_view e trackGlobal) vive em MedicaoGlobal, no App; a home só acrescenta os marcos de rolagem. */
 function useMedicaoHome() {
-  const { trackEvent, sessionId } = useGuideAnalytics();
   const marcos = useRef(new Set<string>());
-  useEffect(() => {
-    setGlobalTrack(trackEvent);
-    setGlobalSessionId(sessionId);
-    return () => {
-      setGlobalTrack(null);
-      setGlobalSessionId(null);
-    };
-  }, [trackEvent, sessionId]);
-  useEffect(() => {
-    trackEvent("page_view", { referrer: document.referrer, ua: navigator.userAgent });
-  }, [trackEvent]);
   useEffect(() => {
     const aoRolar = () => {
       const total = document.documentElement.scrollHeight - window.innerHeight;
@@ -86,13 +75,13 @@ function useMedicaoHome() {
       for (const m of [25, 50, 75, 100]) {
         if (pct >= m && !marcos.current.has(`scroll_${m}`)) {
           marcos.current.add(`scroll_${m}`);
-          trackEvent(`scroll_${m}`, {});
+          trackGlobal(`scroll_${m}`, {});
         }
       }
     };
     window.addEventListener("scroll", aoRolar, { passive: true });
     return () => window.removeEventListener("scroll", aoRolar);
-  }, [trackEvent]);
+  }, []);
 }
 
 /** Links antigos para o simulador da home (/?bairro=x#simulador, compartilhados antes do redesign) seguem para /projecao. */
