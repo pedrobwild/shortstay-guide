@@ -3,7 +3,7 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { MemoryRouter } from "react-router-dom";
 
-const { mockRegistrar, mockTrack } = vi.hoisted(() => ({ mockRegistrar: vi.fn(), mockTrack: vi.fn() }));
+const { mockRegistrar, mockTrack, mockCanMeasure } = vi.hoisted(() => ({ mockRegistrar: vi.fn(), mockTrack: vi.fn(), mockCanMeasure: vi.fn(() => true) }));
 
 vi.mock("@/integrations/supabase/client", () => ({ supabase: { from: () => ({ insert: async () => ({ error: null }) }) } }));
 vi.mock("@/lib/pedidosMaterial", async (original) => ({
@@ -11,6 +11,7 @@ vi.mock("@/lib/pedidosMaterial", async (original) => ({
   registrarPedido: mockRegistrar,
 }));
 vi.mock("@/hooks/useGuideAnalytics", () => ({ trackGlobal: mockTrack, getGlobalSessionId: () => "sessao-1" }));
+vi.mock("@/lib/marketingConsent", () => ({ canMeasure: mockCanMeasure }));
 
 import PedidoMaterial from "@/components/captacao/PedidoMaterial";
 
@@ -46,6 +47,7 @@ function digitar(input: HTMLInputElement, valor: string) {
 }
 
 const email = (el: HTMLElement) => el.querySelector<HTMLInputElement>('input[type="email"]')!;
+const nome = (el: HTMLElement) => el.querySelector<HTMLInputElement>('input[autocomplete="given-name"]')!;
 const botao = (el: HTMLElement) => [...el.querySelectorAll("button")].find((b) => b.textContent === "Receber meu checklist")!;
 const linkChecklist = (el: HTMLElement) => [...el.querySelectorAll("a")].find((a) => a.getAttribute("href") === "/guia/checklist");
 
@@ -56,6 +58,8 @@ async function enviar(el: HTMLElement) {
 beforeEach(() => {
   mockRegistrar.mockReset();
   mockTrack.mockReset();
+  mockCanMeasure.mockReset();
+  mockCanMeasure.mockReturnValue(true);
   localStorage.clear();
 });
 afterEach(() => {
@@ -92,15 +96,31 @@ describe("PedidoMaterial", () => {
     mockRegistrar.mockResolvedValueOnce("ok");
     const el = await montar();
     digitar(email(el), " pedro@bewild.com.br ");
+    digitar(nome(el), " Joaquina ");
     await enviar(el);
     expect(mockRegistrar).toHaveBeenCalledWith({
-      email: "pedro@bewild.com.br", nome: null, material: "checklist_compra", etapa: "procurando", bairro: "Mooca",
+      email: "pedro@bewild.com.br", nome: "Joaquina", material: "checklist_compra", etapa: "procurando", bairro: "Mooca",
       boletim: false, consentimento_versao: "2026-10-27", origem: "bairro", sessao: "sessao-1",
     });
     expect(el.textContent).toContain("Pedido registrado. O checklist está aqui:");
     expect(linkChecklist(el)?.textContent).toBe("Checklist antes de comprar o studio");
     expect(mockTrack).toHaveBeenCalledWith("material_solicitado", { material: "checklist_compra", origem: "bairro", boletim: false });
-    expect(JSON.stringify(mockTrack.mock.calls)).not.toContain("pedro@");
+    const medido = JSON.stringify(mockTrack.mock.calls);
+    expect(medido).not.toContain("pedro@");
+    expect(medido).not.toContain("bewild.com.br");
+    expect(medido).not.toContain("Joaquina");
+    // O formulário saiu da tela: o foco vai para o resultado.
+    expect(document.activeElement?.textContent).toContain("Pedido registrado.");
+  });
+
+  it("sem consentimento de medição o pedido é registrado sem a sessão", async () => {
+    mockCanMeasure.mockReturnValue(false);
+    mockRegistrar.mockResolvedValueOnce("ok");
+    const el = await montar();
+    digitar(email(el), "pedro@bewild.com.br");
+    await enviar(el);
+    expect(mockRegistrar.mock.calls[0][0].sessao).toBeNull();
+    expect(el.textContent).toContain("Pedido registrado. O checklist está aqui:");
   });
 
   it("boletim marcado vai no registro; pedido repetido mostra o mesmo sucesso e não mede", async () => {

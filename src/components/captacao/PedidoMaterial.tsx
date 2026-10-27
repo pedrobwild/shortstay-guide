@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getGlobalSessionId, trackGlobal } from "@/hooks/useGuideAnalytics";
+import { canMeasure } from "@/lib/marketingConsent";
 import { lerMomento, type Momento } from "@/lib/momento";
 import {
   MATERIAIS,
@@ -42,9 +43,13 @@ export default function PedidoMaterial({ material, origem, bairro = null }: { ma
   const [etapa, setEtapa] = useState<Momento | null>(null);
   const enviando = useRef(false);
   const emailRef = useRef<HTMLInputElement>(null);
+  const resultadoRef = useRef<HTMLParagraphElement>(null);
 
   // localStorage só depois da montagem (o HTML pré-renderizado não conhece o navegador).
   useEffect(() => { setEtapa(lerMomento()); }, []);
+
+  // No sucesso o formulário sai da tela: o foco do teclado vai para o resultado, não para o topo da página.
+  useEffect(() => { if (estado === "sucesso") resultadoRef.current?.focus(); }, [estado]);
 
   const item = MATERIAIS[material];
   const linkMaterial = <Link to={item.caminho} className="e-link">{item.titulo}</Link>;
@@ -60,7 +65,8 @@ export default function PedidoMaterial({ material, origem, bairro = null }: { ma
     setEmailInvalido(false);
     enviando.current = true;
     setEstado("enviando");
-    const registro = montarPedido({ email, nome, material, etapa, bairro, boletim, origem }, getGlobalSessionId());
+    // A sessão da telemetria só acompanha o pedido com consentimento de medição; o registro funciona sem ela.
+    const registro = montarPedido({ email, nome, material, etapa, bairro, boletim, origem }, canMeasure() ? getGlobalSessionId() : null);
     const resultado = await registrarPedido(registro);
     enviando.current = false;
     if (resultado === "erro") {
@@ -82,7 +88,7 @@ export default function PedidoMaterial({ material, origem, bairro = null }: { ma
       {/* Região sempre presente (sem display:none) para o leitor de tela anunciar o resultado. */}
       <div aria-live="polite">
         {estado === "sucesso" && (
-          <p className="e-corpo mt-6">Pedido registrado. O checklist está aqui: {linkMaterial}</p>
+          <p ref={resultadoRef} tabIndex={-1} className="e-corpo mt-6 outline-none">Pedido registrado. O checklist está aqui: {linkMaterial}</p>
         )}
         {estado === "erro" && (
           <p className="e-corpo mt-6">Não foi possível registrar agora; o checklist continua disponível em {linkMaterial}.</p>

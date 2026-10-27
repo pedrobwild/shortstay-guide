@@ -90,5 +90,7 @@ describe("pedido de material", () => {
   it("o texto do consentimento não promete prazo nem diagnóstico", () => {
     expect(TEXTO_CONSENTIMENTO_MATERIAL).not.toMatch(/24 horas|diagnóstico gratuito/i);
     expect(TEXTO_CONSENTIMENTO_MATERIAL).toContain("bewild.com.br/privacidade");
+    // Nesta rodada não há e-mail enviado (D3): o texto não pode prometer link de cancelamento no e-mail.
+    expect(TEXTO_CONSENTIMENTO_MATERIAL).not.toMatch(/link no e-mail/i);
   });
 });

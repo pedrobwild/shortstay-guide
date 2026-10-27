@@ -21,7 +21,7 @@ export const CONSENTIMENTO_MATERIAL_VERSAO = "2026-10-27";
 /** Proposta do texto (D6, 27/10/2026): o Pedro valida antes de publicar. */
 export const TEXTO_CONSENTIMENTO_MATERIAL =
   "A Bewild usa seu e-mail só para enviar este material e, se você marcar, as próximas análises do Radar Bewild. " +
-  "Você pode cancelar a qualquer momento pelo link no e-mail. Política de privacidade: bewild.com.br/privacidade.";
+  "Você pode cancelar a qualquer momento pelo canal indicado na política de privacidade (bewild.com.br/privacidade).";
 
 export const MATERIAIS = {
   checklist_compra: { titulo: "Checklist antes de comprar o studio", caminho: "/guia/checklist" },

@@ -10,8 +10,8 @@
 --
 -- Escrita: anon/authenticated só podem INSERIR, e só nas colunas listadas.
 -- Leitura e status comercial: só o papel admin (Bewild).
--- "sessao" é o id da telemetria interna da aba (pode faltar); nunca vai para
--- evento de marketing junto do e-mail.
+-- "sessao" é o id da telemetria interna da aba, gravado só com consentimento de
+-- medição (sem ele, nulo); nunca vai para evento de marketing junto do e-mail.
 -- =========================================================
 
 CREATE TABLE public.radar_pedidos_material (
@@ -26,7 +26,7 @@ CREATE TABLE public.radar_pedidos_material (
   boletim boolean NOT NULL DEFAULT false,
   consentimento_versao text NOT NULL CHECK (char_length(consentimento_versao) BETWEEN 1 AND 20),
   origem text NOT NULL CHECK (origem IN ('guia','bairro','comparar','projecao')),
-  sessao text,
+  sessao text CHECK (sessao IS NULL OR char_length(sessao) <= 64),
   entregue_em timestamptz,
   status_comercial text NOT NULL DEFAULT 'novo' CHECK (status_comercial IN ('novo','qualificado','oportunidade','perdido','fora_do_perfil')),
   responsavel text, motivo_perda text, atualizado_em timestamptz NOT NULL DEFAULT now()

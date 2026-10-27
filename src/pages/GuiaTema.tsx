@@ -38,8 +38,11 @@ const SECOES: Record<SlugTemaGuia, ComponentType> = {
   checklist: ChecklistSection,
 };
 
-/** Temas que terminam com a oferta do checklist por e-mail (captura leve, P0.2). */
-const TEMAS_COM_CHECKLIST: ReadonlySet<SlugTemaGuia> = new Set<SlugTemaGuia>(["checklist", "escolha-do-ativo"]);
+/**
+ * Temas que terminam com a oferta do checklist por e-mail (captura leve, P0.2).
+ * Fora do próprio tema `checklist`: lá a oferta entregaria o link da página em que a pessoa já está.
+ */
+const TEMAS_COM_CHECKLIST: ReadonlySet<SlugTemaGuia> = new Set<SlugTemaGuia>(["escolha-do-ativo"]);
 
 /**
  * Conteúdo da página de um tema (sem navbar e rodapé), também usado pela
