@@ -3,6 +3,7 @@ import { CAMINHO_CSV, CAMINHO_JSON, LICENCA_DADOS_NOME, linhasDadosAbertos, type
 import { FONTE_BAIRROS_CURADOS, SAO_PAULO_REFERENCIA } from "@/data/bairrosCurados";
 import { GARANTIA_ANOS, PRAZO_DIAS_UTEIS_MAX, PRAZO_DIAS_UTEIS_MIN, REFORMAS_ENTREGUES, BAIRROS_ATENDIDOS } from "@/data/provasBewild";
 import { orcamentoUrl } from "@/lib/orcamento";
+import { AVISO_UNIVERSO } from "@/lib/estudo";
 
 /**
  * /llms.txt (e a cópia em /.well-known/llms.txt): o que o Radar é, as páginas públicas
@@ -46,7 +47,7 @@ export function gerarLlmsTxt(linhas: LinhaDadosAbertos[] = linhasDadosAbertos(),
     "",
     `> ${SITE_NAME} (${SITE_URL}) é o guia do investidor em studios compactos para short stay (Airbnb) em São Paulo, produzido pela Bewild (bewild.com.br), empresa de reforma turnkey de apartamentos e studios. Publica diária média, ocupação, quartis de diária e anúncios ativos por bairro, com fonte e período em cada número, além de comparador, mapa, simulador de receita líquida e conteúdo educativo.`,
     "",
-    "Em pt-BR. Números de mercado vêm de fontes públicas citadas em cada página; aproximações, estimativas e hipóteses estão sempre rotuladas. Receita de referência = diária × 30 × ocupação (receita bruta, não lucro). Nada aqui é garantia de resultado.",
+    `Em pt-BR. Números de mercado vêm de fontes públicas citadas em cada página; aproximações, estimativas e hipóteses estão sempre rotuladas. Receita de referência = diária × 30 × ocupação (receita bruta, não lucro). ${AVISO_UNIVERSO} Nada aqui é garantia de resultado.`,
     "",
     "## Páginas",
     "",

@@ -9,6 +9,7 @@ vi.mock("@/hooks/useAuth", () => ({ useAuth: () => ({ user: null, loading: false
 
 import Index from "@/pages/Index";
 import { FAQ_ITEMS } from "@/components/guide/FAQSection";
+import { AVISO_UNIVERSO } from "@/lib/estudo";
 import { TEMAS_GUIA } from "@/data/temasGuia";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -62,6 +63,11 @@ describe("home reestruturada (26/10/2026, base de reserva)", () => {
     expect(hero.textContent).toContain("+R$ 881");
     expect(hero.textContent).toContain("Observado");
     expect(hero.querySelector('a[href="/projecao?bairro=pinheiros"]')?.textContent).toBe("Simular este bairro");
+  });
+
+  it("o universo da fonte aparece junto dos números de receita", async () => {
+    const el = await montar("/");
+    expect(el.textContent).toContain(AVISO_UNIVERSO);
   });
 
   it("Mooca leva o aviso de amostra pequena e Vila Olímpia a aproximação pelo Itaim Bibi", async () => {

@@ -11,6 +11,7 @@ import type { SimuladorReceita } from "@/hooks/useSimuladorReceita";
 import { criarProjetoDaSimulacao, savePendingProvision } from "@/lib/leadProvisioning";
 import { intentDaSimulacao } from "@/lib/projetoSimulacao";
 import { trackSimulationShared } from "@/lib/marketingConsent";
+import { AVISO_UNIVERSO } from "@/lib/estudo";
 import { formatBRL, formatDecimal, formatPercent } from "@/lib/numberFormat";
 import { avisoAmostraBairro, descricaoNatureza } from "@/lib/radarUi";
 import {
@@ -59,7 +60,7 @@ export default function AcoesSimulacao({ sim, resultado, indicadores }: {
     `= Resultado líquido: ${formatBRL(resultado.liquido)}/mês · ${formatBRL(resultado.liquidoAnual)}/ano`,
     ...(indicadores ? [`Rentabilidade anual: ${formatDecimal(indicadores.rentabilidadeAA, 1)}%${indicadores.paybackAnos != null ? ` · prazo estimado de retorno ${formatDecimal(indicadores.paybackAnos, 1)} anos` : ""}`] : []),
     "",
-    "Hipótese de simulação, não garantia de resultado.",
+    `${AVISO_UNIVERSO} Hipótese de simulação, não garantia de resultado.`,
     `Abrir esta simulação: ${link()}`,
     "Gerado no Radar Bewild · radarbewild.com.br",
   ].join("\n");

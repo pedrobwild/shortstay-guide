@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { LLMS_TXT_CAMINHOS, gerarLlmsTxt } from "@/lib/llmsTxt";
+import { AVISO_UNIVERSO } from "@/lib/estudo";
 import { linhasDadosAbertos } from "@/lib/dadosAbertos";
 import { SEO_ROUTES } from "@/lib/seo";
 import { BAIRROS_CURADOS } from "@/data/bairrosCurados";
@@ -24,6 +25,10 @@ describe("llms.txt do Radar", () => {
     expect(texto).toMatch(/- \[Brooklin\][^\n]*aproximação: Aproximação pelo Itaim Bibi/);
     expect(texto).toMatch(/- \[Vila Olímpia\][^\n]*Sem dado público por bairro: usa os números do distrito do Itaim Bibi\.$/m);
     expect(texto).not.toMatch(/\.\.$/m);
+  });
+
+  it("diz de que universo vêm os números de receita", () => {
+    expect(texto).toContain(AVISO_UNIVERSO);
   });
 
   it("não promete resultado e manda ao orçamento da Bewild com UTM próprio", () => {

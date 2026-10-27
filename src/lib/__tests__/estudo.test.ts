@@ -3,11 +3,18 @@ import { bairrosReserva } from "@/lib/radarBase";
 import { SAO_PAULO_REFERENCIA } from "@/data/bairrosCurados";
 import { RECEITA_REFERENCIA_SP } from "@/lib/radarUi";
 import {
-  classeModal, classeQuartil, classesHistograma, compararOperacao, contagemContra, difPercentual, estimativaReforma,
+  AVISO_UNIVERSO, classeModal, classeQuartil, classesHistograma, compararOperacao, contagemContra, difPercentual, estimativaReforma,
   extremos, faixaNosQuartis, nomeComNatureza, nomesComNatureza, limitesQuartis, posicaoEntre, prazoContrato, quantil, receitaDe, temAmostraPequena,
 } from "@/lib/estudo";
 
 const base = bairrosReserva();
+
+describe("Estudo aberto — contexto dos dados", () => {
+  it("o aviso de receita diz de que universo o número vem", () => {
+    expect(AVISO_UNIVERSO).toMatch(/todos os tipos de anúncio/);
+    expect(AVISO_UNIVERSO).toMatch(/não a receita de um studio específico/);
+  });
+});
 
 /** Os números do direcionamento do redesign (out/2026) conferidos contra a base aprovada. */
 describe("Estudo aberto — números da base de 28 bairros", () => {
