@@ -83,7 +83,7 @@ export default function AdminBairros() {
     setRascunhos((s) => ({ ...s, [b]: { ...s[b], [campo]: v } }));
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen overflow-x-clip bg-background">
       <AppNavbar />
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
         <AdminTabs />
