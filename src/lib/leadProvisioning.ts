@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { TablesInsert } from "@/integrations/supabase/types";
-import type { PremissasSimulador } from "@/lib/simuladorReceita";
+import { normalizarPremissasSimulador, type PremissasSimulador } from "@/lib/simuladorReceita";
 
 /**
  * Dados capturados no lead que viram a "proposta personalizada" ao criar acesso.
@@ -35,7 +35,7 @@ function linhaPremissas(projectId: string, intent: LeadIntent): TablesInsert<"pr
   if (!intent.premissas) return base;
   return {
     ...base,
-    premissas_simulador: intent.premissas,
+    premissas_simulador: normalizarPremissasSimulador(intent.premissas),
     versao_calculo: intent.versao_calculo ?? null,
     base_coletada_em: intent.base_coletada_em ?? null,
   } as unknown as TablesInsert<"project_assumptions">;
@@ -74,8 +74,10 @@ export interface ProvisionResult {
 
 /**
  * Auto-provisiona um projeto pré-populado com bairro/m² do lead e vincula o
- * registro de lead à conta recém-criada. Idempotente: se o usuário já tem um
- * projeto, reutiliza o mais recente em vez de criar duplicatas.
+ * registro de lead à conta recém-criada. Intenção legada (só bairro/m²): se o usuário já
+ * tem um projeto, reutiliza o mais recente em vez de criar duplicatas. Intenção com
+ * `premissas` (simulação de "Guardar no Painel"): sempre cria um projeto novo com a conta
+ * inteira, como `criarProjetoDaSimulacao`, para não descartar o que a pessoa guardou.
  *
  * O bairro/m² ficam em `project_assumptions` (premissas da projeção), já que
  * `projects` guarda apenas nome/dono.
@@ -85,6 +87,14 @@ export async function provisionProjectForLead(
   intent: LeadIntent
 ): Promise<ProvisionResult> {
   let projectId: string | null = null;
+
+  // Simulação vinda de "Guardar no Painel": sempre vira um projeto novo com as premissas
+  // (project_assumptions.project_id é único, então não dá para anexar a um projeto existente sem sobrescrevê-lo).
+  if (intent.premissas) {
+    ({ projectId } = await criarProjetoDaSimulacao(userId, intent));
+    await vincularLeads(userId, intent);
+    return { projectId };
+  }
 
   const { data: existing } = await supabase
     .from("projects")
@@ -116,16 +126,19 @@ export async function provisionProjectForLead(
     }
   }
 
-  // Vincula leads anteriores (mesmo WhatsApp) à conta recém-criada.
-  if (intent.whatsapp) {
-    await supabase
-      .from("guide_leads")
-      .update({ user_id: userId })
-      .eq("whatsapp", intent.whatsapp)
-      .is("user_id", null);
-  }
+  await vincularLeads(userId, intent);
 
   return { projectId };
+}
+
+/** Vincula leads anteriores (mesmo WhatsApp) à conta recém-criada. */
+async function vincularLeads(userId: string, intent: LeadIntent) {
+  if (!intent.whatsapp) return;
+  await supabase
+    .from("guide_leads")
+    .update({ user_id: userId })
+    .eq("whatsapp", intent.whatsapp)
+    .is("user_id", null);
 }
 
 /**

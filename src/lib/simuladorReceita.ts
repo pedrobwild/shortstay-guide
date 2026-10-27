@@ -339,11 +339,16 @@ export function premissasParaQuery(p: PremissasSimulador, slugBairro: string | n
   return q.toString();
 }
 
+/** Marcador de link que reabre uma simulação guardada: a conta inteira vem do link, inclusive quando é igual ao padrão. */
+export const MARCADOR_REABRIR = "reabrir";
+
 /** Lê um link do simulador (novo formato e o anterior: m, occ, diaria, boost, reforma). Devolve só o que veio. */
 export function lerPremissasDaQuery(search: string): { slugBairro: string | null; premissas: Partial<PremissasSimulador>; veioAlgo: boolean } {
   const q = new URLSearchParams(search);
   const bruto: Record<string, unknown> = {};
-  let veio = false;
+  // `reabrir=1` (links de "Reabrir na simulação") vale como "veio uma conta", mesmo que todos os valores sejam o padrão
+  // e a query não traga mais nada; não é premissa e nunca sai de premissasParaQuery.
+  let veio = q.get(MARCADOR_REABRIR) === "1";
   for (const [chave, caminho] of CHAVES_QUERY) {
     const v = q.get(chave);
     if (v === null) continue;

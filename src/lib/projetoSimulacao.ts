@@ -1,6 +1,6 @@
 import type { LeadIntent } from "@/lib/leadProvisioning";
 import { slugifyBairro } from "@/lib/seo";
-import { normalizarPremissasSimulador, premissasParaQuery, type PremissasSimulador } from "@/lib/simuladorReceita";
+import { MARCADOR_REABRIR, normalizarPremissasSimulador, premissasParaQuery, type PremissasSimulador } from "@/lib/simuladorReceita";
 
 /** Versão do modelo de cálculo gravada junto da simulação. Muda quando o modelo mudar (DRE, reforma, indicadores). */
 export const VERSAO_CALCULO = "simulador-v1-dre-2026-10-18";
@@ -15,9 +15,14 @@ export function premissasDoProjeto(
   return normalizarPremissasSimulador(row?.premissas_simulador ?? { bairro: row?.neighborhood, area: row?.area_sqm });
 }
 
-/** Caminho da /projecao com as mesmas premissas (só números e escolhas, nenhum dado pessoal). */
+/**
+ * Caminho da /projecao com as mesmas premissas (só números e escolhas, nenhum dado pessoal).
+ * O marcador `reabrir=1` faz a /projecao aplicar a conta inteira (padrão + o que veio), sem misturar
+ * com o rascunho de quem abre, mesmo quando os valores guardados são iguais ao padrão.
+ */
 export function linkReabrirSimulacao(p: PremissasSimulador): string {
-  return `/projecao?${premissasParaQuery(p, p.bairro ? slugifyBairro(p.bairro) : null)}`;
+  const q = premissasParaQuery(p, p.bairro ? slugifyBairro(p.bairro) : null);
+  return `/projecao?${q ? `${q}&` : ""}${MARCADOR_REABRIR}=1`;
 }
 
 /** A coleta vigente é de outro dia que a da simulação guardada? Compara só a data (aaaa-mm-dd); sem data conhecida conta como mudou. */

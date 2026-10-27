@@ -100,7 +100,7 @@ export default function SimulacaoGuardada({ projectId }: { projectId: string }) 
           <dl className="grid gap-3 text-sm sm:grid-cols-3">
             <div>
               <dt className="text-muted-foreground">Guardada em</dt>
-              <dd className="font-medium text-foreground tabular-nums">{new Date(linha.created_at).toLocaleDateString("pt-BR")}</dd>
+              <dd className="font-medium text-foreground tabular-nums">{dataBR(linha.created_at)}</dd>
             </div>
             <div>
               <dt className="text-muted-foreground">Bairro</dt>
