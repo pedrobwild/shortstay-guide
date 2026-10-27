@@ -246,7 +246,7 @@ ${
           model: "google/gemini-3-flash-preview",
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
-            ...messages,
+            ...asUserTurns(messages),
           ],
           stream: true,
         }),
