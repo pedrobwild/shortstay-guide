@@ -276,7 +276,11 @@ export function demandaParaCsv(linhas: DemandaBairro[]): string {
     "Preço por m² mediano (R$)", "Entrada mediana (%)", "Compra em até 6 meses (%)", "Usa FGTS (%)",
     "Enquadra no MCMV (%)", "Faixa de renda mais comum", "Empreendimentos citados",
   ];
-  const esc = (v: string) => (/[;"\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+  // Neutraliza fórmulas de planilha (=, +, -, @, tab, CR) antes de escapar.
+  const esc = (bruto: string) => {
+    const v = /^[=+\-@\t\r]/.test(bruto) ? `'${bruto}` : bruto;
+    return /[;"\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+  };
   const num = (v: number | null, d = 0) =>
     v === null ? "" : v.toLocaleString("pt-BR", { maximumFractionDigits: d, useGrouping: false });
   const linhasCsv = linhas.map((d) =>

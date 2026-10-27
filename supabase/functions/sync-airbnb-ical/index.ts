@@ -328,6 +328,11 @@ serve(async (req) => {
       if (parsed.protocol !== "https:") {
         return jsonResponse({ success: false, error: "ical_url deve usar HTTPS" }, 400);
       }
+      const host = parsed.hostname.toLowerCase();
+      const permitidos = ["airbnb.com", "airbnb.com.br", "booking.com", "vrbo.com", "calendar.google.com"];
+      if (parsed.port || !permitidos.some((d) => host === d || host.endsWith(`.${d}`))) {
+        return jsonResponse({ success: false, error: "ical_url deve ser de Airbnb, Booking, Vrbo ou Google Agenda" }, 400);
+      }
     } catch {
       return jsonResponse({ success: false, error: "ical_url inválida" }, 400);
     }

@@ -92,6 +92,13 @@
       "when": 1792957900218,
       "tag": "0012_radar_categorias",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793098407544,
+      "tag": "0013_migration",
+      "breakpoints": true
     }
   ]
 }
