@@ -11,9 +11,20 @@ describe("pedido de orçamento", () => {
     expect(orcamentoUrl("ferramentas")).toBe(`https://bewild.com.br/orcamento?${UTM}&utm_content=ferramentas`);
   });
 
-  it("não leva dados da simulação nem nada além do UTM", () => {
-    const url = new URL(orcamentoUrl("projecao"));
-    expect([...url.searchParams.keys()].sort()).toEqual(["utm_campaign", "utm_content", "utm_medium", "utm_source"]);
+  it("sem contexto, só UTMs", () => {
+    expect([...new URL(orcamentoUrl("projecao")).searchParams.keys()].sort()).toEqual(["utm_campaign", "utm_content", "utm_medium", "utm_source"]);
+  });
+
+  it("com contexto, leva bairro e faixa de área e nada pessoal", () => {
+    const url = new URL(orcamentoUrl("projecao", { bairro: "Santa Cecília", area: "26–35 m²" }));
+    expect(url.searchParams.get("bairro")).toBe("Santa Cecília");
+    expect(url.searchParams.get("area")).toBe("26–35 m²");
+    expect([...url.searchParams.keys()].sort()).toEqual(["area", "bairro", "utm_campaign", "utm_content", "utm_medium", "utm_source"]);
+  });
+
+  it("contexto vazio ou nulo não acrescenta chaves", () => {
+    expect(orcamentoUrl("final", { bairro: null, area: null })).toBe(orcamentoUrl("final"));
+    expect(orcamentoUrl("final", { bairro: "" })).toBe(orcamentoUrl("final"));
   });
 });
 

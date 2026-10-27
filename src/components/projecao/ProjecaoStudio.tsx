@@ -320,8 +320,8 @@ export default function ProjecaoStudio() {
         </details>
       </Secao>
 
-      <Secao id="proximo-passo" rotulo="Próximo passo" titulo={`Preparar a reforma do studio ${emBairro(bairro.name)}`} lead="A Bewild orça a reforma completa do seu studio, do projeto à entrega.">
-        <OrcamentoButton local="projecao" rotulo="Solicitar orçamento de reforma" className="h-auto min-h-[44px] px-5 py-2 text-[15px] font-semibold" />
+      <Secao id="proximo-passo" rotulo="Próximo passo" titulo="Já tem o imóvel e quer planejar a reforma?" lead="Envie as informações do studio para a Bewild avaliar o escopo e preparar o orçamento.">
+        <OrcamentoButton local="projecao" rotulo="Solicitar orçamento para este studio" contexto={{ bairro: bairro.name, area: p.area }} className="h-auto min-h-[44px] px-5 py-2 text-[15px] font-semibold" />
       </Secao>
 
       <Secao id="case" rotulo="Case real" titulo="Um studio reformado pela Bewild, com os números publicados no depoimento">
@@ -373,7 +373,7 @@ export default function ProjecaoStudio() {
           <div className="e-rotulo">Resultado líquido</div>
           <div className={cn("truncate text-lg font-semibold tabular-nums", liquido < 0 && "e-negativo")}>{formatBRL(liquido)}/mês</div>
         </div>
-        <OrcamentoButton local="projecao" rotulo="Orçar reforma" icone={false} className="min-h-[44px] px-4 text-[15px] font-semibold" />
+        <OrcamentoButton local="projecao" rotulo="Orçar reforma" icone={false} contexto={{ bairro: bairro.name, area: p.area }} className="min-h-[44px] px-4 text-[15px] font-semibold" />
       </div>
     </main>
   );

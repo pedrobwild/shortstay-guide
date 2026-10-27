@@ -3,6 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import { Button } from "@/components/ui/button";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
+import { useBairroAtual } from "@/lib/bairroAtual";
 import sectionReforma from "@/assets/section-reforma.jpg";
 import { useRastrearSecao } from "./SectionBlock";
 
@@ -12,6 +13,8 @@ import { useRastrearSecao } from "./SectionBlock";
  */
 export default function FinalCTASection() {
   const ref = useRastrearSecao<HTMLElement>("cta-final");
+  // Lido depois da montagem (SSR = hidratação): o HTML pré-renderizado não leva bairro.
+  const bairroAtual = useBairroAtual();
   return (
     <section ref={ref} id="cta-final" aria-labelledby="cta-final-titulo" className="scroll-mt-24 grid items-center gap-10 py-14 lg:grid-cols-2 lg:gap-16 lg:py-[72px]">
       <img
@@ -31,7 +34,7 @@ export default function FinalCTASection() {
           A Bewild atua com arquitetura e construção e orça a reforma completa do seu studio, do projeto à entrega.
         </p>
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-          <OrcamentoButton local="final" rotulo="Solicitar orçamento de reforma" icone={false} className="min-h-[48px] px-[22px] text-[15px] font-semibold" />
+          <OrcamentoButton local="final" rotulo="Solicitar orçamento de reforma" icone={false} contexto={{ bairro: bairroAtual?.nome }} className="min-h-[48px] px-[22px] text-[15px] font-semibold" />
           <Button asChild variant="outline" className="min-h-[48px] whitespace-normal px-5 text-[15px] font-semibold">
             <Link to="/projecao" onClick={() => trackGlobal("cta_clicked", { cta_id: "simular_primeiro", section: "cta_final" })}>Simular meu imóvel primeiro</Link>
           </Button>
