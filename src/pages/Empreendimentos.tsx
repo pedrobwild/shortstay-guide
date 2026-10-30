@@ -121,15 +121,16 @@ function Catalogo() {
           </div>
         ) : (
           <>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="e-legenda" aria-live="polite">
-                {filtrando ? `${n(filtrados.length)} de ${n(lista.length)} empreendimentos${nomeBairro ? ` em ${nomeBairro}` : ""}` : `${n(lista.length)} empreendimentos, em ordem alfabética`}
-              </p>
+            {/* Contagem só com filtro: sem filtro, o total já está no cabeçalho (cada número uma vez). */}
+            <div className="flex flex-wrap items-center justify-between gap-3" aria-live="polite">
               {filtrando && (
-                <Button variant="ghost" className="min-h-[44px] px-3" onClick={limpar}><X aria-hidden="true" className="mr-2 h-4 w-4" />Limpar filtros</Button>
+                <>
+                  <p className="e-legenda">{n(filtrados.length)} de {n(lista.length)} empreendimentos{nomeBairro ? ` em ${nomeBairro}` : ""}</p>
+                  <Button variant="ghost" className="min-h-[44px] px-3" onClick={limpar}><X aria-hidden="true" className="mr-2 h-4 w-4" />Limpar filtros</Button>
+                </>
               )}
             </div>
-            <ul className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="grid gap-x-8 gap-y-8 sm:grid-cols-2 sm:gap-y-12 lg:grid-cols-3">
               {filtrados.map((e) => (
                 <li key={e.id} className="min-w-0">
                   <CardEmpreendimento e={e} abrir={setAberto} />

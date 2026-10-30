@@ -146,7 +146,7 @@ export default function AdminEmpreendimentos() {
           <div>
             <h1 className="font-display text-3xl font-bold">Empreendimentos</h1>
             <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-              Catálogo público em <Link to="/empreendimentos" className="text-primary underline underline-offset-2">/empreendimentos</Link>. Só o prédio: nunca nome de cliente, número de unidade ou valores. Diferenciais e situação seguem a página oficial, com a data da consulta.
+              Catálogo público em <Link to="/empreendimentos" className="text-primary underline underline-offset-2">/empreendimentos</Link>. Só o prédio: nunca nome de cliente, número de unidade ou valores. Diferenciais e situação seguem a fonte (página oficial ou portal), com a data da consulta.
             </p>
           </div>
           <Button variant="outline" disabled={ocupado} onClick={novo} className="min-h-[44px]"><Plus className="mr-2 h-4 w-4" />Novo empreendimento</Button>
@@ -247,7 +247,7 @@ export default function AdminEmpreendimentos() {
 
               <fieldset className="min-w-0 space-y-4 border-t border-border pt-4">
                 <legend className="font-display text-base font-semibold">Fonte</legend>
-                <div className="space-y-2"><Label htmlFor="emp-fonte-url">Link da página oficial</Label><Input id="emp-fonte-url" type="url" value={form.fonte_url} onChange={(e) => campo("fonte_url", e.target.value)} placeholder="https://" className="min-h-[44px] text-base" /></div>
+                <div className="space-y-2"><Label htmlFor="emp-fonte-url">Link da fonte (página oficial ou portal)</Label><Input id="emp-fonte-url" type="url" value={form.fonte_url} onChange={(e) => campo("fonte_url", e.target.value)} placeholder="https://" className="min-h-[44px] text-base" /></div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2"><Label htmlFor="emp-fonte-titulo">Título da fonte</Label><Input id="emp-fonte-titulo" maxLength={120} value={form.fonte_titulo} onChange={(e) => campo("fonte_titulo", e.target.value)} placeholder="Página oficial — Incorporadora" className="min-h-[44px] text-base" /></div>
                   <div className="space-y-2"><Label htmlFor="emp-fonte-data">Consultada em</Label><Input id="emp-fonte-data" type="date" value={form.fonte_consultada_em} onChange={(e) => campo("fonte_consultada_em", e.target.value)} className="min-h-[44px] text-base" /></div>

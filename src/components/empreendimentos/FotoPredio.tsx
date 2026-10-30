@@ -8,6 +8,8 @@ type Props = {
   prioridade?: boolean;
   /** Mostra o crédito da foto abaixo da imagem. */
   credito?: boolean;
+  /** Miniatura quadrada (card no celular): sem nome nem legenda sobre a ilustração. */
+  miniatura?: boolean;
 };
 
 /**
@@ -15,11 +17,12 @@ type Props = {
  * incorporadora). Sem foto, uma ilustração neutra com o nome — nunca uma imagem
  * copiada do site da incorporadora.
  */
-export default function FotoPredio({ e, className, prioridade = false, credito = false }: Props) {
+export default function FotoPredio({ e, className, prioridade = false, credito = false, miniatura = false }: Props) {
+  const proporcao = miniatura ? "aspect-square" : "aspect-[4/3]";
   if (e.foto_url) {
     return (
       <figure className={cn("min-w-0", className)}>
-        <div className="aspect-[4/3] w-full overflow-hidden bg-neutro-100">
+        <div className={cn(proporcao, "w-full overflow-hidden bg-neutro-100")}>
           <img
             src={e.foto_url}
             alt={altFoto(e)}
@@ -34,7 +37,7 @@ export default function FotoPredio({ e, className, prioridade = false, credito =
     );
   }
   return (
-    <div className={cn("relative aspect-[4/3] w-full overflow-hidden bg-ciano-100", className)} role="img" aria-label={`Ilustração do ${e.nome}; foto do prédio em breve`}>
+    <div className={cn("relative w-full overflow-hidden bg-ciano-100", proporcao, className)} role="img" aria-label={`Ilustração do ${e.nome}; foto do prédio em breve`}>
       <svg aria-hidden="true" viewBox="0 0 240 180" preserveAspectRatio="xMidYMax meet" className="absolute inset-x-0 bottom-0 h-[78%] w-full text-ciano-700">
         <g fill="none" stroke="currentColor" strokeWidth="1.25" opacity="0.55">
           <path d="M20 180V110h40v70" />
@@ -52,10 +55,14 @@ export default function FotoPredio({ e, className, prioridade = false, credito =
           {Array.from({ length: 4 }).map((_, linha) => <rect key={`e${linha}`} x="30" y={120 + linha * 14} width="20" height="7" />)}
         </g>
       </svg>
-      <span aria-hidden="true" className="absolute left-4 top-4 max-w-[80%] font-display text-[15px] font-semibold leading-5 text-ciano-800">
-        {e.nome}
-      </span>
-      <span aria-hidden="true" className="absolute bottom-3 right-4 text-[12px] text-tinta-70">Foto em breve</span>
+      {!miniatura && (
+        <>
+          <span aria-hidden="true" className="absolute left-4 top-4 max-w-[62%] font-display text-[15px] font-semibold leading-5 text-ciano-800">
+            {e.nome}
+          </span>
+          <span aria-hidden="true" className="absolute right-4 top-4 text-[12px] leading-5 text-tinta-70">Foto em breve</span>
+        </>
+      )}
     </div>
   );
 }

@@ -14,10 +14,11 @@ export default function ResumoEmpreendimento({ e, fechar }: { e: Empreendimento 
   return (
     <Dialog open={e !== null} onOpenChange={(aberto) => { if (!aberto) fechar(); }}>
       {e && (
-        <DialogContent className="max-h-[92dvh] w-[calc(100%-1.5rem)] max-w-2xl overflow-y-auto overscroll-contain rounded-[6px] p-5 sm:p-8">
+        // Bloco (não grid): numa grade com altura máxima e rolagem, a linha da foto encolhia e a foto cobria o texto.
+        <DialogContent className="block max-h-[92dvh] w-[calc(100%-1.5rem)] max-w-2xl space-y-5 overflow-y-auto overscroll-contain rounded-[6px] p-5 sm:p-8">
           <DialogHeader className="space-y-2 pr-10 text-left">
             <p className="e-rotulo">Empreendimento · {e.bairro}</p>
-            <DialogTitle className="e-h2 break-words text-left">{e.nome}</DialogTitle>
+            <DialogTitle className="e-h2 break-words text-left text-[1.5rem] leading-[1.875rem] tracking-normal">{e.nome}</DialogTitle>
             <DialogDescription className="e-apoio text-left">
               {e.resumo || `Prédio em ${e.bairro} onde a Bewild já atua.`}
             </DialogDescription>
@@ -49,7 +50,7 @@ export default function ResumoEmpreendimento({ e, fechar }: { e: Empreendimento 
             {e.fonte_url && (
               <Button asChild variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold">
                 <a href={e.fonte_url} target="_blank" rel="noopener noreferrer">
-                  Página oficial<ArrowUpRight aria-hidden="true" className="ml-2 h-4 w-4" /><NovaAba />
+                  Ver a fonte<ArrowUpRight aria-hidden="true" className="ml-2 h-4 w-4" /><NovaAba />
                 </a>
               </Button>
             )}

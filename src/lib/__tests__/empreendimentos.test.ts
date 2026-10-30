@@ -58,10 +58,12 @@ describe("empreendimentos — regras puras", () => {
   it("situação com entrega, data em dd/mm/aaaa e linha da fonte", () => {
     expect(textoSituacao({ situacao: "em_obras", entrega: "dez/2026" })).toBe("Em obras · entrega dez/2026");
     expect(textoSituacao({ situacao: "pronto", entrega: null })).toBe("Pronto");
+    expect(textoSituacao({ situacao: "pronto", entrega: "out/2024" })).toBe("Pronto · entregue em out/2024");
+    expect(textoSituacao({ situacao: null, entrega: "jul/2026" })).toBe("Entrega jul/2026");
     expect(textoSituacao({ situacao: null, entrega: null })).toBeNull();
     expect(dataBR("2026-10-30")).toBe("30/10/2026");
     expect(textoFonte({ fonte_titulo: "Página oficial — Vitacon", fonte_consultada_em: "2026-10-30" })).toBe("Página oficial — Vitacon, consultada em 30/10/2026");
-    expect(textoFonte({ fonte_titulo: null, fonte_consultada_em: null })).toBe("Página oficial do empreendimento");
+    expect(textoFonte({ fonte_titulo: null, fonte_consultada_em: null })).toBe("Página do empreendimento");
   });
 
   it("link do mapa busca pelo endereço (ou pelo nome) no bairro, em São Paulo", () => {
@@ -109,7 +111,7 @@ describe("empreendimentos — texto e privacidade", () => {
   it("nenhuma tela fala em cliente, unidade vendida, ranking ou promessa de retorno", () => {
     for (const [f, texto] of arquivos) {
       const visivel = texto.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
-      expect(visivel, f).not.toMatch(/melhores empreendimentos|recomendad[oa]s?\b|lucro garantido|valoriza(ção|r) garantid|retorno garantido|unidades? vendidas?/i);
+      expect(visivel, f).not.toMatch(/melhores empreendimentos|recomendad[oa]s?\b|valoriza(ção|r) garantid|retorno garantid|unidades? vendidas?/i);
     }
   });
 

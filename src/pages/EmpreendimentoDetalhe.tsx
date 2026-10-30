@@ -116,7 +116,7 @@ function Conteudo({ e }: { e: Empreendimento }) {
             <Link to={`/mapa?bairro=${slugifyBairro(naBase.name)}`} className="e-link inline-flex min-h-[44px] items-center">Ver {naBase.name} no mapa do Radar</Link>
           )}
         </div>
-        {!e.endereco && <p className="e-legenda mt-2">A página oficial não informa o número; o link busca pelo nome do prédio.</p>}
+        {!e.endereco && <p className="e-legenda mt-2">A fonte não informa o endereço; o link busca pelo nome do prédio.</p>}
       </Secao>
 
       {e.diferenciais.length > 0 && (
@@ -132,7 +132,7 @@ function Conteudo({ e }: { e: Empreendimento }) {
           <p className="e-legenda mt-6">
             Conforme {textoFonte(e)}.
             {e.fonte_url && (
-              <> <a href={e.fonte_url} target="_blank" rel="noopener noreferrer" className="e-link inline-flex min-h-[44px] items-center gap-1">Abrir a página oficial<ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" /><NovaAba /></a></>
+              <> <a href={e.fonte_url} target="_blank" rel="noopener noreferrer" className="e-link inline-flex min-h-[44px] items-center gap-1">Abrir a fonte<ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" /><NovaAba /></a></>
             )}
           </p>
         </Secao>
@@ -149,7 +149,7 @@ function Conteudo({ e }: { e: Empreendimento }) {
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Button asChild className="min-h-[44px] px-5 text-[15px] font-semibold"><Link to="/reformar">Ver custo e prazo de reforma</Link></Button>
           <OrcamentoButton local="empreendimentos" variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold" />
-          <Button asChild variant="ghost" className="min-h-[44px] px-5 text-[15px] font-semibold"><Link to={voltar}>Outros empreendimentos em {e.bairro}</Link></Button>
+          <Button asChild variant="ghost" className="h-auto min-h-[44px] whitespace-normal px-5 py-2 text-[15px] font-semibold"><Link to={voltar}>Outros empreendimentos em {e.bairro}</Link></Button>
         </div>
       </Secao>
     </>

@@ -8,8 +8,9 @@ import { slugifyBairro } from "@/lib/seo";
  * Empreendimentos em destaque (decisão do Pedro, 30/10/2026): prédios de São Paulo
  * onde a Bewild já atua, cadastrados em /admin/empreendimentos (tabela
  * `empreendimentos`). A tabela guarda só o prédio: nome de cliente, unidade,
- * contrato e valores nunca entram. Diferenciais, situação e endereço vêm da página
- * oficial indicada em `fonte_url`, consultada na data de `fonte_consultada_em`.
+ * contrato e valores nunca entram. Diferenciais, situação e endereço vêm da fonte
+ * indicada em `fonte_url` (página oficial ou portal imobiliário), consultada na data
+ * de `fonte_consultada_em`.
  *
  * A lista não é recomendação de compra: o catálogo não ordena por "melhor" nem
  * direciona demanda a um empreendimento (decisão de 18/10/2026).
@@ -38,7 +39,7 @@ export const NOTA_SELO_BEWILD = "A Bewild tem projeto de reforma em unidade dest
 
 /** Aviso fixo do catálogo: não é recomendação nem anúncio de venda. */
 export const AVISO_CATALOGO =
-  "Prédios onde a Bewild já atua, em ordem alfabética. Não é recomendação de compra nem anúncio de venda: situação, endereço e diferenciais seguem a página oficial de cada empreendimento na data da consulta.";
+  "Prédios onde a Bewild já atua, em ordem alfabética. Não é recomendação de compra nem anúncio de venda: situação, endereço e diferenciais seguem a fonte indicada em cada empreendimento (página oficial ou portal imobiliário), na data da consulta.";
 
 export interface Empreendimento {
   id: string;
@@ -98,7 +99,7 @@ export const empreendimentoSchema = z.object({
     .trim()
     .transform((v) => (v === "" ? null : v))
     .nullable()
-    .refine((v) => v === null || /^https:\/\/\S+$/.test(v), "Use um link https:// da página oficial."),
+    .refine((v) => v === null || /^https:\/\/\S+$/.test(v), "Use um link https:// da fonte."),
   fonte_titulo: textoOpcional(120, "Título da fonte com até 120 caracteres."),
   fonte_consultada_em: z
     .string()
@@ -186,17 +187,17 @@ export function dataBR(iso: string | null | undefined): string | null {
   return m ? `${m[3]}/${m[2]}/${m[1]}` : null;
 }
 
-/** Situação com a entrega, quando a fonte informa: "Em obras · entrega dez/2026". */
+/** Situação com a entrega, quando a fonte informa: "Em obras · entrega dez/2026", "Pronto · entregue em out/2024". */
 export function textoSituacao(e: Pick<Empreendimento, "situacao" | "entrega">): string | null {
   const s = e.situacao ? SITUACOES[e.situacao] : null;
-  if (s && e.entrega) return `${s} · entrega ${e.entrega}`;
+  if (s && e.entrega) return e.situacao === "pronto" ? `${s} · entregue em ${e.entrega}` : `${s} · entrega ${e.entrega}`;
   if (s) return s;
   return e.entrega ? `Entrega ${e.entrega}` : null;
 }
 
-/** Linha da fonte: "Página oficial — Incorporadora, consultada em 30/10/2026". */
+/** Linha da fonte: "Página oficial — Incorporadora, consultada em 30/10/2026" (ou o portal usado). */
 export function textoFonte(e: Pick<Empreendimento, "fonte_titulo" | "fonte_consultada_em">): string {
-  const titulo = e.fonte_titulo || "Página oficial do empreendimento";
+  const titulo = e.fonte_titulo || "Página do empreendimento";
   const data = dataBR(e.fonte_consultada_em);
   return data ? `${titulo}, consultada em ${data}` : titulo;
 }

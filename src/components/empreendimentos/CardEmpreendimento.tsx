@@ -11,10 +11,12 @@ export default function CardEmpreendimento({ e, abrir }: { e: Empreendimento; ab
       type="button"
       onClick={() => abrir(e)}
       aria-haspopup="dialog"
-      className="group flex h-full w-full min-w-0 flex-col text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className="group grid h-full w-full min-w-0 grid-cols-[88px_minmax(0,1fr)] items-start gap-4 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:flex sm:flex-col sm:gap-0"
     >
-      <FotoPredio e={e} className="transition-opacity duration-200 group-hover:opacity-90 motion-reduce:transition-none" />
-      <span className="mt-4 flex min-w-0 flex-1 flex-col gap-2">
+      {/* Celular: miniatura ao lado do texto (lista mais curta); a partir de 640px, card com a foto em cima. */}
+      <FotoPredio e={e} miniatura className="sm:hidden" />
+      <FotoPredio e={e} className="hidden transition-opacity duration-200 group-hover:opacity-90 motion-reduce:transition-none sm:block" />
+      <span className="flex h-full min-w-0 flex-1 flex-col gap-2 sm:mt-4">
         <span className="e-rotulo">{e.bairro}</span>
         <span className="e-h3 break-words text-tinta group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">{e.nome}</span>
         {(e.incorporadora || situacao) && (
