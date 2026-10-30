@@ -10,8 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { imovelSchema, listarImoveis, removerImovel, salvarImovel, POR_PAGINA_IMOVEIS, type ImovelEntrada, type ImovelRadar } from "@/lib/imoveisRadar";
+import { imovelSchema, listarBairrosImoveis, listarImoveis, removerImovel, salvarImovel, POR_PAGINA_IMOVEIS, type ImovelEntrada, type ImovelRadar } from "@/lib/imoveisRadar";
 
 const vazio: ImovelEntrada = { titulo: "", descricao: "", bairro: "", foto_url: "", anuncio_url: "", publicado: false };
 export default function AdminImoveis() {
@@ -20,7 +21,10 @@ export default function AdminImoveis() {
   const [id, setId] = useState<string>();
   const [form, setForm] = useState<ImovelEntrada>(vazio);
   const [erro, setErro] = useState("");
-  const consulta = useQuery({ queryKey: ["imoveis_admin", pagina], queryFn: () => listarImoveis(pagina, false) });
+  const [bairro, setBairro] = useState("todos");
+  const [status, setStatus] = useState<"todos" | "publicado" | "rascunho">("todos");
+  const consulta = useQuery({ queryKey: ["imoveis_admin", pagina, bairro, status], queryFn: () => listarImoveis(pagina, false, { bairro: bairro === "todos" ? undefined : bairro, status }) });
+  const bairros = useQuery({ queryKey: ["imoveis_admin", "bairros"], queryFn: listarBairrosImoveis });
   const atualizar = () => { void cache.invalidateQueries({ queryKey: ["imoveis_admin"] }); void cache.invalidateQueries({ queryKey: ["imoveis_publicados"] }); };
   const salvar = useMutation({ mutationFn: () => salvarImovel(form, id), onSuccess: (novo) => { setId(novo); setErro(""); atualizar(); toast({ title: form.publicado ? "Imóvel publicado" : "Imóvel salvo" }); }, onError: () => setErro("Não foi possível salvar. Confira seu acesso e tente novamente.") });
   const remover = useMutation({ mutationFn: removerImovel, onSuccess: () => { setId(undefined); setForm(vazio); atualizar(); toast({ title: "Imóvel removido" }); } });
@@ -42,11 +46,18 @@ export default function AdminImoveis() {
       </header>
       <div className="grid items-start gap-8 lg:grid-cols-2">
         <section className="min-w-0 space-y-4" aria-label="Imóveis cadastrados">
-          {consulta.isPending ? <p role="status">Carregando imóveis…</p> : consulta.isError ? <div role="alert"><p>Não foi possível carregar os imóveis.</p><Button variant="outline" onClick={() => consulta.refetch()}>Tentar novamente</Button></div> : !consulta.data?.imoveis.length ? <p role="status" className="py-8 text-muted-foreground">Nenhum imóvel cadastrado.</p> : <ul className="divide-y divide-border border-y border-border">{consulta.data.imoveis.map((i) => <li key={i.id} className="flex gap-3 py-4">
-            <img src={i.foto_url} alt="" className="h-16 w-20 shrink-0 rounded object-cover bg-muted" />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-2"><Label htmlFor="f-bairro">Bairro</Label><Select value={bairro} onValueChange={(v) => { setBairro(v); setPagina(0); }}><SelectTrigger id="f-bairro" className="min-h-[44px]"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="todos">Todos os bairros</SelectItem>{(bairros.data ?? []).map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent></Select></div>
+            <div className="space-y-2"><Label htmlFor="f-status">Situação</Label><Select value={status} onValueChange={(v) => { setStatus(v as typeof status); setPagina(0); }}><SelectTrigger id="f-status" className="min-h-[44px]"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="todos">Todos</SelectItem><SelectItem value="publicado">Publicados</SelectItem><SelectItem value="rascunho">Rascunhos</SelectItem></SelectContent></Select></div>
+          </div>
+          {consulta.data && <p className="text-sm text-muted-foreground">{consulta.data.total} {consulta.data.total === 1 ? "imóvel" : "imóveis"}</p>}
+          {consulta.isPending ? <p role="status">Carregando imóveis…</p> : consulta.isError ? <div role="alert"><p>Não foi possível carregar os imóveis.</p><Button variant="outline" onClick={() => consulta.refetch()}>Tentar novamente</Button></div> : !consulta.data?.imoveis.length ? <p role="status" className="py-8 text-muted-foreground">{bairro !== "todos" || status !== "todos" ? "Nenhum imóvel com esses filtros." : "Nenhum imóvel cadastrado."}</p> : <ul className="divide-y divide-border border-y border-border">{consulta.data.imoveis.map((i) => <li key={i.id} className="flex gap-3 py-4">
+            <img src={i.foto_url} alt="" className="h-20 w-24 shrink-0 rounded object-cover bg-muted" />
             <div className="min-w-0 space-y-2">
               <div className="flex flex-wrap items-center gap-2"><Badge variant="outline">{i.publicado ? "Publicado" : "Rascunho"}</Badge>{i.bairro && <span className="text-xs text-muted-foreground">{i.bairro}</span>}</div>
               <h2 className="break-words font-semibold">{i.titulo}</h2>
+              {i.descricao && <p className="line-clamp-3 break-words text-sm text-muted-foreground">{i.descricao}</p>}
+              <p className="text-xs text-muted-foreground">Atualizado em {new Date(i.atualizado_em).toLocaleDateString("pt-BR")}</p>
               <div className="flex flex-wrap gap-2"><Button variant="outline" className="min-h-[44px]" onClick={() => editar(i)}><Pencil className="mr-2 h-4 w-4" />Editar</Button><Button asChild variant="ghost" className="min-h-[44px]"><a href={i.anuncio_url} target="_blank" rel="noopener noreferrer">Anúncio<ArrowUpRight className="ml-2 h-4 w-4" /></a></Button></div>
             </div>
           </li>)}</ul>}
