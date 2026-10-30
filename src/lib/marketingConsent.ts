@@ -86,6 +86,11 @@ export function trackBudgetClick(local: string) {
   gtag("event", "click_orcamento", { local });
   window.fbq?.("trackCustom", "ClickOrcamento", { local });
 }
+/** Clique em "Ver imóvel" na página Imóveis; só id, título e bairro, nunca dado pessoal. */
+export function trackImovelClick(imovel: { id: string; titulo: string; bairro: string }) {
+  if (!canMeasure()) return;
+  gtag("event", "ver_imovel", { imovel_id: imovel.id, imovel_titulo: imovel.titulo.slice(0, 100), imovel_bairro: imovel.bairro || "sem bairro" });
+}
 export function trackSimulationUsed() {
   if (!canMeasure() || simulationSent) return;
   simulationSent = true;

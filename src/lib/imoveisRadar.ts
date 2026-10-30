@@ -13,7 +13,7 @@ export const imovelSchema = z.object({
   publicado: z.boolean(),
 });
 export type ImovelEntrada = z.infer<typeof imovelSchema>;
-export type ImovelRadar = ImovelEntrada & { id: string; criado_em: string; atualizado_em: string };
+export type ImovelRadar = Required<ImovelEntrada> & { id: string; criado_em: string; atualizado_em: string };
 
 export type FiltroImoveis = { bairro?: string; status?: "todos" | "publicado" | "rascunho" };
 

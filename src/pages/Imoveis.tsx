@@ -5,6 +5,7 @@ import { ArrowUpRight, Settings } from "lucide-react";
 import { PaginaEstudo, CabecalhoTela, Container } from "@/components/estudo/Estrutura";
 import { Button } from "@/components/ui/button";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { trackImovelClick } from "@/lib/marketingConsent";
 import { listarImoveis, POR_PAGINA_IMOVEIS } from "@/lib/imoveisRadar";
 
 export default function Imoveis() {
@@ -24,7 +25,7 @@ export default function Imoveis() {
               {i.bairro && <span className="text-sm text-muted-foreground">{i.bairro}</span>}
               <h2 className="e-h3 break-words">{i.titulo}</h2>
               {i.descricao && <p className="e-apoio flex-1 whitespace-pre-line break-words">{i.descricao}</p>}
-              <Button asChild className="mt-2 min-h-11 w-full"><a href={i.anuncio_url} target="_blank" rel="noopener noreferrer">Ver imóvel<ArrowUpRight aria-label="Abre em nova aba" className="ml-2 h-4 w-4" /></a></Button>
+              <Button asChild className="mt-2 min-h-11 w-full"><a href={i.anuncio_url} target="_blank" rel="noopener noreferrer" onClick={() => trackImovelClick(i)}>Ver imóvel<ArrowUpRight aria-label="Abre em nova aba" className="ml-2 h-4 w-4" /></a></Button>
             </div>
           </article>
         </li>)}</ul>}
