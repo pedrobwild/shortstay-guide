@@ -11,6 +11,14 @@
       "priority": "0.5"
     },
     {
+      "path": "/empreendimentos",
+      "title": "Empreendimentos em destaque em São Paulo",
+      "description": "Prédios de São Paulo onde a Bewild já atua, com bairro, endereço, diferenciais da página oficial e os números do bairro para studios de short stay.",
+      "h1": "Empreendimentos em destaque",
+      "keywords": "empreendimentos studios são paulo, prédios para short stay, studio para airbnb, lançamentos de studios sp",
+      "priority": "0.6"
+    },
+    {
       "path": "/",
       "title": "Radar Bewild: guia do investidor em studios para short stay em SP",
       "description": "Estudo aberto sobre studios para Airbnb em São Paulo: diária, ocupação e amostra de 28 bairros, custo de reforma e as contas do short stay, com fonte.",

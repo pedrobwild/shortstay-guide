@@ -45,6 +45,9 @@ const AdminGoogle = lazy(() => import("./pages/AdminGoogle"));
 const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
 const AdminNoticias = lazy(() => import("./pages/AdminNoticias"));
 const Posts = lazy(() => import("./pages/Posts"));
+const Empreendimentos = lazy(() => import("./pages/Empreendimentos"));
+const EmpreendimentoDetalhe = lazy(() => import("./pages/EmpreendimentoDetalhe"));
+const AdminEmpreendimentos = lazy(() => import("./pages/AdminEmpreendimentos"));
 const AreaExclusiva = lazy(() => import("./pages/AreaExclusiva"));
 const ArtigoExclusivo = lazy(() => import("./pages/ArtigoExclusivo"));
 const AdminUsuarios = lazy(() => import("./pages/AdminUsuarios"));
@@ -179,6 +182,8 @@ export function AppRoutes() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/mercado" element={<IntelligenceDashboard />} />
           <Route path="/posts" element={<Posts />} />
+          <Route path="/empreendimentos" element={<Empreendimentos />} />
+          <Route path="/empreendimentos/:slug" element={<EmpreendimentoDetalhe />} />
           <Route path="/ranking" element={<IntelligenceRanking />} />
           <Route path="/bairro/:bairro" element={<IntelligenceBairroDetail />} />
           <Route path="/anuncios" element={<IntelligenceListings />} />
@@ -211,6 +216,7 @@ export function AppRoutes() {
           <Route path="/admin/google" element={<AdminRoute><AdminGoogle /></AdminRoute>} />
           <Route path="/admin/analytics" element={<AdminRoute><AdminAnalytics /></AdminRoute>} />
           <Route path="/admin/noticias" element={<AdminRoute><AdminNoticias /></AdminRoute>} />
+          <Route path="/admin/empreendimentos" element={<AdminRoute><AdminEmpreendimentos /></AdminRoute>} />
           <Route path="/admin/usuarios" element={<AdminRoute><AdminUsuarios /></AdminRoute>} />
           <Route path="/admin/categorias" element={<AdminRoute><AdminCategorias /></AdminRoute>} />
           <Route path="/admin/compartilhamento" element={<AdminRoute><AdminCompartilhamento /></AdminRoute>} />

@@ -23,7 +23,7 @@ function isAtivo(link: LinkNavegacao, pathname: string) {
 const rastrear = (link: LinkNavegacao, section = "navbar") => trackGlobal("cta_clicked", { cta_id: link.id, section });
 
 /** Links que só cabem na barra a partir de 1280px (antes disso ficam no menu lateral). */
-const SO_TELA_LARGA = new Set(["ranking", "ferramentas"]);
+const SO_TELA_LARGA = new Set(["ranking", "ferramentas", "empreendimentos"]);
 const ATALHOS = ATALHOS_CELULAR.map((id) => LINKS_PUBLICOS.find((l) => l.id === id)).filter((l): l is LinkNavegacao => Boolean(l));
 
 /**
@@ -88,7 +88,7 @@ export default function AppNavbar({
                 className={cn(
                   "inline-flex items-center whitespace-nowrap border-b-2 px-2.5 pt-0.5 text-sm font-medium transition-colors hover:text-foreground xl:px-3",
                   ativo ? "border-accent text-foreground" : "border-transparent text-muted-foreground",
-                  // Entre 1024 e 1279px, Ranking e Ferramentas ficam no menu lateral para a barra caber.
+                  // Entre 1024 e 1279px, Ranking, Ferramentas e Empreendimentos ficam no menu lateral para a barra caber.
                   SO_TELA_LARGA.has(link.id) && "hidden xl:inline-flex",
                 )}
               >
