@@ -771,6 +771,42 @@ export type Database = {
         }
         Relationships: []
       }
+      radar_imoveis: {
+        Row: {
+          anuncio_url: string
+          atualizado_em: string
+          bairro: string
+          criado_em: string
+          descricao: string
+          foto_url: string
+          id: string
+          publicado: boolean
+          titulo: string
+        }
+        Insert: {
+          anuncio_url: string
+          atualizado_em?: string
+          bairro?: string
+          criado_em?: string
+          descricao?: string
+          foto_url: string
+          id?: string
+          publicado?: boolean
+          titulo: string
+        }
+        Update: {
+          anuncio_url?: string
+          atualizado_em?: string
+          bairro?: string
+          criado_em?: string
+          descricao?: string
+          foto_url?: string
+          id?: string
+          publicado?: boolean
+          titulo?: string
+        }
+        Relationships: []
+      }
       radar_noticias: {
         Row: {
           atualizado_em: string

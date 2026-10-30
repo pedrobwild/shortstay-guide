@@ -99,6 +99,13 @@
       "when": 1793098407544,
       "tag": "0013_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793383137569,
+      "tag": "0014_radar_imoveis",
+      "breakpoints": true
     }
   ]
 }
