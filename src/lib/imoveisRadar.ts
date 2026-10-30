@@ -35,7 +35,7 @@ export async function listarImoveis(pagina: number, somentePublicados: boolean, 
 }
 
 export async function salvarImovel(entrada: ImovelEntrada, id?: string) {
-  const dados = imovelSchema.parse(entrada);
+  const dados = imovelSchema.parse(entrada) as Required<ImovelEntrada>;
   const q = id ? supabase.from("radar_imoveis").update(dados).eq("id", id).select("id").single() : supabase.from("radar_imoveis").insert(dados).select("id").single();
   const { data, error } = await q;
   if (error) throw error;
