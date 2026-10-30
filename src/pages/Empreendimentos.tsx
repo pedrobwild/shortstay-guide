@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Search, X } from "lucide-react";
@@ -39,7 +39,11 @@ export default function Empreendimentos() {
 function Catalogo() {
   const [params, setParams] = useSearchParams();
   const [busca, setBusca] = useState("");
-  const [aberto, setAberto] = useState<Empreendimento | null>(null);
+  // O último aberto continua montado ao fechar (animação de saída); o foco volta ao card de origem.
+  const [selecionado, setSelecionado] = useState<Empreendimento | null>(null);
+  const [aberto, setAberto] = useState(false);
+  const origem = useRef<HTMLElement | null>(null);
+  const abrir = (e: Empreendimento, el: HTMLElement) => { origem.current = el; setSelecionado(e); setAberto(true); };
   const consulta = useQuery({ queryKey: ["empreendimentos_publicos"], queryFn: listarEmpreendimentosPublicos, staleTime: 5 * 60 * 1000 });
   const lista = useMemo(() => consulta.data ?? [], [consulta.data]);
   const bairros = useMemo(() => bairrosDoCatalogo(lista), [lista]);
@@ -65,7 +69,7 @@ function Catalogo() {
       <CabecalhoTela
         rotulo="Empreendimentos · São Paulo"
         titulo="Empreendimentos em destaque"
-        lead="Prédios de São Paulo onde a Bewild já atua. Veja onde ficam, o que oferecem e os números do bairro no Radar antes de decidir."
+        lead="Prédios de São Paulo onde a Bewild já atua. Veja onde ficam, o que oferecem e, quando o bairro está na base, os números dele no Radar."
       >
         {consulta.data && lista.length > 0 && (
           <p className="e-legenda">
@@ -125,7 +129,7 @@ function Catalogo() {
             <div className="flex flex-wrap items-center justify-between gap-3" aria-live="polite">
               {filtrando && (
                 <>
-                  <p className="e-legenda">{n(filtrados.length)} de {n(lista.length)} empreendimentos{nomeBairro ? ` em ${nomeBairro}` : ""}</p>
+                  <p className="e-legenda">{nomeBairro ? `${nomeBairro}: ` : ""}{n(filtrados.length)} de {n(lista.length)} empreendimentos</p>
                   <Button variant="ghost" className="min-h-[44px] px-3" onClick={limpar}><X aria-hidden="true" className="mr-2 h-4 w-4" />Limpar filtros</Button>
                 </>
               )}
@@ -133,7 +137,7 @@ function Catalogo() {
             <ul className="grid gap-x-8 gap-y-8 sm:grid-cols-2 sm:gap-y-12 lg:grid-cols-3">
               {filtrados.map((e) => (
                 <li key={e.id} className="min-w-0">
-                  <CardEmpreendimento e={e} abrir={setAberto} />
+                  <CardEmpreendimento e={e} abrir={abrir} />
                 </li>
               ))}
             </ul>
@@ -141,7 +145,7 @@ function Catalogo() {
         )}
       </Container>
 
-      <ResumoEmpreendimento e={aberto} fechar={() => setAberto(null)} />
+      <ResumoEmpreendimento e={selecionado} aberto={aberto} fechar={() => setAberto(false)} devolverFoco={() => origem.current?.focus()} />
     </>
   );
 }

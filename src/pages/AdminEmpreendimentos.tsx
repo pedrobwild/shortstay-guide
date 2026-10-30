@@ -16,7 +16,7 @@ import { BAIRROS_CURADOS } from "@/data/bairrosCurados";
 import { toast } from "@/hooks/use-toast";
 import {
   caminhoEmpreendimento, diferenciaisDoTexto, empreendimentoSchema, enviarFotoEmpreendimento, filtrarEmpreendimentos,
-  listarEmpreendimentosAdmin, mensagemErroSalvar, salvarEmpreendimento, slugEmpreendimento, SITUACOES, STATUS_EMPREENDIMENTO,
+  listarEmpreendimentosAdmin, mensagemErroSalvar, removerFotoAntiga, salvarEmpreendimento, slugEmpreendimento, SITUACOES, STATUS_EMPREENDIMENTO,
   TIPOS_FOTO, type Empreendimento, type StatusEmpreendimento,
 } from "@/lib/empreendimentos";
 
@@ -66,6 +66,8 @@ export default function AdminEmpreendimentos() {
   const [slugManual, setSlugManual] = useState(false);
   const [erro, setErro] = useState("");
   const [enviandoFoto, setEnviandoFoto] = useState(false);
+  // Como está gravado no banco (slug e status para o aviso de link; foto para apagar a antiga do bucket).
+  const [gravado, setGravado] = useState<{ slug: string; status: StatusEmpreendimento; foto_url: string } | null>(null);
   const arquivo = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -90,6 +92,13 @@ export default function AdminEmpreendimentos() {
     onSuccess: (novoId) => {
       setId(novoId);
       setErro("");
+      // Foto trocada ou retirada: o arquivo antigo sai do bucket (senão seguiria acessível pelo link).
+      if (gravado?.foto_url && gravado.foto_url !== form.foto_url) {
+        removerFotoAntiga(gravado.foto_url, form.foto_url).catch(() =>
+          toast({ title: "A foto antiga não foi apagada", description: "O cadastro foi salvo; a foto anterior continua no armazenamento." }),
+        );
+      }
+      setGravado({ slug: form.slug, status: form.status, foto_url: form.foto_url });
       void cache.invalidateQueries({ queryKey: ["empreendimentos_admin"] });
       void cache.invalidateQueries({ queryKey: ["empreendimentos_publicos"] });
       void cache.invalidateQueries({ queryKey: ["empreendimento"] });
@@ -101,16 +110,25 @@ export default function AdminEmpreendimentos() {
   const campo = <K extends keyof Form>(k: K, v: Form[K]) => setForm((f) => ({ ...f, [k]: v }));
   const mudarNome = (nome: string) => setForm((f) => ({ ...f, nome, slug: slugManual ? f.slug : slugEmpreendimento(nome) }));
 
+  /** Foto enviada e ainda não salva que sai do formulário: apaga do bucket na hora. */
+  function descartarFotoNaoSalva(url: string) {
+    if (url && url !== gravado?.foto_url) void removerFotoAntiga(url, null).catch(() => undefined);
+  }
+
   function editar(e: Empreendimento) {
+    descartarFotoNaoSalva(form.foto_url);
     setId(e.id);
     setForm(paraForm(e));
+    setGravado({ slug: e.slug, status: e.status, foto_url: e.foto_url ?? "" });
     setSlugManual(true);
     setErro("");
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
   function novo() {
+    descartarFotoNaoSalva(form.foto_url);
     setId(undefined);
     setForm(vazio);
+    setGravado(null);
     setSlugManual(false);
     setErro("");
   }
@@ -125,6 +143,7 @@ export default function AdminEmpreendimentos() {
     setErro("");
     try {
       const url = await enviarFotoEmpreendimento(f, slug);
+      descartarFotoNaoSalva(form.foto_url);
       campo("foto_url", url);
       toast({ title: "Foto enviada", description: "Salve o empreendimento para a foto aparecer no site." });
     } catch (e) {
@@ -218,6 +237,9 @@ export default function AdminEmpreendimentos() {
                 <Label htmlFor="emp-slug">Endereço da página</Label>
                 <Input id="emp-slug" required maxLength={120} value={form.slug} onChange={(e) => { setSlugManual(true); campo("slug", e.target.value.toLowerCase()); }} className="min-h-[44px] text-base" />
                 <p className="text-xs text-muted-foreground">radarbewild.com.br/empreendimentos/{form.slug || "…"}</p>
+                {gravado?.status === "publicado" && form.slug !== gravado.slug && (
+                  <p role="status" className="text-xs font-medium text-destructive">Este empreendimento já está publicado: trocar o endereço quebra os links já compartilhados ({gravado.slug}).</p>
+                )}
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2"><Label htmlFor="emp-bairro">Bairro</Label><Input id="emp-bairro" required list="emp-bairros" maxLength={80} value={form.bairro} onChange={(e) => campo("bairro", e.target.value)} className="min-h-[44px] text-base" /><datalist id="emp-bairros">{sugestoesBairro.map((b) => <option key={b} value={b} />)}</datalist></div>
@@ -261,7 +283,7 @@ export default function AdminEmpreendimentos() {
                 <div className="flex flex-wrap gap-2">
                   <input ref={arquivo} type="file" accept={TIPOS_FOTO.join(",")} className="sr-only" onChange={escolherFoto} tabIndex={-1} aria-hidden="true" />
                   <Button type="button" variant="outline" className="min-h-[44px]" onClick={() => arquivo.current?.click()}><ImagePlus className="mr-2 h-4 w-4" />{enviandoFoto ? "Enviando…" : form.foto_url ? "Trocar foto" : "Enviar foto"}</Button>
-                  {form.foto_url && <Button type="button" variant="ghost" className="min-h-[44px]" onClick={() => campo("foto_url", "")}><Trash2 className="mr-2 h-4 w-4" />Tirar foto</Button>}
+                  {form.foto_url && <Button type="button" variant="ghost" className="min-h-[44px]" onClick={() => { descartarFotoNaoSalva(form.foto_url); campo("foto_url", ""); }}><Trash2 className="mr-2 h-4 w-4" />Tirar foto</Button>}
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2"><Label htmlFor="emp-foto-alt">Descrição da foto</Label><Input id="emp-foto-alt" maxLength={200} value={form.foto_alt} onChange={(e) => campo("foto_alt", e.target.value)} placeholder="Fachada do prédio vista da rua" className="min-h-[44px] text-base" /></div>

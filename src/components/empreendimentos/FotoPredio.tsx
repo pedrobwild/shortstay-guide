@@ -10,6 +10,11 @@ type Props = {
   credito?: boolean;
   /** Miniatura quadrada (card no celular): sem nome nem legenda sobre a ilustração. */
   miniatura?: boolean;
+  /**
+   * Dentro de um botão (card do catálogo): só elementos de linha (span), sem texto alternativo
+   * e fora da árvore de acessibilidade — o nome do prédio já está no texto do card.
+   */
+  decorativa?: boolean;
 };
 
 /**
@@ -17,8 +22,17 @@ type Props = {
  * incorporadora). Sem foto, uma ilustração neutra com o nome — nunca uma imagem
  * copiada do site da incorporadora.
  */
-export default function FotoPredio({ e, className, prioridade = false, credito = false, miniatura = false }: Props) {
+export default function FotoPredio({ e, className, prioridade = false, credito = false, miniatura = false, decorativa = false }: Props) {
   const proporcao = miniatura ? "aspect-square" : "aspect-[4/3]";
+  if (e.foto_url && decorativa) {
+    return (
+      <span aria-hidden="true" className={cn("block min-w-0", className)}>
+        <span className={cn(proporcao, "block w-full overflow-hidden bg-neutro-100")}>
+          <img src={e.foto_url} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+        </span>
+      </span>
+    );
+  }
   if (e.foto_url) {
     return (
       <figure className={cn("min-w-0", className)}>
@@ -36,8 +50,10 @@ export default function FotoPredio({ e, className, prioridade = false, credito =
       </figure>
     );
   }
+  const Raiz = decorativa ? "span" : "div";
+  const acessibilidade = decorativa ? { "aria-hidden": true as const } : { role: "img", "aria-label": `Ilustração; sem foto do prédio ${e.nome}` };
   return (
-    <div className={cn("relative w-full overflow-hidden bg-ciano-100", proporcao, className)} role="img" aria-label={`Ilustração do ${e.nome}; foto do prédio em breve`}>
+    <Raiz className={cn("relative block w-full overflow-hidden bg-ciano-100", proporcao, className)} {...acessibilidade}>
       <svg aria-hidden="true" viewBox="0 0 240 180" preserveAspectRatio="xMidYMax meet" className="absolute inset-x-0 bottom-0 h-[78%] w-full text-ciano-700">
         <g fill="none" stroke="currentColor" strokeWidth="1.25" opacity="0.55">
           <path d="M20 180V110h40v70" />
@@ -60,9 +76,9 @@ export default function FotoPredio({ e, className, prioridade = false, credito =
           <span aria-hidden="true" className="absolute left-4 top-4 max-w-[62%] font-display text-[15px] font-semibold leading-5 text-ciano-800">
             {e.nome}
           </span>
-          <span aria-hidden="true" className="absolute right-4 top-4 text-[12px] leading-5 text-tinta-70">Foto em breve</span>
+          {!decorativa && <span aria-hidden="true" className="absolute right-4 top-4 text-[12px] leading-5 text-tinta-70">Ilustração</span>}
         </>
       )}
-    </div>
+    </Raiz>
   );
 }

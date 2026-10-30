@@ -1,21 +1,22 @@
 import FotoPredio from "@/components/empreendimentos/FotoPredio";
 import SeloBewild from "@/components/empreendimentos/SeloBewild";
-import { textoSituacao, type Empreendimento } from "@/lib/empreendimentos";
+import { TEXTO_SELO_BEWILD, textoSituacao, type Empreendimento } from "@/lib/empreendimentos";
 
 /** Card do catálogo: abre o resumo (modal). Mostra até 3 diferenciais. */
-export default function CardEmpreendimento({ e, abrir }: { e: Empreendimento; abrir: (e: Empreendimento) => void }) {
+export default function CardEmpreendimento({ e, abrir }: { e: Empreendimento; abrir: (e: Empreendimento, origem: HTMLElement) => void }) {
   const situacao = textoSituacao(e);
   const extras = e.diferenciais.length - 3;
   return (
     <button
       type="button"
-      onClick={() => abrir(e)}
+      onClick={(ev) => abrir(e, ev.currentTarget)}
       aria-haspopup="dialog"
+      aria-label={`${e.nome}, ${e.bairro}${e.selo_bewild ? `. ${TEXTO_SELO_BEWILD}` : ""}. Ver resumo`}
       className="group grid h-full w-full min-w-0 grid-cols-[88px_minmax(0,1fr)] items-start gap-4 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:flex sm:flex-col sm:gap-0"
     >
       {/* Celular: miniatura ao lado do texto (lista mais curta); a partir de 640px, card com a foto em cima. */}
-      <FotoPredio e={e} miniatura className="sm:hidden" />
-      <FotoPredio e={e} className="hidden transition-opacity duration-200 group-hover:opacity-90 motion-reduce:transition-none sm:block" />
+      <FotoPredio e={e} miniatura decorativa className="sm:hidden" />
+      <FotoPredio e={e} decorativa className="hidden transition-opacity duration-200 group-hover:opacity-90 motion-reduce:transition-none sm:block" />
       <span className="flex h-full min-w-0 flex-1 flex-col gap-2 sm:mt-4">
         <span className="e-rotulo">{e.bairro}</span>
         <span className="e-h3 break-words text-tinta group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">{e.nome}</span>

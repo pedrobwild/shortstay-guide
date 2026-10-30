@@ -86,7 +86,7 @@ export default function AppNavbar({
                 onClick={() => rastrear(link)}
                 aria-current={ativo ? "page" : undefined}
                 className={cn(
-                  "inline-flex items-center whitespace-nowrap border-b-2 px-2.5 pt-0.5 text-sm font-medium transition-colors hover:text-foreground xl:px-3",
+                  "inline-flex items-center whitespace-nowrap border-b-2 px-2.5 pt-0.5 text-sm font-medium transition-colors hover:text-foreground 2xl:px-3",
                   ativo ? "border-accent text-foreground" : "border-transparent text-muted-foreground",
                   // Entre 1024 e 1279px, Ranking, Ferramentas e Empreendimentos ficam no menu lateral para a barra caber.
                   SO_TELA_LARGA.has(link.id) && "hidden xl:inline-flex",
@@ -127,7 +127,8 @@ export default function AppNavbar({
                 <Button variant="ghost" size="sm" asChild className="min-h-[44px]">
                   <Link to={CAMINHO_AREA_EXCLUSIVA} className="gap-1.5" aria-label="Área exclusiva" title="Área exclusiva">
                     <BookOpen className="h-4 w-4" />
-                    <span className="hidden xl:inline">Área exclusiva</span>
+                    {/* Rótulos só a partir de 1536px: entre 1280 e 1535px, com a conta de admin, a barra não caberia. */}
+                    <span className="hidden 2xl:inline">Área exclusiva</span>
                   </Link>
                 </Button>
                 <Button variant="ghost" size="sm" asChild className="min-h-[44px]">
@@ -146,7 +147,7 @@ export default function AppNavbar({
                   <Button variant="ghost" size="sm" asChild className="min-h-[44px]">
                     <Link to="/admin" className="gap-1.5" aria-label="Admin" title="Admin">
                       <Flame className="h-4 w-4" />
-                      <span className="hidden xl:inline">Admin</span>
+                      <span className="hidden 2xl:inline">Admin</span>
                     </Link>
                   </Button>
                 )}

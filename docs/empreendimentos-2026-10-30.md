@@ -1,47 +1,27 @@
 # Empreendimentos em destaque — carga de 30/10/2026
 
-Catálogo público em `/empreendimentos` (decisão do Pedro, 30/10/2026: banco + admin, todos os empreendimentos das pastas de clientes 100 a 236, só o selo "A Bewild já atua neste prédio", fotos autorizadas enviadas pelo admin). Os nomes vieram das pastas de clientes no Drive; **nenhum nome de cliente, número de unidade, contrato ou valor entra no banco nem neste registro.**
+Catálogo público em `/empreendimentos` (decisão do Pedro, 30/10/2026: banco + admin, só o selo "A Bewild já atua neste prédio", fotos autorizadas enviadas pelo admin). A tabela guarda só dados públicos do prédio: **nada dos projetos da Bewild (quem, qual apartamento, quanto) entra no banco nem neste registro.**
+
+Este repositório é público. O registro completo da conferência (o motivo de cada rascunho) fica no Projeto Radar Bewild, fora do repositório; aqui ficam só o processo e as regras.
 
 ## Como os dados foram levantados
 
-- 76 empreendimentos distintos (as pastas 187, 205 e 214 não têm nome de prédio).
-- Pesquisa na web em 30/10/2026, com bairro, endereço, incorporadora, situação, entrega, unidades e até 6 diferenciais reescritos (sem copiar texto nem imagem). Fonte de cada linha em `fonte_url`: 11 páginas oficiais de incorporadora e o resto em portais (apto.vc, MySide, QuintoAndar, Lopes, imprensa). Datas de entrega e metragens divergem entre portais em vários casos; vale a fonte indicada.
-- Carga por SQL direto (`docs/sql/empreendimentos-2026-10-30.sql`): **65 publicados** (confirmados e com fonte) e **11 em rascunho**.
+- Lista interna dos prédios onde a Bewild atua: 76 empreendimentos distintos.
+- Pesquisa na web em 30/10/2026, com bairro, endereço, incorporadora, situação, entrega, unidades e até 6 diferenciais reescritos (sem copiar texto nem imagem). Fonte de cada linha em `fonte_url`: páginas oficiais de incorporadora e portais (apto.vc, MySide, QuintoAndar, Lopes, imprensa). Datas de entrega e metragens divergem entre portais em vários casos; vale a fonte indicada.
+- Carga por SQL direto (dados, fora das migrations), com `ON CONFLICT (slug) DO NOTHING`.
+- Incorporadora divergente entre portais: o campo fica vazio.
 
-## Em rascunho (conferir no /admin/empreendimentos)
+## Situação em 30/10/2026
 
-| Empreendimento | Motivo |
-|---|---|
-| Balkon Campo Belo | Balkon Campo Belo só tem apartamentos grandes; a pasta pode ser do Go Balkon (outro prédio da Even no bairro). |
-| Nex One Vila Nova | "Nex One Vila Nova" e "Next Vila Nova" são prédios diferentes; pode ainda ser o Nex One Pereira Coutinho (mesma avenida). Conferir o endereço no contrato. |
-| Metrocasa Paulista | Uma fonte só, sem número; bairro incerto (Vila Mariana, Paraíso ou Jardim Paulista). |
-| Villa Studios – Milano Lifestyle by Versace Home | O nome da pasta não bate exatamente com a torre de studios da Lavvi encontrada; entregas divergentes. |
-| Nex One Estação Perdizes | Não existe "Nex One Sumaré"; o candidato é o Nex One Estação Perdizes (Av. Sumaré, 85). Conferir o endereço. |
-| Fortune Residence | Único "Fortune Residence" achado é um prédio de flats de cerca de 1990, sem incorporadora. |
-| Mobi One | "Mobi One" é uma linha com vários prédios; a pasta não diz o bairro. |
-| Zero11 | "Zero11" só aparece no QuintoAndar, com endereços conflitantes e sem incorporadora. |
-| Le Jardin | Nenhum "Le Jardin" com studios em SP; candidatos: Le Jardin Ibirapuera (Eztec) e Le Jardin Cyrela by YOO. |
-| Helbor Patteo Klabin | Complexo Patteo Klabin tem dois prédios; se a unidade é studio, deve ser o Grand Home Patteo Klabin (Rua Vergueiro). |
-| Mapp Barra Funda | O mais parecido é o "Mapp Barra Funda" (Mundo Apto), com grafia diferente e uma só fonte. |
+- **56 publicados em 24 bairros** e **20 em rascunho**, a conferir no `/admin/empreendimentos`.
+- Ficam em rascunho até a confirmação do Pedro:
+  - prédio que a pesquisa não identificou com segurança (nome que bate com mais de um prédio, bairro desconhecido, uma fonte só ou tipologia que não combina com o que a Bewild faz);
+  - prédio com unidades HIS/HMP ou do Minha Casa Minha Vida: em São Paulo, a locação por curta temporada é proibida em unidades HIS e HMP ([SEHAB — fiscalização de anúncios de moradias sociais](https://prefeitura.sp.gov.br/web/habitacao/w/fiscalização-da-sehab-leva-plataformas-digitais-a-remover-anúncios-irregulares-de-moradias-sociais); Decretos 63.130/2024 e 64.244/2025). Um guia de short stay não mostra esses prédios com o selo.
 
-## Publicados com ponto de atenção
+## Regras
 
-- **Do It Pinheiros**: a incorporadora informa que é integralmente HIS2 (limite de renda para compra).
-- **ON Cardoso de Melo**: parte das unidades é HIS-2, com regras de renda e de locação.
-- **Urban Tatuapé**: o portal indica Minha Casa Minha Vida.
-- **The Collection Vila Clementino**: a pesquisa encontrou indicação de unidades HIS/HMP; conferir.
-- **Infinity Brooklin**: só apartamentos de 143 a 337 m² (sem studios); conferir se a pasta é desse prédio.
-- **Península Vila Madalena**: só unidades de 155 m² ou mais (sem studios); conferir.
-- **High Line Tatuapé**: só 2 e 3 quartos; conferir.
-- **Liberty Santo Amaro**: só 2 quartos; conferir.
-- **Modo Pompeia**: a fonte não cita studios; conferir.
-- **Galeno 65**: incorporadora divergente entre portais (V.Lume ou Munte): campo vazio.
-- **Dom Brás**: incorporadora não confirmada: campo vazio.
-- **LM Urban Flex Bela Cintra**: as três grafias da pasta ("Urban Flex", "LM Urban Flex", "LM Urban Flex Flats Bela Cintra") são o mesmo prédio.
-- **REM ID**: as três grafias "REM ID" foram tratadas como o mesmo prédio (Praça Cornélia, 50); a REM tem outro prédio no bairro, o Alta Romana, de 2 e 3 quartos.
-
-## Regras da tela
-
+- **Publicar exige** link da fonte, data da consulta e bairro confirmado (nunca "A confirmar"). A regra está no formulário (`empreendimentoSchema`) e no banco (CHECK `empreendimentos_publicado_com_fonte`, migration `20261030120000`). Sem fonte, a tela não diz "conforme".
+- **Foto** só pelo envio do admin, para o bucket `empreendimentos` (CHECK `empreendimentos_foto_do_bucket`); nunca link externo nem imagem copiada da incorporadora. Foto trocada ou retirada sai do bucket. Sem foto, ilustração neutra.
 - Ordem alfabética, sem ranking nem "recomendado"; aviso fixo de que não é recomendação de compra nem anúncio de venda.
-- Números do bairro só quando o bairro está na base do Radar (mesmos números de `/bairro/*`, com a natureza do dado e o aviso de amostra); bairro fora da base não recebe número de bairro vizinho.
-- Sem foto: ilustração neutra com o nome. Foto só com direito de uso (da Bewild ou cedida pela incorporadora), enviada pelo admin.
+- Números do bairro só quando o bairro está na base do Radar (mesmos números de `/bairro/*`, com a natureza do dado e o aviso de amostra). Brooklin e Vila Olímpia aparecem como aproximação pelo distrito Itaim Bibi, nunca como dado próprio. Bairro fora da base não recebe número de bairro vizinho.
+- Páginas `/empreendimentos/<slug>` pré-renderizadas no build a partir dos publicados (leitura pública do banco); sem rede no build, o app abre a página normalmente.

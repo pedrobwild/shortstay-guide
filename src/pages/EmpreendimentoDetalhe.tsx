@@ -16,15 +16,16 @@ import { BairroProvider } from "@/hooks/useBairroData";
 import { useBaseEstudo } from "@/hooks/useBaseEstudo";
 import { definirBairroAtual } from "@/lib/bairroAtual";
 import {
-  bairroNaBase, buscarEmpreendimento, CAMINHO_CATALOGO, caminhoEmpreendimento, descricaoSeo, itensFicha, linkMapa, slugEmpreendimento,
-  textoFonte, type Empreendimento,
+  bairroNaBase, buscarEmpreendimento, CAMINHO_CATALOGO, caminhoEmpreendimento, itensFicha, linkMapa, paginaSeoEmpreendimento, slugEmpreendimento,
+  textoFonte, textosBairroNoRadar, type Empreendimento,
 } from "@/lib/empreendimentos";
+import { naturezaBairro, type BairroBase } from "@/lib/radarUi";
 import { slugifyBairro } from "@/lib/seo";
 
 /**
  * /empreendimentos/:slug — página completa do prédio: ficha (bairro, endereço,
  * incorporadora, situação, unidades), localização com link para o mapa, diferenciais
- * com a fonte oficial e a data da consulta, os números do bairro no Radar (com a
+ * com a fonte e a data da consulta, os números do bairro no Radar (com a
  * natureza do dado) e o selo da Bewild. Sem nome de cliente nem unidade.
  */
 export default function EmpreendimentoDetalhe() {
@@ -45,23 +46,17 @@ function Pagina() {
 
   if (bruto !== slug) return <Navigate to={`${caminhoEmpreendimento(slug)}${search}${hash}`} replace />;
 
+  // Carregando e erro: sem <Seo>, o head pré-renderizado da página continua valendo (sem liga e
+  // desliga de noindex). Só "não encontrado" é noindex.
   if (consulta.isPending) {
-    return (
-      <>
-        <Seo title="Empreendimento" description="Empreendimento no Radar Bewild." path={caminhoEmpreendimento(slug)} noindex />
-        <Container className="py-16"><p role="status" aria-busy="true" className="e-apoio">Carregando o empreendimento…</p></Container>
-      </>
-    );
+    return <Container className="py-16"><p role="status" aria-busy="true" className="e-apoio">Carregando o empreendimento…</p></Container>;
   }
 
   if (consulta.isError) {
     return (
-      <>
-        <Seo title="Empreendimento" description="Empreendimento no Radar Bewild." path={caminhoEmpreendimento(slug)} noindex />
-        <Container className="py-16">
-          <AvisoBase tom="erro" onTentar={() => void consulta.refetch()}>Não foi possível carregar este empreendimento agora.</AvisoBase>
-        </Container>
-      </>
+      <Container className="py-16">
+        <AvisoBase tom="erro" onTentar={() => void consulta.refetch()}>Não foi possível carregar este empreendimento agora.</AvisoBase>
+      </Container>
     );
   }
 
@@ -81,14 +76,17 @@ function Pagina() {
 
 function Conteudo({ e }: { e: Empreendimento }) {
   const { bairros } = useBaseEstudo();
-  const naBase = bairroNaBase(e.bairro, bairros);
+  const naBase = bairroNaBase(e.bairro, bairros) as BairroBase | null;
   // Lembra o bairro para as outras telas do Radar, só quando ele está na base (como na página de bairro).
   useEffect(() => { if (naBase) definirBairroAtual(naBase.name); }, [naBase]);
   const voltar = `${CAMINHO_CATALOGO}?bairro=${slugifyBairro(e.bairro)}`;
+  const fonte = textoFonte(e);
+  const textosBairro = textosBairroNoRadar(naBase?.name ?? e.bairro, naBase ? naturezaBairro(naBase) : null);
+  const seo = paginaSeoEmpreendimento(e, Boolean(naBase));
 
   return (
     <>
-      <Seo title={`${e.nome}, ${e.bairro}`} description={descricaoSeo(e)} path={caminhoEmpreendimento(e.slug)} keywords={`${e.nome}, ${e.bairro}, studio short stay, empreendimento são paulo`} />
+      <Seo title={seo.title} description={seo.description} path={seo.path} keywords={seo.keywords} />
 
       <Container className="pt-6">
         <nav aria-label="Caminho">
@@ -107,7 +105,7 @@ function Conteudo({ e }: { e: Empreendimento }) {
         <FotoPredio e={e} prioridade credito className="min-w-0" />
       </Container>
 
-      <Secao id="localizacao" rotulo="Localização" titulo={e.endereco ? `${e.endereco}, ${e.bairro}` : `Em ${e.bairro}, São Paulo`}>
+      <Secao id="localizacao" rotulo="Localização" titulo={e.endereco ? `${e.endereco}, ${e.bairro}` : `${e.bairro}, São Paulo`}>
         <div className="flex flex-wrap gap-x-6">
           <a href={linkMapa(e)} target="_blank" rel="noopener noreferrer" className="e-link inline-flex min-h-[44px] items-center gap-2">
             <MapPin aria-hidden="true" className="h-4 w-4" />Ver no Google Maps<NovaAba />
@@ -129,16 +127,16 @@ function Conteudo({ e }: { e: Empreendimento }) {
               </li>
             ))}
           </ul>
-          <p className="e-legenda mt-6">
-            Conforme {textoFonte(e)}.
-            {e.fonte_url && (
-              <> <a href={e.fonte_url} target="_blank" rel="noopener noreferrer" className="e-link inline-flex min-h-[44px] items-center gap-1">Abrir a fonte<ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" /><NovaAba /></a></>
-            )}
-          </p>
+          {fonte && e.fonte_url && (
+            <p className="e-legenda mt-6">
+              Conforme {fonte}.{" "}
+              <a href={e.fonte_url} target="_blank" rel="noopener noreferrer" className="e-link inline-flex min-h-[44px] items-center gap-1">Abrir a fonte<ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" /><NovaAba /></a>
+            </p>
+          )}
         </Secao>
       )}
 
-      <Secao id="bairro" rotulo="O bairro no Radar" titulo={naBase ? `Os números de ${naBase.name} para short stay` : `${e.bairro} ainda não está na base do Radar`}>
+      <Secao id="bairro" rotulo="O bairro no Radar" titulo={textosBairro.titulo}>
         <BairroNoRadar bairro={e.bairro} />
       </Secao>
 
@@ -149,7 +147,7 @@ function Conteudo({ e }: { e: Empreendimento }) {
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Button asChild className="min-h-[44px] px-5 text-[15px] font-semibold"><Link to="/reformar">Ver custo e prazo de reforma</Link></Button>
           <OrcamentoButton local="empreendimentos" variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold" />
-          <Button asChild variant="ghost" className="h-auto min-h-[44px] whitespace-normal px-5 py-2 text-[15px] font-semibold"><Link to={voltar}>Outros empreendimentos em {e.bairro}</Link></Button>
+          <Button asChild variant="ghost" className="h-auto min-h-[44px] whitespace-normal px-5 py-2 text-[15px] font-semibold"><Link to={voltar}>Outros empreendimentos deste bairro</Link></Button>
         </div>
       </Secao>
     </>

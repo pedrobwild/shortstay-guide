@@ -9,18 +9,31 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { caminhoEmpreendimento, itensFicha, textoFonte, type Empreendimento } from "@/lib/empreendimentos";
 
+type Props = {
+  /** Último empreendimento aberto (continua montado enquanto o modal fecha). */
+  e: Empreendimento | null;
+  aberto: boolean;
+  fechar: () => void;
+  /** O modal não tem gatilho próprio (é aberto pelo card): o foco volta ao card ao fechar. */
+  devolverFoco: () => void;
+};
+
 /** Resumo do empreendimento no catálogo (modal); "Ver página completa" leva à página do prédio. */
-export default function ResumoEmpreendimento({ e, fechar }: { e: Empreendimento | null; fechar: () => void }) {
+export default function ResumoEmpreendimento({ e, aberto, fechar, devolverFoco }: Props) {
+  const fonte = e ? textoFonte(e) : null;
   return (
-    <Dialog open={e !== null} onOpenChange={(aberto) => { if (!aberto) fechar(); }}>
+    <Dialog open={aberto && e !== null} onOpenChange={(abrir) => { if (!abrir) fechar(); }}>
       {e && (
         // Bloco (não grid): numa grade com altura máxima e rolagem, a linha da foto encolhia e a foto cobria o texto.
-        <DialogContent className="block max-h-[92dvh] w-[calc(100%-1.5rem)] max-w-2xl space-y-5 overflow-y-auto overscroll-contain rounded-[6px] p-5 sm:p-8">
+        <DialogContent
+          onCloseAutoFocus={(ev) => { ev.preventDefault(); devolverFoco(); }}
+          className="block max-h-[92dvh] w-[calc(100%-1.5rem)] max-w-2xl space-y-5 overflow-y-auto overscroll-contain rounded-[6px] p-5 sm:p-8"
+        >
           <DialogHeader className="space-y-2 pr-10 text-left">
             <p className="e-rotulo">Empreendimento · {e.bairro}</p>
             <DialogTitle className="e-h2 break-words text-left text-[1.5rem] leading-[1.875rem] tracking-normal">{e.nome}</DialogTitle>
             <DialogDescription className="e-apoio text-left">
-              {e.resumo || `Prédio em ${e.bairro} onde a Bewild já atua.`}
+              {e.resumo || (e.selo_bewild ? `${e.bairro}: prédio onde a Bewild já atua.` : `${e.bairro}, São Paulo.`)}
             </DialogDescription>
           </DialogHeader>
 
@@ -34,7 +47,7 @@ export default function ResumoEmpreendimento({ e, fechar }: { e: Empreendimento 
               <ul className="list-disc space-y-1 pl-5 text-[15px] leading-[22px] text-tinta-78">
                 {e.diferenciais.map((d) => <li key={d} className="break-words">{d}</li>)}
               </ul>
-              <p className="e-legenda">Conforme {textoFonte(e)}.</p>
+              {fonte && <p className="e-legenda">Conforme {fonte}.</p>}
             </section>
           )}
 
