@@ -164,6 +164,78 @@ export type Database = {
         }
         Relationships: []
       }
+      empreendimentos: {
+        Row: {
+          atualizado_em: string
+          bairro: string
+          criado_em: string
+          diferenciais: string[]
+          endereco: string | null
+          entrega: string | null
+          fonte_consultada_em: string | null
+          fonte_titulo: string | null
+          fonte_url: string | null
+          foto_alt: string | null
+          foto_credito: string | null
+          foto_url: string | null
+          id: string
+          incorporadora: string | null
+          nome: string
+          resumo: string
+          selo_bewild: boolean
+          situacao: string | null
+          slug: string
+          status: string
+          tipologias: string | null
+        }
+        Insert: {
+          atualizado_em?: string
+          bairro: string
+          criado_em?: string
+          diferenciais?: string[]
+          endereco?: string | null
+          entrega?: string | null
+          fonte_consultada_em?: string | null
+          fonte_titulo?: string | null
+          fonte_url?: string | null
+          foto_alt?: string | null
+          foto_credito?: string | null
+          foto_url?: string | null
+          id?: string
+          incorporadora?: string | null
+          nome: string
+          resumo?: string
+          selo_bewild?: boolean
+          situacao?: string | null
+          slug: string
+          status?: string
+          tipologias?: string | null
+        }
+        Update: {
+          atualizado_em?: string
+          bairro?: string
+          criado_em?: string
+          diferenciais?: string[]
+          endereco?: string | null
+          entrega?: string | null
+          fonte_consultada_em?: string | null
+          fonte_titulo?: string | null
+          fonte_url?: string | null
+          foto_alt?: string | null
+          foto_credito?: string | null
+          foto_url?: string | null
+          id?: string
+          incorporadora?: string | null
+          nome?: string
+          resumo?: string
+          selo_bewild?: boolean
+          situacao?: string | null
+          slug?: string
+          status?: string
+          tipologias?: string | null
+        }
+        Relationships: []
+      }
       guide_events: {
         Row: {
           created_at: string | null
