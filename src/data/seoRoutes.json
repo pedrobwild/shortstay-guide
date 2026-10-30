@@ -11,6 +11,14 @@
       "priority": "0.5"
     },
     {
+      "path": "/imoveis",
+      "title": "Imóveis: studios anunciados em São Paulo",
+      "description": "Studios anunciados em São Paulo reunidos pelo Radar Bewild, com foto, descrição, bairro e link direto para o anúncio original.",
+      "h1": "Imóveis",
+      "keywords": "studio à venda são paulo, imóveis short stay, studios anunciados",
+      "priority": "0.5"
+    },
+    {
       "path": "/",
       "title": "Radar Bewild: guia do investidor em studios para short stay em SP",
       "description": "Estudo aberto sobre studios para Airbnb em São Paulo: diária, ocupação e amostra de 28 bairros, custo de reforma e as contas do short stay, com fonte.",
