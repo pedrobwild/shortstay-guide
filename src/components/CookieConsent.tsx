@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { isMeasurementAllowedPath, readConsent, saveConsent, syncMeasurement, trackPageView, type ConsentChoice } from "@/lib/marketingConsent";
+import { registrarVisitaBairro } from "@/lib/visitasBairro";
 
 export default function CookieConsent() {
   const location = useLocation();
   const [choice, setChoice] = useState<ConsentChoice | null>(readConsent);
   useEffect(() => {
-    syncMeasurement(); trackPageView();
-    const update = () => { setChoice(readConsent()); trackPageView(); };
+    syncMeasurement(); trackPageView(); void registrarVisitaBairro();
+    const update = () => { setChoice(readConsent()); trackPageView(); void registrarVisitaBairro(); };
     window.addEventListener("radar-consent-change", update);
     return () => window.removeEventListener("radar-consent-change", update);
   }, [location.pathname, location.search, location.hash]);
