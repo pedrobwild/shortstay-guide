@@ -40,6 +40,7 @@ const AdminLeads = lazy(() => import("./pages/AdminLeads"));
 const AdminBairros = lazy(() => import("./pages/AdminBairros"));
 const AdminSimulacoes = lazy(() => import("./pages/AdminSimulacoes"));
 const AdminDemanda = lazy(() => import("./pages/AdminDemanda"));
+const AdminPedidos = lazy(() => import("./pages/AdminPedidos"));
 const AdminFontes = lazy(() => import("./pages/AdminFontes"));
 const AdminSeo = lazy(() => import("./pages/AdminSeo"));
 const AdminGoogle = lazy(() => import("./pages/AdminGoogle"));
@@ -204,6 +205,7 @@ export function AppRoutes() {
           <Route path="/projetos" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
           <Route path="/projeto/:projectId" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
           <Route path="/admin/leads" element={<AdminRoute><AdminLeads /></AdminRoute>} />
+          <Route path="/admin/pedidos" element={<AdminRoute><AdminPedidos /></AdminRoute>} />
           <Route path="/admin" element={<AdminRoute><Navigate to="/admin/coletas" replace /></AdminRoute>} />
           <Route path="/admin/bairros" element={<AdminRoute><AdminBairros /></AdminRoute>} />
           <Route path="/admin/simulacoes" element={<AdminRoute><AdminSimulacoes /></AdminRoute>} />

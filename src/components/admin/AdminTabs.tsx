@@ -16,6 +16,7 @@ const ABAS = [
   { to: "/admin/simulacoes", label: "Simulações" },
   { to: "/admin/demanda", label: "Demanda" },
   { to: "/admin/leads", label: "Leads" },
+  { to: "/admin/pedidos", label: "Pedidos" },
 ];
 
 export default function AdminTabs() {
