@@ -343,12 +343,13 @@ export function premissasParaQuery(p: PremissasSimulador, slugBairro: string | n
 export const MARCADOR_REABRIR = "reabrir";
 
 /** Lê um link do simulador (novo formato e o anterior: m, occ, diaria, boost, reforma). Devolve só o que veio. */
-export function lerPremissasDaQuery(search: string): { slugBairro: string | null; premissas: Partial<PremissasSimulador>; veioAlgo: boolean } {
+export function lerPremissasDaQuery(search: string): { slugBairro: string | null; premissas: Partial<PremissasSimulador>; veioAlgo: boolean; reabriu: boolean } {
   const q = new URLSearchParams(search);
   const bruto: Record<string, unknown> = {};
   // `reabrir=1` (links de "Reabrir na simulação") vale como "veio uma conta", mesmo que todos os valores sejam o padrão
   // e a query não traga mais nada; não é premissa e nunca sai de premissasParaQuery.
-  let veio = q.get(MARCADOR_REABRIR) === "1";
+  const reabriu = q.get(MARCADOR_REABRIR) === "1";
+  let veio = reabriu;
   for (const [chave, caminho] of CHAVES_QUERY) {
     const v = q.get(chave);
     if (v === null) continue;
@@ -366,7 +367,7 @@ export function lerPremissasDaQuery(search: string): { slugBairro: string | null
   const premissas: Partial<PremissasSimulador> = {};
   for (const k of Object.keys(bruto) as (keyof PremissasSimulador)[]) (premissas as Record<string, unknown>)[k] = normal[k];
   const slug = q.get("bairro");
-  return { slugBairro: slug && slug.trim() ? slug.trim().toLowerCase() : null, premissas, veioAlgo: veio };
+  return { slugBairro: slug && slug.trim() ? slug.trim().toLowerCase() : null, premissas, veioAlgo: veio, reabriu };
 }
 
 /* Rascunho no navegador (só números e escolhas). */

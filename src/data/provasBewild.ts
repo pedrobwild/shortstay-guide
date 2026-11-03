@@ -127,8 +127,8 @@ export const RESPOSTA_CUSTO_REFORMA =
 export const RESPOSTA_INVESTIMENTO_TOTAL =
   `Um studio de ${STUDIO_EXEMPLO_M2} m² ao preço médio de venda FipeZap ` +
   `(${brl(FIPEZAP_M2)}/m², ${FIPEZAP_DATA}) custa cerca de ${milReais(STUDIO_EXEMPLO_IMOVEL)}. ` +
-  `Somando a hipótese de ITBI de 3% (≈ ${milReais(STUDIO_EXEMPLO_ITBI)}) e a reforma mediana do ${ROTULO_ESTUDO_REFORMA} ` +
-  `(${brl(ORCAMENTO_MEDIANO)}), o total fica em torno de ${milReais(STUDIO_EXEMPLO_TOTAL)} — ` +
+  `Somando a hipótese de ITBI de 3% (≈ ${milReais(STUDIO_EXEMPLO_ITBI)}) e a reforma mediana de ${brl(ORCAMENTO_MEDIANO)} ` +
+  `do ${ROTULO_ESTUDO_REFORMA} da Bewild, o total fica em torno de ${milReais(STUDIO_EXEMPLO_TOTAL)} — ` +
   `a reforma é cerca de ${num(STUDIO_EXEMPLO_PCT_REFORMA)}% do investimento.`;
 
 export const TEXTO_PRAZO_OBRA =

@@ -58,7 +58,7 @@ const dentro = (v: number | null, { min, max }: { min: number; max: number }) =>
 export default function ProjecaoStudio() {
   const { offline, recarregar } = useBairroData();
   const sim = useSimuladorReceita();
-  const { p, bairro, bairros, diaria, ocupacao, diariaBase, diariaAjustada, ocupacaoAjustada, reforma, sugestaoReforma, reformaAjustada, atualizar, recebidaPorLink } = sim;
+  const { p, bairro, bairros, diaria, ocupacao, diariaBase, diariaAjustada, ocupacaoAjustada, reforma, sugestaoReforma, reformaAjustada, atualizar, recebidaPorLink, reaberta } = sim;
   const [, setParams] = useSearchParams();
   // A URL acompanha o bairro que a pessoa escolhe (o link do mapa continua válido ao recarregar).
   const simPagina = useMemo(() => ({
@@ -120,7 +120,9 @@ export default function ProjecaoStudio() {
       )}
       {recebidaPorLink && (
         <Container className="mb-6">
-          <p role="status" className="e-apoio max-w-[720px] border-l-[3px] border-ciano pl-3">Você abriu uma simulação compartilhada: as premissas são de quem enviou o link. Altere à vontade; nada muda para a outra pessoa.</p>
+          <p role="status" className="e-apoio max-w-[720px] border-l-[3px] border-ciano pl-3">{reaberta
+            ? "Você reabriu a simulação guardada no Painel; as premissas são as que você salvou. Altere à vontade; nada muda no que está guardado."
+            : "Você abriu uma simulação compartilhada: as premissas são de quem enviou o link. Altere à vontade; nada muda para a outra pessoa."}</p>
         </Container>
       )}
 

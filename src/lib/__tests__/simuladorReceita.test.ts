@@ -118,7 +118,7 @@ describe("premissas completas: link, rascunho e cenários", () => {
 
   it("padrões não vão na URL; só o bairro não conta como link compartilhado", () => {
     expect(premissasParaQuery(base, "pinheiros")).toBe("bairro=pinheiros");
-    expect(lerPremissasDaQuery("?bairro=pinheiros")).toEqual({ slugBairro: "pinheiros", premissas: {}, veioAlgo: false });
+    expect(lerPremissasDaQuery("?bairro=pinheiros")).toEqual({ slugBairro: "pinheiros", premissas: {}, veioAlgo: false, reabriu: false });
   });
 
   it("lê o formato anterior do simulador da home (m, occ, diaria, boost, reforma)", () => {

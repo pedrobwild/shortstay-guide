@@ -41,6 +41,21 @@ function linhaPremissas(projectId: string, intent: LeadIntent): TablesInsert<"pr
   } as unknown as TablesInsert<"project_assumptions">;
 }
 
+/**
+ * Grava as premissas; se a linha com as colunas novas for rejeitada (migration 20261027120000 ainda não aplicada),
+ * tenta uma vez com a linha legada (projeto, bairro e faixa). Só o código do erro vai para o log, nunca a linha.
+ */
+async function inserirPremissas(projectId: string, intent: LeadIntent) {
+  const { error } = await supabase.from("project_assumptions").insert(linhaPremissas(projectId, intent));
+  if (!error) return;
+  console.warn("project_assumptions: insert com premissas falhou, usando a linha legada", (error as { code?: string }).code);
+  await supabase.from("project_assumptions").insert({
+    project_id: projectId,
+    neighborhood: intent.neighborhood || null,
+    area_sqm: intent.area_sqm || null,
+  });
+}
+
 const PENDING_KEY = "bwild_pending_lead_provision";
 
 export function savePendingProvision(intent: LeadIntent) {
@@ -121,7 +136,7 @@ export async function provisionProjectForLead(
 
       // Pré-popula as premissas da projeção (best-effort: depende da policy).
       if (intent.neighborhood || intent.area_sqm || intent.premissas) {
-        await supabase.from("project_assumptions").insert(linhaPremissas(projectId, intent));
+        await inserirPremissas(projectId, intent);
       }
     }
   }
@@ -156,7 +171,7 @@ export async function criarProjetoDaSimulacao(userId: string, intent: LeadIntent
     .single();
   if (error || !criado) return { projectId: null };
   if (intent.neighborhood || intent.area_sqm || intent.premissas) {
-    await supabase.from("project_assumptions").insert(linhaPremissas(criado.id, intent));
+    await inserirPremissas(criado.id, intent);
   }
   return { projectId: criado.id };
 }

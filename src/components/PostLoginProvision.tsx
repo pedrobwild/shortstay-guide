@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   loadPendingProvision,
   clearPendingProvision,
+  savePendingProvision,
   provisionProjectForLead,
 } from "@/lib/leadProvisioning";
 
@@ -23,11 +24,15 @@ export default function PostLoginProvision() {
     if (!intent) return;
 
     handled.current = true;
+    // Limpa antes do await: outra aba que receba a sessão (link de confirmação por e-mail) não relê a mesma intenção
+    // e não cria projeto em duplicidade. Se o provisionamento falhar, a intenção volta para o próximo login.
+    clearPendingProvision();
     (async () => {
       const { projectId } = await provisionProjectForLead(user.id, intent);
-      clearPendingProvision();
       if (projectId) {
         navigate(`/projeto/${projectId}`, { replace: true });
+      } else {
+        savePendingProvision(intent);
       }
     })();
   }, [user, navigate]);

@@ -42,12 +42,15 @@ describe("simulação guardada como projeto", () => {
     const semBairro = linkReabrirSimulacao(PREMISSAS_SIMULADOR_PADRAO);
     expect(semBairro).toBe("/projecao?reabrir=1");
     expect(lerPremissasDaQuery(semBairro.slice("/projecao".length)).veioAlgo).toBe(true);
+    expect(lerPremissasDaQuery(semBairro.slice("/projecao".length)).reabriu).toBe(true);
   });
   it("link compartilhado comum, sem o marcador, mantém o comportamento", () => {
     expect(lerPremissasDaQuery("?bairro=mooca").veioAlgo).toBe(false);
     expect(lerPremissasDaQuery("").veioAlgo).toBe(false);
     expect(lerPremissasDaQuery("?diaria=250").veioAlgo).toBe(true);
     expect(lerPremissasDaQuery("?reabrir=0").veioAlgo).toBe(false);
+    expect(lerPremissasDaQuery("?diaria=250").reabriu).toBe(false);
+    expect(lerPremissasDaQuery("?reabrir=0").reabriu).toBe(false);
   });
   it("o marcador não é premissa nem sai do link compartilhável", () => {
     expect(premissasParaQuery({ ...PREMISSAS_SIMULADOR_PADRAO, diaria: 250 }, "mooca")).not.toContain("reabrir");

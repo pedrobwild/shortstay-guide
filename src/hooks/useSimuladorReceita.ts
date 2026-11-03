@@ -38,6 +38,8 @@ export interface SimuladorReceita {
   indicadores: ReturnType<typeof indicadores>;
   /** Premissas chegaram por um link compartilhado (além do bairro). */
   recebidaPorLink: boolean;
+  /** O link trouxe o marcador de "Reabrir na simulação": a conta é da própria pessoa, guardada no Painel. */
+  reaberta: boolean;
   /** Query string das premissas atuais (para o link e o rascunho de retomada). */
   query: string;
   /** Carrega um conjunto completo de premissas (cenário salvo). */
@@ -62,6 +64,7 @@ export function useSimuladorReceita(): SimuladorReceita {
   const { search } = useLocation();
   const [p, setP] = useState<PremissasSimulador>(PREMISSAS_SIMULADOR_PADRAO);
   const [recebidaPorLink, setRecebidaPorLink] = useState(false);
+  const [reaberta, setReaberta] = useState(false);
   const carregado = useRef(false);
   const urlAplicada = useRef<string | null>(null);
   const podeSalvar = useRef(false);
@@ -78,7 +81,7 @@ export function useSimuladorReceita(): SimuladorReceita {
   //    quando a lista de bairros já tem o slug pedido
   useEffect(() => {
     if (urlAplicada.current === search) return;
-    const { slugBairro, premissas, veioAlgo } = lerPremissasDaQuery(search);
+    const { slugBairro, premissas, veioAlgo, reabriu } = lerPremissasDaQuery(search);
     if (!slugBairro && !veioAlgo) { urlAplicada.current = search; return; }
     const alvo = slugBairro ? bairros.find((b) => slugifyBairro(b.name) === slugifyBairro(slugBairro)) : undefined;
     // Base ainda carregando: tenta de novo quando mudar. Com a base completa e o bairro fora dela, segue sem ele.
@@ -88,6 +91,7 @@ export function useSimuladorReceita(): SimuladorReceita {
     if (veioAlgo) {
       setP(normalizarPremissasSimulador({ ...PREMISSAS_SIMULADOR_PADRAO, ...premissas, ...bairroUrl }));
       setRecebidaPorLink(true);
+      setReaberta(reabriu);
       podeSalvar.current = false; // a conta de quem enviou não substitui o rascunho de quem abriu
     } else if (alvo) {
       setP((atual) => ({ ...atual, ...bairroUrl, diaria: null, ocupacao: null }));
@@ -125,7 +129,7 @@ export function useSimuladorReceita(): SimuladorReceita {
     diariaAjustada: p.diaria != null && p.diaria !== diariaBase,
     ocupacaoAjustada: p.ocupacao != null && bairro != null && p.ocupacao !== bairro.avgOccupancy,
     reforma, sugestaoReforma, reformaAjustada: p.reforma != null,
-    aluguel, resultadoShortStay: rSS, resultadoTradicional: rTrad, resultado, indicadores: ind, recebidaPorLink, query,
+    aluguel, resultadoShortStay: rSS, resultadoTradicional: rTrad, resultado, indicadores: ind, recebidaPorLink, reaberta, query,
     slugBairro: bairro ? slugifyBairro(bairro.name) : null,
   };
 }

@@ -83,6 +83,25 @@ describe("MedicaoGlobal (telemetria interna em toda rota pública)", () => {
     expect(insert).not.toHaveBeenCalled();
   });
 
+  it("evento disparado antes de navegar para rota privada ainda é gravado (o flush só confere consentimento)", async () => {
+    await montar("/projecao");
+    trackGlobal("cta_clicked", { cta_id: "criar_conta_simulacao" });
+    window.history.replaceState({}, "", "/signup");
+    await act(async () => { ir!("/signup"); });
+    await passar5s();
+    const lote = insert.mock.calls.flatMap((c) => c[0] as Evento[]);
+    expect(lote.map((e) => e.event_type)).toContain("cta_clicked");
+    expect(lote.find((e) => e.event_type === "cta_clicked")?.page).toBe("/projecao");
+  });
+
+  it("consentimento recusado antes do flush descarta o buffer", async () => {
+    await montar("/projecao");
+    trackGlobal("cta_clicked", {});
+    localStorage.setItem("radar_bewild_consent_v1", "refused");
+    await passar5s();
+    expect(insert).not.toHaveBeenCalled();
+  });
+
   it("em /admin não registra page_view", async () => {
     await montar("/admin/leads");
     await passar5s();
