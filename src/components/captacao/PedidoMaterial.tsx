@@ -27,16 +27,17 @@ type Estado = "inicial" | "enviando" | "sucesso" | "erro";
 
 /**
  * Oferta de material por e-mail (captura leve): e-mail obrigatório, primeiro nome
- * opcional, boletim em caixa separada e desmarcada, consentimento à vista. Sem
+ * opcional, contato comercial e boletim em caixas separadas e desmarcadas, consentimento à vista. Sem
  * provedor de e-mail (D3, 27/10/2026), a tela entrega o link do material depois
  * do registro; pedido repetido e sucesso mostram o mesmo texto. A etapa vem do
- * momento salvo, lido depois da montagem. Mede só material, origem e boletim —
+ * momento salvo, lido depois da montagem. Mede só material, origem, boletim e contato comercial —
  * nunca o e-mail ou o nome.
  */
 export default function PedidoMaterial({ material, origem, bairro = null }: { material: Material; origem: OrigemPedido; bairro?: string | null }) {
   const id = useId();
   const [email, setEmail] = useState("");
   const [nome, setNome] = useState("");
+  const [contatoComercial, setContatoComercial] = useState(false);
   const [boletim, setBoletim] = useState(false);
   const [estado, setEstado] = useState<Estado>("inicial");
   const [emailInvalido, setEmailInvalido] = useState(false);
@@ -66,14 +67,14 @@ export default function PedidoMaterial({ material, origem, bairro = null }: { ma
     enviando.current = true;
     setEstado("enviando");
     // A sessão da telemetria só acompanha o pedido com consentimento de medição; o registro funciona sem ela.
-    const registro = montarPedido({ email, nome, material, etapa, bairro, boletim, origem }, canMeasure() ? getGlobalSessionId() : null);
+    const registro = montarPedido({ email, nome, material, etapa, bairro, boletim, contatoComercial, origem }, canMeasure() ? getGlobalSessionId() : null);
     const resultado = await registrarPedido(registro);
     enviando.current = false;
     if (resultado === "erro") {
       setEstado("erro");
       return;
     }
-    if (resultado === "ok") trackGlobal("material_solicitado", { material, origem, boletim });
+    if (resultado === "ok") trackGlobal("material_solicitado", { material, origem, boletim, contato_comercial: contatoComercial });
     void enviarMaterial(registro);
     setEstado("sucesso");
   }
@@ -127,6 +128,13 @@ export default function PedidoMaterial({ material, origem, bairro = null }: { ma
                 className="min-h-[44px] text-base md:text-base"
               />
             </div>
+          </div>
+
+          <div className="flex min-h-[44px] items-center gap-3">
+            <Checkbox id={`${id}-contato`} checked={contatoComercial} onCheckedChange={(v) => setContatoComercial(v === true)} className="h-5 w-5" />
+            <Label htmlFor={`${id}-contato`} className="cursor-pointer py-2 text-[15px] font-normal leading-snug">
+              Aceito que a Bewild fale comigo sobre a reforma do meu studio.
+            </Label>
           </div>
 
           <div className="flex min-h-[44px] items-center gap-3">

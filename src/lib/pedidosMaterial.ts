@@ -16,11 +16,12 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Momento } from "@/lib/momento";
 
 /** Muda quando o texto do consentimento mudar; fica gravada em cada linha. */
-export const CONSENTIMENTO_MATERIAL_VERSAO = "2026-10-27";
+export const CONSENTIMENTO_MATERIAL_VERSAO = "2026-11-03";
 
-/** Proposta do texto (D6, 27/10/2026): o Pedro valida antes de publicar. */
+/** Texto do consentimento (D6, 03/11/2026): declara os três usos do e-mail e o vínculo com a navegação. */
 export const TEXTO_CONSENTIMENTO_MATERIAL =
-  "A Bewild usa seu e-mail só para enviar este material e, se você marcar, as próximas análises do Radar Bewild. " +
+  "A Bewild usa seu e-mail para disponibilizar este material e, só se você marcar, para enviar as próximas análises do Radar Bewild e para falar com você sobre a reforma do seu studio. " +
+  "Se você aceitou cookies, o pedido fica ligado à sua navegação no Radar. " +
   "Você pode cancelar a qualquer momento pelo canal indicado na política de privacidade (bewild.com.br/privacidade).";
 
 export const MATERIAIS = {
@@ -38,6 +39,7 @@ export interface RegistroPedido {
   etapa: Momento | null;
   bairro: string | null;
   boletim: boolean;
+  contato_comercial: boolean;
   consentimento_versao: string;
   origem: OrigemPedido;
   sessao: string | null;
@@ -60,7 +62,7 @@ const textoOuNulo = (v: string | null | undefined, max: number) => {
 
 /** Normaliza o que a pessoa digitou e fixa a versão do consentimento. */
 export function montarPedido(
-  d: { email: string; nome?: string; material: Material; etapa?: Momento | null; bairro?: string | null; boletim: boolean; origem: OrigemPedido },
+  d: { email: string; nome?: string; material: Material; etapa?: Momento | null; bairro?: string | null; boletim: boolean; contatoComercial: boolean; origem: OrigemPedido },
   sessao: string | null,
 ): RegistroPedido {
   return {
@@ -70,6 +72,7 @@ export function montarPedido(
     etapa: d.etapa ?? null,
     bairro: textoOuNulo(d.bairro, 80),
     boletim: d.boletim,
+    contato_comercial: d.contatoComercial,
     consentimento_versao: CONSENTIMENTO_MATERIAL_VERSAO,
     origem: d.origem,
     sessao,

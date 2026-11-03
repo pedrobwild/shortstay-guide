@@ -31,6 +31,7 @@ const base: PedidoAdmin = {
   etapa: "procurando",
   bairro: "Pinheiros",
   boletim: false,
+  contato_comercial: true,
   origem: "bairro",
   status_comercial: "novo",
   responsavel: null,
@@ -63,10 +64,12 @@ describe("pedidosParaCsv", () => {
   it("CSV com cabeçalho, ponto e vírgula e BOM", () => {
     const csv = pedidosParaCsv([base]);
     expect(csv.charCodeAt(0)).toBe(0xfeff);
-    expect(csv.split("\n")[0].slice(1)).toBe("data;e-mail;nome;material;etapa;bairro;origem;boletim;status;responsável;motivo");
+    expect(csv.split("\n")[0].slice(1)).toBe("data;e-mail;nome;material;etapa;bairro;origem;boletim;contato comercial;status;responsável;motivo");
     const linha = csv.split("\n")[1].split(";");
     expect(linha[3]).toBe("Checklist antes de comprar o studio");
     expect(linha[7]).toBe("não");
+    expect(linha[8]).toBe("sim");
+    expect(pedidosParaCsv([{ ...base, contato_comercial: false }]).split("\n")[1].split(";")[8]).toBe("não");
   });
   it("cita campos com ponto e vírgula, aspas ou quebra de linha", () => {
     const csv = pedidosParaCsv([{ ...base, nome: 'A; "B"', motivo_perda: "x\ny", status_comercial: "perdido" }]);
@@ -81,7 +84,9 @@ describe("resumoPedidos", () => {
       total: 3,
       porStatus: { novo: 2, qualificado: 1, oportunidade: 0, perdido: 0, fora_do_perfil: 0 },
       boletim: 1,
+      contatoComercial: 3,
     });
+    expect(resumoPedidos([base, { ...base, id: "9", contato_comercial: false }]).contatoComercial).toBe(1);
   });
 });
 
@@ -105,6 +110,14 @@ describe("listarPedidos", () => {
     expect(chain.or).toHaveBeenCalledWith(
       "created_at.lt.2026-10-27T15:30:00.000Z,and(created_at.eq.2026-10-27T15:30:00.000Z,id.lt.00000000-0000-4000-8000-000000000001)",
     );
+  });
+  it("filtra por aceite de contato comercial só quando pedido", async () => {
+    await listarPedidos({ soContato: true }, {});
+    expect(chain.eq).toHaveBeenCalledWith("contato_comercial", true);
+    chain.eq.mockClear();
+    await listarPedidos({}, {});
+    expect(chain.eq).not.toHaveBeenCalledWith("contato_comercial", true);
+    expect(chain.select.mock.calls[0][0]).toContain("contato_comercial");
   });
   it("rejeita cursor malformado em vez de montar filtro", async () => {
     await expect(listarPedidos({}, { apos: { created_at: "x,or(1=1)", id: "y" } })).rejects.toThrow();

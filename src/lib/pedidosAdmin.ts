@@ -31,6 +31,7 @@ export type PedidoAdmin = {
   etapa: Momento | null;
   bairro: string | null;
   boletim: boolean;
+  contato_comercial: boolean;
   origem: OrigemPedido;
   status_comercial: StatusComercial;
   responsavel: string | null;
@@ -67,12 +68,12 @@ const ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$
 const ID_RE = /^[0-9a-fA-F-]{8,40}$/;
 
 export async function listarPedidos(
-  params: { status?: StatusComercial | null; desde?: Date | null },
+  params: { status?: StatusComercial | null; desde?: Date | null; soContato?: boolean },
   pagina: { apos?: { created_at: string; id: string } },
 ): Promise<PedidoAdmin[]> {
   let q = db
     .from("radar_pedidos_material")
-    .select("id,created_at,email,nome,material,etapa,bairro,boletim,origem,status_comercial,responsavel,motivo_perda,atualizado_em")
+    .select("id,created_at,email,nome,material,etapa,bairro,boletim,contato_comercial,origem,status_comercial,responsavel,motivo_perda,atualizado_em")
     .order("created_at", { ascending: false })
     .order("id", { ascending: false })
     .limit(TAMANHO_PAGINA);
@@ -80,6 +81,7 @@ export async function listarPedidos(
     if (!statusValido(params.status)) throw new Error("status inválido");
     q = q.eq("status_comercial", params.status);
   }
+  if (params.soContato) q = q.eq("contato_comercial", true);
   if (params.desde) q = q.gte("created_at", params.desde.toISOString());
   const apos = pagina.apos;
   if (apos) {
@@ -105,7 +107,7 @@ const dataBR = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digi
 
 /** CSV para o comercial: ponto e vírgula e BOM, mesmo formato de demandaParaCsv. */
 export function pedidosParaCsv(linhas: PedidoAdmin[]): string {
-  const cab = ["data", "e-mail", "nome", "material", "etapa", "bairro", "origem", "boletim", "status", "responsável", "motivo"];
+  const cab = ["data", "e-mail", "nome", "material", "etapa", "bairro", "origem", "boletim", "contato comercial", "status", "responsável", "motivo"];
   // Neutraliza fórmulas de planilha (=, +, -, @, tab, CR) antes de citar.
   const esc = (bruto: string) => {
     const v = /^[=+\-@\t\r]/.test(bruto) ? `'${bruto}` : bruto;
@@ -121,6 +123,7 @@ export function pedidosParaCsv(linhas: PedidoAdmin[]): string {
       p.bairro ?? "",
       p.origem,
       p.boletim ? "sim" : "não",
+      p.contato_comercial ? "sim" : "não",
       ROTULO_STATUS[p.status_comercial] ?? p.status_comercial,
       p.responsavel ?? "",
       p.motivo_perda ?? "",
@@ -131,14 +134,16 @@ export function pedidosParaCsv(linhas: PedidoAdmin[]): string {
   return "﻿" + [cab.join(";"), ...corpo].join("\n");
 }
 
-export function resumoPedidos(linhas: PedidoAdmin[]): { total: number; porStatus: Record<StatusComercial, number>; boletim: number } {
+export function resumoPedidos(linhas: PedidoAdmin[]): { total: number; porStatus: Record<StatusComercial, number>; boletim: number; contatoComercial: number } {
   const porStatus = Object.fromEntries(STATUS_COMERCIAL.map((s) => [s, 0])) as Record<StatusComercial, number>;
   let boletim = 0;
+  let contatoComercial = 0;
   for (const p of linhas) {
     if (p.status_comercial in porStatus) porStatus[p.status_comercial] += 1;
     if (p.boletim) boletim += 1;
+    if (p.contato_comercial) contatoComercial += 1;
   }
-  return { total: linhas.length, porStatus, boletim };
+  return { total: linhas.length, porStatus, boletim, contatoComercial };
 }
 
 /**

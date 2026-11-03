@@ -70,17 +70,19 @@ afterEach(() => {
 });
 
 describe("PedidoMaterial", () => {
-  it("mostra título, campos, boletim desmarcado e o consentimento com o link da política", async () => {
+  it("mostra título, campos, as duas caixas desmarcadas e o consentimento com o link da política", async () => {
     const el = await montar();
     expect(el.textContent).toContain("Antes de comprar o studio, confira o que pode mudar a conta.");
     expect(el.textContent).toContain("Receba um checklist para avaliar o prédio, a unidade, os custos e a preparação para alugar.");
-    const caixa = el.querySelector('[role="checkbox"]')!;
-    expect(caixa.getAttribute("aria-checked")).toBe("false");
+    const caixas = [...el.querySelectorAll('[role="checkbox"]')];
+    expect(caixas).toHaveLength(2);
+    expect(caixas.map((c) => c.getAttribute("aria-checked"))).toEqual(["false", "false"]);
+    expect(el.textContent).toContain("Aceito que a Bewild fale comigo sobre a reforma do meu studio.");
     expect(el.textContent).toContain("Quero também receber as próximas análises do Radar Bewild.");
     const politica = el.querySelector<HTMLAnchorElement>('a[href="https://bewild.com.br/privacidade"]')!;
     expect(politica.getAttribute("target")).toBe("_blank");
     expect(politica.textContent).toContain("(abre em nova aba)");
-    expect(el.textContent).toContain("A Bewild usa seu e-mail só para enviar este material");
+    expect(el.textContent).toContain("A Bewild usa seu e-mail para disponibilizar este material");
   });
 
   it("sem e-mail o botão não envia e avisa o que falta", async () => {
@@ -100,11 +102,11 @@ describe("PedidoMaterial", () => {
     await enviar(el);
     expect(mockRegistrar).toHaveBeenCalledWith({
       email: "pedro@bewild.com.br", nome: "Joaquina", material: "checklist_compra", etapa: "procurando", bairro: "Mooca",
-      boletim: false, consentimento_versao: "2026-10-27", origem: "bairro", sessao: "sessao-1",
+      boletim: false, contato_comercial: false, consentimento_versao: "2026-11-03", origem: "bairro", sessao: "sessao-1",
     });
     expect(el.textContent).toContain("Pedido registrado. O checklist está aqui:");
     expect(linkChecklist(el)?.textContent).toBe("Checklist antes de comprar o studio");
-    expect(mockTrack).toHaveBeenCalledWith("material_solicitado", { material: "checklist_compra", origem: "bairro", boletim: false });
+    expect(mockTrack).toHaveBeenCalledWith("material_solicitado", { material: "checklist_compra", origem: "bairro", boletim: false, contato_comercial: false });
     const medido = JSON.stringify(mockTrack.mock.calls);
     expect(medido).not.toContain("pedro@");
     expect(medido).not.toContain("bewild.com.br");
@@ -127,12 +129,27 @@ describe("PedidoMaterial", () => {
     mockRegistrar.mockResolvedValueOnce("duplicado");
     const el = await montar();
     digitar(email(el), "pedro@bewild.com.br");
-    await act(async () => { el.querySelector<HTMLButtonElement>('[role="checkbox"]')!.click(); });
+    await act(async () => { el.querySelectorAll<HTMLButtonElement>('[role="checkbox"]')[1].click(); });
     await enviar(el);
     expect(mockRegistrar.mock.calls[0][0].boletim).toBe(true);
+    expect(mockRegistrar.mock.calls[0][0].contato_comercial).toBe(false);
     expect(el.textContent).toContain("Pedido registrado. O checklist está aqui:");
     expect(linkChecklist(el)).toBeDefined();
     expect(mockTrack).not.toHaveBeenCalled();
+  });
+
+  it("marcar só o contato comercial envia contato_comercial true e boletim false, e mede sem dado pessoal", async () => {
+    mockRegistrar.mockResolvedValueOnce("ok");
+    const el = await montar();
+    digitar(email(el), "pedro@bewild.com.br");
+    digitar(nome(el), "Joaquina");
+    await act(async () => { el.querySelectorAll<HTMLButtonElement>('[role="checkbox"]')[0].click(); });
+    await enviar(el);
+    expect(mockRegistrar.mock.calls[0][0]).toMatchObject({ contato_comercial: true, boletim: false });
+    expect(mockTrack).toHaveBeenCalledWith("material_solicitado", { material: "checklist_compra", origem: "bairro", boletim: false, contato_comercial: true });
+    const medido = JSON.stringify(mockTrack.mock.calls);
+    expect(medido).not.toContain("pedro@");
+    expect(medido).not.toContain("Joaquina");
   });
 
   it("em erro, avisa e mantém o link do checklist", async () => {

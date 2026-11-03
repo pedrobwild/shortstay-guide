@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import AppNavbar from "@/components/AppNavbar";
 import AdminTabs from "@/components/admin/AdminTabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -86,6 +87,7 @@ function LinhaPedido({ pedido, onSalvo }: { pedido: PedidoAdmin; onSalvo: (p: Pe
       <TableCell>{pedido.bairro ?? "—"}</TableCell>
       <TableCell>{pedido.origem}</TableCell>
       <TableCell>{pedido.boletim ? <Badge variant="secondary">Boletim</Badge> : "—"}</TableCell>
+      <TableCell>{pedido.contato_comercial ? <Badge variant="secondary">Aceitou</Badge> : <Badge variant="outline">Não contatar</Badge>}</TableCell>
       <TableCell className="whitespace-nowrap tabular-nums">{dataBR.format(new Date(pedido.created_at))}</TableCell>
       <TableCell className="min-w-[200px] space-y-2">
         <Select value={status} onValueChange={mudarStatus} disabled={salvando}>
@@ -141,6 +143,8 @@ function LinhaPedido({ pedido, onSalvo }: { pedido: PedidoAdmin; onSalvo: (p: Pe
 export default function AdminPedidos() {
   const [status, setStatus] = useState<StatusComercial | "todos">("todos");
   const [periodo, setPeriodo] = useState<string>("todos");
+  // Por padrão só entram (tabela e CSV) quem aceitou o contato comercial.
+  const [soContato, setSoContato] = useState(true);
   const [linhas, setLinhas] = useState<PedidoAdmin[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [carregandoMais, setCarregandoMais] = useState(false);
@@ -151,9 +155,10 @@ export default function AdminPedidos() {
     const dias = PERIODOS.find((p) => p.valor === periodo)?.dias ?? null;
     return {
       status: status === "todos" ? null : status,
+      soContato,
       desde: dias ? new Date(Date.now() - dias * 24 * 60 * 60 * 1000) : null,
     };
-  }, [status, periodo]);
+  }, [status, periodo, soContato]);
 
   const carregar = useCallback(async () => {
     setCarregando(true);
@@ -223,6 +228,7 @@ export default function AdminPedidos() {
             </Badge>
           ))}
           <Badge variant="secondary" className="tabular-nums">Querem o boletim: {resumo.boletim}</Badge>
+          <Badge variant="secondary" className="tabular-nums">aceitaram contato: {resumo.contatoComercial}</Badge>
         </section>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -251,6 +257,10 @@ export default function AdminPedidos() {
               ))}
             </SelectContent>
           </Select>
+          <div className="flex min-h-[44px] items-center gap-2">
+            <Checkbox id="so-contato" checked={soContato} onCheckedChange={(v) => setSoContato(v === true)} className="h-5 w-5" />
+            <label htmlFor="so-contato" className="cursor-pointer py-2 text-sm leading-snug">Só quem aceitou contato comercial</label>
+          </div>
           <Button variant="outline" className="min-h-[44px] ml-auto" onClick={exportar} disabled={linhas.length === 0}>
             <Download className="h-4 w-4 mr-2" aria-hidden /> Exportar CSV
           </Button>
@@ -269,7 +279,7 @@ export default function AdminPedidos() {
             </Button>
           </div>
         ) : linhas.length === 0 ? (
-          <p className="py-12 text-center text-sm text-muted-foreground">Nenhum pedido ainda.</p>
+          <p className="py-12 text-center text-sm text-muted-foreground">{soContato ? "Nenhum pedido de quem aceitou contato comercial. Desmarque o filtro para ver os demais." : "Nenhum pedido ainda."}</p>
         ) : (
           <>
             {erro && <p role="alert" className="text-sm text-destructive">{erro}</p>}
@@ -284,6 +294,7 @@ export default function AdminPedidos() {
                     <TableHead>Bairro</TableHead>
                     <TableHead>Origem</TableHead>
                     <TableHead>Boletim</TableHead>
+                    <TableHead>Contato</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Responsável</TableHead>

@@ -19,7 +19,7 @@ import {
 } from "@/lib/pedidosMaterial";
 
 const r = montarPedido(
-  { email: "pedro@bewild.com.br", material: "checklist_compra", etapa: null, bairro: null, boletim: true, origem: "bairro" },
+  { email: "pedro@bewild.com.br", material: "checklist_compra", etapa: null, bairro: null, boletim: true, contatoComercial: true, origem: "bairro" },
   null,
 );
 
@@ -40,18 +40,20 @@ describe("pedido de material", () => {
   });
 
   it("monta o pedido normalizado, com a versão do consentimento e sem campos extras", () => {
-    const r = montarPedido({ email: " Pedro@X.com ", nome: "  ", material: "checklist_compra", etapa: "procurando", bairro: "Mooca", boletim: false, origem: "guia" }, "s1");
-    expect(r).toEqual({ email: "Pedro@X.com", nome: null, material: "checklist_compra", etapa: "procurando", bairro: "Mooca", boletim: false, consentimento_versao: "2026-10-27", origem: "guia", sessao: "s1" });
+    const r = montarPedido({ email: " Pedro@X.com ", nome: "  ", material: "checklist_compra", etapa: "procurando", bairro: "Mooca", boletim: false, contatoComercial: true, origem: "guia" }, "s1");
+    expect(r).toEqual({ email: "Pedro@X.com", nome: null, material: "checklist_compra", etapa: "procurando", bairro: "Mooca", boletim: false, contato_comercial: true, consentimento_versao: "2026-11-03", origem: "guia", sessao: "s1" });
+    expect(Object.keys(r).sort()).toEqual(["bairro", "boletim", "consentimento_versao", "contato_comercial", "email", "etapa", "material", "nome", "origem", "sessao"]);
+    expect(Object.keys(r)).toHaveLength(10);
   });
 
   it("nome e bairro são aparados e limitados a 80 caracteres; ausentes viram nulo", () => {
-    const p = montarPedido({ email: "a@b.co", nome: "  Ana   Maria ", material: "checklist_compra", boletim: true, origem: "comparar" }, null);
+    const p = montarPedido({ email: "a@b.co", nome: "  Ana   Maria ", material: "checklist_compra", boletim: true, contatoComercial: false, origem: "comparar" }, null);
     expect(p.nome).toBe("Ana Maria");
     expect(p.etapa).toBeNull();
     expect(p.bairro).toBeNull();
     expect(p.sessao).toBeNull();
     expect(p.consentimento_versao).toBe(CONSENTIMENTO_MATERIAL_VERSAO);
-    const longo = montarPedido({ email: "a@b.co", nome: "x".repeat(120), material: "checklist_compra", bairro: "y".repeat(120), boletim: false, origem: "guia" }, null);
+    const longo = montarPedido({ email: "a@b.co", nome: "x".repeat(120), material: "checklist_compra", bairro: "y".repeat(120), boletim: false, contatoComercial: false, origem: "guia" }, null);
     expect(longo.nome).toHaveLength(80);
     expect(longo.bairro).toHaveLength(80);
   });
@@ -92,5 +94,9 @@ describe("pedido de material", () => {
     expect(TEXTO_CONSENTIMENTO_MATERIAL).toContain("bewild.com.br/privacidade");
     // Nesta rodada não há e-mail enviado (D3): o texto não pode prometer link de cancelamento no e-mail.
     expect(TEXTO_CONSENTIMENTO_MATERIAL).not.toMatch(/link no e-mail/i);
+    expect(TEXTO_CONSENTIMENTO_MATERIAL).toContain("falar com você sobre a reforma");
+    expect(TEXTO_CONSENTIMENTO_MATERIAL).toContain("só se você marcar");
+    expect(TEXTO_CONSENTIMENTO_MATERIAL).not.toContain("só para enviar");
+    expect(CONSENTIMENTO_MATERIAL_VERSAO).toBe("2026-11-03");
   });
 });
