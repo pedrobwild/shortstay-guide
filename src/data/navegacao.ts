@@ -21,6 +21,7 @@ export const LINKS_PUBLICOS: LinkNavegacao[] = [
   { to: "/ferramentas", label: "Comprar imóvel", id: "ferramentas" },
   { to: "/empreendimentos", label: "Empreendimentos", id: "empreendimentos" },
   { to: "/posts", label: "Posts", id: "posts" },
+  { to: "/imoveis", label: "Imóveis", id: "imoveis" },
 ];
 
 /** Atalhos da barra no celular: o fluxo principal explorar → comparar → simular. */
