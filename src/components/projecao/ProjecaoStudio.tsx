@@ -222,6 +222,7 @@ export default function ProjecaoStudio() {
 
             <TabelaNumerada
               numero={1}
+              rolavel
               className="mt-12"
               titulo="Da receita bruta ao resultado líquido"
               unidade="R$ por mês. Cada linha mostra como o valor foi obtido."

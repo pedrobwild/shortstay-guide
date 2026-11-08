@@ -13,6 +13,7 @@ describe("Estudo aberto — contexto dos dados", () => {
   it("o aviso de receita diz de que universo o número vem", () => {
     expect(AVISO_UNIVERSO).toMatch(/todos os tipos de anúncio/);
     expect(AVISO_UNIVERSO).toMatch(/não a receita de um studio específico/);
+    expect(AVISO_UNIVERSO).toBe("Médias de todos os tipos de anúncio do bairro na fonte, não a receita de um studio específico.");
   });
 });
 

@@ -63,3 +63,11 @@ describe("provas Bewild — fonte única", () => {
     expect(secao).toContain("TEXTO_MULTA_ATRASO");
   });
 });
+
+describe("número de contratos do estudo vem da constante", () => {
+  it("Metodologia e ReformaSection não repetem a string literal \"188 contratos\"", () => {
+    for (const f of ["src/pages/Metodologia.tsx", "src/components/guide/ReformaSection.tsx"]) {
+      expect(readFileSync(f, "utf8"), f).not.toContain("188 contratos");
+    }
+  });
+});

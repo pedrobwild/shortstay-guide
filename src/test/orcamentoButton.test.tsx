@@ -77,6 +77,28 @@ describe("OrcamentoButton", () => {
   });
 });
 
+describe("OrcamentoButton em telas estreitas", () => {
+  it("o link pode quebrar linha e nunca passa da largura do contêiner", async () => {
+    const c = await montar(<OrcamentoButton local="final" rotulo="Solicitar orçamento para este studio" className="px-5" />);
+    const classes = c.querySelector("a")!.className;
+    expect(classes).toContain("whitespace-normal");
+    expect(classes).toContain("max-w-full");
+    expect(classes).not.toMatch(/(^|\s)whitespace-nowrap/);
+    expect(classes).toContain("px-5");
+  });
+});
+
+describe("OrcamentoButton com bairro vazio", () => {
+  it("contexto com bairro \"\" vira bairro nulo no evento e fica fora da URL", async () => {
+    const c = await montar(<OrcamentoButton local="comparar" contexto={{ bairro: "" }} />);
+    const a = c.querySelector("a")!;
+    expect(a.getAttribute("href")).not.toContain("bairro");
+    a.addEventListener("click", (e) => e.preventDefault());
+    await act(async () => { a.click(); });
+    expect(trackGlobal).toHaveBeenCalledWith("cta_clicked", { cta_id: "orcamento", local: "comparar", bairro: null });
+  });
+});
+
 describe("FinalCTASection", () => {
   it("leva o bairro atual na URL do pedido, lido depois da montagem; sem bairro, só UTMs", async () => {
     let c = await montar(<MemoryRouter future={FUTURO}><FinalCTASection /></MemoryRouter>);
