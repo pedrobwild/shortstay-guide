@@ -38,7 +38,7 @@ export function whatsappHref(raw: string): string {
 
 /** Rótulos legíveis dos event_type da telemetria, para a timeline. */
 export const EVENT_LABELS: Record<string, string> = {
-  page_view: "Abriu o guia",
+  page_view: "Visualizou uma página",
   scroll_25: "Rolou 25%",
   scroll_50: "Rolou 50%",
   scroll_75: "Rolou 75%",
