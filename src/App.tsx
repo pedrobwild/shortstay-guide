@@ -15,6 +15,7 @@ import bwildLogo from "@/assets/bewild-logo.webp";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import PostLoginProvision from "@/components/PostLoginProvision";
+import MedicaoGlobal from "@/components/MedicaoGlobal";
 
 import { rotaHome } from "./rotaHome";
 const MapaBairros = lazy(() => import("./pages/MapaBairros"));
@@ -39,6 +40,7 @@ const AdminLeads = lazy(() => import("./pages/AdminLeads"));
 const AdminBairros = lazy(() => import("./pages/AdminBairros"));
 const AdminSimulacoes = lazy(() => import("./pages/AdminSimulacoes"));
 const AdminDemanda = lazy(() => import("./pages/AdminDemanda"));
+const AdminPedidos = lazy(() => import("./pages/AdminPedidos"));
 const AdminFontes = lazy(() => import("./pages/AdminFontes"));
 const AdminSeo = lazy(() => import("./pages/AdminSeo"));
 const AdminGoogle = lazy(() => import("./pages/AdminGoogle"));
@@ -172,6 +174,7 @@ export function AppRoutes() {
       <ScrollToHash />
       <ClientOnly><CookieConsent /></ClientOnly>
       <PostLoginProvision />
+      <MedicaoGlobal />
       <Suspense fallback={<PageFallback />}>
         <RouteSeo />
         <Routes>
@@ -207,6 +210,7 @@ export function AppRoutes() {
           <Route path="/projetos" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
           <Route path="/projeto/:projectId" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
           <Route path="/admin/leads" element={<AdminRoute><AdminLeads /></AdminRoute>} />
+          <Route path="/admin/pedidos" element={<AdminRoute><AdminPedidos /></AdminRoute>} />
           <Route path="/admin" element={<AdminRoute><Navigate to="/admin/coletas" replace /></AdminRoute>} />
           <Route path="/admin/bairros" element={<AdminRoute><AdminBairros /></AdminRoute>} />
           <Route path="/admin/simulacoes" element={<AdminRoute><AdminSimulacoes /></AdminRoute>} />

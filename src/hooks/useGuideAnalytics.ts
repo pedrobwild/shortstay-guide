@@ -1,4 +1,4 @@
-import { canMeasure } from "@/lib/marketingConsent";
+import { canMeasure, readConsent } from "@/lib/marketingConsent";
 import { useRef, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { TablesInsert } from "@/integrations/supabase/types";
@@ -19,13 +19,21 @@ function getDeviceType(): string {
   return "desktop";
 }
 
-export function useGuideAnalytics() {
+/**
+ * `page` é o caminho gravado em cada evento; sem ele vale window.location.pathname.
+ * Fica numa ref para o `trackEvent` continuar estável a cada troca de rota.
+ */
+export function useGuideAnalytics({ page }: { page?: string } = {}) {
+  const pageRef = useRef<string | undefined>(page);
+  pageRef.current = page;
   const sessionId = useRef(crypto.randomUUID());
   const buffer = useRef<EventPayload[]>([]);
   const flushTimer = useRef<ReturnType<typeof setInterval>>();
 
   const flush = useCallback(async () => {
-    if (!canMeasure()) { buffer.current = []; return; }
+    // Só o consentimento vale aqui: o filtro de rota já foi aplicado no `trackEvent`. Reavaliar a rota no
+    // descarregamento perderia eventos disparados logo antes de navegar para uma rota privada (ex.: /signup).
+    if (readConsent() !== "accepted") { buffer.current = []; return; }
     if (buffer.current.length === 0) return;
     const batch = buffer.current.splice(0);
     try {
@@ -51,7 +59,7 @@ export function useGuideAnalytics() {
         event_data: eventData,
         session_id: sessionId.current,
         device_type: getDeviceType(),
-        page: "guide",
+        page: pageRef.current ?? window.location.pathname,
         created_at: new Date().toISOString(),
       });
     },

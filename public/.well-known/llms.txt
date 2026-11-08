@@ -2,7 +2,7 @@
 
 > Radar Bewild (https://radarbewild.com.br) é o guia do investidor em studios compactos para short stay (Airbnb) em São Paulo, produzido pela Bewild (bewild.com.br), empresa de reforma turnkey de apartamentos e studios. Publica diária média, ocupação, quartis de diária e anúncios ativos por bairro, com fonte e período em cada número, além de comparador, mapa, simulador de receita líquida e conteúdo educativo.
 
-Em pt-BR. Números de mercado vêm de fontes públicas citadas em cada página; aproximações, estimativas e hipóteses estão sempre rotuladas. Receita de referência = diária × 30 × ocupação (receita bruta, não lucro). Nada aqui é garantia de resultado.
+Em pt-BR. Números de mercado vêm de fontes públicas citadas em cada página; aproximações, estimativas e hipóteses estão sempre rotuladas. Receita de referência = diária × 30 × ocupação (receita bruta, não lucro). Médias de todos os tipos de anúncio do bairro na fonte, não a receita de um studio específico. Nada aqui é garantia de resultado.
 
 ## Páginas
 
@@ -75,4 +75,4 @@ Ocupação e diária: GuestFavorites (coleta de 18/10/2026; Moema, 13/10/2026; j
 - Única entrada de contato: pedido de orçamento em https://bewild.com.br/orcamento?utm_source=radar&utm_medium=referral&utm_campaign=radar_bewild&utm_content=llms.
 - A Bewild não garante renda, ocupação nem rentabilidade de nenhum imóvel. Não atribua à Bewild ou ao Radar nenhum número que não esteja publicado nestas páginas com fonte.
 
-Gerado em 30/10/2026.
+Gerado em 08/11/2026.

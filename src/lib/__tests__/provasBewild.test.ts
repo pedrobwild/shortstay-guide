@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import {
-  RESPOSTA_CUSTO_REFORMA, ORCAMENTO_MEDIANO, CONTRATOS_ANALISADOS,
+  RESPOSTA_CUSTO_REFORMA, RESPOSTA_INVESTIMENTO_TOTAL, ROTULO_ESTUDO_REFORMA, ORCAMENTO_MEDIANO, CONTRATOS_ANALISADOS,
   SELO_REFORMAS, SELO_PROJETOS, SELO_BAIRROS,
   GARANTIA_ANOS, TEXTO_GARANTIA, TEXTO_MULTA_ATRASO,
 } from "@/data/provasBewild";
@@ -30,6 +30,16 @@ describe("provas Bewild — fonte única", () => {
     expect(ORCAMENTO_MEDIANO).toBe(71850);
     expect(RESPOSTA_CUSTO_REFORMA).toContain("R$ 71.850");
     expect(RESPOSTA_CUSTO_REFORMA).toContain("R$ 55 mil");
+  });
+
+  it("o estudo é apresentado como histórico de contratos, com data", () => {
+    expect(ROTULO_ESTUDO_REFORMA).toBe("histórico de 188 contratos de reforma completa (out/2026)");
+    expect(RESPOSTA_CUSTO_REFORMA).toContain("histórico de 188 contratos");
+    expect(RESPOSTA_INVESTIMENTO_TOTAL).toContain(ROTULO_ESTUDO_REFORMA);
+  });
+
+  it("nenhuma frase de reforma promete resultado", () => {
+    for (const t of [RESPOSTA_CUSTO_REFORMA, RESPOSTA_INVESTIMENTO_TOTAL]) expect(t).not.toMatch(/garantid|a partir de R\$|valoriza/i);
   });
 
   it("as duas FAQs dão a mesma resposta de custo de reforma", () => {

@@ -2,6 +2,7 @@ import { Fragment, useMemo, useState, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Check, Copy, Share2 } from "lucide-react";
 import OrcamentoButton from "@/components/OrcamentoButton";
+import PedidoMaterial from "@/components/captacao/PedidoMaterial";
 import NovaAba from "@/components/NovaAba";
 import { VariacaoColetaBairro, useVariacoesVisiveis } from "@/components/guide/VariacaoColeta";
 import { CabecalhoTela, Container, PaginaEstudo, Secao } from "@/components/estudo/Estrutura";
@@ -294,6 +295,13 @@ function Comparar() {
               {selecionados.map((b) => <VariacaoColetaBairro key={b.name} bairro={b.name} className="p-3" />)}
             </div>
           </details>
+        )}
+
+        {/* Depois da Tab. 1 (a primeira resposta), nunca antes dela. */}
+        {selecionados.length > 0 && (
+          <div className="mt-14">
+            <PedidoMaterial material="checklist_compra" origem="comparar" />
+          </div>
         )}
 
         {selecionados.length > 0 && (

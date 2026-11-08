@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { formatBRL, formatDecimal } from "@/lib/numberFormat";
-import { AVISO_RECEITA } from "@/lib/estudo";
+import { AVISO_RECEITA, AVISO_UNIVERSO } from "@/lib/estudo";
 import { cn } from "@/lib/utils";
 
 /** Indicador: rótulo com a unidade, número de destaque (34–48, peso 600) e nota curta. */
@@ -77,5 +77,5 @@ export function FormulaReceita({ diaria, ocupacaoPct, receita, className }: { di
 
 /** Aviso que acompanha toda tela com número de receita. */
 export function AvisoReceita({ className }: { className?: string }) {
-  return <p className={cn("e-legenda max-w-[720px]", className)}>{AVISO_RECEITA}</p>;
+  return <p className={cn("e-legenda max-w-[720px]", className)}>{AVISO_UNIVERSO} {AVISO_RECEITA}</p>;
 }

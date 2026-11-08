@@ -23,6 +23,7 @@ import { useSimuladorReceita } from "@/hooks/useSimuladorReceita";
 import { trackSimulationUsed } from "@/lib/marketingConsent";
 import { COLETA_GUESTFAVORITES } from "@/data/fontesGuia";
 import { TEXTO_DRE_PERCENTUAIS, TEXTO_INVESTIMENTO_TOTAL } from "@/data/dreGuia";
+import { ROTULO_ESTUDO_REFORMA } from "@/data/provasBewild";
 import { ACQUISITION_COSTS } from "@/lib/financiamento";
 import { DEFAULT_SP_SEASONALITY } from "@/lib/projectAnalytics";
 import { indicadores, LIMITES, LIMITES_MERCADO, mesAMes, SHORT_STAY_PADRAO, type MesSimulado } from "@/lib/simuladorReceita";
@@ -57,7 +58,7 @@ const dentro = (v: number | null, { min, max }: { min: number; max: number }) =>
 export default function ProjecaoStudio() {
   const { offline, recarregar } = useBairroData();
   const sim = useSimuladorReceita();
-  const { p, bairro, bairros, diaria, ocupacao, diariaBase, diariaAjustada, ocupacaoAjustada, reforma, sugestaoReforma, reformaAjustada, atualizar, recebidaPorLink } = sim;
+  const { p, bairro, bairros, diaria, ocupacao, diariaBase, diariaAjustada, ocupacaoAjustada, reforma, sugestaoReforma, reformaAjustada, atualizar, recebidaPorLink, reaberta } = sim;
   const [, setParams] = useSearchParams();
   // A URL acompanha o bairro que a pessoa escolhe (o link do mapa continua válido ao recarregar).
   const simPagina = useMemo(() => ({
@@ -119,7 +120,9 @@ export default function ProjecaoStudio() {
       )}
       {recebidaPorLink && (
         <Container className="mb-6">
-          <p role="status" className="e-apoio max-w-[720px] border-l-[3px] border-ciano pl-3">Você abriu uma simulação compartilhada: as premissas são de quem enviou o link. Altere à vontade; nada muda para a outra pessoa.</p>
+          <p role="status" className="e-apoio max-w-[720px] border-l-[3px] border-ciano pl-3">{reaberta
+            ? "Você reabriu a simulação guardada no Painel; as premissas são as que você salvou. Altere à vontade; nada muda no que está guardado."
+            : "Você abriu uma simulação compartilhada: as premissas são de quem enviou o link. Altere à vontade; nada muda para a outra pessoa."}</p>
         </Container>
       )}
 
@@ -166,7 +169,7 @@ export default function ProjecaoStudio() {
                     valor={reforma}
                     onChange={(v) => { if (v == null) atualizar({ reforma: null }); else if (dentro(v, LIMITES_MERCADO.reforma)) atualizar({ reforma: v }); }}
                     tag={<Tag tipo="hipotese" />}
-                    ajuda={sugestaoReforma && !reformaAjustada ? `Sugestão: ${sugestaoReforma.areaM2} m² × ${formatBRL(sugestaoReforma.custoM2)}/m², a partir do estudo Bewild; sobe com a diária.` : "Valor informado por você."}
+                    ajuda={sugestaoReforma && !reformaAjustada ? `Sugestão: ${sugestaoReforma.areaM2} m² × ${formatBRL(sugestaoReforma.custoM2)}/m², a partir do ${ROTULO_ESTUDO_REFORMA} da Bewild; sobe com a diária.` : "Valor informado por você."}
                   />
                   {reformaAjustada && sugestaoReforma && (
                     <button type="button" onClick={() => atualizar({ reforma: null })} className="e-link inline-flex min-h-[44px] items-center text-[15px]">Voltar à sugestão ({formatBRL(sugestaoReforma.valor)})</button>
@@ -320,8 +323,8 @@ export default function ProjecaoStudio() {
         </details>
       </Secao>
 
-      <Secao id="proximo-passo" rotulo="Próximo passo" titulo={`Preparar a reforma do studio ${emBairro(bairro.name)}`} lead="A Bewild orça a reforma completa do seu studio, do projeto à entrega.">
-        <OrcamentoButton local="projecao" rotulo="Solicitar orçamento de reforma" className="h-auto min-h-[44px] px-5 py-2 text-[15px] font-semibold" />
+      <Secao id="proximo-passo" rotulo="Próximo passo" titulo="Já tem o imóvel e quer planejar a reforma?" lead="Envie as informações do studio para a Bewild avaliar o escopo e preparar o orçamento.">
+        <OrcamentoButton local="projecao" rotulo="Solicitar orçamento para este studio" contexto={{ bairro: bairro.name, area: p.area }} className="h-auto min-h-[44px] px-5 py-2 text-[15px] font-semibold" />
       </Secao>
 
       <Secao id="case" rotulo="Case real" titulo="Um studio reformado pela Bewild, com os números publicados no depoimento">
@@ -373,7 +376,7 @@ export default function ProjecaoStudio() {
           <div className="e-rotulo">Resultado líquido</div>
           <div className={cn("truncate text-lg font-semibold tabular-nums", liquido < 0 && "e-negativo")}>{formatBRL(liquido)}/mês</div>
         </div>
-        <OrcamentoButton local="projecao" rotulo="Orçar reforma" icone={false} className="min-h-[44px] px-4 text-[15px] font-semibold" />
+        <OrcamentoButton local="projecao" rotulo="Orçar reforma" icone={false} contexto={{ bairro: bairro.name, area: p.area }} className="min-h-[44px] px-4 text-[15px] font-semibold" />
       </div>
     </main>
   );

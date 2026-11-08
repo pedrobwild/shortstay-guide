@@ -11,6 +11,9 @@ import {
 } from "@/data/provasBewild";
 import { naturezaBairro, ordenarRanking, type CriterioRanking } from "@/lib/radarUi";
 
+/** De que universo vem o número de receita: aparece antes do aviso de custos, junto de todo número. */
+export const AVISO_UNIVERSO = "Médias de todos os tipos de anúncio do bairro na fonte, não a receita de um studio específico.";
+
 /** Aviso que acompanha toda tela com número de receita (direcionamento, seção 6). */
 export const AVISO_RECEITA = "Receita de referência e simulações não incluem todos os custos e não são garantia de resultado.";
 

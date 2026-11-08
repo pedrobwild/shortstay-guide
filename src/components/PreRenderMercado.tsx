@@ -7,10 +7,11 @@ import { FONTE_BAIRROS_CURADOS, receitaMensalReferencia } from "@/data/bairrosCu
 import { bairroPath, slugifyBairro } from "@/lib/seo";
 import { ancoraReformaBairro, reformaBairroUrl, ARTIGOS_BEWILD } from "@/data/artigosBewild";
 import { rotuloReferenciaBewild } from "@/lib/radarBase";
+import { AVISO_UNIVERSO } from "@/lib/estudo";
 
 const n = new Intl.NumberFormat("pt-BR");
 const brl = (v: number) => `R$ ${n.format(Math.round(v))}`;
-const AVISO_RECEITA = "Receita de referência = diária × 30 × ocupação. É receita bruta, não lucro: não desconta limpeza, gestão, impostos, condomínio nem outras despesas.";
+const AVISO_RECEITA = `${AVISO_UNIVERSO} Receita de referência = diária × 30 × ocupação. É receita bruta, não lucro: não desconta limpeza, gestão, impostos, condomínio nem outras despesas.`;
 
 function Fonte({ b }: { b: BairroRadar }) {
   return b.sourceUrl ? <a href={b.sourceUrl} rel="noopener">{rotuloFonteRadar(b)}</a> : <span>{rotuloFonteRadar(b)}</span>;

@@ -9,7 +9,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import type { SimuladorReceita } from "@/hooks/useSimuladorReceita";
 import { criarProjetoDaSimulacao, savePendingProvision } from "@/lib/leadProvisioning";
+import { intentDaSimulacao } from "@/lib/projetoSimulacao";
 import { trackSimulationShared } from "@/lib/marketingConsent";
+import { AVISO_UNIVERSO } from "@/lib/estudo";
 import { formatBRL, formatDecimal, formatPercent } from "@/lib/numberFormat";
 import { avisoAmostraBairro, descricaoNatureza } from "@/lib/radarUi";
 import {
@@ -58,7 +60,7 @@ export default function AcoesSimulacao({ sim, resultado, indicadores }: {
     `= Resultado líquido: ${formatBRL(resultado.liquido)}/mês · ${formatBRL(resultado.liquidoAnual)}/ano`,
     ...(indicadores ? [`Rentabilidade anual: ${formatDecimal(indicadores.rentabilidadeAA, 1)}%${indicadores.paybackAnos != null ? ` · prazo estimado de retorno ${formatDecimal(indicadores.paybackAnos, 1)} anos` : ""}`] : []),
     "",
-    "Hipótese de simulação, não garantia de resultado.",
+    `${AVISO_UNIVERSO} Hipótese de simulação, não garantia de resultado.`,
     `Abrir esta simulação: ${link()}`,
     "Gerado no Radar Bewild · radarbewild.com.br",
   ].join("\n");
@@ -97,7 +99,8 @@ export default function AcoesSimulacao({ sim, resultado, indicadores }: {
   const remover = (id: string) => { const lista = cenarios.filter((c) => c.id !== id); setCenarios(lista); salvarCenarios(lista, armazenamentoLocal()); };
 
   const guardarNoPainel = async () => {
-    const intent = { neighborhood: nomeBairro, area_sqm: p.area };
+    // p.bairro é null enquanto a tela usa o bairro padrão: guarda o bairro exibido, para o projeto reabrir a mesma conta.
+    const intent = intentDaSimulacao({ ...p, bairro: bairro?.name ?? p.bairro }, bairro?.coletadoEm ?? null);
     trackGlobal("cta_clicked", { cta_id: user ? "guardar_painel" : "criar_conta_simulacao", section: "projecao", bairro: nomeBairro });
     if (!user) { savePendingProvision(intent); navigate("/signup?origem=simulador"); return; }
     setGuardando(true);
