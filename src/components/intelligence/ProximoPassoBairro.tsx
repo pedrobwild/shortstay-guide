@@ -36,7 +36,7 @@ export default function ProximoPassoBairro({ bairro }: { bairro: string }) {
             {noSimulador ? `Simular receita em ${bairro}` : "Abrir o simulador"}
           </Link>
         </Button>
-        <OrcamentoButton local="bairro" variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold" />
+        <OrcamentoButton local="bairro" contexto={{ bairro }} variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold" />
       </div>
       <Link to={caminhoComparar([slug])} className="e-link mt-2 inline-flex min-h-[44px] items-center text-[15px]">
         Comparar {bairro} com outros bairros

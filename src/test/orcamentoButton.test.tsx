@@ -77,6 +77,17 @@ describe("OrcamentoButton", () => {
   });
 });
 
+describe("OrcamentoButton com bairro vazio", () => {
+  it("contexto com bairro \"\" vira bairro nulo no evento e fica fora da URL", async () => {
+    const c = await montar(<OrcamentoButton local="comparar" contexto={{ bairro: "" }} />);
+    const a = c.querySelector("a")!;
+    expect(a.getAttribute("href")).not.toContain("bairro");
+    a.addEventListener("click", (e) => e.preventDefault());
+    await act(async () => { a.click(); });
+    expect(trackGlobal).toHaveBeenCalledWith("cta_clicked", { cta_id: "orcamento", local: "comparar", bairro: null });
+  });
+});
+
 describe("FinalCTASection", () => {
   it("leva o bairro atual na URL do pedido, lido depois da montagem; sem bairro, só UTMs", async () => {
     let c = await montar(<MemoryRouter future={FUTURO}><FinalCTASection /></MemoryRouter>);

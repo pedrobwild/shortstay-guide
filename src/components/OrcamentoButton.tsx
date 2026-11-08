@@ -20,7 +20,7 @@ type Props = Omit<ComponentProps<typeof Button>, "asChild" | "children" | "onCli
 export default function OrcamentoButton({ local, rotulo = "Peça seu orçamento", icone = true, contexto, ...rest }: Props) {
   const aoClicar = () => {
     trackBudgetClick(local);
-    trackGlobal("cta_clicked", { cta_id: "orcamento", local, bairro: contexto?.bairro ?? null });
+    trackGlobal("cta_clicked", { cta_id: "orcamento", local, bairro: contexto?.bairro || null });
   };
   return (
     <Button variant="default" {...rest} asChild>

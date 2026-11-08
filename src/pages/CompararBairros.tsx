@@ -344,7 +344,7 @@ function Comparar() {
           </p>
           <div className="e-fina mt-8 flex flex-col gap-4 border-t pt-6 md:flex-row md:items-center md:justify-between">
             <p className="e-corpo max-w-[560px]">Já escolheu o bairro? A Bewild orça a reforma completa do seu studio.</p>
-            <OrcamentoButton local="comparar" rotulo="Solicitar orçamento" icone={false} className="min-h-[44px] shrink-0 px-5 text-[15px] font-semibold" />
+            <OrcamentoButton local="comparar" contexto={{ bairro: selecionados[0]?.name ?? null }} rotulo="Solicitar orçamento" icone={false} className="min-h-[44px] shrink-0 px-5 text-[15px] font-semibold" />
           </div>
         </Secao>
       )}
