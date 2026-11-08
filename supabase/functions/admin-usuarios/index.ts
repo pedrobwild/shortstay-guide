@@ -105,8 +105,11 @@ Deno.serve(async (req) => {
     }
 
     if (c.acao === "convidar") {
-      const destino = new URL(c.redirectTo);
-      const { data, error } = await admin.auth.admin.inviteUserByEmail(c.email, { data: { full_name: c.nome }, redirectTo: `${destino.origin}/reset-password` });
+      // Só domínios aprovados do Radar; qualquer outro cai no endereço oficial.
+      const APROVADOS = ["https://radarbewild.com.br", "https://www.radarbewild.com.br", "https://radarbewild.lovable.app", "https://id-preview--7345659b-a580-46ed-a5b8-f36438b36031.lovable.app"];
+      let origem = "https://radarbewild.com.br";
+      try { const o = new URL(c.redirectTo).origin; if (APROVADOS.includes(o)) origem = o; } catch (_) { /* usa padrão */ }
+      const { data, error } = await admin.auth.admin.inviteUserByEmail(c.email, { data: { full_name: c.nome }, redirectTo: `${origem}/reset-password` });
       if (error) return json({ error: /already|registered|exists/i.test(error.message) ? "Este e-mail já tem conta." : "Não foi possível enviar o convite." }, 400);
       await darPapel(admin, data.user.id, "user");
       if (c.papel === "admin") await darPapel(admin, data.user.id, "admin");

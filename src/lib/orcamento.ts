@@ -1,6 +1,6 @@
 import type { SizeKey } from "@/data/bairrosCurados";
 
-export type OrcamentoLocal = "final" | "meio" | "barra-celular" | "hero" | "recomendacao" | "plano-acao" | "chat" | "rodape" | "navbar" | "bairro" | "comparar" | "projecao" | "guia" | "llms" | "ferramentas" | "area-exclusiva";
+export type OrcamentoLocal = "final" | "meio" | "barra-celular" | "hero" | "recomendacao" | "plano-acao" | "chat" | "rodape" | "navbar" | "bairro" | "comparar" | "projecao" | "guia" | "llms" | "ferramentas" | "area-exclusiva" | "empreendimentos";
 
 /**
  * Contexto útil para a Bewild (decisão de 27/10/2026): só o nome do bairro e a faixa de área.

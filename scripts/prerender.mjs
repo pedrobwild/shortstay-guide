@@ -57,6 +57,7 @@ const SECOES_GUIA = {
   "anuncio-e-precificacao": "src/components/guide/AnuncioPrecificacaoSection.tsx",
 };
 function arquivosDaPagina(p) {
+  if (p.empreendimento) return ["src/pages/EmpreendimentoDetalhe.tsx", "src/components/empreendimentos", "src/lib/empreendimentos.ts"];
   if (p.bairro) return ["src/pages/IntelligenceBairroDetail.tsx", "src/components/PreRenderMercado.tsx", ...BASE_DADOS];
   if (p.path.startsWith("/guia/")) return ["src/pages/GuiaTema.tsx", SECOES_GUIA[p.path.slice("/guia/".length)], "src/data/seoRoutes.json"].filter(Boolean);
   switch (p.path) {
@@ -72,12 +73,13 @@ function arquivosDaPagina(p) {
     case "/projecao": return ["src/pages/StudioProjection.tsx", "src/components/projecao", "src/lib/simuladorReceita.ts", ...BASE_DADOS];
     case "/metodologia": return ["src/pages/Metodologia.tsx", "src/lib/dadosAbertos.ts", "src/lib/historicoRadar.ts", ...BASE_DADOS];
     case "/posts": return ["src/pages/Posts.tsx", "src/lib/noticiasRadar.ts", "src/data/seoRoutes.json"];
+    case "/empreendimentos": return ["src/pages/Empreendimentos.tsx", "src/components/empreendimentos", "src/lib/empreendimentos.ts", "src/data/seoRoutes.json"];
     default: return ["src/data/seoRoutes.json"];
   }
 }
 function datasDaPagina(p) {
   const doCodigo = gitUltimoCommit(arquivosDaPagina(p));
-  const daColeta = p.coletadoEm ? `${p.coletadoEm}T12:00:00-03:00` : null;
+  const daColeta = p.coletadoEm ? `${p.coletadoEm}T12:00:00-03:00` : p.atualizadoEm ?? null;
   const anterior = sitemapAnterior.get(`${seo.siteUrl}${p.path}`) ?? null;
   const dateModified = maisRecente(doCodigo, daColeta) ?? anterior ?? HOJE;
   // Article: publicado quando a página do tema passou a existir (GuiaTema.tsx) ou, para um
@@ -104,10 +106,45 @@ const pages = [
   })),
 ];
 
+// Empreendimentos publicados: lidos do banco com a chave pública (a mesma leitura do site; a RLS
+// só devolve "publicado"). Sem rede ou sem resposta, o build segue sem as páginas de prédio e o
+// app as abre normalmente. Vale para qualquer ambiente: as variáveis vêm do ambiente ou do .env.
+function variavel(nome) {
+  if (process.env[nome]) return process.env[nome];
+  try {
+    const linha = readFileSync(resolve(".env"), "utf8").split("\n").find((l) => l.startsWith(`${nome}=`));
+    return linha ? linha.slice(nome.length + 1).trim().replace(/^["']|["']$/g, "") : null;
+  } catch { return null; }
+}
+async function empreendimentosPublicados() {
+  const url = variavel("VITE_SUPABASE_URL");
+  const chave = variavel("VITE_SUPABASE_PUBLISHABLE_KEY");
+  if (!url || !chave) { console.warn("prerender: sem VITE_SUPABASE_URL/PUBLISHABLE_KEY, páginas de prédio fora do build"); return []; }
+  const todos = [];
+  try {
+    for (let de = 0; ; de += 1000) {
+      const consulta = `${url}/rest/v1/empreendimentos?select=${ssr.COLUNAS_EMPREENDIMENTOS_BUILD}&status=eq.publicado&order=nome.asc,id.asc&offset=${de}&limit=1000`;
+      const r = await fetch(consulta, { headers: { apikey: chave, Authorization: `Bearer ${chave}` }, signal: AbortSignal.timeout(10_000) });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const pagina = await r.json();
+      if (!Array.isArray(pagina)) throw new Error("resposta inesperada");
+      todos.push(...pagina);
+      if (pagina.length < 1000) break;
+    }
+  } catch (erro) {
+    console.warn(`prerender: páginas de prédio fora do build (${erro?.message ?? erro})`);
+    return [];
+  }
+  return todos;
+}
+const empreendimentos = await empreendimentosPublicados();
+pages.push(...ssr.paginasEmpreendimentos(empreendimentos));
+
 // Links internos do HTML estático: todas as páginas públicas, para robôs e leitores sem JavaScript.
 const nav = [
   ["/", "Guia"], ["/mercado", "Mercado"], ["/ranking", "Ranking de bairros"], ["/mapa", "Mapa"], ["/comparar", "Comparar bairros"],
   ["/anuncios", "Anúncios"], ["/projecao", "Simulador"], ["/ferramentas", "Comprar imóvel"],
+  ["/empreendimentos", "Empreendimentos"],
   ["/posts", "Posts"],
   ["/reformar", "Vou reformar"], ["/operar", "Já opero"],
   ...seo.routes.filter((r) => r.path.startsWith("/guia/")).map((r) => [r.path, r.h1]),
@@ -189,8 +226,14 @@ for (const p of pages) {
 }
 const { html: homeHtml } = await ssr.render("/");
 
+function estaticoDaPagina(p) {
+  if (p.empreendimento) return ssr.renderEmpreendimentoEstatico(p.empreendimento);
+  if (p.path === "/empreendimentos" && empreendimentos.length) return ssr.renderCatalogoEmpreendimentosEstatico(p, empreendimentos);
+  return ssr.renderEstatico(p);
+}
+
 for (const p of pages) {
-  const html = render(p, p.path === "/" ? homeHtml : null, p.path === "/" ? null : ssr.renderEstatico(p));
+  const html = render(p, p.path === "/" ? homeHtml : null, p.path === "/" ? null : estaticoDaPagina(p));
   if (p.path === "/") {
     writeFileSync(resolve(DIST, "index.html"), html);
     continue;
@@ -231,6 +274,6 @@ for (const base of [DIST, PUBLIC]) {
     writeFileSync(alvo, llms);
   }
 }
-console.log(`prerender: ${pages.length} páginas + 404.html + sitemap.xml + llms.txt${gitOk ? "" : " (sem git: lastmod do sitemap anterior)"}`);
+console.log(`prerender: ${pages.length} páginas (${empreendimentos.length} de prédio) + 404.html + sitemap.xml + llms.txt${gitOk ? "" : " (sem git: lastmod do sitemap anterior)"}`);
 
 if (existsSync(resolve("dist-ssr"))) rmSync(resolve("dist-ssr"), { recursive: true, force: true });

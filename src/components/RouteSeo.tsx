@@ -48,11 +48,11 @@ export function Seo({ title, description, path, noindex, ogType = "website", key
   );
 }
 
-/** Head padrão por rota. Páginas de bairro definem o próprio head. */
+/** Head padrão por rota. Páginas de bairro e de cada empreendimento definem o próprio head. */
 export default function RouteSeo() {
   const { pathname } = useLocation();
   // Bairro define o próprio head; rotas antigas apenas redirecionam.
-  if (pathname.startsWith("/bairro/") || pathname.startsWith("/intelligence") || pathname === "/mapa-bairros") return null;
+  if (pathname.startsWith("/bairro/") || pathname.startsWith("/empreendimentos/") || pathname.startsWith("/intelligence") || pathname === "/mapa-bairros") return null;
   if (isPrivatePath(pathname)) {
     return <Seo title="Área do cliente" description="Área restrita do Radar Bewild." path={pathname} noindex />;
   }

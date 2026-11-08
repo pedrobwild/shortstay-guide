@@ -1,284 +1,308 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://radarbewild.com.br/posts</loc>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://radarbewild.com.br/empreendimentos</loc>
+    <lastmod>2026-10-30T06:57:14-03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://radarbewild.com.br/</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/mercado</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/ranking</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/anuncios</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/comparar</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/mapa</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://radarbewild.com.br/reformar</loc>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://radarbewild.com.br/operar</loc>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://radarbewild.com.br/ferramentas</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/projecao</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/guia/hospede</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/guia/anti-checklist</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/guia/decoracao</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/guia/tendencias</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/guia/anuncio-e-precificacao</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/guia/escolha-do-ativo</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/guia/rentabilidade</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/guia/reforma</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/guia/checklist</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/metodologia</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/barra-funda</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/bela-vista</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/bom-retiro</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/brooklin</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/bras</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/butanta</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/campo-belo</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/consolacao</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/ipiranga</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/itaim-bibi</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/jabaquara</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/jardim-paulista</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/lapa</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/liberdade</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/moema</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/mooca</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/morumbi</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/perdizes</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/pinheiros</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/republica</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/santa-cecilia</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/santana</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/santo-amaro</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/saude</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/se</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/tatuape</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/vila-mariana</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/vila-nova-conceicao</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://radarbewild.com.br/bairro/vila-olimpia</loc>
-    <lastmod>2026-10-19T10:08:10-03:00</lastmod>
+    <lastmod>2026-10-30T06:39:05-03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
