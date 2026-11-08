@@ -65,7 +65,7 @@ export function FormulaReceita({ diaria, ocupacaoPct, receita, className }: { di
       {comValores && (
         <>
           <span aria-hidden="true" className="mx-3 text-tinta-70">→</span>
-          <span className="whitespace-nowrap tabular-nums">{formatBRL(receita)} = {formatBRL(diaria)} × 30 × {formatDecimal(ocupacaoPct / 100, 2)}</span>
+          <span className="tabular-nums sm:whitespace-nowrap">{formatBRL(receita)} = {formatBRL(diaria)} × 30 × {formatDecimal(ocupacaoPct / 100, 2)}</span>
         </>
       )}
       <span className="e-legenda mt-1 block">
