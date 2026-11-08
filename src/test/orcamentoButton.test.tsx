@@ -77,6 +77,17 @@ describe("OrcamentoButton", () => {
   });
 });
 
+describe("OrcamentoButton em telas estreitas", () => {
+  it("o link pode quebrar linha e nunca passa da largura do contêiner", async () => {
+    const c = await montar(<OrcamentoButton local="final" rotulo="Solicitar orçamento para este studio" className="px-5" />);
+    const classes = c.querySelector("a")!.className;
+    expect(classes).toContain("whitespace-normal");
+    expect(classes).toContain("max-w-full");
+    expect(classes).not.toMatch(/(^|\s)whitespace-nowrap/);
+    expect(classes).toContain("px-5");
+  });
+});
+
 describe("OrcamentoButton com bairro vazio", () => {
   it("contexto com bairro \"\" vira bairro nulo no evento e fica fora da URL", async () => {
     const c = await montar(<OrcamentoButton local="comparar" contexto={{ bairro: "" }} />);
