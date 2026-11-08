@@ -24,7 +24,7 @@ export default function ReformaSection() {
       <div className="rounded-2xl overflow-hidden mb-8 shadow-sm ring-1 ring-border"><img src={sectionReforma} alt="Antes e depois de reforma de studio" className="w-full h-40 md:h-64 object-cover" loading="lazy" width={800} height={256} /></div>
       <div className="mb-6 space-y-2 font-body">
         <p className="text-sm text-foreground">Exemplo calculado com o {ROTULO_ESTUDO_REFORMA}: studio de {STUDIO_EXEMPLO_M2} m² × R$ {fmt(FIPEZAP_M2)}/m² (FipeZAP, {FIPEZAP_DATA}) = R$ {fmt(STUDIO_EXEMPLO_IMOVEL)} pelo imóvel. ITBI de 3% (hipótese): R$ {fmt(STUDIO_EXEMPLO_ITBI)}. Reforma completa mediana: R$ {fmt(ORCAMENTO_MEDIANO)}, já incluindo mobiliário e eletros. Total: R$ {fmt(STUDIO_EXEMPLO_TOTAL)}; reforma: {formatDecimal(STUDIO_EXEMPLO_PCT_REFORMA, 1)}% do investimento.</p>
-        <FonteLink fonte={{ title: "Bewild — estudo de 188 contratos", url: ESTUDO_REFORMA_URL }} />
+        <FonteLink fonte={{ title: `Bewild — ${ROTULO_ESTUDO_REFORMA}`, url: ESTUDO_REFORMA_URL }} />
         <p className="text-xs text-muted-foreground">Os comparativos de materiais e serviços abaixo são hipóteses de exemplo, não preços extraídos do estudo. Confirme cada item no orçamento; não é possível recalculá-los com as medianas agregadas.</p>
       </div>
       <Tabs defaultValue="piso" className="font-body">

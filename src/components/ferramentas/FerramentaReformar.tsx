@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
  * Ferramenta 02 · Vou reformar (/ferramentas#reformar): área (m²) e sacada → faixa de
  * reforma completa (P25, mediana e P75 do R$/m² do estudo Bewild × área, com o piso de
  * R$ 55 mil) e prazo em contrato, com a marcenaria em paralelo. É uma estimativa a
- * partir de 188 contratos, não um orçamento.
+ * partir do histórico de contratos (ROTULO_ESTUDO_REFORMA), não um orçamento.
  */
 export default function FerramentaReformar() {
   const [areaDigitada, setAreaDigitada] = useState<number | null>(AREA_MEDIANA_M2);

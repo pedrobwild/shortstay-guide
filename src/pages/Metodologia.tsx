@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { BAIRROS_CURADOS, SAO_PAULO_REFERENCIA, URL_ITAIM_BIBI } from "@/data/bairrosCurados";
 import { DRE_LINHAS, DEDUCOES_PADRAO_PCT, TEXTO_INVESTIMENTO_TOTAL } from "@/data/dreGuia";
 import { FONTES_GUIA } from "@/data/fontesGuia";
-import { CONTRATOS_ANALISADOS, ESTUDO_REFORMA_DATA, ESTUDO_REFORMA_URL } from "@/data/provasBewild";
+import { ESTUDO_REFORMA_DATA, ESTUDO_REFORMA_URL, ROTULO_ESTUDO_REFORMA } from "@/data/provasBewild";
 import { CAMINHO_CSV, CAMINHO_JSON, LICENCA_DADOS, LICENCA_DADOS_NOME, textoCitacao } from "@/lib/dadosAbertos";
 import { coletasReserva, montarRegistro, useHistoricoRadar, type EntradaRegistro } from "@/lib/historicoRadar";
 import { formatDecimal, formatPercent } from "@/lib/numberFormat";
@@ -110,7 +110,7 @@ export function ConteudoMetodologia() {
       </Bloco>
 
       <Bloco id="reforma" numero="04 · Reforma" titulo="De onde vêm custo e prazo da reforma">
-        <p>Os números de reforma (orçamento mediano, custo por m², composição e prazo) vêm do estudo Bewild de {ESTUDO_REFORMA_DATA}, com base em {CONTRATOS_ANALISADOS} contratos turnkey em São Paulo. Cada número aparece no site com a origem documentada.</p>
+        <p>Os números de reforma (orçamento mediano, custo por m², composição e prazo) vêm do {ROTULO_ESTUDO_REFORMA} da Bewild, contratos turnkey em São Paulo. Cada número aparece no site com a origem documentada.</p>
         <p><FonteLink fonte={{ title: `Estudo Bewild — quanto custa reformar um studio (${ESTUDO_REFORMA_DATA})`, url: ESTUDO_REFORMA_URL }} /></p>
       </Bloco>
 
