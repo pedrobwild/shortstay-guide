@@ -421,44 +421,53 @@ export type Database = {
         Row: {
           adr: number | null
           area_sqm: string | null
+          base_coletada_em: string | null
           cleaning_per_stay: number | null
           condo_monthly: number | null
           created_at: string
           id: string
           management_pct: number | null
           neighborhood: string | null
+          premissas_simulador: Json | null
           project_id: string
           property_value: number | null
           taxes_pct: number | null
           updated_at: string
+          versao_calculo: string | null
         }
         Insert: {
           adr?: number | null
           area_sqm?: string | null
+          base_coletada_em?: string | null
           cleaning_per_stay?: number | null
           condo_monthly?: number | null
           created_at?: string
           id?: string
           management_pct?: number | null
           neighborhood?: string | null
+          premissas_simulador?: Json | null
           project_id: string
           property_value?: number | null
           taxes_pct?: number | null
           updated_at?: string
+          versao_calculo?: string | null
         }
         Update: {
           adr?: number | null
           area_sqm?: string | null
+          base_coletada_em?: string | null
           cleaning_per_stay?: number | null
           condo_monthly?: number | null
           created_at?: string
           id?: string
           management_pct?: number | null
           neighborhood?: string | null
+          premissas_simulador?: Json | null
           project_id?: string
           property_value?: number | null
           taxes_pct?: number | null
           updated_at?: string
+          versao_calculo?: string | null
         }
         Relationships: []
       }
@@ -954,6 +963,69 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      radar_pedidos_material: {
+        Row: {
+          atualizado_em: string
+          bairro: string | null
+          boletim: boolean
+          consentimento_versao: string
+          contato_comercial: boolean
+          created_at: string
+          email: string
+          email_chave: string | null
+          entregue_em: string | null
+          etapa: string | null
+          id: string
+          material: string
+          motivo_perda: string | null
+          nome: string | null
+          origem: string
+          responsavel: string | null
+          sessao: string | null
+          status_comercial: string
+        }
+        Insert: {
+          atualizado_em?: string
+          bairro?: string | null
+          boletim?: boolean
+          consentimento_versao: string
+          contato_comercial?: boolean
+          created_at?: string
+          email: string
+          email_chave?: string | null
+          entregue_em?: string | null
+          etapa?: string | null
+          id?: string
+          material: string
+          motivo_perda?: string | null
+          nome?: string | null
+          origem: string
+          responsavel?: string | null
+          sessao?: string | null
+          status_comercial?: string
+        }
+        Update: {
+          atualizado_em?: string
+          bairro?: string | null
+          boletim?: boolean
+          consentimento_versao?: string
+          contato_comercial?: boolean
+          created_at?: string
+          email?: string
+          email_chave?: string | null
+          entregue_em?: string | null
+          etapa?: string | null
+          id?: string
+          material?: string
+          motivo_perda?: string | null
+          nome?: string | null
+          origem?: string
+          responsavel?: string | null
+          sessao?: string | null
+          status_comercial?: string
+        }
+        Relationships: []
       }
       radar_precos_auditoria: {
         Row: {
