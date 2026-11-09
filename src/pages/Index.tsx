@@ -5,6 +5,7 @@ import RodapeRadar from "@/components/RodapeRadar";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import FonteLink from "@/components/guide/FonteLink";
 import LinkArtigoBewild from "@/components/guide/LinkArtigoBewild";
+import { INDICE_CUSTO } from "@/data/artigosBewild";
 import { FAQ_ITEMS } from "@/components/guide/FAQSection";
 import { Container } from "@/components/estudo/Estrutura";
 import { Figura } from "@/components/estudo/Figura";
@@ -206,6 +207,7 @@ function IndexInner() {
                 <a href={ESTUDO_REFORMA_URL} target="_blank" rel="noopener noreferrer" className="e-link inline-flex min-h-[44px] items-center text-[15px]">
                   Ler o estudo completo<NovaAba />
                 </a>
+                <a href={INDICE_CUSTO.url} className="e-link inline-flex min-h-[44px] items-center text-[15px]">Ver o custo por m², por metragem</a>
                 <OrcamentoButton local="final" rotulo="Solicitar orçamento de reforma" variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold" />
               </div>
             </div>
