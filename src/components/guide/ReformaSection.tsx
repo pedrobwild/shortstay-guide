@@ -9,7 +9,8 @@ import { motion } from "framer-motion";
 import { Lightbulb, Wrench, Star } from "lucide-react";
 import sectionReforma from "@/assets/section-reforma.jpg";
 import SectionBlock from "./SectionBlock";
-import { ARTIGOS_BEWILD } from "@/data/artigosBewild";
+import { ARTIGOS_BEWILD, INDICE_CUSTO } from "@/data/artigosBewild";
+import LinkArtigoBewild from "./LinkArtigoBewild";
 import { fmt } from "@/data/guide-data";
 import { PROPOSTA_REAL_PCT, PROPOSTA_REAL_VALOR, PROPOSTA_REAL_DATA, milReais, ORCAMENTO_MEDIANO, ROTULO_ESTUDO_REFORMA, ESTUDO_REFORMA_URL, STUDIO_EXEMPLO_IMOVEL, STUDIO_EXEMPLO_ITBI, STUDIO_EXEMPLO_TOTAL, STUDIO_EXEMPLO_PCT_REFORMA, STUDIO_EXEMPLO_M2, FIPEZAP_M2, FIPEZAP_DATA } from "@/data/provasBewild";
 
@@ -25,6 +26,7 @@ export default function ReformaSection() {
       <div className="mb-6 space-y-2 font-body">
         <p className="text-sm text-foreground">Exemplo calculado com o {ROTULO_ESTUDO_REFORMA}: studio de {STUDIO_EXEMPLO_M2} m² × R$ {fmt(FIPEZAP_M2)}/m² (FipeZAP, {FIPEZAP_DATA}) = R$ {fmt(STUDIO_EXEMPLO_IMOVEL)} pelo imóvel. ITBI de 3% (hipótese): R$ {fmt(STUDIO_EXEMPLO_ITBI)}. Reforma completa mediana: R$ {fmt(ORCAMENTO_MEDIANO)}, já incluindo mobiliário e eletros. Total: R$ {fmt(STUDIO_EXEMPLO_TOTAL)}; reforma: {formatDecimal(STUDIO_EXEMPLO_PCT_REFORMA, 1)}% do investimento.</p>
         <FonteLink fonte={{ title: `Bewild — ${ROTULO_ESTUDO_REFORMA}`, url: ESTUDO_REFORMA_URL }} />
+        <LinkArtigoBewild artigo={INDICE_CUSTO} prefixo="Tabela por metragem do mesmo estudo:" />
         <p className="text-xs text-muted-foreground">Os comparativos de materiais e serviços abaixo são hipóteses de exemplo, não preços extraídos do estudo. Confirme cada item no orçamento; não é possível recalculá-los com as medianas agregadas.</p>
       </div>
       <Tabs defaultValue="piso" className="font-body">

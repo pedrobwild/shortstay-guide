@@ -26,15 +26,64 @@ export const ARTIGOS_BEWILD = {
 /** Depoimento publicado do case em destaque. */
 export const DEPOIMENTO_VIVIAN_URL = "https://bewild.com.br/videos/depoimento-vivian";
 
-/** Bairros com página própria de reforma no site; os demais vão para a página geral. */
-const REFORMA_COM_PAGINA = new Set([
-  "bela-vista", "brooklin", "campo-belo", "consolacao", "moema", "perdizes", "pinheiros",
-  "republica", "vila-mariana", "vila-nova-conceicao", "vila-olimpia",
-]);
+/**
+ * Índice Bewild de custo de reforma (bewild.com.br/indice-de-custo-de-reforma): a tabela
+ * por metragem do mesmo estudo de provasBewild.ts. A âncora não leva número — os números
+ * vivem só em provasBewild.ts.
+ */
+export const INDICE_CUSTO: ArtigoBewild = {
+  titulo: "Custo de reforma por m² em São Paulo: índice Bewild",
+  url: "https://bewild.com.br/indice-de-custo-de-reforma",
+};
+
+/**
+ * Páginas /reforma/<bairro> que existem no bewild.com.br (sitemap do site, conferido em
+ * 09/11/2026), com a preposição que o site usa no H1 ("no Brooklin", "na Paulista").
+ * Página nova de bairro no site entra aqui; o teste linksBewild.test.ts trava a lista.
+ * Higienópolis, Paulista, Vila Clementino e Vila Madalena não têm página de bairro no
+ * Radar, mas entram no bloco de retorno e nas páginas de prédio desses bairros.
+ */
+export const BAIRROS_REFORMA_SITE = [
+  { slug: "bela-vista", rotulo: "Reforma na Bela Vista" },
+  { slug: "brooklin", rotulo: "Reforma no Brooklin" },
+  { slug: "butanta", rotulo: "Reforma no Butantã" },
+  { slug: "campo-belo", rotulo: "Reforma no Campo Belo" },
+  { slug: "consolacao", rotulo: "Reforma na Consolação" },
+  { slug: "higienopolis", rotulo: "Reforma em Higienópolis" },
+  { slug: "moema", rotulo: "Reforma em Moema" },
+  { slug: "paulista", rotulo: "Reforma na Paulista" },
+  { slug: "perdizes", rotulo: "Reforma em Perdizes" },
+  { slug: "pinheiros", rotulo: "Reforma em Pinheiros" },
+  { slug: "republica", rotulo: "Reforma na República" },
+  { slug: "vila-clementino", rotulo: "Reforma na Vila Clementino" },
+  { slug: "vila-madalena", rotulo: "Reforma na Vila Madalena" },
+  { slug: "vila-mariana", rotulo: "Reforma na Vila Mariana" },
+  { slug: "vila-nova-conceicao", rotulo: "Reforma na Vila Nova Conceição" },
+  { slug: "vila-olimpia", rotulo: "Reforma na Vila Olímpia" },
+] as const;
+
+const urlReformaBairro = (slug: string) => `https://bewild.com.br/reforma/${slug}`;
 export const REFORMA_GERAL_URL = "https://bewild.com.br/reforma-de-studio-sao-paulo";
 
-export function reformaBairroUrl(bairro: string): string {
+/** Página de reforma do bairro no site, quando existe (null: o site não tem página desse bairro). */
+export function paginaReformaBairro(bairro: string): { slug: string; rotulo: string; url: string } | null {
   const slug = slugifyBairro(bairro);
-  return REFORMA_COM_PAGINA.has(slug) ? `https://bewild.com.br/reforma/${slug}` : REFORMA_GERAL_URL;
+  const pagina = BAIRROS_REFORMA_SITE.find((b) => b.slug === slug);
+  return pagina ? { ...pagina, url: urlReformaBairro(pagina.slug) } : null;
+}
+
+/** Bairro com página própria vai para ela; os demais, para a página geral de reforma de studio. */
+export function reformaBairroUrl(bairro: string): string {
+  return paginaReformaBairro(bairro)?.url ?? REFORMA_GERAL_URL;
 }
 export const ancoraReformaBairro = (bairro: string) => `Reforma de studio em ${bairro}: projetos entregues e orçamento`;
+
+/**
+ * Links de retorno do Radar para o site, presentes em toda página pública (bloco
+ * ReformaNoSite no rodapé e no HTML pré-renderizado): o índice de custo e as páginas de
+ * reforma por bairro. scripts/prerender.mjs barra o build se alguma página sair sem eles.
+ */
+export const LINKS_REFORMA_SITE: ArtigoBewild[] = [
+  INDICE_CUSTO,
+  ...BAIRROS_REFORMA_SITE.map((b) => ({ titulo: b.rotulo, url: urlReformaBairro(b.slug) })),
+];

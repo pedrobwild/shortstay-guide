@@ -20,13 +20,18 @@ import { gerarLlmsTxt, LLMS_TXT_CAMINHOS } from "./lib/llmsTxt";
 import { CatalogoEmpreendimentosEstatico, EmpreendimentoEstatico } from "./components/empreendimentos/EmpreendimentosEstatico";
 import { bairroNaBase, COLUNAS_PUBLICAS, paginaSeoEmpreendimento, type Empreendimento } from "./lib/empreendimentos";
 import type { BairroBase } from "./lib/radarUi";
+import ReformaNoSite from "./components/ReformaNoSite";
+import { linksDeRetornoAusentes } from "./lib/linksRetorno";
 
 // Tudo que scripts/prerender.mjs usa do código do app (regras de SEO ficam em TS, testadas).
 export {
   FAQ_ITEMS, csvDadosAbertos, datasetJsonLd, jsonDadosAbertos, linhasDadosAbertos, bairrosReserva,
   bairroDescription, bairroH1, bairroTitle, tituloComMarca, OG_IMAGEM, OG_IMAGEM_ALT, ROBOTS_INDEXAVEL, ROBOTS_NOINDEX, caminhoCanonico,
-  isoSaoPaulo, itemListBairrosJsonLd, jsonLdDaPagina, gerarLlmsTxt, LLMS_TXT_CAMINHOS,
+  isoSaoPaulo, itemListBairrosJsonLd, jsonLdDaPagina, gerarLlmsTxt, LLMS_TXT_CAMINHOS, linksDeRetornoAusentes,
 };
+
+/** Bloco de retorno para o bewild.com.br (índice de custo + reforma por bairro) das páginas cujo HTML estático não tem o rodapé. */
+export const renderReformaNoSite = (): string => renderToStaticMarkup(<ReformaNoSite />);
 
 // ---------- Empreendimentos (dados do banco, lidos no build pela chave pública) ----------
 /** Colunas da leitura pública no build (as do site + a data de alteração para o lastmod). */

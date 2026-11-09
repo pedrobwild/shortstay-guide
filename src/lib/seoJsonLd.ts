@@ -1,5 +1,6 @@
 import { OG_IMAGEM, SITE_NAME, SITE_URL, bairroPath, tituloComMarca, urlCanonica } from "@/lib/seo";
 import { TEMAS_GUIA } from "@/data/temasGuia";
+import orgBewild from "@/data/orgBewild.json";
 
 /**
  * Dados estruturados (JSON-LD) das páginas pré-renderizadas, no mesmo padrão do
@@ -8,25 +9,18 @@ import { TEMAS_GUIA } from "@/data/temasGuia";
  * aninhada no nó WebPage (nunca solta), nada de Review/AggregateRating e FAQ com o
  * texto idêntico ao visível. A Organization é o nó #org do bewild.com.br (uma única
  * Bewild para o Google); o Radar só é dono do nó WebSite.
+ *
+ * O nó da Organization é publicado IGUAL ao do site, campo a campo (razão social, CNPJ,
+ * nomes alternativos, fundadores e sameAs): vem de src/data/orgBewild.json, cópia do
+ * ORG_NODE do site (src/lib/orgJsonLd.ts de lá). Nunca edite campos aqui: troque o
+ * arquivo nos dois repositórios (orgParidade.test.ts trava a impressão digital) e rode
+ * `npm run conferir-org` depois de publicar.
  */
 export const ORG_ID = "https://bewild.com.br/#org";
 export const WEBSITE_ID = `${SITE_URL}/#website`;
 const CONTEXT = "https://schema.org";
 
-export const ORG_JSONLD = {
-  "@context": CONTEXT,
-  "@type": "Organization",
-  "@id": ORG_ID,
-  name: "Bewild",
-  url: "https://bewild.com.br/",
-  logo: "https://bewild.com.br/brand/bewild-logo-512.png",
-  sameAs: [
-    "https://instagram.com/bewild.oficial",
-    "https://www.linkedin.com/company/bwil-d/",
-    "https://maps.google.com/maps?cid=16329162499474686119",
-    "https://www.youtube.com/@bewild.oficial",
-  ],
-} as const;
+export const ORG_JSONLD = { "@context": CONTEXT, ...orgBewild } as const;
 
 export const WEBSITE_JSONLD = {
   "@context": CONTEXT,

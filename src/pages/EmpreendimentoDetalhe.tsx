@@ -21,6 +21,7 @@ import {
 } from "@/lib/empreendimentos";
 import { naturezaBairro, type BairroBase } from "@/lib/radarUi";
 import { slugifyBairro } from "@/lib/seo";
+import { paginaReformaBairro } from "@/data/artigosBewild";
 
 /**
  * /empreendimentos/:slug — página completa do prédio: ficha (bairro, endereço,
@@ -80,6 +81,8 @@ function Conteudo({ e }: { e: Empreendimento }) {
   // Lembra o bairro para as outras telas do Radar, só quando ele está na base (como na página de bairro).
   useEffect(() => { if (naBase) definirBairroAtual(naBase.name); }, [naBase]);
   const voltar = `${CAMINHO_CATALOGO}?bairro=${slugifyBairro(e.bairro)}`;
+  // Página de reforma do bairro no bewild.com.br, quando o site tem uma (link normal, sem UTM).
+  const reformaNoBairro = paginaReformaBairro(e.bairro);
   const fonte = textoFonte(e);
   const textosBairro = textosBairroNoRadar(naBase?.name ?? e.bairro, naBase ? naturezaBairro(naBase) : null);
   const seo = paginaSeoEmpreendimento(e, Boolean(naBase));
@@ -144,6 +147,12 @@ function Conteudo({ e }: { e: Empreendimento }) {
         <p className="e-apoio max-w-[720px]">
           {e.selo_bewild ? "A Bewild já atua neste prédio. " : ""}Se você tem ou vai comprar uma unidade, veja o custo e o prazo de uma reforma completa no Radar.
         </p>
+        {reformaNoBairro && (
+          <p className="e-apoio mt-3 max-w-[720px]">
+            Projetos entregues pela Bewild e orçamento:{" "}
+            <a href={reformaNoBairro.url} className="e-link inline-flex min-h-[44px] items-center">{reformaNoBairro.rotulo}</a>
+          </p>
+        )}
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Button asChild className="min-h-[44px] px-5 text-[15px] font-semibold"><Link to="/reformar">Ver custo e prazo de reforma</Link></Button>
           <OrcamentoButton local="empreendimentos" variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold" />

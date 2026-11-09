@@ -154,6 +154,17 @@ const nav = [
 ];
 const navHtml = `<nav aria-label="Radar Bewild"><ul>${nav.map(([h, l]) => `<li><a href="${h}">${esc(l)}</a></li>`).join("")}</ul></nav>`;
 
+// Links de retorno para o bewild.com.br (índice de custo de reforma e páginas de reforma por
+// bairro): toda página pública precisa tê-los no HTML. A home e as telas renderizadas com o
+// rodapé já os trazem; as demais recebem o bloco depois do conteúdo. Página que sair sem
+// algum deles interrompe o build (conferirRetorno).
+const reformaHtml = ssr.renderReformaNoSite();
+const comRetorno = (conteudo) => (ssr.linksDeRetornoAusentes(conteudo).length ? `${conteudo}${reformaHtml}` : conteudo);
+function conferirRetorno(p, html) {
+  const faltando = ssr.linksDeRetornoAusentes(html);
+  if (faltando.length) throw new Error(`prerender: ${p.path} saiu sem link de retorno para ${faltando.join(", ")}`);
+}
+
 const jsonLdScript = (no) => `<script type="application/ld+json">${JSON.stringify(no).replace(/</g, "\\u003c")}</script>`;
 
 /** Remove do modelo as tags que cada página redefine (as globais — og:locale, dimensões da imagem, ícones — ficam). */
@@ -209,9 +220,11 @@ function render(p, ssrHtml, estatico) {
     p.bairro ? `<p><a href="/ranking">Ver ranking de bairros</a></p>` : ""
   }${navHtml}</main>`;
 
-  return limparHead(template)
+  const html = limparHead(template)
     .replace("</head>", `    ${head}\n  </head>`)
-    .replace('<div id="root"></div>', ssrHtml ? `<div id="root" data-ssr-path="${p.path}">${ssrHtml}</div>` : `<div id="root">${estatico ? estatico.replace(/<\/main>$/, `${navHtml}</main>`) : body}</div>`);
+    .replace('<div id="root"></div>', ssrHtml ? `<div id="root" data-ssr-path="${p.path}">${ssrHtml}</div>` : `<div id="root">${comRetorno(estatico ? estatico.replace(/<\/main>$/, `${navHtml}</main>`) : body)}</div>`);
+  conferirRetorno(p, html);
+  return html;
 }
 
 // Home: conteúdo completo do guia renderizado com React (hidratado no navegador).
@@ -251,7 +264,7 @@ for (const p of pages) {
 const naoEncontrada = { path: "/404", title: "Página não encontrada", description: "Esta página não existe no Radar Bewild.", h1: "Página não encontrada" };
 writeFileSync(resolve(DIST, "404.html"), limparHead(template)
   .replace("</head>", `    ${headDaPagina(naoEncontrada, { noindex: true })}\n  </head>`)
-  .replace('<div id="root"></div>', `<div id="root"><main><h1>${naoEncontrada.h1}</h1><p>${naoEncontrada.description} Confira o endereço ou siga por um destes caminhos.</p>${navHtml}</main></div>`));
+  .replace('<div id="root"></div>', `<div id="root"><main><h1>${naoEncontrada.h1}</h1><p>${naoEncontrada.description} Confira o endereço ou siga por um destes caminhos.</p>${navHtml}</main>${reformaHtml}</div>`));
 
 // Dados abertos: a base aprovada (reserva offline = mesmos números do banco) em CSV e JSON.
 mkdirSync(resolve(DIST, "dados"), { recursive: true });

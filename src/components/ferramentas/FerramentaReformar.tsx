@@ -13,6 +13,7 @@ import {
 import { AREA_MAX_M2, AREA_MIN_M2, estimativaReformaCompleta, limitarArea, listaPt } from "@/lib/estudoFerramentas";
 import { formatBRL, formatDecimal } from "@/lib/numberFormat";
 import { cn } from "@/lib/utils";
+import { INDICE_CUSTO } from "@/data/artigosBewild";
 
 /**
  * Ferramenta 02 · Vou reformar (/ferramentas#reformar): área (m²) e sacada → faixa de
@@ -131,7 +132,8 @@ export default function FerramentaReformar() {
               nota={
                 <>
                   Fonte: {ROTULO_ESTUDO_REFORMA} da Bewild em São Paulo (mediana de {formatBRL(ORCAMENTO_MEDIANO)} para {formatDecimal(AREA_MEDIANA_M2, 1)} m²).{" "}
-                  <a href={ESTUDO_REFORMA_URL} target="_blank" rel="noopener noreferrer" className="e-link">Ver o estudo<NovaAba /></a>
+                  <a href={ESTUDO_REFORMA_URL} target="_blank" rel="noopener noreferrer" className="e-link">Ver o estudo<NovaAba /></a>{" · "}
+                  <a href={INDICE_CUSTO.url} className="e-link">{INDICE_CUSTO.titulo}</a>
                   {e.algumNoPiso && <span className="e-amostra mt-1 block not-italic">Nessa área a conta fica abaixo de {formatBRL(ORCAMENTO_MINIMO_BASE)} em pelo menos um ponto da faixa: nenhum contrato do estudo ficou abaixo de {formatBRL(ORCAMENTO_MINIMO_BASE)}, então o valor sobe para o piso.</span>}
                 </>
               }

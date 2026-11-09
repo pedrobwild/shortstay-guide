@@ -1,0 +1,37 @@
+name: Conferir Organization
+
+# Confere se o Radar e o bewild.com.br publicam, NO AR, a mesma Organization
+# (schema.org) e o mesmo sameAs — e se as duas batem com src/data/orgBewild.json.
+# O Radar não é publicado a cada push (o Pedro publica pelo Lovable), por isso o
+# job roda toda segunda-feira e sob demanda (Actions → Conferir Organization →
+# Run workflow), logo depois de uma publicação de qualquer um dos dois sites.
+# Falhou? O log diz a página e o campo que divergiu.
+
+on:
+  schedule:
+    - cron: "37 10 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: conferir-org-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  conferir:
+    name: Organization idêntica nos dois domínios
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Comparar as páginas publicadas com o arquivo oficial
+        run: node scripts/conferir-org.mjs

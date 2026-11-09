@@ -4,6 +4,7 @@ import {
 } from "@/lib/empreendimentos";
 import { naturezaBairro, type BairroBase } from "@/lib/radarUi";
 import { slugifyBairro } from "@/lib/seo";
+import { paginaReformaBairro } from "@/data/artigosBewild";
 
 /**
  * HTML estático do catálogo e das páginas de prédio (pré-renderização, scripts/prerender.mjs):
@@ -28,6 +29,7 @@ export function CatalogoEmpreendimentosEstatico({ h1, descricao, lista }: { h1: 
 export function EmpreendimentoEstatico({ e, naBase }: { e: Empreendimento; naBase: BairroBase | null }) {
   const fonte = textoFonte(e);
   const textos = textosBairroNoRadar(naBase?.name ?? e.bairro, naBase ? naturezaBairro(naBase) : null);
+  const reforma = paginaReformaBairro(e.bairro);
   return (
     <main>
       <p><a href="/empreendimentos">Empreendimentos</a></p>
@@ -57,6 +59,12 @@ export function EmpreendimentoEstatico({ e, naBase }: { e: Empreendimento; naBas
           <p>{textos.foraDaBase} <a href="/ranking">Ver os bairros com dados no Radar</a></p>
         )}
       </section>
+      {reforma && (
+        <section>
+          <h2>Reforma de studio neste bairro</h2>
+          <p>Projetos entregues pela Bewild e orçamento: <a href={reforma.url}>{reforma.rotulo}</a></p>
+        </section>
+      )}
     </main>
   );
 }

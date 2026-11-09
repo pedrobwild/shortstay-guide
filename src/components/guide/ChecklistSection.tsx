@@ -9,6 +9,8 @@ import { CHECKLIST_ITEMS, SCORE_TIERS } from "@/data/guide-data";
 import { useToast } from "@/hooks/use-toast";
 import SectionBlock from "./SectionBlock";
 import OrcamentoButton from "@/components/OrcamentoButton";
+import LinkArtigoBewild from "./LinkArtigoBewild";
+import { INDICE_CUSTO } from "@/data/artigosBewild";
 
 const TIER_DESCRIPTIONS: Record<string, string> = {
   Iniciante: "Você precisa amadurecer o projeto antes de investir.",
@@ -204,6 +206,7 @@ export default function ChecklistSection() {
           </AnimatePresence>
         </CardContent>
       </Card>
+      <LinkArtigoBewild artigo={INDICE_CUSTO} prefixo="Para o item da reforma, veja quanto custa por metragem:" className="mt-6" />
     </SectionBlock>
   );
 }

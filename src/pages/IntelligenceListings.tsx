@@ -1,4 +1,5 @@
 import AppNavbar from "@/components/AppNavbar";
+import RodapeRadar from "@/components/RodapeRadar";
 import { formatDecimal } from "@/lib/numberFormat";
 import { bairroPath } from "@/lib/seo";
 import { useState } from "react";
@@ -135,6 +136,7 @@ const IntelligenceListings = () => {
           </CardContent>
         </Card>
       </main>
+      <RodapeRadar />
     </div>
   );
 };
