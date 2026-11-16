@@ -16,7 +16,7 @@ export default function RodapeRadar({ className }: { className?: string }) {
           <p>© 2026 Bewild · Radar Bewild — São Paulo</p>
           <p>Um produto <a href="https://bewild.com.br" target="_blank" rel="noopener" className="text-primary underline underline-offset-2">Bewild<NovaAba /></a></p>
           <nav aria-label="Rodapé" className="flex flex-wrap items-center gap-x-4">
-            <Link to="/ferramentas" className="inline-flex min-h-[44px] items-center text-primary underline underline-offset-2">Comprar imóvel</Link>
+            <Link to="/ferramentas" className="inline-flex min-h-[44px] items-center text-primary underline underline-offset-2">Financiamento do imóvel</Link>
             <Link to="/empreendimentos" className="inline-flex min-h-[44px] items-center text-primary underline underline-offset-2">Empreendimentos</Link>
             <Link to="/metodologia" className="inline-flex min-h-[44px] items-center text-primary underline underline-offset-2">Metodologia e dados abertos</Link>
             <a href="https://bewild.com.br/privacidade" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] items-center text-primary underline underline-offset-2">Política de privacidade<NovaAba /></a>
