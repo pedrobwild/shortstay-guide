@@ -78,6 +78,20 @@ describe("home reestruturada (26/10/2026, base de reserva)", () => {
     }
   });
 
+  it("sob o gráfico, os cinco bairros de maior receita em linhas de toque, com a aproximação identificada", async () => {
+    const el = await montar("/");
+    const itens = [...el.querySelectorAll("#bairros ol li a")];
+    expect(itens).toHaveLength(5);
+    expect(itens[0].textContent).toContain("Morumbi");
+    for (const a of itens) expect(a.className).toContain("min-h-[44px]");
+    const brooklin = itens.find((a) => a.textContent?.includes("Brooklin"));
+    expect(brooklin?.textContent).toMatch(/Aproximação/i);
+    // A numeração "Fig." fica no HTML, mas só aparece a partir de sm.
+    const fig = [...el.querySelectorAll("#bairros figcaption span")].find((s) => s.textContent?.startsWith("Fig."));
+    expect(fig?.className).toContain("hidden");
+    expect(fig?.className).toContain("sm:block");
+  });
+
   it("o universo da fonte aparece junto dos números de receita", async () => {
     const el = await montar("/");
     expect(el.textContent).toContain(AVISO_UNIVERSO);

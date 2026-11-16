@@ -26,6 +26,9 @@ const n = (v: number) => formatDecimal(v, 0);
  * Ordem alfabética, sem ranking. Pré-renderizada só com título e descrição; a lista
  * vem do banco ao abrir.
  */
+/** Cartões por vez no catálogo. */
+const POR_PAGINA = 12;
+
 export default function Empreendimentos() {
   return (
     <BairroProvider>
@@ -52,6 +55,13 @@ function Catalogo() {
   const bairro = bairroUrl && bairros.some((b) => b.slug === bairroUrl) ? bairroUrl : null;
   const nomeBairro = bairros.find((b) => b.slug === bairro)?.nome ?? null;
   const filtrados = useMemo(() => filtrarEmpreendimentos(lista, { bairro, busca }), [lista, bairro, busca]);
+  // A lista aparece de 12 em 12 (eram 56 cartões numa rolagem só); mudar o filtro volta ao começo.
+  const [paginas, setPaginas] = useState(1);
+  const chaveFiltro = `${bairro ?? ""}|${busca}`;
+  const [filtroVisto, setFiltroVisto] = useState(chaveFiltro);
+  if (filtroVisto !== chaveFiltro) { setFiltroVisto(chaveFiltro); setPaginas(1); }
+  const visiveis = filtrados.slice(0, paginas * POR_PAGINA);
+  const restantes = filtrados.length - visiveis.length;
   const filtrando = Boolean(bairro || busca.trim());
 
   const escolherBairro = (valor: string) => {
@@ -135,12 +145,20 @@ function Catalogo() {
               )}
             </div>
             <ul className="grid gap-x-8 gap-y-8 sm:grid-cols-2 sm:gap-y-12 lg:grid-cols-3">
-              {filtrados.map((e) => (
+              {visiveis.map((e) => (
                 <li key={e.id} className="min-w-0">
                   <CardEmpreendimento e={e} abrir={abrir} />
                 </li>
               ))}
             </ul>
+            {restantes > 0 && (
+              <div className="mt-10 flex flex-wrap items-center gap-x-4 gap-y-2">
+                <Button variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold" onClick={() => setPaginas((p) => p + 1)}>
+                  Ver mais {n(Math.min(POR_PAGINA, restantes))}
+                </Button>
+                <p className="e-legenda" aria-live="polite">Mostrando {n(visiveis.length)} de {n(filtrados.length)}</p>
+              </div>
+            )}
           </>
         )}
       </Container>

@@ -250,7 +250,7 @@ export default function ProjecaoStudio() {
                 </details>
               </div>
               <p className="e-legenda mt-5">
-                {shortStayAlterado ? "Percentuais ajustados por você em “Todas as premissas”." : <>Percentuais do DRE do guia: {TEXTO_DRE_PERCENTUAIS}. Ajuste em “Todas as premissas”, abaixo.</>}
+                {shortStayAlterado ? "Percentuais ajustados por você em “Todas as premissas”." : <>Custos da operação (hipóteses do guia): {TEXTO_DRE_PERCENTUAIS}. Ajuste em “Todas as premissas”, abaixo.</>}
               </p>
             </div>
           </section>
@@ -376,7 +376,7 @@ export default function ProjecaoStudio() {
       <Secao
         id="premissas-completas"
         rotulo="Todas as premissas"
-        titulo="Ajuste a decoração, a faixa de área, os percentuais do DRE ou compare com a locação tradicional"
+        titulo="Ajuste a decoração, a faixa de área, os percentuais de custo ou compare com a locação tradicional"
         lead="O mesmo simulador, com todas as hipóteses editáveis. O que mudar aqui atualiza a conta de cima (que mostra sempre o short stay)."
       >
         <details className="group e-fina border-y">

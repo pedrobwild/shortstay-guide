@@ -27,7 +27,8 @@ export function Figura({
   return (
     <figure id={id} className={cn("m-0 min-w-0", className)}>
       <figcaption className="mb-5">
-        <span className="e-rotulo block">Fig. {numero}</span>
+        {/* Numeração só a partir de sm: no celular, o título já diz o achado (decisão de 15/11/2026). */}
+        <span className="e-rotulo hidden sm:block">Fig. {numero}</span>
         <span className="e-h3 mt-1 block text-balance">{titulo}</span>
         {unidade && <span className="e-legenda mt-1 block">{unidade}</span>}
       </figcaption>
@@ -65,7 +66,7 @@ export function TabelaNumerada({
       <div className={cn(rolavel && "overflow-x-auto")}>
         <table className="w-full border-collapse text-left text-[15px] leading-[22px]">
           <caption className="mb-4 text-left" style={{ captionSide: "top" }}>
-            <span className="e-rotulo block">Tab. {numero}</span>
+            <span className="e-rotulo hidden sm:block">Tab. {numero}</span>
             <span className="e-h3 mt-1 block text-balance">{titulo}</span>
             {unidade && <span className="e-legenda mt-1 block font-normal">{unidade}</span>}
           </caption>

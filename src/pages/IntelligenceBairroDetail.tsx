@@ -204,7 +204,7 @@ function PaginaBairro() {
     {
       rotulo: "Amostra",
       valor: b.activeListings != null
-        ? <><span className="e-var">n</span> = {formatDecimal(b.activeListings, 0)} anúncios</>
+        ? <>{formatDecimal(b.activeListings, 0)} anúncios</>
         : aproximacao ? "sem contagem por bairro" : "sem amostra publicada",
     },
   ];

@@ -98,7 +98,7 @@ export default function FerramentaReformar() {
             {/* Fig.: a obra e a marcenaria no mesmo eixo de dias úteis */}
             <figure className="m-0 mt-8">
               <figcaption className="mb-3">
-                <span className="e-rotulo block">Fig. 1</span>
+                <span className="e-rotulo hidden sm:block">Fig. 1</span>
                 <span className="e-h3 mt-1 block">A marcenaria corre dentro do prazo da obra</span>
                 <span className="e-legenda mt-1 block">Dias úteis desde o início, conforme o contrato.</span>
               </figcaption>
@@ -148,9 +148,9 @@ export default function FerramentaReformar() {
               </thead>
               <tbody>
                 {[
-                  { rotulo: "P25 (25% mais baratos)", m2: CUSTO_M2_P25, r: e.p25 },
+                  { rotulo: "25% mais baratos", m2: CUSTO_M2_P25, r: e.p25 },
                   { rotulo: "Mediana", m2: CUSTO_M2_MEDIANO, r: e.mediana },
-                  { rotulo: "P75 (25% mais caros)", m2: CUSTO_M2_P75, r: e.p75 },
+                  { rotulo: "25% mais caros", m2: CUSTO_M2_P75, r: e.p75 },
                 ].map((l) => (
                   <tr key={l.rotulo}>
                     <th scope="row" className={cn(TD, "font-normal")}>{l.rotulo}</th>

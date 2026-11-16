@@ -159,7 +159,7 @@ function IndexInner() {
               <Figura
                 numero={1}
                 titulo="Receita de referência por mês, antes de custos"
-                unidade="Toque num ponto para abrir o bairro."
+                unidade="Toque num ponto ou use a lista abaixo para abrir o bairro."
               >
                 <FaixaPosicao
                   titulo="Um ponto por bairro"
@@ -174,12 +174,34 @@ function IndexInner() {
                   aoAbrir={(x) => { definirBairroAtual(x.name); trackGlobal("cta_clicked", { cta_id: "home_fig_bairro", section: "bairros", bairro: x.name }); }}
                   sufixoSelecionado=" (bairro em análise)"
                 />
+                {/* Os pontos têm 14px: a lista é o caminho de toque (44px por linha) para abrir um bairro. */}
+                <div className="mt-8">
+                  <p className="e-rotulo">Os {Math.min(5, bairros.length)} bairros com maior receita de referência</p>
+                  <ol className="e-fina m-0 mt-2 list-none border-t p-0">
+                    {[...bairros].sort((a, b) => receitaDe(b) - receitaDe(a) || a.name.localeCompare(b.name, "pt-BR")).slice(0, 5).map((x) => (
+                      <li key={x.name} className="e-fina border-b">
+                        <Link
+                          to={bairroPath(x.name)}
+                          onClick={() => { definirBairroAtual(x.name); trackGlobal("cta_clicked", { cta_id: "home_lista_bairro", section: "bairros", bairro: x.name }); }}
+                          className="flex min-h-[44px] items-center justify-between gap-4 py-2 text-[15px] hover:underline"
+                        >
+                          <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                            <span className="font-semibold">{x.name}</span>
+                            {naturezaBairro(x) === "aproximacao" && <TagBairro b={x} />}
+                            <NotaAmostra b={x} curta />
+                          </span>
+                          <span className="shrink-0 tabular-nums">{formatBRL(receitaDe(x))}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ol>
+                  <Link to="/ranking" className="e-link mt-1 inline-flex min-h-[44px] items-center text-[15px]">Ver os {bairros.length} bairros</Link>
+                </div>
               </Figura>
               <div className="min-w-0 lg:pt-[52px]">
                 <LegendaPontos className="sm:grid-cols-2 lg:grid-cols-1" bairros={bairros} selecionado={bairro.name} referencia={<>São Paulo: {formatBRL(receitaSP)} por mês ({formatBRL(cidade.dailyAvg)} × 30 × {pct(cidade.avgOccupancy)})</>} />
                 <p className="e-legenda mt-3">Fonte: GuestFavorites, {bairro.period ?? cidade.period}. Cálculo do Radar Bewild.</p>
                 <p className="mt-4 flex flex-wrap gap-x-6 text-[15px] lg:flex-col lg:gap-0">
-                  <Link to="/ranking" className="e-link inline-flex min-h-[44px] items-center">Ver o ranking completo</Link>
                   <Link to={`/mapa?bairro=${slugifyBairro(bairro.name)}`} className="e-link inline-flex min-h-[44px] items-center">Ver no mapa</Link>
                   <Link to="/comparar" className="e-link inline-flex min-h-[44px] items-center">Comparar bairros</Link>
                 </p>
@@ -366,7 +388,7 @@ function PainelBairro({
           {aproximacao ? <>Números do Itaim Bibi, {bairro.period ?? cidade.period}</> : (
             <>
               GuestFavorites, {bairro.period ?? cidade.period}
-              {bairro.activeListings != null && <> · <span className="e-var">n</span> = {formatDecimal(bairro.activeListings, 0)} anúncios</>}
+              {bairro.activeListings != null && <> · {formatDecimal(bairro.activeListings, 0)} anúncios na amostra</>}
             </>
           )}
         </span>

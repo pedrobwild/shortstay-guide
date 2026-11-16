@@ -453,8 +453,9 @@
     text-transform: uppercase;
     color: hsl(var(--tinta-70));
   }
+  /* 14px no celular (avisos e fontes precisam ser lidos); 13px a partir de 1024px. */
   .e-legenda {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     line-height: 1.25rem;
     color: hsl(var(--tinta-70));
   }
@@ -481,6 +482,7 @@
     .e-h2 { font-size: 1.75rem; line-height: 2.125rem; }       /* 28/34 */
     .e-lead { font-size: 1.25rem; line-height: 2rem; }         /* 20/32 */
     .e-numero { font-size: 2.75rem; line-height: 3rem; }       /* 44/48 */
+    .e-legenda { font-size: 0.8125rem; }                        /* 13/20 */
   }
   /* Variável de fórmula: itálico verdadeiro (arquivo itálico próprio) */
   .e-var {
