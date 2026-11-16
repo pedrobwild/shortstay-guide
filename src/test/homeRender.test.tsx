@@ -65,6 +65,19 @@ describe("home reestruturada (26/10/2026, base de reserva)", () => {
     expect(hero.querySelector('a[href="/projecao?bairro=pinheiros"]')?.textContent).toBe("Simular este bairro");
   });
 
+  it("o botão principal do painel acompanha a etapa escolhida (auditoria de UX, 15/11/2026)", async () => {
+    const principal = (el: HTMLElement) => el.querySelector("#hero-titulo")!.closest("section")!.querySelector("a.bg-primary, a[class*='bg-primary']")?.textContent ?? "";
+    localStorage.setItem("radar_momento", JSON.stringify({ momento: "reformar", quando: Date.now() }));
+    try {
+      const el = await montar("/");
+      expect(el.textContent).toContain("Estimar a reforma pela área");
+      expect(principal(el)).toContain("Estimar a reforma pela área");
+      expect(el.textContent).not.toContain("Saiba mais");
+    } finally {
+      localStorage.removeItem("radar_momento");
+    }
+  });
+
   it("o universo da fonte aparece junto dos números de receita", async () => {
     const el = await montar("/");
     expect(el.textContent).toContain(AVISO_UNIVERSO);

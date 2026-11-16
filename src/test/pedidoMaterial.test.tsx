@@ -102,7 +102,7 @@ describe("PedidoMaterial", () => {
     await enviar(el);
     expect(mockRegistrar).toHaveBeenCalledWith({
       email: "pedro@bewild.com.br", nome: "Joaquina", material: "checklist_compra", etapa: "procurando", bairro: "Mooca",
-      boletim: false, contato_comercial: false, consentimento_versao: "2026-11-03", origem: "bairro", sessao: "sessao-1",
+      boletim: false, contato_comercial: false, consentimento_versao: "2026-11-15", origem: "bairro", sessao: "sessao-1",
     });
     expect(el.textContent).toContain("Pedido registrado. O checklist está aqui:");
     expect(linkChecklist(el)?.textContent).toBe("Checklist antes de comprar o studio");

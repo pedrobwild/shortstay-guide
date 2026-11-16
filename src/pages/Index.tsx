@@ -2,10 +2,10 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AppNavbar from "@/components/AppNavbar";
 import RodapeRadar from "@/components/RodapeRadar";
+import { INDICE_CUSTO } from "@/data/artigosBewild";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import FonteLink from "@/components/guide/FonteLink";
 import LinkArtigoBewild from "@/components/guide/LinkArtigoBewild";
-import { INDICE_CUSTO } from "@/data/artigosBewild";
 import { FAQ_ITEMS } from "@/components/guide/FAQSection";
 import { Container } from "@/components/estudo/Estrutura";
 import { Figura } from "@/components/estudo/Figura";
@@ -28,7 +28,7 @@ import {
   AREA_MEDIANA_M2, CUSTO_M2_P25, CUSTO_M2_P75, ESTUDO_REFORMA_URL,
   GARANTIA_ANOS, ORCAMENTO_MEDIANO, PRAZO_DIAS_UTEIS_MAX, PRAZO_DIAS_UTEIS_MIN, ROTULO_ESTUDO_REFORMA, SELO_BAIRROS, SELO_PROJETOS, SELO_REFORMAS,
 } from "@/data/provasBewild";
-import { definirMomento, useMomento } from "@/lib/momento";
+import { definirMomento, useMomento, type Momento } from "@/lib/momento";
 import { definirBairroAtual } from "@/lib/bairroAtual";
 import { receitaDe } from "@/lib/estudo";
 import { naturezaBairro } from "@/lib/radarUi";
@@ -124,7 +124,7 @@ function IndexInner() {
                 <p className="e-rotulo mb-3">Radar Bewild · estudo aberto</p>
                 <h1 id="hero-titulo" className="e-h1-home text-balance">Studios para short stay em São Paulo, bairro a bairro</h1>
                 <p className="e-lead mt-4 max-w-[620px] text-pretty lg:mt-5">
-                  Diária, ocupação e receita de referência de {bairros.length} bairros, com fonte e data, e o custo de reforma no {ROTULO_ESTUDO_REFORMA} da Bewild.
+                  Diária, ocupação e receita de referência de {bairros.length} bairros, com fonte e data.
                 </p>
               </div>
               <div className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
@@ -135,6 +135,7 @@ function IndexInner() {
                   receitaSP={receitaSP}
                   carregando={isLoading && !bairros.length}
                   offline={offline}
+                  etapa={ativo}
                   onSelecionar={(nome) => { selecionar(nome); trackGlobal("cta_clicked", { cta_id: "home_bairro", section: "hero", bairro: nome }); }}
                 />
               </div>
@@ -198,18 +199,21 @@ function IndexInner() {
               <p className="e-apoio mt-3 max-w-[620px] text-pretty">
                 Escopo no {ROTULO_ESTUDO_REFORMA} da Bewild em São Paulo: projeto, obra, marcenaria sob medida, mobiliário, eletrodomésticos e enxoval.
               </p>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-6">
+              {/* Duas ações (estimar e orçamento) e, abaixo, os dois links de leitura; o índice de custo é link de retorno obrigatório neste bloco. */}
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                 <Button asChild variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold">
                   <Link to="/ferramentas#reformar" onClick={() => { definirMomento("reformar"); trackGlobal("cta_clicked", { cta_id: "home_reforma_estimar", section: "reforma" }); }}>
                     Estimar a reforma pela área
                   </Link>
                 </Button>
-                <a href={ESTUDO_REFORMA_URL} target="_blank" rel="noopener noreferrer" className="e-link inline-flex min-h-[44px] items-center text-[15px]">
-                  Ler o estudo completo<NovaAba />
-                </a>
-                <a href={INDICE_CUSTO.url} className="e-link inline-flex min-h-[44px] items-center text-[15px]">Ver o custo por m², por metragem</a>
                 <OrcamentoButton local="final" variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold" />
               </div>
+              <p className="mt-2 flex flex-wrap gap-x-6 text-[15px]">
+                <a href={ESTUDO_REFORMA_URL} target="_blank" rel="noopener noreferrer" className="e-link inline-flex min-h-[44px] items-center">
+                  Ler o estudo completo<NovaAba />
+                </a>
+                <a href={INDICE_CUSTO.url} className="e-link inline-flex min-h-[44px] items-center">Ver o custo por m², por metragem</a>
+              </p>
             </div>
             <GradeIndicadores className="lg:grid-cols-2 lg:gap-y-8 lg:border-l lg:border-foreground/[0.08] lg:pl-10">
               <Indicador
@@ -313,8 +317,10 @@ function Bloco({ id, rotulo, titulo, children }: { id: string; rotulo: string; t
  * fonte em uma linha, e o botão principal da página (simular este bairro).
  */
 function PainelBairro({
-  bairro, bairros, cidade, receitaSP, carregando, offline, onSelecionar,
+  bairro, bairros, cidade, receitaSP, carregando, offline, etapa, onSelecionar,
 }: {
+  /** Etapa escolhida (momento.ts); define o botão principal do painel. */
+  etapa: Momento;
   bairro: BairroCurado | null;
   bairros: BairroCurado[];
   cidade: { dailyAvg: number; avgOccupancy: number; period: string };
@@ -367,13 +373,27 @@ function PainelBairro({
       </p>
       {offline && <p className="e-legenda mt-2">A base não respondeu agora: números da reserva aprovada (coleta de {COLETA_GUESTFAVORITES}).</p>}
 
+      {/* Botão principal conforme a etapa: comprar → simular; reformar → estimar a reforma; operar → comparar o studio. */}
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
-        <Button asChild className="min-h-[44px] px-5 text-[15px] font-semibold">
-          <Link to={linkSimuladorBairro(slug)} onClick={() => trackGlobal("cta_clicked", { cta_id: "home_simular_bairro", section: "hero", bairro: bairro.name })}>
-            Simular este bairro
-          </Link>
-        </Button>
-        <Link to={bairroPath(bairro.name)} className="e-link inline-flex min-h-[44px] items-center text-[15px]">Ver a página do bairro</Link>
+        {etapa === "procurando" ? (
+          <>
+            <Button asChild className="min-h-[44px] px-5 text-[15px] font-semibold">
+              <Link to={linkSimuladorBairro(slug)} onClick={() => trackGlobal("cta_clicked", { cta_id: "home_simular_bairro", section: "hero", bairro: bairro.name })}>
+                Simular este bairro
+              </Link>
+            </Button>
+            <Link to={bairroPath(bairro.name)} className="e-link inline-flex min-h-[44px] items-center text-[15px]">Ver a página do bairro</Link>
+          </>
+        ) : (
+          <>
+            <Button asChild className="min-h-[44px] px-5 text-[15px] font-semibold">
+              <Link to={etapa === "reformar" ? "/reformar" : "/operar"} onClick={() => trackGlobal("cta_clicked", { cta_id: etapa === "reformar" ? "home_estimar_reforma" : "home_comparar_studio", section: "hero", bairro: bairro.name })}>
+                {etapa === "reformar" ? "Estimar a reforma pela área" : "Comparar meu studio com o bairro"}
+              </Link>
+            </Button>
+            <Link to={linkSimuladorBairro(slug)} className="e-link inline-flex min-h-[44px] items-center text-[15px]">Simular este bairro</Link>
+          </>
+        )}
       </div>
     </div>
   );

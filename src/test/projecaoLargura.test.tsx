@@ -84,3 +84,45 @@ describe("/projecao: um resultado só e orçamento depois do valor (auditoria de
     for (const b of botoes) expect(b.textContent).toContain("Peça seu orçamento");
   });
 });
+
+describe("/projecao: valor do imóvel no essencial e custos recolhidos (auditoria de UX, 15/11/2026)", () => {
+  const rotulos = (el: HTMLElement) => [...el.querySelectorAll("#premissas-titulo ~ div label")].map((l) => l.textContent ?? "");
+
+  it("o valor do imóvel vem antes da diária e dos custos fixos", async () => {
+    const el = await montar("/projecao?bairro=pinheiros");
+    const ordem = rotulos(el);
+    const pos = (t: string) => ordem.findIndex((r) => r.includes(t));
+    expect(pos("Valor do imóvel")).toBeGreaterThanOrEqual(0);
+    expect(pos("Valor do imóvel")).toBeLessThan(pos("Diária média"));
+    expect(pos("Valor do imóvel")).toBeLessThan(pos("Condomínio"));
+  });
+
+  it("condomínio, IPTU, contas e reforma ficam dentro de \"Ajustar custos\"", async () => {
+    const el = await montar("/projecao?bairro=pinheiros");
+    const custos = [...el.querySelectorAll("details")].find((d) => d.querySelector("summary")?.textContent?.includes("Ajustar custos"));
+    expect(custos, "bloco Ajustar custos").toBeTruthy();
+    const texto = custos!.textContent ?? "";
+    for (const campo of ["Condomínio", "IPTU", "Contas", "Reforma", "ITBI"]) expect(texto, campo).toContain(campo);
+    expect(texto).not.toContain("Valor do imóvel");
+  });
+
+  it("\"Usar um exemplo\" preenche o valor do estudo, rotula como hipótese e libera a rentabilidade", async () => {
+    const el = await montar("/projecao?bairro=pinheiros");
+    expect(el.textContent).toContain("Informe o valor do imóvel para ver a rentabilidade.");
+    const botao = [...el.querySelectorAll("button")].find((b) => b.textContent?.includes("Usar um exemplo"));
+    expect(botao, "botão do exemplo").toBeTruthy();
+    await act(async () => { botao!.click(); });
+    const texto = el.textContent ?? "";
+    expect(texto).toContain("Hipótese · exemplo");
+    expect(texto).toContain("ao preço médio FipeZap");
+    expect(texto).not.toContain("Informe o valor do imóvel para ver a rentabilidade.");
+    expect([...el.querySelectorAll("button")].some((b) => b.textContent?.includes("Usar um exemplo"))).toBe(false);
+  });
+
+  it("sem etapa escolhida, o próximo passo é o checklist, com o orçamento como link", async () => {
+    const el = await montar("/projecao?bairro=pinheiros");
+    const secao = el.querySelector("#proximo-passo");
+    expect(secao?.textContent).toContain("Receber meu checklist");
+    expect(secao?.querySelector('a[href*="bewild.com.br/orcamento"]')?.textContent).toContain("Peça seu orçamento");
+  });
+});
