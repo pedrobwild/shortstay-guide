@@ -1,3 +1,4 @@
+import { SAO_PAULO_REFERENCIA } from "@/data/bairrosCurados";
 import { describe, it, expect } from "vitest";
 import {
   classifyEvent,
@@ -175,8 +176,8 @@ describe("longestGaps", () => {
 });
 
 describe("DEFAULT_ADR_BRL", () => {
-  it("defaults to 350", () => {
-    expect(DEFAULT_ADR_BRL).toBe(350);
+  it("é a diária de referência de São Paulo na base do Radar, não um número sem fonte", () => {
+    expect(DEFAULT_ADR_BRL).toBe(SAO_PAULO_REFERENCIA.dailyAvg);
   });
 });
 

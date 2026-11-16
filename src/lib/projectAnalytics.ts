@@ -5,6 +5,7 @@
  * Convenção iCal: `end_date` é EXCLUSIVO (primeiro dia não ocupado / checkout).
  */
 
+import { SAO_PAULO_REFERENCIA } from "@/data/bairrosCurados";
 import { DESPESAS_EXEMPLO, DRE_GUIA } from "@/data/dreGuia";
 
 export type EventType = "reservation" | "blocked";
@@ -155,7 +156,11 @@ export interface InvestmentReturn {
   monthlyAvgNetBrl: number;
 }
 
-export const DEFAULT_ADR_BRL = 350;
+/**
+ * Diária usada quando o projeto não tem bairro com dado: a referência de São Paulo da
+ * base do Radar (antes R$ 350, sem fonte; auditoria de 16/11/2026, decisão do Pedro).
+ */
+export const DEFAULT_ADR_BRL = SAO_PAULO_REFERENCIA.dailyAvg;
 
 /**
  * Índice de sazonalidade padrão para São Paulo (mercado corporativo + turismo).
@@ -749,6 +754,31 @@ export const DEFAULT_PROJECTION_COSTS = {
   condoMonthly: DESPESAS_EXEMPLO.condominio,
 };
 
+/**
+ * Itens do DRE do guia que o painel deduz sem edição (não há coluna para eles em
+ * `project_assumptions`): taxa do Airbnb e manutenção em % da receita bruta, e contas
+ * em reais por mês. Entraram em 16/11/2026 (auditoria contra o guia, decisão do Pedro):
+ * sem eles o painel mostrava um líquido 46% maior que o do simulador público para a
+ * mesma entrada. A limpeza por estadia continua item próprio do painel; o IPTU só
+ * existe no simulador, onde a pessoa informa.
+ */
+export const CUSTOS_DRE_PAINEL = {
+  platformPct: DRE_GUIA.airbnbPct,
+  maintenancePct: DRE_GUIA.manutencaoPct,
+  utilitiesMonthly: DESPESAS_EXEMPLO.contas,
+} as const;
+
+/** Fração da receita bruta levada pelos itens percentuais fixos do painel (Airbnb + manutenção). */
+export const RAZAO_VARIAVEL_DRE_PAINEL = (CUSTOS_DRE_PAINEL.platformPct + CUSTOS_DRE_PAINEL.maintenancePct) / 100;
+
+/** Deduções fixas do painel para uma receita bruta e um número de meses. */
+export function custosDrePainel(grossBrl: number, months: number) {
+  const platformBrl = grossBrl * (CUSTOS_DRE_PAINEL.platformPct / 100);
+  const maintenanceBrl = grossBrl * (CUSTOS_DRE_PAINEL.maintenancePct / 100);
+  const utilitiesBrl = CUSTOS_DRE_PAINEL.utilitiesMonthly * months;
+  return { platformBrl, maintenanceBrl, utilitiesBrl, totalBrl: platformBrl + maintenanceBrl + utilitiesBrl };
+}
+
 export interface ProjectionSummaryParams {
   occupancyPct: number;        // ocupação média alvo (0-100)
   adr: number;                 // diária bruta
@@ -789,6 +819,9 @@ export interface ProjectionMonth {
   managementBrl: number;
   taxesBrl: number;
   condoBrl: number;
+  platformBrl: number;         // taxa do Airbnb (DRE do guia)
+  maintenanceBrl: number;      // manutenção e reposição (DRE do guia)
+  utilitiesBrl: number;        // contas do mês (DRE do guia)
   costsBrl: number;
   netBrl: number;
 }
@@ -801,6 +834,9 @@ export interface ProjectionBreakdown extends ProjectionSummary {
   managementTotalBrl: number;
   taxesTotalBrl: number;
   condoTotalBrl: number;
+  platformTotalBrl: number;
+  maintenanceTotalBrl: number;
+  utilitiesTotalBrl: number;
   totalCostsBrl: number;
   windowStart: Date | null;
   windowEnd: Date | null;
@@ -835,7 +871,8 @@ export function projectionBreakdown(p: ProjectionSummaryParams): ProjectionBreak
   const managementTotal = gross * (p.managementPct / 100);
   const taxesTotal = gross * (p.taxesPct / 100);
   const condoTotal = p.condoMonthly * monthsCount;
-  const totalCosts = cleaningTotal + managementTotal + taxesTotal + condoTotal;
+  const dre = custosDrePainel(gross, monthsCount);
+  const totalCosts = cleaningTotal + managementTotal + taxesTotal + condoTotal + dre.totalBrl;
   const net = gross - totalCosts;
 
   const ret = investmentReturn({
@@ -866,10 +903,12 @@ export function projectionBreakdown(p: ProjectionSummaryParams): ProjectionBreak
     const cleaning = stays * p.cleaningPerStay;
     const management = g * (p.managementPct / 100);
     const taxes = g * (p.taxesPct / 100);
-    const costs = cleaning + management + taxes + p.condoMonthly;
+    const dreMes = custosDrePainel(g, 1);
+    const costs = cleaning + management + taxes + p.condoMonthly + dreMes.totalBrl;
     projected.push({
       monthKey: key, monthLabel: MONTH_SHORT[month], year, nights, stays,
       grossBrl: g, cleaningBrl: cleaning, managementBrl: management, taxesBrl: taxes, condoBrl: p.condoMonthly,
+      platformBrl: dreMes.platformBrl, maintenanceBrl: dreMes.maintenanceBrl, utilitiesBrl: dreMes.utilitiesBrl,
       costsBrl: costs, netBrl: g - costs,
     });
     month++;
@@ -894,6 +933,9 @@ export function projectionBreakdown(p: ProjectionSummaryParams): ProjectionBreak
     managementTotalBrl: managementTotal,
     taxesTotalBrl: taxesTotal,
     condoTotalBrl: condoTotal,
+    platformTotalBrl: dre.platformBrl,
+    maintenanceTotalBrl: dre.maintenanceBrl,
+    utilitiesTotalBrl: dre.utilitiesBrl,
     totalCostsBrl: totalCosts,
     windowStart: kpis.windowStart,
     windowEnd: kpis.windowEnd,

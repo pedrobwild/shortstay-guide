@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_SP_SEASONALITY, generateProjectionEvents, occupancyByMonth, projectionBreakdown, projectionSummary } from "@/lib/projectAnalytics";
+import { CUSTOS_DRE_PAINEL, DEFAULT_PROJECTION_COSTS, DEFAULT_SP_SEASONALITY, generateProjectionEvents, occupancyByMonth, projectionBreakdown, projectionSummary } from "@/lib/projectAnalytics";
+import { DRE_GUIA, liquidoDetalhado } from "@/data/dreGuia";
 
 // Pinheiros (62% · R$ 300) com as premissas padrão, a partir de 01/10/2026.
 const params = {
@@ -32,14 +33,28 @@ describe("detalhamento da projeção (tela /projecao)", () => {
     expect(soma(r.months.map((m) => m.netBrl))).toBeCloseTo(r.netRevenueBrl, 6);
   });
 
-  it("custos = limpeza + gestão + impostos + condomínio; líquido = bruta − custos", () => {
+  it("custos = limpeza + gestão + impostos + condomínio + Airbnb + manutenção + contas; líquido = bruta − custos", () => {
+    expect(r.platformTotalBrl).toBeCloseTo(r.grossRevenueBrl * (DRE_GUIA.airbnbPct / 100), 6);
+    expect(r.maintenanceTotalBrl).toBeCloseTo(r.grossRevenueBrl * (DRE_GUIA.manutencaoPct / 100), 6);
+    expect(r.utilitiesTotalBrl).toBe(CUSTOS_DRE_PAINEL.utilitiesMonthly * 12);
     expect(r.cleaningTotalBrl).toBe(120 * r.reservationsCount);
     expect(r.managementTotalBrl).toBeCloseTo(r.grossRevenueBrl * 0.18, 6);
     expect(r.taxesTotalBrl).toBeCloseTo(r.grossRevenueBrl * 0.06, 6);
     expect(r.condoTotalBrl).toBe(500 * 12);
-    expect(r.totalCostsBrl).toBeCloseTo(r.cleaningTotalBrl + r.managementTotalBrl + r.taxesTotalBrl + r.condoTotalBrl, 6);
+    expect(r.totalCostsBrl).toBeCloseTo(r.cleaningTotalBrl + r.managementTotalBrl + r.taxesTotalBrl + r.condoTotalBrl + r.platformTotalBrl + r.maintenanceTotalBrl + r.utilitiesTotalBrl, 6);
     expect(r.netRevenueBrl).toBeCloseTo(r.grossRevenueBrl - r.totalCostsBrl, 6);
     for (const m of r.months) expect(m.netBrl).toBeCloseTo(m.grossBrl - m.costsBrl, 6);
+  });
+
+  it("paridade com o simulador público: sem a limpeza, a mesma receita bruta dá o mesmo líquido", () => {
+    // Auditoria de 16/11/2026: o painel dava um líquido 46% maior que o simulador para a mesma entrada.
+    const semLimpeza = projectionBreakdown({ ...params, ...DEFAULT_PROJECTION_COSTS, cleaningPerStay: 0 });
+    const brutaMensal = semLimpeza.grossRevenueBrl / 12;
+    const simulador = liquidoDetalhado(Math.round(brutaMensal)); // condomínio e contas do exemplo do guia, sem IPTU
+    expect(Math.abs(semLimpeza.netRevenueBrl / 12 - simulador.liquido)).toBeLessThan(5);
+    // Com a limpeza, o painel só pode ficar abaixo do simulador, nunca acima.
+    const comLimpeza = projectionBreakdown({ ...params, ...DEFAULT_PROJECTION_COSTS });
+    expect(comLimpeza.netRevenueBrl).toBeLessThan(semLimpeza.netRevenueBrl);
   });
 
   it("receita bruta é noites × diária e a ocupação anual fica perto da premissa", () => {

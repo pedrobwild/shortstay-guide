@@ -26,3 +26,14 @@ Nenhum efeito de bairro foi alterado. As linhas retiradas continuam no banco, vi
 ## Mantido por decisão
 
 Referência "no mesmo local" (U2 com BTS, The Town com Lollapalooza) continua abrindo a conta com o acréscimo da referência.
+
+## Rodada 2 (16/11/2026)
+
+Decisões do Pedro depois da auditoria de scores, compartilhamento, paridade e medição:
+
+- **Paridade:** o painel do projeto passa a deduzir a taxa do Airbnb, a manutenção e as contas, pelos padrões do guia, além da limpeza, gestão, impostos e condomínio que já deduzia. Para Pinheiros com os padrões, o painel mostrava um líquido 46% maior que o simulador público.
+- **Score de investimento:** aparece em três grupos (frente, meio e fim), sem posição, nota ou conceito, em /ranking e na página do bairro.
+- **Padrões do comparador de cenários:** sem dado do bairro, partem da referência de São Paulo da base (60% e R$ 265), no lugar de 75% e R$ 350; o cenário "Realista" passa a se chamar "Base".
+- **Medição:** os valores do link de simulação não vão mais para GA4 nem Meta.
+
+Sem mudança de banco nesta rodada.

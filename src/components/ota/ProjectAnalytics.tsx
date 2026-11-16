@@ -29,6 +29,7 @@ import {
   forwardOccupancy, seasonalityIndex, weekendVsWeekday, yearOverYear,
   bookingPatterns, breakEvenAnalysis, investmentReturn,
   generateProjectionEvents, DEFAULT_ADR_BRL, DEFAULT_SP_SEASONALITY,
+  custosDrePainel, CUSTOS_DRE_PAINEL, RAZAO_VARIAVEL_DRE_PAINEL, DEFAULT_PROJECTION_COSTS,
   type NormalizedEvent, type RawEvent,
 } from "@/lib/projectAnalytics";
 import { useBairroData } from "@/hooks/useBairroData";
@@ -88,10 +89,8 @@ export interface CostSettings {
 
 const DEFAULT_COSTS: CostSettings = {
   adr: DEFAULT_ADR_BRL,
-  cleaningPerStay: 120,
-  managementPct: 18,
-  condoMonthly: 500,
-  taxesPct: 6,
+  // Mesmos padrões da biblioteca (gestão e impostos do DRE do guia), sem repetir os números aqui.
+  ...DEFAULT_PROJECTION_COSTS,
   propertyValue: 0,
 };
 
@@ -408,7 +407,9 @@ export default function ProjectAnalytics({
   const managementTotal = grossRevenue * (costs.managementPct / 100);
   const taxesTotal = grossRevenue * (costs.taxesPct / 100);
   const condoTotal = costs.condoMonthly * monthsCount;
-  const totalCosts = cleaningTotal + managementTotal + taxesTotal + condoTotal;
+  // Itens do DRE do guia sem edição no painel (Airbnb, manutenção e contas): a mesma conta do simulador público.
+  const dre = custosDrePainel(grossRevenue, monthsCount);
+  const totalCosts = cleaningTotal + managementTotal + taxesTotal + condoTotal + dre.totalBrl;
   const netRevenue = grossRevenue - totalCosts;
   const netMarginPct = grossRevenue > 0 ? (netRevenue / grossRevenue) * 100 : 0;
 
@@ -421,7 +422,7 @@ export default function ProjectAnalytics({
       const monthCleaning = costs.cleaningPerStay * monthReservations;
       const monthMgmt = m.estimatedRevenueBrl * (costs.managementPct / 100);
       const monthTaxes = m.estimatedRevenueBrl * (costs.taxesPct / 100);
-      const net = m.estimatedRevenueBrl - monthCleaning - monthMgmt - monthTaxes - costs.condoMonthly;
+      const net = m.estimatedRevenueBrl - monthCleaning - monthMgmt - monthTaxes - costs.condoMonthly - custosDrePainel(m.estimatedRevenueBrl, 1).totalBrl;
       return { ...m, netRevenueBrl: net };
     });
   }, [monthlyGross, costs, kpis.bookedNights, kpis.reservationsCount]);
@@ -462,9 +463,9 @@ export default function ProjectAnalytics({
   // Break-even (custos fixos mensais e variáveis sobre a receita)
   const breakEven = useMemo(() => breakEvenAnalysis({
     adr: costs.adr,
-    variableRatio: (costs.managementPct + costs.taxesPct) / 100,
+    variableRatio: (costs.managementPct + costs.taxesPct) / 100 + RAZAO_VARIAVEL_DRE_PAINEL,
     cleaningPerStay: costs.cleaningPerStay,
-    monthlyFixedCosts: costs.condoMonthly,
+    monthlyFixedCosts: costs.condoMonthly + CUSTOS_DRE_PAINEL.utilitiesMonthly,
     averageStayNights: kpis.averageStayNights,
     currentMonthlyOccupancyPct: avgMonthlyOccupancy,
   }), [costs, kpis.averageStayNights, avgMonthlyOccupancy]);
@@ -771,6 +772,9 @@ export default function ProjectAnalytics({
             <CostRow label={`${controle?.rotulos?.gestao ?? "Gestão"} (${formatDecimal(costs.managementPct)}%)`} value={-managementTotal} />
             <CostRow label={`Impostos (${formatDecimal(costs.taxesPct)}%)`} value={-taxesTotal} />
             <CostRow label={`${controle?.rotulos?.condominio ?? "Condomínio"} (${monthsCount} × ${brl(costs.condoMonthly)})`} value={-condoTotal} />
+            <CostRow label={`Taxa do Airbnb (${formatDecimal(CUSTOS_DRE_PAINEL.platformPct)}%, padrão do guia)`} value={-dre.platformBrl} />
+            <CostRow label={`Manutenção e reposição (${formatDecimal(CUSTOS_DRE_PAINEL.maintenancePct)}%, padrão do guia)`} value={-dre.maintenanceBrl} />
+            <CostRow label={`Contas (${monthsCount} × ${brl(CUSTOS_DRE_PAINEL.utilitiesMonthly)}, padrão do guia)`} value={-dre.utilitiesBrl} />
             <div className="h-px bg-border my-1" />
             <CostRow label="Receita líquida" value={netRevenue} bold />
           </div>

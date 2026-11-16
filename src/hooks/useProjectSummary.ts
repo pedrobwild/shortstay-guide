@@ -9,6 +9,7 @@ import {
   DEFAULT_PROJECTION_COSTS,
   type ProjectionSummary,
 } from "@/lib/projectAnalytics";
+import { DEFAULT_OCCUPANCY_PCT } from "@/lib/scenarioModel";
 import { deriveDeal, type DealStatus } from "@/lib/dealStatus";
 
 interface ProjectRow {
@@ -54,7 +55,6 @@ export interface ProjectSummary {
   deal: DealStatus | null;
 }
 
-const DEFAULT_OCCUPANCY_PCT = 75;
 const DEFAULT_AREA_SQM = "26–35 m²";
 
 /**

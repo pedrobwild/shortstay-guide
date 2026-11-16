@@ -39,6 +39,9 @@ describe("presetAssumptions", () => {
   it("usa defaults quando o bairro é desconhecido", () => {
     const r = presetAssumptions("realista", undefined, "26–35 m²");
     expect(r.occupancyPct).toBe(DEFAULT_OCCUPANCY_PCT);
+    // Sem dado do bairro vale a referência de São Paulo da base (60% e R$ 265), não 75% e R$ 350.
+    expect(DEFAULT_OCCUPANCY_PCT).toBe(60);
+    expect(r.adr).toBe(265);
     expect(r.adr).toBeGreaterThan(0);
   });
 
@@ -92,7 +95,8 @@ describe("pctDelta", () => {
 
 describe("scenarioKindLabel", () => {
   it("rotula presets e custom", () => {
-    expect(scenarioKindLabel("realista")).toBe("Realista");
+    // A chave gravada continua "realista"; o rótulo é "Base" (não sugere validação).
+    expect(scenarioKindLabel("realista")).toBe("Base");
     expect(scenarioKindLabel("custom")).toBe("Cenário");
   });
 
