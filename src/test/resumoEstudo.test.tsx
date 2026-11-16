@@ -73,6 +73,26 @@ describe("/resumo: fechamento do estudo em 3 passos", () => {
     expect([...new URL(cta.getAttribute("href")!).searchParams.keys()].sort()).toEqual(["area", "bairro", "utm_campaign", "utm_content", "utm_medium", "utm_source"]);
   });
 
+  it("com nível de decoração acima do básico, mostra também o resultado com a média do bairro", async () => {
+    localStorage.setItem(CHAVE_RASCUNHO, JSON.stringify({ ...PREMISSAS_SIMULADOR_PADRAO, bairro: "Pinheiros", decoracao: "premium" }));
+    const el = await montar();
+    const conta = el.querySelector("#conta")!;
+    expect(conta.textContent).toContain("Quanto do resultado vem do nível de decoração");
+    expect(conta.textContent).toContain("Média de Pinheiros");
+    // A linha da média do bairro repete o resultado padrão de Pinheiros (R$ 299 → R$ 2.164 líquido).
+    const linhas = [...conta.querySelectorAll("tbody tr")].map((tr) => tr.textContent ?? "");
+    expect(linhas[1]).toContain(formatBRL(299));
+    expect(linhas[1]).toContain(formatBRL(2164));
+    expect(linhas[0]).toContain(formatBRL(359));
+    expect(conta.textContent).toContain("não mediu o efeito da decoração");
+  });
+
+  it("no nível básico ou com diária ajustada pela pessoa, não há comparação de decoração", async () => {
+    localStorage.setItem(CHAVE_RASCUNHO, JSON.stringify({ ...PREMISSAS_SIMULADOR_PADRAO, bairro: "Pinheiros", decoracao: "premium", diaria: 310 }));
+    const el = await montar();
+    expect(el.querySelector("#conta")?.textContent).not.toContain("Quanto do resultado vem do nível de decoração");
+  });
+
   it("sem valor do imóvel, pede o valor em vez de mostrar rentabilidade", async () => {
     localStorage.setItem(CHAVE_RASCUNHO, JSON.stringify({ ...PREMISSAS_SIMULADOR_PADRAO, bairro: "Pinheiros" }));
     const el = await montar();

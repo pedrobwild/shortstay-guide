@@ -96,8 +96,9 @@ export default function Eventos() {
         {!carregando && !consulta.isError && cartoes.length > 0 && (
           <section aria-labelledby="eventos-metodo" className="max-w-3xl space-y-2 border-t border-border pt-6">
             <h2 id="eventos-metodo" className="e-h3">Como o efeito foi medido</h2>
-            <p className="e-legenda">A diária das noites do evento foi comparada com a do mesmo dia da semana nas quatro semanas anteriores e nas quatro seguintes. Entram como “efeito medido” só os bairros em que a variação superou 99% das semanas comuns.</p>
-            <p className="e-legenda">Limites: cada evento tem uma edição medida; o número fala da diária, não da ocupação; a base são anúncios de até 1 quarto de todos os padrões, não um studio específico.</p>
+            <p className="e-legenda">A diária das noites do evento foi comparada com a do mesmo dia da semana nas quatro semanas anteriores e nas quatro seguintes. Entram na lista e na conta só os bairros em que a variação superou 99% das semanas comuns. “Sinal mais fraco” é a variação que superou 95% e continua de pé depois da correção para o número de comparações feitas.</p>
+            <p className="e-legenda">A mediana da cidade mostra quanto a diária subiu no conjunto dos bairros lidos. Em eventos grandes a cidade inteira sobe; a diferença entre o bairro e a mediana é o que distingue a região.</p>
+            <p className="e-legenda">Limites: o efeito é uma conta do Radar sobre a diária estimada pela AirDNA, não uma transação verificada; cada evento tem uma edição medida; o número fala da diária, não da ocupação; a base são anúncios de até 1 quarto de todos os padrões, não um studio específico.</p>
             <AvisoReceita />
             <p className="e-legenda">Fonte do efeito: <FonteLink fonte={FONTES_GUIA.airdna} />. A diária em reais de cada bairro vem da base do Radar; veja a <Link to="/metodologia" className="e-link inline-flex min-h-11 items-center">metodologia</Link>.</p>
           </section>
@@ -107,11 +108,12 @@ export default function Eventos() {
   );
 }
 
-function CartaoEvento({ evento, referencia, medidos, fracos, bairroDoFiltro, base, baseCarregando }: {
+function CartaoEvento({ evento, referencia, medidos, fracos, cidade, bairroDoFiltro, base, baseCarregando }: {
   evento: EventoRadar;
   referencia: Referencia | null;
   medidos: EfeitoEvento[];
   fracos: EfeitoEvento[];
+  cidade: number | null;
   bairroDoFiltro: string | null;
   base: BairroRadar[];
   baseCarregando: boolean;
@@ -120,7 +122,7 @@ function CartaoEvento({ evento, referencia, medidos, fracos, bairroDoFiltro, bas
   const noites = noitesDoEvento(evento);
   const mostrados = todos ? medidos : medidos.slice(0, 4);
   const rotuloReferencia = !referencia ? null
-    : referencia.tipo === "mesma" ? `Efeito medido na diária na edição de ${ano(referencia.evento.inicio)}`
+    : referencia.tipo === "mesma" ? `Variação da diária na edição de ${ano(referencia.evento.inicio)}`
     : `Referência: ${referencia.evento.nome} (${ano(referencia.evento.inicio)}), no mesmo local`;
 
   return (
@@ -139,8 +141,13 @@ function CartaoEvento({ evento, referencia, medidos, fracos, bairroDoFiltro, bas
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <p className="e-legenda font-medium text-foreground">{rotuloReferencia}</p>
-            <Tag tipo="observado" titulo="Medido em uma edição passada; não é previsão" />
+            <Tag tipo="calculado" titulo="Calculado pelo Radar sobre a diária estimada pela AirDNA, em uma edição passada; não é previsão" />
           </div>
+          {cidade != null && (
+            <p className="e-legenda">
+              Na cidade, a mediana dos bairros foi de <span className="font-medium tabular-nums text-foreground">{pct(cidade)}</span>. O número de cada bairro inclui essa alta geral.
+            </p>
+          )}
           <ul className="flex flex-wrap gap-2">
             {mostrados.map((m) => (
               <li key={m.bairro} className="rounded-full border border-border bg-background px-3 py-1 text-sm">
@@ -156,7 +163,8 @@ function CartaoEvento({ evento, referencia, medidos, fracos, bairroDoFiltro, bas
         </div>
       ) : (
         <p className="e-apoio">
-          {referencia ? "Na edição de referência, nenhum bairro teve variação acima do comum." : "Sem medição: não há edição anterior na série lida."}
+          {!referencia ? "Sem medição: não há edição anterior na série lida."
+            : `Na edição de referência, nenhum bairro teve efeito consistente na diária${cidade != null ? `; na cidade, a mediana dos bairros foi de ${pct(cidade)}` : ""}.`}
         </p>
       )}
 

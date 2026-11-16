@@ -89,8 +89,20 @@ export function edicaoDeReferencia(evento: EventoRadar, todos: EventoRadar[], co
 }
 
 /** Separa os bairros com efeito medido (para chips e contas) dos de sinal mais fraco (só texto). */
+/**
+ * Linha de contexto da cidade em `radar_evento_efeitos`: mediana do efeito entre os
+ * bairros lidos na mesma edição (auditoria de 16/11/2026, achado E1). Não é bairro,
+ * não tem teste de placebo e nunca entra em lista, filtro ou conta de bairro.
+ */
+export const BAIRRO_CIDADE = "São Paulo";
+
+/** Mediana da cidade na edição, ou null quando a linha não existe. */
+export function efeitoDaCidade(efeitos: EfeitoEvento[]): number | null {
+  return efeitos.find((e) => e.bairro === BAIRRO_CIDADE)?.efeito_diaria_pct ?? null;
+}
+
 export function separarEfeitos(efeitos: EfeitoEvento[]) {
-  const positivos = efeitos.filter((e) => e.efeito_diaria_pct > 0 && e.p_placebo != null);
+  const positivos = efeitos.filter((e) => e.bairro !== BAIRRO_CIDADE && e.efeito_diaria_pct > 0 && e.p_placebo != null);
   const ordem = (a: EfeitoEvento, b: EfeitoEvento) => b.efeito_diaria_pct - a.efeito_diaria_pct || a.bairro.localeCompare(b.bairro, "pt-BR");
   return {
     medidos: positivos.filter((e) => (e.p_placebo as number) < P_EFEITO_MEDIDO).sort(ordem),
@@ -103,6 +115,8 @@ export interface EventoComReferencia {
   referencia: Referencia | null;
   medidos: EfeitoEvento[];
   fracos: EfeitoEvento[];
+  /** Mediana do efeito entre os bairros da cidade na edição de referência; null sem a linha. */
+  cidade: number | null;
 }
 
 /** Próximos eventos com a edição de referência e os efeitos dela, já separados. Usado em /eventos e na página do bairro. */
@@ -112,7 +126,8 @@ export function eventosComReferencia(eventos: EventoRadar[], efeitos: EfeitoEven
   const comEfeito = new Set(porEvento.keys());
   return eventosFuturos(eventos, hoje).map((evento) => {
     const referencia = edicaoDeReferencia(evento, eventos, comEfeito);
-    return { evento, referencia, ...separarEfeitos(referencia ? porEvento.get(referencia.evento.id) ?? [] : []) };
+    const daReferencia = referencia ? porEvento.get(referencia.evento.id) ?? [] : [];
+    return { evento, referencia, ...separarEfeitos(daReferencia), cidade: efeitoDaCidade(daReferencia) };
   });
 }
 
@@ -122,6 +137,7 @@ export interface EventoDoBairro {
   efeito: EfeitoEvento;
   /** `false` = sinal mais fraco (entre 1% e 5%). */
   medido: boolean;
+  cidade: number | null;
 }
 
 /** Próximos eventos em que a edição de referência mexeu na diária deste bairro (medido ou sinal mais fraco). */
@@ -132,7 +148,7 @@ export function eventosDoBairro(lista: EventoComReferencia[], bairro: string): E
     const m = c.medidos.find((e) => e.bairro === bairro);
     const f = m ? undefined : c.fracos.find((e) => e.bairro === bairro);
     const efeito = m ?? f;
-    if (efeito) saida.push({ evento: c.evento, referencia: c.referencia, efeito, medido: !!m });
+    if (efeito) saida.push({ evento: c.evento, referencia: c.referencia, efeito, medido: !!m, cidade: c.cidade });
   }
   return saida;
 }

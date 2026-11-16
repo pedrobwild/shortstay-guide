@@ -32,7 +32,7 @@ export default function EventosDoBairro({ bairro }: { bairro: string }) {
       id="eventos"
       rotulo="Eventos"
       titulo={`Próximos eventos e a diária em ${bairro}`}
-      lead="Quanto a diária do bairro mudou nas noites do evento, na edição anterior. Serve para planejar preço; não é previsão."
+      lead="Quanto a diária do bairro mudou nas noites do evento, na edição anterior, ao lado da mediana da cidade. Serve para planejar preço; não é previsão."
     >
       {carregando ? (
         <p role="status" className="text-muted-foreground">Carregando eventos…</p>
@@ -49,7 +49,7 @@ export default function EventosDoBairro({ bairro }: { bairro: string }) {
       ) : (
         <div className="space-y-4">
           <ul className="max-w-[820px] divide-y divide-border border-y border-border">
-            {linhas.map(({ evento, referencia, efeito, medido }) => (
+            {linhas.map(({ evento, referencia, efeito, medido, cidade }) => (
               <li key={evento.id} className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-4">
                 <div className="min-w-0">
                   <p className="font-medium break-words">{evento.nome}</p>
@@ -62,17 +62,18 @@ export default function EventosDoBairro({ bairro }: { bairro: string }) {
                   <p className="flex flex-wrap items-center gap-2 sm:justify-end">
                     <span className="e-numero-sm">{pct(efeito.efeito_diaria_pct)}</span>
                     <span className="text-sm">na diária</span>
-                    {medido && <Tag tipo="observado" titulo="Medido em uma edição passada; não é previsão" />}
+                    {medido && <Tag tipo="calculado" titulo="Calculado pelo Radar sobre a diária estimada pela AirDNA, em uma edição passada; não é previsão" />}
                   </p>
                   <p className="e-legenda">
                     {referencia.tipo === "mesma" ? `Edição de ${ano(referencia.evento.inicio)}` : `Referência: ${referencia.evento.nome} (${ano(referencia.evento.inicio)}), no mesmo local`}
                     {!medido && " · sinal mais fraco"}
                   </p>
+                  {cidade != null && <p className="e-legenda tabular-nums">Mediana da cidade: {pct(cidade)}</p>}
                 </div>
               </li>
             ))}
           </ul>
-          <p className="e-legenda max-w-[720px]">Anúncios de até 1 quarto, de todos os padrões. O número fala da diária, não da ocupação.</p>
+          <p className="e-legenda max-w-[720px]">Conta do Radar sobre a diária estimada pela AirDNA, em anúncios de até 1 quarto de todos os padrões. O número inclui a alta geral da cidade e fala da diária, não da ocupação.</p>
           {linkEventos}
         </div>
       )}

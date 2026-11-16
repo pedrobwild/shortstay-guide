@@ -2,7 +2,9 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import OrcamentoButton from "@/components/OrcamentoButton";
+import ComparacaoDecoracao from "@/components/estudo/ComparacaoDecoracao";
 import { CabecalhoTela, PaginaEstudo, Secao } from "@/components/estudo/Estrutura";
+import { DECORATION_LEVELS } from "@/data/guide-data";
 import { NotaAmostra, Tag, TagBairro, TEXTO_APROXIMACAO } from "@/components/estudo/Natureza";
 import { AvisoReceita, GradeIndicadores, Indicador } from "@/components/estudo/Numeros";
 import FonteBairro from "@/components/guide/FonteBairro";
@@ -88,6 +90,17 @@ function Resumo() {
               <Indicador pequeno rotulo="Rentabilidade anual (% ao ano)" valor={ind ? <span className={cn(ind.rentabilidadeAA < 0 && "e-negativo")}>{formatDecimal(ind.rentabilidadeAA, 1)}%</span> : "—"} nota={ind ? "líquido anual ÷ investimento total" : undefined} />
               <Indicador pequeno rotulo="Prazo estimado de retorno (anos)" valor={ind?.paybackAnos != null ? formatDecimal(ind.paybackAnos, 1) : "—"} nota={ind && ind.paybackAnos == null ? "sem resultado positivo, não há prazo" : ind ? "investimento total ÷ líquido anual" : undefined} />
             </GradeIndicadores>
+            {sim.resultadoMediaBairro && (
+              <ComparacaoDecoracao
+                className="mt-6"
+                nivel={(DECORATION_LEVELS.find((d) => d.value === sim.p.decoracao)?.label ?? "").toLowerCase()}
+                bairro={bairro.name}
+                diariaNivel={sim.diaria}
+                diariaBairro={bairro.dailyAvg}
+                liquidoNivel={r.liquido}
+                liquidoBairro={sim.resultadoMediaBairro.liquido}
+              />
+            )}
             {!ind && <p className="e-apoio mt-6 max-w-[720px]">Informe o valor do imóvel no passo 2 para ver a rentabilidade anual e o prazo estimado de retorno.</p>}
             <Links><LinkPasso to="/projecao">Ajustar a conta</LinkPasso></Links>
           </Secao>
