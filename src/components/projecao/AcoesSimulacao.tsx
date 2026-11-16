@@ -159,7 +159,7 @@ export default function AcoesSimulacao({ sim, resultado, indicadores }: {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="e-h3">Compartilhar a simulação</DialogTitle>
-            <DialogDescription>Quem abrir o link vê esta mesma conta, com as mesmas fontes, e pode mudar as premissas.</DialogDescription>
+            <DialogDescription>O link leva as premissas desta conta, inclusive os valores que você informou (imóvel, custos e reforma). Quem abrir vê a conta refeita com a base atual do Radar e pode mudar as premissas.</DialogDescription>
           </DialogHeader>
           <Input readOnly value={compartilharAberto ? link() : ""} onFocus={(e) => e.currentTarget.select()} className="min-h-[48px] text-base" aria-label="Link da simulação" />
           <div className="flex flex-col gap-2 sm:flex-row">

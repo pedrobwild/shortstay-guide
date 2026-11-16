@@ -116,9 +116,10 @@ export function scenarioSummary(a: ScenarioAssumptions): ProjectionSummary {
 
 /**
  * Delta percentual de `value` em relação à `baseline`.
- * Quando a baseline é 0, devolve 0 (sem variação) ou 100 (do zero a algo).
+ * Com baseline 0 a variação relativa não é definida: devolve null (a tela mostra a
+ * diferença sem percentual), exceto quando os dois são 0 (sem variação).
  */
-export function pctDelta(value: number, baseline: number): number {
-  if (baseline === 0) return value === 0 ? 0 : 100;
+export function pctDelta(value: number, baseline: number): number | null {
+  if (baseline === 0) return value === 0 ? 0 : null;
   return ((value - baseline) / Math.abs(baseline)) * 100;
 }

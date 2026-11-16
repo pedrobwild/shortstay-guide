@@ -85,7 +85,8 @@ describe("pctDelta", () => {
 
   it("trata baseline zero", () => {
     expect(pctDelta(0, 0)).toBe(0);
-    expect(pctDelta(50, 0)).toBe(100);
+    // Do zero a algo não é "+100%": a variação relativa não é definida.
+    expect(pctDelta(50, 0)).toBeNull();
   });
 });
 
