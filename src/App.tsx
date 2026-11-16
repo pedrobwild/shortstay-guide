@@ -47,6 +47,7 @@ const AdminGoogle = lazy(() => import("./pages/AdminGoogle"));
 const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
 const AdminNoticias = lazy(() => import("./pages/AdminNoticias"));
 const Posts = lazy(() => import("./pages/Posts"));
+const Eventos = lazy(() => import("./pages/Eventos"));
 const Empreendimentos = lazy(() => import("./pages/Empreendimentos"));
 const EmpreendimentoDetalhe = lazy(() => import("./pages/EmpreendimentoDetalhe"));
 const AdminEmpreendimentos = lazy(() => import("./pages/AdminEmpreendimentos"));
@@ -187,6 +188,7 @@ export function AppRoutes() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/mercado" element={<IntelligenceDashboard />} />
           <Route path="/posts" element={<Posts />} />
+          <Route path="/eventos" element={<Eventos />} />
           <Route path="/empreendimentos" element={<Empreendimentos />} />
           <Route path="/empreendimentos/:slug" element={<EmpreendimentoDetalhe />} />
           <Route path="/imoveis" element={<Imoveis />} />

@@ -50,6 +50,7 @@ export const GRUPOS_MENU: GrupoMenu[] = [
       { to: "/mapa", label: "Mapa", id: "mapa" },
       { to: "/comparar", label: "Comparar bairros", id: "comparar" },
       { to: "/mercado", label: "Mercado de São Paulo", id: "mercado" },
+      { to: "/eventos", label: "Eventos e diária por bairro", id: "eventos" },
     ],
   },
   {
