@@ -27,7 +27,7 @@ Diária de cada noite do evento ÷ mediana da diária do mesmo dia da semana nas
 - Mede a diária, não a ocupação: a tela da fonte só traz ocupação por mês no passado.
 - A série futura muda a cada leitura; por isso `lido_em` faz parte da chave.
 
-## Achados que pedem correção no código (fora deste PR)
+## Correções feitas em seguida (16/11/2026)
 
-- `EVENTS` em `src/data/mapaBairrosData.ts` registra o Lollapalooza 2026 em 27–29/03; a edição foi de 20 a 22/03.
-- `public/geo/pois.geojson` posiciona o São Paulo Expo na Vila Mariana; o endereço é Rodovia dos Imigrantes, km 1,5 (Água Funda).
+- `EVENTS` em `src/data/mapaBairrosData.ts`: Lollapalooza 2026 corrigido para 20 a 22/03 (estava 27 a 29/03).
+- `public/geo/pois.geojson`: São Paulo Expo reposicionado para a Rodovia dos Imigrantes, km 1,5 (lat −23,6451, lng −46,6301; fonte: tradefairdates.com), bairro de referência Jabaquara.
