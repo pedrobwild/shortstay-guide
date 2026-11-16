@@ -46,15 +46,18 @@ describe("detalhamento da projeção (tela /projecao)", () => {
     for (const m of r.months) expect(m.netBrl).toBeCloseTo(m.grossBrl - m.costsBrl, 6);
   });
 
-  it("paridade com o simulador público: sem a limpeza, a mesma receita bruta dá o mesmo líquido", () => {
+  it("paridade com o simulador público: com os padrões, a mesma receita bruta dá o mesmo líquido", () => {
     // Auditoria de 16/11/2026: o painel dava um líquido 46% maior que o simulador para a mesma entrada.
-    const semLimpeza = projectionBreakdown({ ...params, ...DEFAULT_PROJECTION_COSTS, cleaningPerStay: 0 });
-    const brutaMensal = semLimpeza.grossRevenueBrl / 12;
+    // A limpeza é paga pelo hóspede (decisão do Pedro), então o padrão do painel é zero.
+    expect(DEFAULT_PROJECTION_COSTS.cleaningPerStay).toBe(0);
+    const padrao = projectionBreakdown({ ...params, ...DEFAULT_PROJECTION_COSTS });
+    const brutaMensal = padrao.grossRevenueBrl / 12;
     const simulador = liquidoDetalhado(Math.round(brutaMensal)); // condomínio e contas do exemplo do guia, sem IPTU
-    expect(Math.abs(semLimpeza.netRevenueBrl / 12 - simulador.liquido)).toBeLessThan(5);
-    // Com a limpeza, o painel só pode ficar abaixo do simulador, nunca acima.
-    const comLimpeza = projectionBreakdown({ ...params, ...DEFAULT_PROJECTION_COSTS });
-    expect(comLimpeza.netRevenueBrl).toBeLessThan(semLimpeza.netRevenueBrl);
+    expect(Math.abs(padrao.netRevenueBrl / 12 - simulador.liquido)).toBeLessThan(5);
+    // Quem paga a limpeza à parte informa o valor, e o líquido cai.
+    const comLimpeza = projectionBreakdown({ ...params, ...DEFAULT_PROJECTION_COSTS, cleaningPerStay: 120 });
+    expect(comLimpeza.netRevenueBrl).toBeLessThan(padrao.netRevenueBrl);
+    expect(comLimpeza.cleaningTotalBrl).toBe(120 * comLimpeza.reservationsCount);
   });
 
   it("receita bruta é noites × diária e a ocupação anual fica perto da premissa", () => {

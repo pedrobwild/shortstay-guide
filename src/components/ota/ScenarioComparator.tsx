@@ -44,7 +44,7 @@ const ASSUMPTION_ROWS: {
 }[] = [
   { key: "occupancyPct", label: "Ocupação alvo", suffix: "%", step: 1 },
   { key: "adr", label: "Diária (ADR)", prefix: "R$", step: 10 },
-  { key: "cleaningPerStay", label: "Limpeza / reserva", prefix: "R$", step: 10 },
+  { key: "cleaningPerStay", label: "Limpeza paga por você / reserva", prefix: "R$", step: 10 },
   { key: "managementPct", label: "Gestão", suffix: "%", step: 1 },
   { key: "taxesPct", label: "Impostos", suffix: "%", step: 0.5 },
   { key: "condoMonthly", label: "Condomínio / mês", prefix: "R$", step: 50 },

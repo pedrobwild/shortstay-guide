@@ -685,7 +685,7 @@ export default function ProjectAnalytics({
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             <CostInput id="adr-input" label="Diária (ADR)" prefix="R$" step={10}
               value={costs.adr} onChange={(v) => updateCost("adr", v)} />
-            <CostInput id="cleaning-input" label="Limpeza / reserva" prefix="R$" step={10}
+            <CostInput id="cleaning-input" label="Limpeza paga por você / reserva" prefix="R$" step={10}
               value={costs.cleaningPerStay} onChange={(v) => updateCost("cleaningPerStay", v)} />
             <CostInput id="management-input" label="Gestão" suffix="%" step={1}
               value={costs.managementPct} onChange={(v) => updateCost("managementPct", v)} />
