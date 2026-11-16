@@ -10,6 +10,7 @@ import { canMeasure } from "@/lib/marketingConsent";
 import { lerMomento, type Momento } from "@/lib/momento";
 import {
   MATERIAIS,
+  RESUMO_CONSENTIMENTO_MATERIAL,
   TEXTO_CONSENTIMENTO_MATERIAL,
   emailValido,
   enviarMaterial,
@@ -153,11 +154,15 @@ export default function PedidoMaterial({ material, origem, bairro = null }: { ma
             >
               Receber meu checklist
             </Button>
-            <p className="e-legenda mt-3">
-              {antesPolitica}
-              <a href={POLITICA_URL} target="_blank" rel="noopener noreferrer" className="e-link">{POLITICA_TEXTO}<NovaAba /></a>
-              {depoisPolitica}
-            </p>
+            <p className="e-legenda mt-3">{RESUMO_CONSENTIMENTO_MATERIAL}</p>
+            <details className="group">
+              <summary className="e-link inline-flex min-h-[44px] cursor-pointer list-none items-center text-[13px] [&::-webkit-details-marker]:hidden">Ler o texto completo</summary>
+              <p className="e-legenda">
+                {antesPolitica}
+                <a href={POLITICA_URL} target="_blank" rel="noopener noreferrer" className="e-link">{POLITICA_TEXTO}<NovaAba /></a>
+                {depoisPolitica}
+              </p>
+            </details>
           </div>
         </form>
       )}

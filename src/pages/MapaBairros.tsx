@@ -2,6 +2,7 @@ import { lazy, Suspense, useMemo, useRef, useState } from "react";
 import { COLETA_GUESTFAVORITES } from "@/data/fontesGuia";
 import { Link, useSearchParams } from "react-router-dom";
 import { CabecalhoTela, Container, PaginaEstudo, Secao } from "@/components/estudo/Estrutura";
+import VisoesBairros from "@/components/estudo/VisoesBairros";
 import { Figura, TabelaNumerada, TD, TD_NUM, TH } from "@/components/estudo/Figura";
 import MetadadosBase from "@/components/estudo/MetadadosBase";
 import { NotaAmostra, TagBairro, TEXTO_APROXIMACAO } from "@/components/estudo/Natureza";
@@ -96,6 +97,7 @@ function Mapa() {
         titulo={<>Os bairros de maior receita de referência ficam {textoDirecao(achadoReceita.direcao)}</>}
         lead="Cada círculo é um bairro na sua posição real. A cor mostra o indicador em quatro classes por quartil; a área, o tamanho da amostra. Selecione um bairro para ler os números e a fonte."
       >
+        <VisoesBairros />
         <MetadadosBase bairros={bairros} cidade={cidade} compacto />
       </CabecalhoTela>
 

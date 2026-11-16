@@ -16,9 +16,15 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Momento } from "@/lib/momento";
 
 /** Muda quando o texto do consentimento mudar; fica gravada em cada linha. */
-export const CONSENTIMENTO_MATERIAL_VERSAO = "2026-11-03";
+export const CONSENTIMENTO_MATERIAL_VERSAO = "2026-11-15";
 
-/** Texto do consentimento (D6, 03/11/2026): declara os três usos do e-mail e o vínculo com a navegação. */
+/**
+ * Resumo à vista junto do botão (aprovado pelo Pedro em 15/11/2026); o texto completo, abaixo,
+ * fica a um toque ("Ler o texto completo"). Mudou a apresentação, então a versão mudou.
+ */
+export const RESUMO_CONSENTIMENTO_MATERIAL = "Usamos seu e-mail para entregar o checklist. As outras opções só valem se você marcar.";
+
+/** Texto completo do consentimento (D6, 03/11/2026): declara os três usos do e-mail e o vínculo com a navegação. */
 export const TEXTO_CONSENTIMENTO_MATERIAL =
   "A Bewild usa seu e-mail para disponibilizar este material e, só se você marcar, para enviar as próximas análises do Radar Bewild e para falar com você sobre a reforma do seu studio. " +
   "Se você aceitou cookies, o pedido fica ligado à sua navegação no Radar. " +

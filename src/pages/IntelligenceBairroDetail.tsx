@@ -21,6 +21,7 @@ import BairroSomenteRadar from "@/components/intelligence/BairroSomenteRadar";
 import EstimativaBairro from "@/components/intelligence/EstimativaBairro";
 import PrecoImovelBairro from "@/components/intelligence/PrecoImovelBairro";
 import OrcamentoButton from "@/components/OrcamentoButton";
+import { useMomento } from "@/lib/momento";
 import PedidoMaterial from "@/components/captacao/PedidoMaterial";
 import { Button } from "@/components/ui/button";
 import { ARTIGOS_BEWILD } from "@/data/artigosBewild";
@@ -161,9 +162,7 @@ function PaginaBairro() {
             <Link to="/mapa" className="e-link inline-flex min-h-[44px] items-center">Abrir o mapa</Link>
           </p>
         </CabecalhoTela>
-        <Secao id="checklist-compra" rotulo="Antes de comprar">
-          <PedidoMaterial material="checklist_compra" origem="bairro" bairro={nome} />
-        </Secao>
+        <ChecklistCompra bairro={nome} />
         <Secao id="proximo-passo" rotulo="Próximo passo">
           <div className="space-y-10">
             <ProximoPassoBairro bairro={nome} />
@@ -267,69 +266,6 @@ function PaginaBairro() {
         </div>
       </Secao>
 
-      <Secao id="checklist-compra" rotulo="Antes de comprar">
-        <PedidoMaterial material="checklist_compra" origem="bairro" bairro={b.name} />
-      </Secao>
-
-      <Secao
-        id="posicao"
-        rotulo={`Posição entre os ${total}`}
-        titulo={tituloPosicao}
-        lead={aproximacao ? <>Com os números do Itaim Bibi (aproximação), {b.name} empata com o distrito e com os outros bairros aproximados.</> : undefined}
-      >
-        <GradeIndicadores className="mb-12">
-          <Indicador pequeno rotulo="Receita contra São Paulo (%)" valor={<Diferenca valor={dif} formato="pct" />} nota={fraseContraSP(dif)} />
-          {posReceita && <Indicador pequeno rotulo={`Posição em receita (de ${total})`} valor={textoPosicao(posReceita)} nota={posReceita.empatados.length ? <>Empate com {posReceita.empatados.join(", ")}</> : "Maior receita = 1º"} />}
-          {posDiaria && <Indicador pequeno rotulo={`Posição em diária (de ${total})`} valor={textoPosicao(posDiaria)} nota={posDiaria.empatados.length ? <>Empate com {posDiaria.empatados.join(", ")}</> : "Maior diária = 1º"} />}
-          {posOcupacao && <Indicador pequeno rotulo={`Posição em ocupação (de ${total})`} valor={textoPosicao(posOcupacao)} nota={posOcupacao.empatados.length ? <>Empate com {posOcupacao.empatados.join(", ")}</> : "Maior ocupação = 1º"} />}
-        </GradeIndicadores>
-
-        <Figura
-          numero={1}
-          titulo={<>Onde {b.name} fica entre os {total} bairros em diária e em ocupação</>}
-          unidade={<>Cada ponto é um bairro; a linha tracejada marca São Paulo. Toque num ponto para abrir o bairro.</>}
-          legenda={
-            <>
-              <LegendaPontos bairros={bairros} selecionado={b.name} referencia={<>São Paulo: {formatBRL(cidade.dailyAvg)} de diária e {pct(cidade.avgOccupancy)} de ocupação</>} />
-              <p className="mt-3">{TEXTO_APROXIMACAO}</p>
-            </>
-          }
-          fonte={<>GuestFavorites, {b.period ?? cidade.period}. Cálculo do Radar Bewild.</>}
-        >
-          <div className="space-y-10">
-            <FaixaPosicao
-              titulo="Diária média"
-              unidade="R$ por noite"
-              bairros={bairros}
-              valor={(x) => x.dailyAvg}
-              formatar={formatBRL}
-              passo={50}
-              referencia={{ valor: cidade.dailyAvg, rotulo: `SP ${formatBRL(cidade.dailyAvg)}` }}
-              selecionado={b.name}
-              hrefDe={(x) => bairroPath(x.name)}
-              aoAbrir={(x) => definirBairroAtual(x.name)}
-            />
-            <FaixaPosicao
-              titulo="Ocupação média"
-              unidade="% das noites"
-              bairros={bairros}
-              valor={(x) => x.avgOccupancy}
-              formatar={pct}
-              passo={2}
-              referencia={{ valor: cidade.avgOccupancy, rotulo: `SP ${pct(cidade.avgOccupancy)}` }}
-              selecionado={b.name}
-              hrefDe={(x) => bairroPath(x.name)}
-              aoAbrir={(x) => definirBairroAtual(x.name)}
-            />
-          </div>
-        </Figura>
-        <p className="mt-6 flex flex-wrap gap-x-6 text-[15px]">
-          <Link to="/ranking" className="e-link inline-flex min-h-[44px] items-center">Ver o ranking completo</Link>
-          <Link to="/mercado" className="e-link inline-flex min-h-[44px] items-center">Ver o mercado</Link>
-          <Link to={`/mapa?bairro=${slug}`} className="e-link inline-flex min-h-[44px] items-center">Ver no mapa</Link>
-        </p>
-      </Secao>
-
       <Secao
         id="conta"
         rotulo="Conta"
@@ -396,6 +332,67 @@ function PaginaBairro() {
         </div>
       </Secao>
 
+      <Secao
+        id="posicao"
+        rotulo={`Posição entre os ${total}`}
+        titulo={tituloPosicao}
+        lead={aproximacao ? <>Com os números do Itaim Bibi (aproximação), {b.name} empata com o distrito e com os outros bairros aproximados.</> : undefined}
+      >
+        <GradeIndicadores className="mb-12">
+          <Indicador pequeno rotulo="Receita contra São Paulo (%)" valor={<Diferenca valor={dif} formato="pct" />} nota={fraseContraSP(dif)} />
+          {posReceita && <Indicador pequeno rotulo={`Posição em receita (de ${total})`} valor={textoPosicao(posReceita)} nota={posReceita.empatados.length ? <>Empate com {posReceita.empatados.join(", ")}</> : "Maior receita = 1º"} />}
+          {posDiaria && <Indicador pequeno rotulo={`Posição em diária (de ${total})`} valor={textoPosicao(posDiaria)} nota={posDiaria.empatados.length ? <>Empate com {posDiaria.empatados.join(", ")}</> : "Maior diária = 1º"} />}
+          {posOcupacao && <Indicador pequeno rotulo={`Posição em ocupação (de ${total})`} valor={textoPosicao(posOcupacao)} nota={posOcupacao.empatados.length ? <>Empate com {posOcupacao.empatados.join(", ")}</> : "Maior ocupação = 1º"} />}
+        </GradeIndicadores>
+
+        <Figura
+          numero={1}
+          titulo={<>Onde {b.name} fica entre os {total} bairros em diária e em ocupação</>}
+          unidade={<>Cada ponto é um bairro; a linha tracejada marca São Paulo. Toque num ponto para abrir o bairro.</>}
+          legenda={
+            <>
+              <LegendaPontos bairros={bairros} selecionado={b.name} referencia={<>São Paulo: {formatBRL(cidade.dailyAvg)} de diária e {pct(cidade.avgOccupancy)} de ocupação</>} />
+              <p className="mt-3">{TEXTO_APROXIMACAO}</p>
+            </>
+          }
+          fonte={<>GuestFavorites, {b.period ?? cidade.period}. Cálculo do Radar Bewild.</>}
+        >
+          <div className="space-y-10">
+            <FaixaPosicao
+              titulo="Diária média"
+              unidade="R$ por noite"
+              bairros={bairros}
+              valor={(x) => x.dailyAvg}
+              formatar={formatBRL}
+              passo={50}
+              referencia={{ valor: cidade.dailyAvg, rotulo: `SP ${formatBRL(cidade.dailyAvg)}` }}
+              selecionado={b.name}
+              hrefDe={(x) => bairroPath(x.name)}
+              aoAbrir={(x) => definirBairroAtual(x.name)}
+            />
+            <FaixaPosicao
+              titulo="Ocupação média"
+              unidade="% das noites"
+              bairros={bairros}
+              valor={(x) => x.avgOccupancy}
+              formatar={pct}
+              passo={2}
+              referencia={{ valor: cidade.avgOccupancy, rotulo: `SP ${pct(cidade.avgOccupancy)}` }}
+              selecionado={b.name}
+              hrefDe={(x) => bairroPath(x.name)}
+              aoAbrir={(x) => definirBairroAtual(x.name)}
+            />
+          </div>
+        </Figura>
+        <p className="mt-6 flex flex-wrap gap-x-6 text-[15px]">
+          <Link to="/ranking" className="e-link inline-flex min-h-[44px] items-center">Ver o ranking completo</Link>
+          <Link to="/mercado" className="e-link inline-flex min-h-[44px] items-center">Ver o mercado</Link>
+          <Link to={`/mapa?bairro=${slug}`} className="e-link inline-flex min-h-[44px] items-center">Ver no mapa</Link>
+        </p>
+      </Secao>
+
+      <ChecklistCompra bairro={b.name} />
+
       <HistoricoBairro
         bairro={b.name}
         moldura={(historico) => (
@@ -430,4 +427,20 @@ function PaginaBairro() {
 /** Contêiner neutro para componentes compartilhados que ainda trazem moldura própria. */
 function SemCaixa({ children }: { children: ReactNode }) {
   return <div className="[&_section]:rounded-none [&_section]:border-0 [&_section]:bg-transparent [&_section]:p-0">{children}</div>;
+}
+
+/**
+ * Oferta do checklist de compra na página do bairro: vem depois da conta e da posição
+ * (a pessoa vê primeiro o que o Radar entrega) e só para quem está comprando ou ainda
+ * não escolheu a etapa; quem já tem o imóvel não recebe "antes de comprar".
+ * A etapa é lida depois da montagem (momento.ts).
+ */
+function ChecklistCompra({ bairro }: { bairro: string }) {
+  const momento = useMomento();
+  if (momento && momento !== "procurando") return null;
+  return (
+    <Secao id="checklist-compra" rotulo="Antes de comprar">
+      <PedidoMaterial material="checklist_compra" origem="bairro" bairro={bairro} />
+    </Secao>
+  );
 }

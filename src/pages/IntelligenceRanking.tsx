@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { COLETA_GUESTFAVORITES } from "@/data/fontesGuia";
 import { Link, useNavigate } from "react-router-dom";
 import { CabecalhoTela, Container, PaginaEstudo, Secao } from "@/components/estudo/Estrutura";
+import VisoesBairros from "@/components/estudo/VisoesBairros";
 import { TabelaNumerada, TD, TD_NUM, TH } from "@/components/estudo/Figura";
 import MetadadosBase from "@/components/estudo/MetadadosBase";
 import { NotaAmostra, TagBairro, TEXTO_APROXIMACAO } from "@/components/estudo/Natureza";
@@ -92,6 +93,7 @@ function Ranking() {
         titulo={<>{abaixo.abaixo} de {abaixo.total} bairros ficam abaixo da receita de referência de São Paulo</>}
         lead={<>São Paulo: {formatBRL(receitaDe(cidade))} por mês ({formatBRL(cidade.dailyAvg)} × 30 × {formatDecimal(cidade.avgOccupancy, 0)}%). Ordene os bairros pelo critério que importa para a sua decisão e abra cada um para ver o detalhe.</>}
       >
+        <VisoesBairros />
         <MetadadosBase bairros={bairros} cidade={cidade} compacto />
       </CabecalhoTela>
 

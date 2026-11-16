@@ -46,7 +46,7 @@ export const PERFIS_RADAR: PerfilRadar[] = [
       { rotulo: "Comparar bairros", to: "/comparar" },
       { rotulo: "Financiamento", to: "/ferramentas#comprar" },
     ],
-    acao: { rotulo: "Saiba mais", to: "/ferramentas" },
+    acao: { rotulo: "Ver financiamento e ferramentas", to: "/ferramentas" },
   },
   {
     numero: "02",
@@ -64,7 +64,7 @@ export const PERFIS_RADAR: PerfilRadar[] = [
       { rotulo: "O que influencia o hóspede", to: "/guia/hospede" },
       { rotulo: "Decoração estratégica", to: "/guia/decoracao" },
     ],
-    acao: { rotulo: "Saiba mais", to: "/reformar" },
+    acao: { rotulo: "Estimar a reforma pela área", to: "/reformar" },
   },
   {
     numero: "03",
@@ -81,7 +81,7 @@ export const PERFIS_RADAR: PerfilRadar[] = [
       { rotulo: "Simular o resultado líquido", to: "/projecao" },
       { rotulo: "Anúncio e precificação", to: "/guia/anuncio-e-precificacao" },
     ],
-    acao: { rotulo: "Saiba mais", to: "/operar" },
+    acao: { rotulo: "Comparar meu studio com o bairro", to: "/operar" },
   },
 ];
 
