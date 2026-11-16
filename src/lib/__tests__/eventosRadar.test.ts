@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   edicaoDeReferencia, eventosFuturos, lerAcrescimo, noitesDoEvento, periodoDoEvento, receitaDasNoites, separarEfeitos,
@@ -69,5 +70,11 @@ describe("eventos do Radar", () => {
     expect(lerAcrescimo("abc")).toBeNull();
     expect(lerAcrescimo("5000")).toBeNull();
     expect(lerAcrescimo("-101")).toBeNull();
+  });
+
+  it("a leitura pede só linhas publicáveis, para o admin ver a mesma tela do público", () => {
+    const fonte = readFileSync("src/lib/eventosRadar.ts", "utf8");
+    expect(fonte).toMatch(/from\("radar_evento_efeitos"\)[\s\S]*?\.eq\("publicavel", true\)/);
+    expect(fonte).toMatch(/from\("radar_eventos"\)[\s\S]*?\.eq\("status", "publicado"\)/);
   });
 });
