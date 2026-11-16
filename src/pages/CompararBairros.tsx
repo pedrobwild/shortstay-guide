@@ -67,9 +67,9 @@ const abaixoEmReais = (d: number, de: string) => `${formatBRL(d)} abaixo ${de}`;
 
 const LINHAS: Linha[] = [
   { rotulo: "Diária média", unidade: "R$", valor: (b) => b.dailyAvg, texto: reais, diferenca: abaixoEmReais, curta: (d) => formatBRL(-d) },
-  { rotulo: "P25 da diária", unidade: "R$ · 25% mais baratos", valor: quartil(0), texto: reais, diferenca: abaixoEmReais, curta: (d) => formatBRL(-d) },
+  { rotulo: "Diária dos 25% mais baratos", unidade: "R$ · até este valor", valor: quartil(0), texto: reais, diferenca: abaixoEmReais, curta: (d) => formatBRL(-d) },
   { rotulo: "Mediana da diária", unidade: "R$", valor: quartil(1), texto: reais, diferenca: abaixoEmReais, curta: (d) => formatBRL(-d) },
-  { rotulo: "P75 da diária", unidade: "R$ · 25% mais caros", valor: quartil(2), texto: reais, diferenca: abaixoEmReais, curta: (d) => formatBRL(-d) },
+  { rotulo: "Diária dos 25% mais caros", unidade: "R$ · a partir deste valor", valor: quartil(2), texto: reais, diferenca: abaixoEmReais, curta: (d) => formatBRL(-d) },
   {
     rotulo: "Ocupação média", unidade: "%", valor: (b) => b.avgOccupancy, texto: (v) => (v == null ? "—" : `${formatDecimal(v, 0)}%`),
     diferenca: (d, de) => `${formatDecimal(d, 0)} p.p. abaixo ${de}`, curta: (d) => `−${formatDecimal(d, 0)} p.p.`,

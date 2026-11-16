@@ -100,7 +100,7 @@ function InfoHint({ text, label }: { text: string; label?: string }) {
           <button
             type="button"
             aria-label={label ? `Mais informações: ${label}` : "Mais informações"}
-            className="relative inline-flex h-4 w-4 items-center justify-center rounded-full border border-tinta-70 text-[11px] font-semibold leading-none text-tinta-70 after:absolute after:-inset-3 after:content-[''] hover:text-foreground"
+            className="relative inline-flex h-4 w-4 items-center justify-center rounded-full border border-tinta-70 text-[11px] font-semibold leading-none text-tinta-70 after:absolute after:-inset-[14px] after:content-[''] hover:text-foreground"
           >
             <span aria-hidden="true">?</span>
           </button>

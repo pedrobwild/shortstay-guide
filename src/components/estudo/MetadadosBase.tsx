@@ -43,7 +43,7 @@ export default function MetadadosBase({
         </>
       ) : "sem data registrada",
     },
-    { rotulo: "Amostra", valor: <>{bairros.length} bairros · <span className="e-var">n</span> = {formatDecimal(cidade.activeListings, 0)} anúncios em SP</> },
+    { rotulo: "Amostra", valor: <>{bairros.length} bairros · {formatDecimal(cidade.activeListings, 0)} anúncios em SP</> },
     ...extras,
   ];
   return <Metadados itens={itens} compacto={compacto} className={className} />;

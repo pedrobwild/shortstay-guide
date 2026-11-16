@@ -67,9 +67,11 @@ export default function SectionBlock({ id, title, takeaway, children, className,
       </section>
     );
   }
+  const Titulo = pagina ? "h1" : "h2";
   return (
     <section ref={sectionRef} id={id} className={`scroll-mt-24 py-14 md:py-[72px] ${className ?? ""}`}>
-      <h2 className="mb-3 font-display text-[28px] font-semibold leading-[1.15] text-foreground text-balance md:text-[36px]">{title}</h2>
+      {/* Na página do tema (/guia/<tema>) este é o título principal da tela; na home, uma seção. */}
+      <Titulo className="mb-3 font-display text-[28px] font-semibold leading-[1.15] text-foreground text-balance md:text-[36px]">{title}</Titulo>
       <p className="mb-8 max-w-[720px] text-[17px] leading-[1.55] text-muted-foreground">{takeaway}</p>
       {children}
       {artigo && <LinkArtigoBewild artigo={artigo} className="mt-6" />}
