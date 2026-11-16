@@ -208,7 +208,7 @@ function IndexInner() {
                   Ler o estudo completo<NovaAba />
                 </a>
                 <a href={INDICE_CUSTO.url} className="e-link inline-flex min-h-[44px] items-center text-[15px]">Ver o custo por m², por metragem</a>
-                <OrcamentoButton local="final" rotulo="Solicitar orçamento de reforma" variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold" />
+                <OrcamentoButton local="final" variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold" />
               </div>
             </div>
             <GradeIndicadores className="lg:grid-cols-2 lg:gap-y-8 lg:border-l lg:border-foreground/[0.08] lg:pl-10">

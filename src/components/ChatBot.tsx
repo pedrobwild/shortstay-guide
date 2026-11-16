@@ -12,7 +12,9 @@ import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { useProjectSummary } from "@/hooks/useProjectSummary";
 import { buildProjectChatContext } from "@/lib/projectChatContext";
 import { useAuth } from "@/hooks/useAuth";
+import { useRolandoParaBaixo } from "@/hooks/useRolandoParaBaixo";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -28,6 +30,8 @@ const QUICK_SUGGESTIONS = [
 export default function ChatBot() {
   const { user, session, loading: authLoading } = useAuth();
   const [open, setOpen] = useState(false);
+  // Celular: o botão recolhe enquanto a pessoa rola para baixo, para não cobrir texto e números.
+  const recolhido = useRolandoParaBaixo();
   const [messages, setMessages] = useState<Msg[]>([
     { role: "assistant", content: "Olá! 👋 Sou seu consultor de investimento em short-stay em São Paulo. Como posso ajudar?" },
   ]);
@@ -201,7 +205,7 @@ export default function ChatBot() {
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
             className="fixed bottom-[var(--chat-fab-bottom,5rem)] right-4 lg:bottom-6 lg:right-6 z-[60] transition-[bottom] duration-200"
           >
-            <div className="relative">
+            <div className={cn("relative transition-[transform,opacity] duration-200 focus-within:translate-y-0 focus-within:opacity-100 motion-reduce:transition-none", recolhido && "max-lg:pointer-events-none max-lg:translate-y-[200%] max-lg:opacity-0 max-lg:focus-within:pointer-events-auto")}>
               {/* Pulse ring */}
               <span className="pointer-events-none absolute inset-2 rounded-full bg-primary/20 animate-ping" />
               <Button

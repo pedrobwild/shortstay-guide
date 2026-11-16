@@ -28,7 +28,7 @@ const ATALHOS = ATALHOS_CELULAR.map((id) => LINKS_PUBLICOS.find((l) => l.id === 
 
 /**
  * Navbar global do Radar (direção Híbrida): logo + "Radar", links públicos com o
- * item ativo sublinhado em ciano, "Login" e "Solicitar orçamento". Com conta, a
+ * item ativo sublinhado em ciano, "Login" e "Peça seu orçamento". Com conta, a
  * "Área exclusiva" vem primeiro; "Admin" só aparece para quem tem o papel de admin.
  * No celular (56px): atalhos Mapa / Comparar / Simular e o menu lateral com todos
  * os links, o orçamento e a conta. Na home, o menu também traz as seções do guia
@@ -168,7 +168,6 @@ export default function AppNavbar({
 
           <OrcamentoButton
             local="navbar"
-            rotulo="Solicitar orçamento"
             icone={false}
             className="hidden min-h-[44px] whitespace-nowrap px-[18px] text-sm font-semibold sm:inline-flex"
           />
@@ -225,7 +224,7 @@ export default function AppNavbar({
             </nav>
           </div>
           <div className="space-y-3 border-t border-border px-4 py-4">
-            <OrcamentoButton local="navbar" rotulo="Solicitar orçamento" icone={false} className="w-full min-h-[44px] font-semibold" />
+            <OrcamentoButton local="navbar" icone={false} className="w-full min-h-[44px] font-semibold" />
             {!loading && (
               user ? (
                 <div className="flex flex-col gap-1">
