@@ -56,6 +56,10 @@ export default function RouteSeo() {
   if (isPrivatePath(pathname)) {
     return <Seo title="Área do cliente" description="Área restrita do Radar Bewild." path={pathname} noindex />;
   }
+  // Resumo do estudo: página montada com o que está no navegador da pessoa; não vai para a busca.
+  if (pathname === "/resumo") {
+    return <Seo title="Resumo do estudo" description="O bairro, a conta e a reforma do seu estudo no Radar Bewild, em uma página." path={pathname} noindex />;
+  }
   const route = SEO_ROUTES.find((r) => r.path === pathname);
   if (!route) {
     return <Seo title="Página não encontrada" description="Esta página não existe no Radar Bewild." path={pathname} noindex />;

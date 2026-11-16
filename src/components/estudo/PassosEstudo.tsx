@@ -54,13 +54,22 @@ export default function PassosEstudo() {
             })}
           </ol>
         </nav>
-        {seguinte && (
+        {seguinte ? (
           <Link
             to={destinoDoPasso(seguinte, atual?.slug)}
             onClick={() => trackGlobal("cta_clicked", { cta_id: `passo_seguinte_${seguinte.numero}`, section: "passos_estudo" })}
             className="e-link inline-flex min-h-[44px] shrink-0 items-center gap-2 text-sm font-medium"
           >
             Próximo passo: {seguinte.rotulo.charAt(0).toLowerCase() + seguinte.rotulo.slice(1)}
+            <ArrowRight aria-hidden="true" className="h-4 w-4" />
+          </Link>
+        ) : (
+          <Link
+            to="/resumo"
+            onClick={() => trackGlobal("cta_clicked", { cta_id: "resumo_estudo", section: "passos_estudo" })}
+            className="e-link inline-flex min-h-[44px] shrink-0 items-center gap-2 text-sm font-medium"
+          >
+            Ver o resumo do estudo
             <ArrowRight aria-hidden="true" className="h-4 w-4" />
           </Link>
         )}
