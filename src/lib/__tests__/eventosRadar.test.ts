@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-  edicaoDeReferencia, eventosFuturos, lerAcrescimo, noitesDoEvento, periodoDoEvento, receitaDasNoites, separarEfeitos,
+  edicaoDeReferencia, eventosComReferencia, eventosDoBairro, eventosFuturos, lerAcrescimo, noitesDoEvento, periodoDoEvento, receitaDasNoites, separarEfeitos,
   type EfeitoEvento, type EventoRadar,
 } from "@/lib/eventosRadar";
 
@@ -50,6 +50,25 @@ describe("eventos do Radar", () => {
     const r = separarEfeitos([f("Moema", 8.1, 0.02), f("Campo Belo", 11.2, 0.0068), f("Mooca", -2, 0.9), f("Sé", 5, null), f("Lapa", 1, 0.4), f("Pinheiros", 20, 0.003)]);
     expect(r.medidos.map((e) => e.bairro)).toEqual(["Pinheiros", "Campo Belo"]);
     expect(r.fracos.map((e) => e.bairro)).toEqual(["Moema"]);
+  });
+
+  it("lista para o bairro só os próximos eventos com efeito na edição de referência", () => {
+    const efeitos: EfeitoEvento[] = [
+      { evento_id: "a", bairro: "Campo Belo", efeito_diaria_pct: 11, p_placebo: 0.004, noites: 3 },
+      { evento_id: "a", bairro: "Moema", efeito_diaria_pct: 6, p_placebo: 0.03, noites: 3 },
+      { evento_id: "c", bairro: "Morumbi", efeito_diaria_pct: 47, p_placebo: 0.001, noites: 4 },
+      { evento_id: "c", bairro: "Campo Belo", efeito_diaria_pct: 30, p_placebo: 0.002, noites: 4 },
+    ];
+    const lista = eventosComReferencia(todos, efeitos, "2026-11-16");
+    expect(lista.map((c) => c.evento.id)).toEqual(["d", "b", "e"]);
+    const campoBelo = eventosDoBairro(lista, "Campo Belo");
+    expect(campoBelo.map((l) => [l.evento.nome, l.efeito.efeito_diaria_pct, l.medido, l.referencia.tipo])).toEqual([
+      ["U2 no MorumBIS", 30, true, "mesmo_local"],
+      ["Lollapalooza Brasil", 11, true, "mesma"],
+      ["The Town", 11, true, "mesmo_local"],
+    ]);
+    expect(eventosDoBairro(lista, "Moema").map((l) => [l.evento.id, l.medido])).toEqual([["b", false], ["e", false]]);
+    expect(eventosDoBairro(lista, "Pinheiros")).toEqual([]);
   });
 
   it("calcula a receita das noites com e sem o acréscimo", () => {

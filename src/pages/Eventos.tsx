@@ -12,8 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { FONTES_GUIA } from "@/data/fontesGuia";
 import { linkSimuladorBairro } from "@/data/navegacao";
 import {
-  carregarEventos, edicaoDeReferencia, eventosFuturos, lerAcrescimo, noitesDoEvento, periodoDoEvento, receitaDasNoites,
-  ROTULO_CATEGORIA, separarEfeitos, type EfeitoEvento, type EventoRadar, type Referencia,
+  carregarEventos, eventosComReferencia, lerAcrescimo, noitesDoEvento, periodoDoEvento, receitaDasNoites,
+  ROTULO_CATEGORIA, type EfeitoEvento, type EventoRadar, type Referencia,
 } from "@/lib/eventosRadar";
 import { formatBRL, formatDecimal } from "@/lib/numberFormat";
 import { alertasFonteRadar, useRadarBase, type BairroRadar } from "@/lib/radarBase";
@@ -38,16 +38,7 @@ export default function Eventos() {
   useEffect(() => { setHoje(new Date().toLocaleDateString("en-CA")); }, []);
 
   const { cartoes, bairros } = useMemo(() => {
-    const eventos = consulta.data?.eventos ?? [];
-    const efeitos = consulta.data?.efeitos ?? [];
-    const porEvento = new Map<string, EfeitoEvento[]>();
-    for (const f of efeitos) porEvento.set(f.evento_id, [...(porEvento.get(f.evento_id) ?? []), f]);
-    const comEfeito = new Set(porEvento.keys());
-    const lista = (hoje ? eventosFuturos(eventos, hoje) : []).map((evento) => {
-      const referencia = edicaoDeReferencia(evento, eventos, comEfeito);
-      const partes = separarEfeitos(referencia ? porEvento.get(referencia.evento.id) ?? [] : []);
-      return { evento, referencia, ...partes };
-    });
+    const lista = hoje ? eventosComReferencia(consulta.data?.eventos ?? [], consulta.data?.efeitos ?? [], hoje) : [];
     const nomes = [...new Set(lista.flatMap((c) => c.medidos.map((m) => m.bairro)))].sort((a, b) => a.localeCompare(b, "pt-BR"));
     return { cartoes: lista, bairros: nomes };
   }, [consulta.data, hoje]);

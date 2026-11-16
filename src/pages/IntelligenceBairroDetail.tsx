@@ -17,6 +17,7 @@ import LinkArtigoBewild from "@/components/guide/LinkArtigoBewild";
 import FaixaQuartisBairro from "@/components/intelligence/FaixaQuartisBairro";
 import BlocoReformaBairro from "@/components/intelligence/BlocoReformaBairro";
 import ProximoPassoBairro from "@/components/intelligence/ProximoPassoBairro";
+import EventosDoBairro from "@/components/intelligence/EventosDoBairro";
 import BairroSomenteRadar from "@/components/intelligence/BairroSomenteRadar";
 import EstimativaBairro from "@/components/intelligence/EstimativaBairro";
 import PrecoImovelBairro from "@/components/intelligence/PrecoImovelBairro";
@@ -390,6 +391,8 @@ function PaginaBairro() {
           <Link to={`/mapa?bairro=${slug}`} className="e-link inline-flex min-h-[44px] items-center">Ver no mapa</Link>
         </p>
       </Secao>
+
+      <EventosDoBairro bairro={b.name} />
 
       <ChecklistCompra bairro={b.name} />
 

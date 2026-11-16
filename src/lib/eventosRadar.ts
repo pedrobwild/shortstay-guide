@@ -98,6 +98,45 @@ export function separarEfeitos(efeitos: EfeitoEvento[]) {
   };
 }
 
+export interface EventoComReferencia {
+  evento: EventoRadar;
+  referencia: Referencia | null;
+  medidos: EfeitoEvento[];
+  fracos: EfeitoEvento[];
+}
+
+/** Próximos eventos com a edição de referência e os efeitos dela, já separados. Usado em /eventos e na página do bairro. */
+export function eventosComReferencia(eventos: EventoRadar[], efeitos: EfeitoEvento[], hoje: string): EventoComReferencia[] {
+  const porEvento = new Map<string, EfeitoEvento[]>();
+  for (const f of efeitos) porEvento.set(f.evento_id, [...(porEvento.get(f.evento_id) ?? []), f]);
+  const comEfeito = new Set(porEvento.keys());
+  return eventosFuturos(eventos, hoje).map((evento) => {
+    const referencia = edicaoDeReferencia(evento, eventos, comEfeito);
+    return { evento, referencia, ...separarEfeitos(referencia ? porEvento.get(referencia.evento.id) ?? [] : []) };
+  });
+}
+
+export interface EventoDoBairro {
+  evento: EventoRadar;
+  referencia: Referencia;
+  efeito: EfeitoEvento;
+  /** `false` = sinal mais fraco (entre 1% e 5%). */
+  medido: boolean;
+}
+
+/** Próximos eventos em que a edição de referência mexeu na diária deste bairro (medido ou sinal mais fraco). */
+export function eventosDoBairro(lista: EventoComReferencia[], bairro: string): EventoDoBairro[] {
+  const saida: EventoDoBairro[] = [];
+  for (const c of lista) {
+    if (!c.referencia) continue;
+    const m = c.medidos.find((e) => e.bairro === bairro);
+    const f = m ? undefined : c.fracos.find((e) => e.bairro === bairro);
+    const efeito = m ?? f;
+    if (efeito) saida.push({ evento: c.evento, referencia: c.referencia, efeito, medido: !!m });
+  }
+  return saida;
+}
+
 /**
  * Receita bruta das noites do evento, com e sem o acréscimo na diária. Parte da
  * hipótese de que todas as noites são reservadas; quem chama precisa dizer isso.
