@@ -3,9 +3,11 @@ import { ArrowLeft, ChevronRight, Download } from "lucide-react";
 import AppNavbar from "@/components/AppNavbar";
 import RodapeRadar from "@/components/RodapeRadar";
 import FonteLink from "@/components/guide/FonteLink";
+import LinkArtigoBewild from "@/components/guide/LinkArtigoBewild";
 import NaturezaTag from "@/components/radar/NaturezaTag";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import { Button } from "@/components/ui/button";
+import { ARTIGOS_BEWILD } from "@/data/artigosBewild";
 import { BAIRROS_CURADOS, SAO_PAULO_REFERENCIA, URL_ITAIM_BIBI } from "@/data/bairrosCurados";
 import { DRE_LINHAS, DEDUCOES_PADRAO_PCT, TEXTO_INVESTIMENTO_TOTAL } from "@/data/dreGuia";
 import { FONTES_GUIA } from "@/data/fontesGuia";
@@ -161,6 +163,7 @@ export function ConteudoMetodologia() {
           <li>Receita de referência e simulações não incluem todos os custos e não são garantia de resultado.</li>
           <li>Quando não há dado, dizemos que não há — não estimamos para preencher a tabela.</li>
         </ul>
+        <LinkArtigoBewild artigo={ARTIGOS_BEWILD.sobreRadar} prefixo="Para que serve cada ferramenta, no site da Bewild:" />
       </Bloco>
 
       <div className="regua flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between">
