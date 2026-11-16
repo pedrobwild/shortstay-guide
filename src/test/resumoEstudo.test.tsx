@@ -67,6 +67,10 @@ describe("/resumo: fechamento do estudo em 3 passos", () => {
     const cta = el.querySelector("#orcamento a")!;
     expect(cta.textContent).toContain("Peça seu orçamento");
     expect(cta.getAttribute("href")).toContain("bairro=Pinheiros");
+    // O texto da tela diz o que o link de orçamento leva; nenhum valor da simulação vai na URL.
+    expect(el.textContent).toContain("leva apenas o bairro e a faixa de área");
+    expect(el.textContent).not.toContain("nada é enviado");
+    expect([...new URL(cta.getAttribute("href")!).searchParams.keys()].sort()).toEqual(["area", "bairro", "utm_campaign", "utm_content", "utm_medium", "utm_source"]);
   });
 
   it("sem valor do imóvel, pede o valor em vez de mostrar rentabilidade", async () => {
