@@ -262,6 +262,43 @@ function buildScoreNarrative(
   return `${bairro} recebe nota ${grade} (${formatDecimal(score, 1)}). Ponto forte: ${pillarNames[strongest[0]]}. Ponto fraco: ${pillarNames[weakest[0]]}.${riskNote}`;
 }
 
+// ── Grupos do score ──────────────────────────────────────────────
+
+/**
+ * A nota do score é relativa aos bairros da tabela (min–max) e a ordem muda com
+ * pequenas mudanças de peso (auditoria de 16/11/2026: com ±10 pontos nos pesos, o
+ * primeiro lugar alterna entre quatro bairros). Por isso as telas públicas mostram
+ * o score em três grupos, nunca posição nem nota com casa decimal (decisão do Pedro).
+ */
+export type GrupoScore = "frente" | "meio" | "fim";
+
+export const ROTULO_GRUPO_SCORE: Record<GrupoScore, string> = {
+  frente: "Grupo da frente",
+  meio: "Grupo do meio",
+  fim: "Grupo do fim",
+};
+
+export const ORDEM_GRUPO_SCORE: GrupoScore[] = ["frente", "meio", "fim"];
+
+/**
+ * Divide os bairros em três grupos de tamanho parecido pela nota (o primeiro grupo
+ * fica com a sobra). Empates na fronteira ficam no mesmo grupo, o de cima.
+ */
+export function gruposDoScore(notas: { bairro: string; score: number }[]): Map<string, GrupoScore> {
+  const ordenados = [...notas].sort((a, b) => b.score - a.score || a.bairro.localeCompare(b.bairro, "pt-BR"));
+  const n = ordenados.length;
+  const fimFrente = Math.ceil(n / 3);
+  const fimMeio = fimFrente + Math.ceil((n - fimFrente) / 2);
+  const saida = new Map<string, GrupoScore>();
+  ordenados.forEach((item, i) => {
+    let grupo: GrupoScore = i < fimFrente ? "frente" : i < fimMeio ? "meio" : "fim";
+    const anterior = ordenados[i - 1];
+    if (anterior && anterior.score === item.score) grupo = saida.get(anterior.bairro) ?? grupo;
+    saida.set(item.bairro, grupo);
+  });
+  return saida;
+}
+
 // ── Batch calculation for rankings ───────────────────────────────
 
 export interface BairroWithScore {

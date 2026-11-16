@@ -73,18 +73,49 @@ export function saveConsent(choice: ConsentChoice) {
   syncMeasurement();
   window.dispatchEvent(new Event("radar-consent-change"));
 }
+/**
+ * Parâmetros de URL que podem ir para a medição. O link de uma simulação leva valores
+ * da pessoa (valor do imóvel, condomínio, IPTU, reforma, aluguel...): nada disso sai
+ * do navegador para GA4 ou Meta (auditoria de 16/11/2026, rodada 2).
+ */
+const PARAMETRO_MEDIVEL = /^(bairro|b|origem|utm_[a-z_]+|gclid|gbraid|wbraid|fbclid)$/;
+
+/** Endereço da página sem os parâmetros que não são da lista permitida. */
+export function urlParaMedicao(loc: { origin: string; pathname: string; search: string; hash: string }): { path: string; location: string; removeuValores: boolean } {
+  const entrada = new URLSearchParams(loc.search);
+  const saida = new URLSearchParams();
+  let removeuValores = false;
+  for (const [chave, valor] of entrada) {
+    if (PARAMETRO_MEDIVEL.test(chave)) saida.append(chave, valor); else removeuValores = true;
+  }
+  const query = saida.toString();
+  const path = `${loc.pathname}${query ? `?${query}` : ""}${loc.hash}`;
+  return { path, location: `${loc.origin}${path}`, removeuValores };
+}
+
+/**
+ * O Meta Pixel lê o endereço completo da página por conta própria. Enquanto a URL
+ * tiver valores fora da lista permitida, nenhum evento vai para ele.
+ */
+function pixel(...args: unknown[]) {
+  if (urlParaMedicao(window.location).removeuValores) return;
+  window.fbq?.(...args);
+}
+
 export function trackPageView() {
   if (!canMeasure()) return;
-  const path = window.location.pathname + window.location.search + window.location.hash;
+  const { path, location } = urlParaMedicao(window.location);
   if (path === lastPage) return;
   lastPage = path;
-  gtag("event", "page_view", { page_path: path, page_location: window.location.href });
-  window.fbq?.("track", "PageView");
+  // Vale também para os eventos seguintes da mesma página, que herdam o page_location.
+  gtag("set", { page_location: location });
+  gtag("event", "page_view", { page_path: path, page_location: location });
+  pixel("track", "PageView");
 }
 export function trackBudgetClick(local: string) {
   if (!canMeasure()) return;
   gtag("event", "click_orcamento", { local });
-  window.fbq?.("trackCustom", "ClickOrcamento", { local });
+  pixel("trackCustom", "ClickOrcamento", { local });
 }
 /** Clique em "Ver imóvel" na página Imóveis; só id, título e bairro, nunca dado pessoal. */
 export function trackImovelClick(imovel: { id: string; titulo: string; bairro: string }) {

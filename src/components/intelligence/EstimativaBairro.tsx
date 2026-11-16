@@ -6,7 +6,7 @@ import {
   buildShortVsLongNarrative, buildInvestorProfile, SECTION_MICROCOPY,
 } from "@/lib/intelligenceInsights";
 import { buildBairroStoryBlocks } from "@/lib/storytelling";
-import { calculateInvestmentScore, calculateTrueYield, PILLARS } from "@/lib/investmentScore";
+import { calculateInvestmentScore, calculateTrueYield, gruposDoScore, PILLARS, ROTULO_GRUPO_SCORE } from "@/lib/investmentScore";
 import { FOOTER_DISCLAIMER, SCORES_DISCLAIMER } from "@/lib/uiHelpers";
 import { formatBRL, formatDecimal } from "@/lib/numberFormat";
 import { cn } from "@/lib/utils";
@@ -54,6 +54,8 @@ function TabelaMetricas({ numero, titulo, linhas }: { numero: number; titulo: st
 export default function EstimativaBairro({ b, todos, numeroInicial = 2 }: { b: BairroAirbnb; todos: BairroAirbnb[]; numeroInicial?: number }) {
   const perfil = getBairroProfile(b, todos);
   const score = calculateInvestmentScore(b, todos);
+  // Grupo (frente, meio ou fim) em vez de nota e conceito: auditoria de 16/11/2026, decisão do Pedro.
+  const grupo = gruposDoScore(todos.map((x) => ({ bairro: x.bairro, score: calculateInvestmentScore(x, todos).score }))).get(b.bairro) ?? "fim";
   const trueYield = calculateTrueYield(b);
   const historias = buildBairroStoryBlocks(b, todos);
   const precoEstudio = Number(b.preco_m2_residencial_medio) * Number(b.area_media_estudio);
@@ -69,10 +71,10 @@ export default function EstimativaBairro({ b, todos, numeroInicial = 2 }: { b: B
         </p>
         <dl className="mt-6 grid gap-8 sm:grid-cols-[minmax(0,220px)_minmax(0,1fr)]">
           <div>
-            <dt className="e-rotulo">Score de investimento (0–100)</dt>
+            <dt className="e-rotulo">Score de investimento</dt>
             <dd className="m-0">
-              <span className="e-numero mt-1 block">{formatDecimal(score.score, 1)}</span>
-              <span className="e-legenda block">Nota {score.grade} · {score.gradeLabel} · perfil {perfil.label.toLowerCase()}</span>
+              <span className="e-h2 mt-1 block">{ROTULO_GRUPO_SCORE[grupo]}</span>
+              <span className="e-legenda block">Entre os {todos.length} bairros da estimativa · perfil {perfil.label.toLowerCase()}</span>
             </dd>
           </div>
           <div>
@@ -103,7 +105,7 @@ export default function EstimativaBairro({ b, todos, numeroInicial = 2 }: { b: B
           ))}
         </tbody>
       </TabelaNumerada>
-      <p className="e-legenda -mt-8">{score.narrative} {SCORES_DISCLAIMER}</p>
+      <p className="e-legenda -mt-8">O score aparece em três grupos, sem posição nem nota: ele é relativo aos bairros da estimativa e a ordem muda com pequenas mudanças nos pesos. {SCORES_DISCLAIMER}</p>
 
       <div className="grid gap-10 md:grid-cols-2">
         <Lista titulo="Em linguagem simples" itens={buildLeigosResumo(b, perfil)} />

@@ -1,4 +1,4 @@
-import { diariaPorMetragem, type SizeKey } from "@/data/bairrosCurados";
+import { diariaPorMetragem, SAO_PAULO_REFERENCIA, type SizeKey } from "@/data/bairrosCurados";
 /**
  * Modelo puro do comparador multi-cenário de investimento.
  *
@@ -22,8 +22,12 @@ import type { BairroItem } from "@/data/guide-data";
 
 export type ScenarioKind = "conservador" | "realista" | "otimista" | "custom";
 
-/** Ocupação padrão quando o bairro não tem dado (espelha useProjectSummary). */
-export const DEFAULT_OCCUPANCY_PCT = 75;
+/**
+ * Ocupação usada quando o bairro não tem dado: a referência de São Paulo da base do
+ * Radar (antes 75%, sem fonte e acima de qualquer bairro da base; auditoria de
+ * 16/11/2026, decisão do Pedro). useProjectSummary usa esta mesma constante.
+ */
+export const DEFAULT_OCCUPANCY_PCT = SAO_PAULO_REFERENCIA.avgOccupancy;
 /** Duração média de estadia padrão de uma projeção. */
 export const DEFAULT_AVG_STAY_NIGHTS = 3;
 
@@ -55,7 +59,9 @@ interface PresetConfig {
  */
 export const SCENARIO_PRESETS: readonly PresetConfig[] = [
   { kind: "conservador", label: "Conservador", occupancyDeltaPct: -12, adrFactor: 0.85 },
-  { kind: "realista", label: "Realista", occupancyDeltaPct: 0, adrFactor: 1.0 },
+  // A chave "realista" fica (é o que está gravado em project_scenarios); o rótulo é "Base":
+  // "realista" sugeria uma validação que o cenário não tem (auditoria de 16/11/2026).
+  { kind: "realista", label: "Base", occupancyDeltaPct: 0, adrFactor: 1.0 },
   { kind: "otimista", label: "Otimista", occupancyDeltaPct: 8, adrFactor: 1.15 },
 ] as const;
 
@@ -116,9 +122,10 @@ export function scenarioSummary(a: ScenarioAssumptions): ProjectionSummary {
 
 /**
  * Delta percentual de `value` em relação à `baseline`.
- * Quando a baseline é 0, devolve 0 (sem variação) ou 100 (do zero a algo).
+ * Com baseline 0 a variação relativa não é definida: devolve null (a tela mostra a
+ * diferença sem percentual), exceto quando os dois são 0 (sem variação).
  */
-export function pctDelta(value: number, baseline: number): number {
-  if (baseline === 0) return value === 0 ? 0 : 100;
+export function pctDelta(value: number, baseline: number): number | null {
+  if (baseline === 0) return value === 0 ? 0 : null;
   return ((value - baseline) / Math.abs(baseline)) * 100;
 }

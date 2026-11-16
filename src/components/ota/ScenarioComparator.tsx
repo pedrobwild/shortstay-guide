@@ -98,9 +98,13 @@ function DeltaChip({
   kind, value, betterHigher,
 }: {
   kind: DeltaKind;
-  value: number;
+  /** null = variação relativa não definida (cenário base em zero). */
+  value: number | null;
   betterHigher: boolean;
 }) {
+  if (value === null) {
+    return <span className="text-[11px] text-muted-foreground" title="O cenário base está em zero: a variação percentual não é definida">sem % (base zero)</span>;
+  }
   const isFlat = Math.abs(value) < 0.05;
   if (isFlat) {
     return (

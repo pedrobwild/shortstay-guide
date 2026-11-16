@@ -35,6 +35,19 @@ describe("medição consentida", () => {
     expect(commands.filter((a) => a[1] === "page_view")).toHaveLength(1);
     expect(commands).toContainEqual(["set", "linker", { domains: ["radarbewild.com.br", "bewild.com.br"] }]);
   });
+  it("não envia os valores do link de simulação para GA4 nem para o Meta", async () => {
+    const m = await import("@/lib/marketingConsent");
+    window.history.replaceState({}, "", "/projecao?bairro=pinheiros&valor=480000&iptu=250&reforma=90000&aluguel=3200&utm_source=whats#resultado");
+    m.saveConsent("accepted"); m.trackPageView(); m.trackBudgetClick("simulador");
+    const commands = window.dataLayer?.map((a) => Array.from(a as ArrayLike<unknown>)) ?? [];
+    const limpa = "/projecao?bairro=pinheiros&utm_source=whats#resultado";
+    expect(commands).toContainEqual(["event", "page_view", { page_path: limpa, page_location: `${window.location.origin}${limpa}` }]);
+    expect(commands).toContainEqual(["set", { page_location: `${window.location.origin}${limpa}` }]);
+    expect(JSON.stringify(commands)).not.toMatch(/480000|90000|3200|iptu/);
+    // O pixel lê a URL sozinho: com valores na URL, nenhum evento vai para ele.
+    expect(window.fbq?.queue?.filter((a) => a[0] === "track" || a[0] === "trackCustom")).toEqual([]);
+    expect(m.urlParaMedicao({ origin: "https://x", pathname: "/comparar", search: "?b=pinheiros,moema", hash: "" })).toEqual({ path: "/comparar?b=pinheiros,moema".replace(",", "%2C"), location: "https://x/comparar?b=pinheiros%2Cmoema", removeuValores: false });
+  });
   it.each(["/admin", "/admin/leads", "/painel", "/projetos", "/projeto/123", "/area-exclusiva", "/area-exclusiva/pinheiros"])("não mede %s mesmo com consentimento", async (path) => {
     const m = await import("@/lib/marketingConsent"); localStorage.setItem(m.CONSENT_KEY, "accepted"); window.history.replaceState({}, "", path); m.syncMeasurement(); m.trackBudgetClick("chat");
     expect(m.canMeasure()).toBe(false); expect(document.querySelectorAll("script").length).toBe(0); expect(window.dataLayer).toEqual([]);
