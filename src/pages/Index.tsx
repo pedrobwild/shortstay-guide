@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AppNavbar from "@/components/AppNavbar";
 import RodapeRadar from "@/components/RodapeRadar";
+import FotosReformas from "@/components/radar/FotosReformas";
 import { INDICE_CUSTO } from "@/data/artigosBewild";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import FonteLink from "@/components/guide/FonteLink";
@@ -249,6 +250,8 @@ function IndexInner() {
               <Indicador pequeno rotulo="Garantia" valor={<>{GARANTIA_ANOS} anos</>} nota="Contrato com multa por dia de atraso" />
             </GradeIndicadores>
           </div>
+          {/* Prova visual: fotos de obras entregues (portfólio do site), depois do texto e dos números. */}
+          <FotosReformas className="mt-10 lg:mt-14" />
         </Bloco>
 
         {/* 5 · Guia por tema: quatro destaques em grade e o resto recolhido (links no HTML) */}
