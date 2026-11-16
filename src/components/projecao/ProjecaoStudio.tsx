@@ -346,7 +346,9 @@ export default function ProjecaoStudio() {
 
             <div className="mt-12 border-t border-foreground pt-4">
               <h2 className="e-rotulo mb-4">Sobre o investimento</h2>
-              <GradeIndicadores className="lg:grid-cols-3">
+              {/* Celular, sem valor do imóvel: uma frase no lugar dos três indicadores vazios (páginas curtas, 16/11/2026). */}
+              {!ind && <p className="e-apoio lg:hidden">Informe o valor do imóvel, no início da página, para ver o investimento total, a rentabilidade anual e o prazo estimado de retorno.</p>}
+              <GradeIndicadores className={cn("lg:grid-cols-3", !ind && "hidden lg:grid")}>
                 <Indicador
                   pequeno
                   rotulo="Investimento total (R$)"
@@ -356,7 +358,7 @@ export default function ProjecaoStudio() {
                 <Indicador pequeno rotulo="Rentabilidade anual (% ao ano)" valor={ind ? <span className={cn(ind.rentabilidadeAA < 0 && "e-negativo")}>{formatDecimal(ind.rentabilidadeAA, 1)}%</span> : "—"} nota={ind ? "resultado líquido anual ÷ investimento total" : "Informe o valor do imóvel para ver a rentabilidade."} />
                 <Indicador pequeno rotulo="Prazo estimado de retorno (anos)" valor={ind?.paybackAnos != null ? formatDecimal(ind.paybackAnos, 1) : "—"} nota={!ind ? "Informe o valor do imóvel para ver o prazo." : ind.paybackAnos == null ? "sem resultado líquido positivo" : "investimento total ÷ resultado líquido anual"} />
               </GradeIndicadores>
-              <p className="e-legenda mt-4 max-w-[720px]">
+              <p className={cn("e-legenda mt-4 max-w-[720px]", !ind && "hidden lg:block")}>
                 Investimento total = {TEXTO_INVESTIMENTO_TOTAL}. Na explicação técnica, a rentabilidade anual é o <i>yield</i> líquido e o prazo estimado de retorno, o <i>payback</i> simples, sem juros nem valorização. Não considera financiamento.
               </p>
             </div>
