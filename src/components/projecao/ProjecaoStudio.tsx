@@ -12,6 +12,7 @@ import { CabecalhoTela, Container, Secao } from "@/components/estudo/Estrutura";
 import { Figura, TabelaNumerada, TD, TD_NUM, TH } from "@/components/estudo/Figura";
 import ComparacaoDecoracao from "@/components/estudo/ComparacaoDecoracao";
 import NestaPagina from "@/components/estudo/NestaPagina";
+import { TrechoRecolhido } from "@/components/estudo/Recolhivel";
 import { DECORATION_LEVELS } from "@/data/guide-data";
 import { NotaAmostra, Tag, TagBairro, TEXTO_APROXIMACAO } from "@/components/estudo/Natureza";
 import { AvisoReceita, FormulaReceita, GradeIndicadores, Indicador } from "@/components/estudo/Numeros";
@@ -301,10 +302,11 @@ export default function ProjecaoStudio() {
               />
             </Figura>
 
+            {/* No celular a tabela repete a lista de custos da figura acima: fica recolhida. */}
+            <TrechoRecolhido id="linha-a-linha" rotulo="A conta linha a linha" resumo="Como cada valor foi obtido" className="mt-10 lg:mt-12">
             <TabelaNumerada
               numero={1}
               rolavel
-              className="mt-12"
               titulo="Da receita bruta ao resultado líquido"
               unidade="R$ por mês. Cada linha mostra como o valor foi obtido."
             >
@@ -340,6 +342,7 @@ export default function ProjecaoStudio() {
                 </tr>
               </tbody>
             </TabelaNumerada>
+            </TrechoRecolhido>
 
             <div className="mt-12 border-t border-foreground pt-4">
               <h2 className="e-rotulo mb-4">Sobre o investimento</h2>
@@ -369,6 +372,8 @@ export default function ProjecaoStudio() {
 
       {meses && (
         <Secao
+          recolhida
+          resumo="A receita anual distribuída pela sazonalidade (modelo ilustrativo)"
           id="mes-a-mes"
           rotulo="Mês a mês"
           titulo="A mesma receita anual, distribuída pela sazonalidade de São Paulo"
@@ -384,17 +389,19 @@ export default function ProjecaoStudio() {
         </Secao>
       )}
 
-      <Secao id="compartilhar" rotulo="Guardar e compartilhar" titulo="Leve esta conta adiante">
+      <Secao recolhida resumo="Guardar no Painel, copiar o link ou o resumo" id="compartilhar" rotulo="Guardar e compartilhar" titulo="Leve esta conta adiante">
         <AcoesSimulacao sim={simPagina} resultado={r} indicadores={ind} />
       </Secao>
 
       <Secao
+        recolhida
+        resumo="Decoração, faixa de área, percentuais de custo e locação tradicional"
         id="premissas-completas"
         rotulo="Todas as premissas"
         titulo="Ajuste a decoração, a faixa de área, os percentuais de custo ou compare com a locação tradicional"
         lead="O mesmo simulador, com todas as hipóteses editáveis. O que mudar aqui atualiza a conta de cima (que mostra sempre o short stay)."
       >
-        <details className="group e-fina border-y">
+        <details data-abre-junto className="group e-fina border-y">
           <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-4 py-3 text-[17px] font-semibold [&::-webkit-details-marker]:hidden">
             Abrir todas as premissas
             <span aria-hidden="true" className="text-tinta-70 transition-transform group-open:rotate-45 motion-reduce:transition-none">+</span>
@@ -429,12 +436,12 @@ export default function ProjecaoStudio() {
         </Secao>
       )}
 
-      <Secao id="case" rotulo="Case real" titulo="Um studio reformado pela Bewild, com os números publicados no depoimento">
+      <Secao recolhida resumo="Um studio reformado pela Bewild, com os números do depoimento" id="case" rotulo="Case real" titulo="Um studio reformado pela Bewild, com os números publicados no depoimento">
         <CaseStudySection />
       </Secao>
 
       {p.modo === "short_stay" && (
-        <Secao id="analise-detalhada" rotulo="Análise detalhada" titulo="Um calendário simulado de 12 meses com as mesmas premissas" lead="Outro modelo: 365 dias, estadias de 3 noites e sazonalidade. Os totais ficam perto dos de cima, não iguais.">
+        <Secao recolhida resumo="Calendário simulado de 12 meses, com as mesmas premissas" aoAbrir={() => setDetalheAberto(true)} id="analise-detalhada" rotulo="Análise detalhada" titulo="Um calendário simulado de 12 meses com as mesmas premissas" lead="Outro modelo: 365 dias, estadias de 3 noites e sazonalidade. Os totais ficam perto dos de cima, não iguais.">
           <Collapsible open={detalheAberto} onOpenChange={setDetalheAberto} className="e-fina border-y">
             <CollapsibleTrigger className="flex min-h-[44px] w-full items-center justify-between gap-3 py-3 text-left text-[17px] font-semibold">
               {detalheAberto ? "Fechar a análise detalhada" : "Abrir a análise detalhada"}

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import AppNavbar from "@/components/AppNavbar";
 import PassosEstudo from "@/components/estudo/PassosEstudo";
 import RodapeRadar from "@/components/RodapeRadar";
+import { BotaoRecolhivel, classeConteudoRecolhivel, useRecolhivel } from "@/components/estudo/Recolhivel";
 import { cn } from "@/lib/utils";
 
 /**
@@ -66,22 +67,41 @@ export function CabecalhoTela({
 /**
  * Seção com a coluna lateral de rótulo (200px + 1fr, 48px de espaço). No celular
  * o rótulo fica acima do conteúdo. `titulo` é o H2: um achado ou uma ação.
+ * Com `recolhida` (precisa de `id` e rótulo de texto), a seção vira uma linha que abre
+ * com um toque no celular e segue aberta no desktop (ver Recolhivel.tsx).
  */
-export function Secao({
-  id,
-  rotulo,
-  titulo,
-  lead,
-  children,
-  className,
-}: {
+export function Secao(props: PropsSecao) {
+  return props.recolhida && props.id && typeof props.rotulo === "string"
+    ? <SecaoRecolhida {...props} id={props.id} rotulo={props.rotulo} />
+    : <SecaoAberta {...props} />;
+}
+
+interface PropsSecao {
   id?: string;
   rotulo: ReactNode;
   titulo?: ReactNode;
   lead?: ReactNode;
   children?: ReactNode;
   className?: string;
-}) {
+  /** Recolhe a seção no celular; no desktop nada muda. */
+  recolhida?: boolean;
+  /** Linha de apoio sob o rótulo enquanto a seção está recolhida. */
+  resumo?: string;
+  /** Chamado quando a seção recolhida abre (para abrir junto um controle interno). */
+  aoAbrir?: () => void;
+}
+
+function CorpoSecao({ idTitulo, titulo, lead, children }: Pick<PropsSecao, "titulo" | "lead" | "children"> & { idTitulo?: string }) {
+  return (
+    <>
+      {titulo && <h2 id={idTitulo} className="e-h2 max-w-[820px] text-balance">{titulo}</h2>}
+      {lead && <p className="e-apoio mt-3 max-w-[720px] text-pretty">{lead}</p>}
+      {(titulo || lead) && children ? <div className="mt-8">{children}</div> : children}
+    </>
+  );
+}
+
+function SecaoAberta({ id, rotulo, titulo, lead, children, className }: PropsSecao) {
   const idTitulo = id ? `${id}-titulo` : undefined;
   return (
     <section id={id} data-indice={id && typeof rotulo === "string" ? rotulo : undefined} aria-labelledby={titulo ? idTitulo : undefined} className={cn("scroll-mt-20 py-10 lg:py-12", className)}>
@@ -90,9 +110,25 @@ export function Secao({
           <p className="e-rotulo lg:pt-2">{rotulo}</p>
         </div>
         <div className="min-w-0">
-          {titulo && <h2 id={idTitulo} className="e-h2 max-w-[820px] text-balance">{titulo}</h2>}
-          {lead && <p className="e-apoio mt-3 max-w-[720px] text-pretty">{lead}</p>}
-          {(titulo || lead) && children ? <div className="mt-8">{children}</div> : children}
+          <CorpoSecao idTitulo={idTitulo} titulo={titulo} lead={lead}>{children}</CorpoSecao>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+function SecaoRecolhida({ id, rotulo, titulo, lead, children, className, resumo, aoAbrir }: PropsSecao & { id: string; rotulo: string }) {
+  const { aberto, alternar, ref } = useRecolhivel(id, aoAbrir);
+  const idTitulo = `${id}-titulo`;
+  return (
+    <section ref={ref} id={id} data-indice={rotulo} data-recolhida="" aria-label={rotulo} className={cn("scroll-mt-20 lg:py-12", className)}>
+      <Container className="lg:grid lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-12">
+        <div className="min-w-0 border-t border-border lg:border-0">
+          <BotaoRecolhivel id={id} rotulo={rotulo} resumo={resumo} aberto={aberto} alternar={alternar} />
+          <p className="e-rotulo hidden lg:block lg:pt-2">{rotulo}</p>
+        </div>
+        <div id={`${id}-conteudo`} className={cn("min-w-0 pb-10 pt-2 lg:p-0", classeConteudoRecolhivel(aberto))}>
+          <CorpoSecao idTitulo={idTitulo} titulo={titulo} lead={lead}>{children}</CorpoSecao>
         </div>
       </Container>
     </section>

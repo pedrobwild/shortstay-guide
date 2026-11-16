@@ -1,3 +1,4 @@
+import { BotaoRecolhivel, classeConteudoRecolhivel, useRecolhivel } from "@/components/estudo/Recolhivel";
 import { useEffect, useRef, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AppNavbar from "@/components/AppNavbar";
@@ -209,7 +210,7 @@ function IndexInner() {
 
         {/* 3 · Os bairros num olhar: figura larga e, no desktop, a leitura ao lado */}
         {bairro && (
-          <Bloco id="bairros" rotulo={`Os ${bairros.length} bairros`} titulo={<>Onde {bairro.name} fica entre os {bairros.length} bairros em receita de referência</>}>
+          <Bloco resumo="Receita de referência dos bairros, num gráfico" id="bairros" rotulo={`Os ${bairros.length} bairros`} titulo={<>Onde {bairro.name} fica entre os {bairros.length} bairros em receita de referência</>}>
             <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-14">
               <Figura
                 numero={1}
@@ -267,7 +268,7 @@ function IndexInner() {
         )}
 
         {/* 4 · Reforma: texto e ações à esquerda, os números do estudo à direita */}
-        <Bloco id="reforma" rotulo="Reforma">
+        <Bloco resumo="Custo mediano, prazo e garantia da reforma completa" id="reforma" rotulo="Reforma">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,480px)] lg:gap-16">
             <div className="min-w-0">
               <h2 id="reforma-titulo" className="e-h2 max-w-[640px] text-balance">
@@ -309,7 +310,7 @@ function IndexInner() {
         </Bloco>
 
         {/* 5 · Guia por tema: quatro destaques em grade e o resto recolhido (links no HTML) */}
-        <Bloco id="guia" rotulo="Guia por tema" titulo="O que estudar antes de cada decisão">
+        <Bloco resumo="O que estudar antes de cada decisão" id="guia" rotulo="Guia por tema" titulo="O que estudar antes de cada decisão">
           <ListaTemas temas={destaques} />
           {demaisTemas.length > 0 && (
             <details className="group mt-4">
@@ -323,9 +324,8 @@ function IndexInner() {
         </Bloco>
 
         {/* 6 e 7 · Quem produz (âncora #base mantida para links antigos) e perguntas frequentes, lado a lado no desktop */}
-        <Container className="grid gap-4 py-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16 lg:py-14">
-          <section id="base" aria-labelledby="base-titulo" className="min-w-0 scroll-mt-20">
-            <p className="e-rotulo">Quem produz</p>
+        <Container className="lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16 lg:py-14">
+          <Dobra id="base" rotulo="Quem produz" resumo="Um estudo aberto da Bewild: fontes, método e dados abertos">
             <h2 id="base-titulo" className="e-h2 mt-2 text-balance">Um estudo aberto da Bewild, com fonte e data em cada número</h2>
             <p className="e-apoio mt-3 text-pretty">
               Os dados de mercado vêm da GuestFavorites, lidos página a página e aprovados antes de entrar na base. O custo e o prazo de reforma vêm dos contratos da Bewild, que reforma studios compactos em São Paulo.
@@ -342,10 +342,9 @@ function IndexInner() {
               <a href="/dados/bairros.json" className="e-link inline-flex min-h-[44px] items-center">JSON</a>
               <a href="https://bewild.com.br" target="_blank" rel="noopener noreferrer" className="e-link inline-flex min-h-[44px] items-center">Conheça a Bewild<NovaAba /></a>
             </p>
-          </section>
+          </Dobra>
 
-          <section id="faq" aria-labelledby="faq-titulo" className="min-w-0 scroll-mt-20 pt-10 lg:pt-0">
-            <p className="e-rotulo">Perguntas frequentes</p>
+          <Dobra id="faq" rotulo="Perguntas frequentes" resumo="Respostas curtas, com a fonte de cada número" ultima>
             <h2 id="faq-titulo" className="e-h2 mt-2 text-balance">Respostas curtas, com a fonte de cada número</h2>
             <div className="e-fina mt-6 border-t">
               {faqVisiveis.map((item) => <PerguntaFaq key={item.q} item={item} />)}
@@ -361,7 +360,11 @@ function IndexInner() {
                 </div>
               </details>
             )}
-          </section>
+          </Dobra>
+        </Container>
+        {/* Pedido de orçamento sempre à vista no fim da home, mesmo com a Reforma recolhida no celular. */}
+        <Container className="py-8 lg:hidden">
+          <OrcamentoButton local="final" className="min-h-[48px] w-full px-5 text-[15px] font-semibold" />
         </Container>
       </main>
       <RodapeRadar />
@@ -373,19 +376,40 @@ function IndexInner() {
  * Bloco da home: rótulo e título empilhados sobre o conteúdo, na largura toda (sem a
  * coluna lateral de rótulo das outras telas, que deixava a home estreita e comprida
  * no desktop). Sem `titulo`, o conteúdo traz o próprio H2 com id `<id>-titulo`.
+ * No celular o bloco fica recolhido numa linha (Recolhivel.tsx); no desktop, aberto.
  */
-function Bloco({ id, rotulo, titulo, children }: { id: string; rotulo: string; titulo?: ReactNode; children: ReactNode }) {
+function Bloco({ id, rotulo, resumo, titulo, children }: { id: string; rotulo: string; resumo: string; titulo?: ReactNode; children: ReactNode }) {
+  const { aberto, alternar, ref } = useRecolhivel(id);
   return (
-    <section id={id} aria-labelledby={`${id}-titulo`} className="scroll-mt-20 py-10 lg:py-14">
+    <section ref={ref} id={id} data-recolhida="" aria-label={rotulo} className="scroll-mt-20 lg:py-14">
       <Container>
-        <p className="e-rotulo">{rotulo}</p>
-        {titulo ? (
-          <>
-            <h2 id={`${id}-titulo`} className="e-h2 mt-2 max-w-[820px] text-balance">{titulo}</h2>
-            <div className="mt-8">{children}</div>
-          </>
-        ) : <div className="mt-2">{children}</div>}
+        <div className="border-t border-border lg:border-0">
+          <BotaoRecolhivel id={id} rotulo={rotulo} resumo={resumo} aberto={aberto} alternar={alternar} />
+        </div>
+        <div id={`${id}-conteudo`} className={cn("pb-10 pt-2 lg:p-0", classeConteudoRecolhivel(aberto))}>
+          <p className="e-rotulo hidden lg:block">{rotulo}</p>
+          {titulo ? (
+            <>
+              <h2 id={`${id}-titulo`} className="e-h2 max-w-[820px] text-balance lg:mt-2">{titulo}</h2>
+              <div className="mt-8">{children}</div>
+            </>
+          ) : <div className="lg:mt-2">{children}</div>}
+        </div>
       </Container>
+    </section>
+  );
+}
+
+/** "Quem produz" e perguntas frequentes: lado a lado no desktop, duas linhas recolhidas no celular. */
+function Dobra({ id, rotulo, resumo, ultima = false, children }: { id: string; rotulo: string; resumo: string; ultima?: boolean; children: ReactNode }) {
+  const { aberto, alternar, ref } = useRecolhivel(id);
+  return (
+    <section ref={ref} id={id} data-recolhida="" aria-label={rotulo} className={cn("min-w-0 scroll-mt-20 border-t border-border lg:border-0", ultima && "border-b")}>
+      <BotaoRecolhivel id={id} rotulo={rotulo} resumo={resumo} aberto={aberto} alternar={alternar} />
+      <div id={`${id}-conteudo`} className={cn("pb-10 pt-2 lg:p-0", classeConteudoRecolhivel(aberto))}>
+        <p className="e-rotulo hidden lg:block">{rotulo}</p>
+        {children}
+      </div>
     </section>
   );
 }
