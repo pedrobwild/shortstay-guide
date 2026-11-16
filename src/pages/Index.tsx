@@ -21,9 +21,10 @@ import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { BairroProvider } from "@/hooks/useBairroData";
 import { useBaseEstudo } from "@/hooks/useBaseEstudo";
 import { useBairroSelecionado } from "@/hooks/useBairroSelecionado";
-import { PERFIS_RADAR, type PerfilRadar } from "@/data/perfisRadar";
+import { PERFIS_RADAR } from "@/data/perfisRadar";
 import { TEMAS_GUIA, caminhoTema, type SlugTemaGuia } from "@/data/temasGuia";
 import { linkSimuladorBairro } from "@/data/navegacao";
+import { ATALHOS_CONSULTA, destinoDoPasso, PASSOS_ESTUDO, type PassoEstudo } from "@/data/passosEstudo";
 import { COLETA_GUESTFAVORITES } from "@/data/fontesGuia";
 import {
   AREA_MEDIANA_M2, CUSTO_M2_P25, CUSTO_M2_P75, ESTUDO_REFORMA_URL,
@@ -44,8 +45,8 @@ import NovaAba from "@/components/NovaAba";
  * bloco e cada número uma vez só.
  *  1. Hero: o bairro em análise com diária, ocupação e receita de referência contra São
  *     Paulo, a natureza do dado e um botão principal (simular este bairro).
- *  2. Três portas (comprar, reformar, operar): uma frase e um botão cada; as listas de
- *     ferramentas vivem em /ferramentas.
+ *  2. O estudo em 3 passos (bairro, conta, reforma), no lugar das três portas (16/11/2026);
+ *     a etapa da pessoa marca por onde começar. Abaixo do hero, a consulta direta.
  *  3. Fig. 1: os bairros num olhar (receita de referência), com o bairro em análise.
  *  4. Reforma: custo, faixa por m², prazo e garantia do estudo Bewild.
  *  5. Guia por tema (destaques + os demais em <details>).
@@ -122,10 +123,10 @@ function IndexInner() {
           <Container className="pb-8 pt-8 lg:pb-8 lg:pt-14">
             <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,480px)] lg:grid-rows-[auto_1fr] lg:gap-x-16 lg:gap-y-12">
               <div className="min-w-0">
-                <p className="e-rotulo mb-3">Radar Bewild · estudo aberto</p>
+                <p className="e-rotulo mb-3">Para quem investe em studio para Airbnb em São Paulo</p>
                 <h1 id="hero-titulo" className="e-h1-home text-balance">Studios para short stay em São Paulo, bairro a bairro</h1>
                 <p className="e-lead mt-4 max-w-[620px] text-pretty lg:mt-5">
-                  Diária, ocupação e receita de referência de {bairros.length} bairros, com fonte e data.
+                  Escolha o bairro, faça a conta e planeje a reforma. Diária, ocupação e receita de referência de {bairros.length} bairros, com fonte e data.
                 </p>
               </div>
               <div className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
@@ -140,18 +141,70 @@ function IndexInner() {
                   onSelecionar={(nome) => { selecionar(nome); trackGlobal("cta_clicked", { cta_id: "home_bairro", section: "hero", bairro: nome }); }}
                 />
               </div>
-              {/* 2 · Três portas: uma frase e um link cada (o botão principal da tela é o do painel) */}
+              {/*
+                2 · O estudo em 3 passos, no lugar das três portas (16/11/2026): bairro → conta → reforma.
+                A etapa da pessoa só marca por onde começar; a âncora #perfis continua valendo.
+              */}
               <div id="perfis" role="region" aria-labelledby="perfis-titulo" className="min-w-0 scroll-mt-20 lg:col-start-1 lg:row-start-2">
-                <h2 id="perfis-titulo" className="e-rotulo">Em que etapa você está?</h2>
-                <div className="e-fina mt-3 border-t">
-                  {PERFIS_RADAR.map((p) => (
-                    <PortaPerfil key={p.numero} perfil={p} ativo={p.momento === ativo} />
+                <h2 id="perfis-titulo" className="e-h2">O estudo em 3 passos</h2>
+                <ol className="m-0 mt-4 grid list-none gap-3 p-0 sm:grid-cols-3">
+                  {PASSOS_ESTUDO.map((p) => (
+                    <li key={p.numero} className="min-w-0">
+                      <PassoHome passo={p} inicio={p.numero === PASSO_INICIAL[ativo]} slugBairro={bairro ? slugifyBairro(bairro.name) : null} />
+                    </li>
                   ))}
+                </ol>
+                <div className="mt-5">
+                  <p id="etapa-rotulo" className="e-rotulo">Em que etapa você está?</p>
+                  <div role="group" aria-labelledby="etapa-rotulo" className="mt-2 inline-flex max-w-full flex-wrap rounded-[9px] bg-secondary p-[3px]">
+                    {PERFIS_RADAR.map((perfil) => (
+                      <button
+                        key={perfil.momento}
+                        type="button"
+                        aria-pressed={perfil.momento === ativo}
+                        onClick={() => { definirMomento(perfil.momento); trackGlobal("cta_clicked", { cta_id: `perfil_${perfil.numero}`, section: "perfis", momento: perfil.momento }); }}
+                        className={cn(
+                          "inline-flex min-h-[44px] items-center justify-center whitespace-nowrap rounded-[7px] px-4 text-sm font-medium transition-colors",
+                          perfil.momento === ativo ? "bg-card text-foreground shadow-segmented" : "text-muted-foreground hover:text-foreground",
+                        )}
+                      >
+                        {perfil.rotulo}
+                      </button>
+                    ))}
+                  </div>
+                  {ativo === "tenho" && (
+                    <p className="mt-2 text-[15px]">
+                      <Link to="/operar" onClick={() => trackGlobal("cta_clicked", { cta_id: "home_operar", section: "perfis" })} className="e-link inline-flex min-h-[44px] items-center font-semibold">
+                        Comparar meu studio com o bairro <span aria-hidden="true" className="ml-1">→</span>
+                      </Link>
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
           </Container>
         </section>
+
+        {/* Consulta direta, para quem volta atrás de um dado: não passa pelos passos. */}
+        <nav id="consulta" aria-labelledby="consulta-titulo" className="scroll-mt-20 border-y border-border bg-secondary/60 py-6">
+          <Container>
+            <h2 id="consulta-titulo" className="e-rotulo">Ou consulte direto</h2>
+            <ul className="m-0 mt-2 grid list-none gap-x-8 p-0 sm:grid-cols-2 lg:grid-cols-4">
+              {ATALHOS_CONSULTA.map((a) => (
+                <li key={a.id} className="e-fina min-w-0 border-b sm:border-b-0">
+                  <Link
+                    to={a.to}
+                    onClick={() => trackGlobal("cta_clicked", { cta_id: a.id, section: "consulta" })}
+                    className="flex min-h-[44px] flex-col justify-center py-2 hover:underline"
+                  >
+                    <span className="text-[15px] font-semibold">{a.rotulo}</span>
+                    <span className="e-legenda">{a.resumo}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Container>
+        </nav>
 
         {/* 3 · Os bairros num olhar: figura larga e, no desktop, a leitura ao lado */}
         {bairro && (
@@ -424,33 +477,28 @@ function PainelBairro({
   );
 }
 
-/**
- * Porta de um perfil: rótulo e situação, uma frase e um link de ação. O perfil
- * escolhido antes (momento.ts) ganha a régua ciano à esquerda.
- */
-function PortaPerfil({ perfil, ativo }: { perfil: PerfilRadar; ativo: boolean }) {
-  const idTitulo = `perfil-${perfil.numero}`;
+/** Por onde cada etapa começa o estudo: quem compra, pelo bairro; quem já opera, pela conta; quem reforma, pela reforma. */
+const PASSO_INICIAL: Record<Momento, PassoEstudo["numero"]> = { procurando: 1, tenho: 2, reformar: 3 };
+
+/** Um passo do estudo no hero: número, ação e o que a pessoa leva; o cartão inteiro é o link. */
+function PassoHome({ passo, inicio, slugBairro }: { passo: PassoEstudo; inicio: boolean; slugBairro: string | null }) {
+  const idTitulo = `passo-${passo.numero}`;
   return (
-    <article
-      aria-labelledby={idTitulo}
-      className={cn(
-        "e-fina grid min-w-0 gap-x-6 gap-y-1 border-b py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center",
-        ativo ? "border-l-[3px] border-l-ciano pl-4" : "",
-      )}
-    >
-      <div className="min-w-0">
-        <p className="e-rotulo">
-          <span className="tabular-nums">{perfil.numero}</span> · {perfil.rotulo}
-        </p>
-        <h3 id={idTitulo} className="mt-1 text-[17px] font-semibold leading-6">{perfil.situacao}</h3>
-        <p className="e-apoio mt-1">{perfil.resumo}</p>
-      </div>
+    <article aria-labelledby={idTitulo} className="h-full">
       <Link
-        to={perfil.acao.to}
-        onClick={() => { definirMomento(perfil.momento); trackGlobal("cta_clicked", { cta_id: `perfil_${perfil.numero}`, section: "perfis", momento: perfil.momento }); }}
-        className="e-link inline-flex min-h-[44px] items-center whitespace-nowrap text-[15px] font-semibold"
+        to={destinoDoPasso(passo, slugBairro)}
+        onClick={() => trackGlobal("cta_clicked", { cta_id: `home_passo_${passo.numero}`, section: "perfis" })}
+        className={cn(
+          "group flex h-full min-h-[44px] flex-col gap-2 rounded-[10px] border bg-card p-4 transition-colors hover:border-primary",
+          inicio ? "border-ciano" : "border-border",
+        )}
       >
-        {perfil.acao.rotulo} <span aria-hidden="true" className="ml-1">→</span>
+        <span className="flex items-center gap-2">
+          <span aria-hidden="true" className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold tabular-nums text-primary-foreground">{passo.numero}</span>
+          <span id={idTitulo} className="text-[15px] font-semibold group-hover:underline"><span className="sr-only">Passo {passo.numero}: </span>{passo.rotulo}</span>
+        </span>
+        <span className="e-legenda">{passo.resumo}</span>
+        {inicio && <span className="e-rotulo mt-auto text-primary">Comece aqui</span>}
       </Link>
     </article>
   );

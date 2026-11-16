@@ -1,4 +1,5 @@
 import AppNavbar from "@/components/AppNavbar";
+import PassosEstudo from "@/components/estudo/PassosEstudo";
 import RodapeRadar from "@/components/RodapeRadar";
 import ProjecaoStudio from "@/components/projecao/ProjecaoStudio";
 import { BairroProvider } from "@/hooks/useBairroData";
@@ -16,6 +17,7 @@ export default function StudioProjection() {
       <GuideDecisionProvider>
         <div className="min-h-screen bg-background font-body text-foreground">
           <AppNavbar fixo={false} />
+          <PassosEstudo />
           <ProjecaoStudio />
           <RodapeRadar className="pb-36 lg:pb-12" />
         </div>
