@@ -748,7 +748,9 @@ export function longestGaps(events: NormalizedEvent[], topN = 3): VacancyGap[] {
 /** Premissas financeiras padrão de uma projeção (espelha o painel de custos). */
 /** Gestão e impostos: DRE padrão do guia (src/data/dreGuia.ts); condomínio: despesa do exemplo do guia. */
 export const DEFAULT_PROJECTION_COSTS = {
-  cleaningPerStay: 120,
+  // Limpeza: paga pelo hóspede (decisão do Pedro, 16/11/2026), então o padrão é zero e o painel
+  // bate com o simulador público. O campo continua editável para quem paga a limpeza à parte.
+  cleaningPerStay: 0,
   managementPct: DRE_GUIA.gestaoPct,
   taxesPct: DRE_GUIA.impostosPct,
   condoMonthly: DESPESAS_EXEMPLO.condominio,
