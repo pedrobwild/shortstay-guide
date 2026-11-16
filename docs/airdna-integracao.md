@@ -25,9 +25,19 @@ VALUES ('airdna', 'AirDNA', 'licenciada', 'https://www.airdna.co', true,
 
 `AIRDNA_API_KEY` é configurado no Lovable Cloud (Secrets). Nunca vai para o frontend nem para o repositório.
 
-## ⚠️ Antes de ativar: licença
+## Licença: conferida em 16/11/2026
 
-Os termos gerais da AirDNA (https://www.airdna.co/terms-of-service) limitam o dado a **uso interno** (§1.3), proíbem **distribuir/divulgar** (§1.3(i)), tratam o dado como confidencial (§3.1) e proíbem **expor o conteúdo a sistemas de IA** (§1.3(x) e §5.4). Exibir no site público e passar ao chat do Radar só é possível se o contrato Enterprise disser o contrário — confirmar por escrito com a AirDNA (api@airdna.co) antes de inserir a fonte `airdna`.
+Em 16/11/2026 o Pedro conferiu o contrato e confirmou que a licença da AirDNA permite: (1) leitura e processamento dos dados por assistente de IA; (2) guardar as séries no banco do Radar para uso interno; (3) exibir no site os percentuais derivados (efeito de eventos por bairro).
+
+Com isso, a fonte `airdna` foi inserida em `radar_fontes` (tipo `licenciada`) na mesma data. O dado bruto continua restrito: `radar_series_diarias` só é lida por admin; o público só vê linhas de `radar_evento_efeitos` marcadas como publicáveis e de eventos publicados.
+
+Registro anterior (18/10/2026), mantido para referência: os termos gerais da AirDNA (https://www.airdna.co/terms-of-service) limitam o dado a uso interno (§1.3), proíbem distribuir ou divulgar (§1.3(i)), tratam o dado como confidencial (§3.1) e proíbem expor o conteúdo a sistemas de IA (§1.3(x) e §5.4). O que vale para o Radar é o contrato conferido pelo Pedro; se o contrato mudar, esta seção precisa ser revista antes de nova leitura.
+
+## O que está no banco desde 16/11/2026
+
+- `radar_series_diarias`: diária por dia (01/12/2025 a 14/11/2026) e reservas futuras (até 30/04/2027), por bairro, nos recortes `todos` e `ate_1_quarto`; leitura de 16/11/2026, feita pela tela da AirDNA.
+- `radar_eventos` e `radar_evento_efeitos`: calendário e efeito medido na diária. Método em `docs/estudo-eventos-2026-11-16.md`.
+- A migration `20261017030000_airdna_fonte_licenciada.sql` **não foi aplicada inteira**: ela redefine a view `radar_bairro_atual` e a função de coleta, que mudaram depois. Só a regra de tipo foi aplicada (`20261116100000_radar_fontes_tipo_licenciada.sql`). O uso da AirDNA para diária e ocupação de Brooklin e Vila Olímpia continua pendente e precisa de migration nova, escrita sobre a view e a função atuais.
 
 ## Pontos da API a confirmar no primeiro teste com o token
 
@@ -39,4 +49,3 @@ Os termos gerais da AirDNA (https://www.airdna.co/terms-of-service) limitam o da
 ## Pendências conhecidas
 
 - Telas que ainda leem a reserva offline (`getBairroCurado`) — mapa de bairros, ranking e detalhe da inteligência — continuam mostrando a estimativa até migrarem para `useBairroData`/`radar_bairro_atual`. Isso já acontece hoje com novas coletas GuestFavorites.
-- Conferir no contrato da AirDNA se a licença permite **exibir publicamente** os números no site.

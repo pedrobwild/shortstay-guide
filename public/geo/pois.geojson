@@ -66,7 +66,7 @@
     {"type":"Feature","geometry":{"type":"Point","coordinates":[-46.6440,-23.5570]},"properties":{"name":"Teatro Renault","category":"events","subcategory":"teatro","neighborhood":"Bela Vista"}},
     {"type":"Feature","geometry":{"type":"Point","coordinates":[-46.6750,-23.5680]},"properties":{"name":"Audio Club","category":"events","subcategory":"casa de shows","neighborhood":"Pinheiros"}},
     {"type":"Feature","geometry":{"type":"Point","coordinates":[-46.6700,-23.5850]},"properties":{"name":"Vibra São Paulo","category":"events","subcategory":"casa de shows","neighborhood":"Itaim Bibi"}},
-    {"type":"Feature","geometry":{"type":"Point","coordinates":[-46.6600,-23.5950]},"properties":{"name":"São Paulo Expo","category":"events","subcategory":"centro de convenções","neighborhood":"Vila Mariana"}},
+    {"type":"Feature","geometry":{"type":"Point","coordinates":[-46.6301,-23.6451]},"properties":{"name":"São Paulo Expo","category":"events","subcategory":"centro de convenções","neighborhood":"Jabaquara"}},
     {"type":"Feature","geometry":{"type":"Point","coordinates":[-46.6350,-23.5430]},"properties":{"name":"Theatro Municipal — eventos","category":"events","subcategory":"teatro","neighborhood":"República"}}
   ]
 }
