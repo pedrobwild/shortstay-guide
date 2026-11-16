@@ -65,6 +65,21 @@ describe("home reestruturada (26/10/2026, base de reserva)", () => {
     expect(hero.querySelector('a[href="/projecao?bairro=pinheiros"]')?.textContent).toBe("Simular este bairro");
   });
 
+  it("a etapa marca por onde começar: comprar no passo 1, reformar no passo 3, quem opera no passo 2", async () => {
+    const inicio = (el: HTMLElement) => [...el.querySelectorAll("#perfis article")].map((a) => (a.textContent ?? "").includes("Comece aqui"));
+    expect(inicio(await montar("/"))).toEqual([true, false, false]);
+    for (const [momento, esperado] of [["reformar", [false, false, true]], ["tenho", [false, true, false]]] as const) {
+      localStorage.setItem("radar_momento", JSON.stringify({ momento, quando: Date.now() }));
+      try {
+        const el = await montar("/");
+        expect(inicio(el), momento).toEqual(esperado);
+        expect(!!el.querySelector('#perfis a[href="/operar"]'), momento).toBe(momento === "tenho");
+      } finally {
+        localStorage.removeItem("radar_momento");
+      }
+    }
+  });
+
   it("o botão principal do painel acompanha a etapa escolhida (auditoria de UX, 15/11/2026)", async () => {
     const principal = (el: HTMLElement) => el.querySelector("#hero-titulo")!.closest("section")!.querySelector("a.bg-primary, a[class*='bg-primary']")?.textContent ?? "";
     localStorage.setItem("radar_momento", JSON.stringify({ momento: "reformar", quando: Date.now() }));
@@ -108,12 +123,16 @@ describe("home reestruturada (26/10/2026, base de reserva)", () => {
     expect(hero).toContain("Itaim Bibi");
   });
 
-  it("uma ideia por bloco: portas com um botão, figura dos bairros, cada número da reforma uma vez", async () => {
+  it("uma ideia por bloco: três passos com um link cada, figura dos bairros, cada número da reforma uma vez", async () => {
     const el = await montar("/");
     for (const id of ["perfis", "bairros", "reforma", "guia", "base", "faq"]) expect(el.querySelector(`#${id}`)).not.toBeNull();
     const portas = [...el.querySelectorAll("#perfis article")];
     expect(portas).toHaveLength(3);
     for (const p of portas) expect(p.querySelectorAll("a")).toHaveLength(1);
+    expect(portas.map((p) => p.querySelector("a")?.getAttribute("href"))).toEqual(["/ranking", "/projecao?bairro=pinheiros", "/reformar"]);
+    expect(el.querySelector("#perfis h2")?.textContent).toBe("O estudo em 3 passos");
+    expect([...el.querySelectorAll("#perfis button[aria-pressed]")].map((b) => b.textContent)).toEqual(["Vou comprar", "Vou reformar", "Já opero"]);
+    expect([...el.querySelectorAll("#consulta a")].map((a) => a.getAttribute("href"))).toEqual(["/ranking", "/eventos", "/#guia", "/metodologia"]);
     expect(el.querySelectorAll("#bairros figure a[aria-label]")).toHaveLength(28);
     const aberto = textoAberto(el);
     expect(aberto.split("R$ 71.850").length - 1).toBe(2); // título e indicador da seção Reforma
