@@ -8,7 +8,7 @@ export const SEO_BAIRROS = seo.bairros;
 export const PREFIXOS_PRIVADOS = seo.privatePrefixes;
 
 /** Imagem de compartilhamento (1200×630) usada em todas as páginas e o texto alternativo dela. */
-export const OG_IMAGEM = `${SITE_URL}/og-radar-curados-20261013.jpg`;
+export const OG_IMAGEM = `${SITE_URL}/og-radar-20261115.jpg`;
 export const OG_IMAGEM_ALT = "Radar Bewild — dados de short stay por bairro em São Paulo";
 
 /** Diretivas de robots das páginas públicas (as mesmas do bewild.com.br) e das privadas. */
