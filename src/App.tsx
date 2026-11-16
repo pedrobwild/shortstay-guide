@@ -48,6 +48,7 @@ const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
 const AdminNoticias = lazy(() => import("./pages/AdminNoticias"));
 const Posts = lazy(() => import("./pages/Posts"));
 const Eventos = lazy(() => import("./pages/Eventos"));
+const ResumoEstudo = lazy(() => import("./pages/ResumoEstudo"));
 const Empreendimentos = lazy(() => import("./pages/Empreendimentos"));
 const EmpreendimentoDetalhe = lazy(() => import("./pages/EmpreendimentoDetalhe"));
 const AdminEmpreendimentos = lazy(() => import("./pages/AdminEmpreendimentos"));
@@ -209,6 +210,7 @@ export function AppRoutes() {
           <Route path="/reformar" element={<PerfilDestino etapa="reformar" />} />
           <Route path="/operar" element={<PerfilDestino etapa="tenho" />} />
           <Route path="/projecao" element={<StudioProjection />} />
+          <Route path="/resumo" element={<ResumoEstudo />} />
           <Route path="/area-exclusiva" element={<ProtectedRoute><AreaExclusiva /></ProtectedRoute>} />
           <Route path="/area-exclusiva/:artigo" element={<ProtectedRoute><ArtigoExclusivo /></ProtectedRoute>} />
           <Route path="/painel" element={<ProtectedRoute><Painel /></ProtectedRoute>} />

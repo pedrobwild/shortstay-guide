@@ -59,6 +59,7 @@ export function ConteudoPerfil({ etapa, bairros, aviso }: { etapa: Etapa; bairro
               </Link>
             </li>
           ))}
+          {reforma && <li><Link to="/resumo" className="e-link flex min-h-[44px] items-center justify-between gap-4 py-4">Ver o resumo do estudo<ArrowRight aria-hidden="true" className="h-5 w-5 shrink-0" /></Link></li>}
           {reforma && <li><Link to="/guia/reforma" className="e-link flex min-h-[44px] items-center justify-between gap-4 py-4">Planejamento da reforma<ArrowRight aria-hidden="true" className="h-5 w-5 shrink-0" /></Link></li>}
         </ul>
       </Secao>
