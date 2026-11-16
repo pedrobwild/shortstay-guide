@@ -5,6 +5,7 @@ import { CabecalhoTela, Container, PaginaEstudo, Secao } from "@/components/estu
 import FerramentaReformar from "@/components/ferramentas/FerramentaReformar";
 import FerramentaOperar from "@/components/ferramentas/FerramentaOperar";
 import AvisoBase from "@/components/radar/AvisoBase";
+import FotosReformas from "@/components/radar/FotosReformas";
 import { BairroProvider } from "@/hooks/useBairroData";
 import { useBaseEstudo } from "@/hooks/useBaseEstudo";
 import { perfilDoMomento } from "@/data/perfisRadar";
@@ -44,6 +45,11 @@ export function ConteudoPerfil({ etapa, bairros, aviso }: { etapa: Etapa; bairro
       >
         {reforma ? <FerramentaReformar /> : bairros.length ? <FerramentaOperar bairros={bairros} /> : <p className="e-apoio">Nenhum bairro disponível para comparação.</p>}
       </Secao>
+      {reforma && (
+        <Secao id="obras-entregues" rotulo="Obras entregues" titulo="Studios reformados pela Bewild" lead="Cada foto leva ao projeto completo no portfólio.">
+          <FotosReformas />
+        </Secao>
+      )}
       <Secao id="aprofundar" rotulo="Próximos passos" titulo={reforma ? "Decisões para preparar o studio" : "Da receita ao resultado líquido"}>
         <ul className="divide-y divide-border border-y border-border">
           {perfil.ferramentas.slice(1).map((f) => (
