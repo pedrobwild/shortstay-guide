@@ -73,6 +73,7 @@ function arquivosDaPagina(p) {
     case "/projecao": return ["src/pages/StudioProjection.tsx", "src/components/projecao", "src/lib/simuladorReceita.ts", ...BASE_DADOS];
     case "/metodologia": return ["src/pages/Metodologia.tsx", "src/lib/dadosAbertos.ts", "src/lib/historicoRadar.ts", ...BASE_DADOS];
     case "/posts": return ["src/pages/Posts.tsx", "src/lib/noticiasRadar.ts", "src/data/seoRoutes.json"];
+    case "/eventos": return ["src/pages/Eventos.tsx", "src/lib/eventosRadar.ts", "src/data/seoRoutes.json"];
     case "/empreendimentos": return ["src/pages/Empreendimentos.tsx", "src/components/empreendimentos", "src/lib/empreendimentos.ts", "src/data/seoRoutes.json"];
     case "/imoveis": return ["src/pages/Imoveis.tsx", "src/lib/imoveisRadar.ts", "src/data/seoRoutes.json"];
     default: return ["src/data/seoRoutes.json"];
@@ -147,6 +148,7 @@ const nav = [
   ["/anuncios", "Anúncios"], ["/projecao", "Simulador"], ["/ferramentas", "Comprar imóvel"],
   ["/empreendimentos", "Empreendimentos"],
   ["/posts", "Posts"],
+  ["/eventos", "Eventos e diária por bairro"],
   ["/imoveis", "Imóveis"],
   ["/reformar", "Vou reformar"], ["/operar", "Já opero"],
   ...seo.routes.filter((r) => r.path.startsWith("/guia/")).map((r) => [r.path, r.h1]),

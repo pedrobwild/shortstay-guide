@@ -4,6 +4,8 @@ export const FONTES_GUIA = {
   preferidos: { title: "Airbnb — Preferidos dos hóspedes", url: "https://www.airbnb.com/help/article/3495" },
   ranking: { title: "Airbnb — ranking de busca", url: "https://www.airbnb.com/help/article/39" },
   qualidade: { title: "Airbnb Global Quality Report 2025", url: "https://news.airbnb.com/airbnb-global-quality-report/" },
+  /** Fonte licenciada do efeito de eventos na diária (licença conferida pelo Pedro em 16/11/2026). */
+  airdna: { title: "AirDNA", url: "https://www.airdna.co" },
   lollapalooza: { title: "Airbnb — Lollapalooza Brasil 2026", url: "https://news.airbnb.com/br/lollapalooza-brasil-2026/" },
   fipezap: { title: "FipeZAP Locação — dez/2025", url: "https://static.poder360.com.br/2026/01/fipezap-202512-residencial-locacao.pdf" },
   fotografia: { title: "Airbnb — fotografia profissional", url: "https://www.airbnb.com/professional_photography" },

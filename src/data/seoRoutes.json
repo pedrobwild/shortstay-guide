@@ -11,6 +11,14 @@
       "priority": "0.5"
     },
     {
+      "path": "/eventos",
+      "title": "Eventos em São Paulo e a diária do Airbnb por bairro",
+      "description": "Calendário dos próximos eventos de São Paulo e quanto a diária do Airbnb mudou em cada bairro na edição anterior, com fonte, método e simulação das noites.",
+      "h1": "Próximos eventos e quanto a diária mudou em cada bairro",
+      "keywords": "eventos são paulo airbnb, diária airbnb fórmula 1 são paulo, lollapalooza hospedagem bairro, short stay eventos são paulo",
+      "priority": "0.6"
+    },
+    {
       "path": "/empreendimentos",
       "title": "Empreendimentos em destaque em São Paulo",
       "description": "Prédios de São Paulo onde a Bewild já atua: bairro, endereço, diferenciais com a fonte de cada um e, quando há dado, os números do bairro para short stay.",
