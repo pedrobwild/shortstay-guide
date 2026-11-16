@@ -120,6 +120,13 @@
       "when": 1794801306016,
       "tag": "0016_radar_series_diarias_e_eventos",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794801492397,
+      "tag": "0017_radar_fontes_tipo_licenciada",
+      "breakpoints": true
     }
   ]
 }
