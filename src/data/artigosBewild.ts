@@ -21,6 +21,8 @@ export const ARTIGOS_BEWILD = {
   custoReforma: a("Quanto custa reformar um studio de até 50 m²", "quanto-custa-reformar-apartamento-studio-ate-50-m2"),
   lei: a("Studios no Airbnb em São Paulo: o que a lei permite", "studios-airbnb-sao-paulo-o-que-a-lei-permite"),
   retorno: a("Quanto rende um studio de short stay em São Paulo", "quanto-rende-studio-short-stay-sao-paulo"),
+  // Apresentação do Radar no blog do site (publicada em 15/11/2026); linkada em /metodologia.
+  sobreRadar: a("O que é o Radar Bewild e como usar", "radar-bewild-o-que-e-como-usar"),
 } as const;
 
 /** Depoimento publicado do case em destaque. */
