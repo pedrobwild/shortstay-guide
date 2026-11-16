@@ -166,7 +166,7 @@ export default function FerramentaReformar() {
             </TabelaNumerada>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <OrcamentoButton local="ferramentas" rotulo="Solicitar orçamento de reforma" className="h-auto min-h-[44px] px-5 py-2 text-[15px] font-semibold sm:shrink-0" />
+              <OrcamentoButton local="ferramentas" className="h-auto min-h-[44px] px-5 py-2 text-[15px] font-semibold sm:shrink-0" />
               <p className="e-legenda max-w-[380px]">O orçamento parte do projeto do seu imóvel; a faixa acima só mostra onde os contratos do estudo ficaram.</p>
             </div>
           </>

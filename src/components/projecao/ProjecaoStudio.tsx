@@ -1,9 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import ProjectAnalytics from "@/components/ota/ProjectAnalytics";
-import BwildVsDiySection from "@/components/ota/BwildVsDiySection";
 import AvisoBase from "@/components/radar/AvisoBase";
 import SimuladorReceitaLiquida from "@/components/guide/SimuladorReceitaLiquida";
 import CaseStudySection from "@/components/guide/CaseStudySection";
@@ -20,6 +19,7 @@ import { useBairroData } from "@/hooks/useBairroData";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useDeslocamentoChat } from "@/hooks/useDeslocamentoChat";
 import { useSimuladorReceita } from "@/hooks/useSimuladorReceita";
+import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { trackSimulationUsed } from "@/lib/marketingConsent";
 import { COLETA_GUESTFAVORITES } from "@/data/fontesGuia";
 import { TEXTO_DRE_PERCENTUAIS, TEXTO_INVESTIMENTO_TOTAL } from "@/data/dreGuia";
@@ -52,8 +52,8 @@ const dentro = (v: number | null, { min, max }: { min: number; max: number }) =>
  * a barra empilhada da receita (Fig. 1), o DRE linha a linha (Tab. 1) e o investimento
  * com rentabilidade anual e prazo estimado de retorno. Abaixo seguem, restilizados, o
  * mês a mês, compartilhar e cenários, todas as premissas (decoração, faixa de área,
- * percentuais do DRE e locação tradicional), o case real, a análise detalhada e o
- * comparativo com a Bewild. Estado único em useSimuladorReceita (URL + rascunho).
+ * percentuais do DRE e locação tradicional), o próximo passo, o case real e a análise
+ * detalhada. Estado único em useSimuladorReceita (URL + rascunho).
  */
 export default function ProjecaoStudio() {
   const { offline, recarregar } = useBairroData();
@@ -71,7 +71,18 @@ export default function ProjecaoStudio() {
   const desktop = useMediaQuery("(min-width: 1024px)");
   const [detalheAberto, setDetalheAberto] = useState(false);
   const [comItbi, setComItbi] = useState(false);
-  useDeslocamentoChat(desktop ? null : 96);
+  // A barra fixa do celular só aparece enquanto o resultado está fora da tela (lido depois da montagem).
+  const refResultado = useRef<HTMLDivElement>(null);
+  const [resultadoVisivel, setResultadoVisivel] = useState(false);
+  const temResultado = Boolean(sim.resultadoShortStay && sim.bairro);
+  useEffect(() => {
+    const el = refResultado.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const obs = new IntersectionObserver(([e]) => setResultadoVisivel(e.isIntersecting));
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [temResultado]);
+  useDeslocamentoChat(desktop || resultadoVisivel ? null : 96);
 
   // O topo é sempre o short stay (o modelo do Radar); a locação tradicional segue nas premissas completas.
   const r = sim.resultadoShortStay;
@@ -191,7 +202,7 @@ export default function ProjecaoStudio() {
 
           {/* ─── Resultado ─── */}
           <div className="min-w-0" aria-live="polite">
-            <div className="border-t border-foreground pt-3">
+            <div id="resultado" ref={refResultado} className="scroll-mt-6 border-t border-foreground pt-3">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="e-rotulo">Resultado líquido por mês (R$)</h2>
                 <Tag tipo="hipotese">Simulação · hipótese</Tag>
@@ -325,7 +336,12 @@ export default function ProjecaoStudio() {
       </Secao>
 
       <Secao id="proximo-passo" rotulo="Próximo passo" titulo="Já tem o imóvel e quer planejar a reforma?" lead="Envie as informações do studio para a Bewild avaliar o escopo e preparar o orçamento.">
-        <OrcamentoButton local="projecao" rotulo="Solicitar orçamento para este studio" contexto={{ bairro: bairro.name, area: p.area }} className="h-auto min-h-[44px] px-5 py-2 text-[15px] font-semibold" />
+        <OrcamentoButton local="projecao" contexto={{ bairro: bairro.name, area: p.area }} className="h-auto min-h-[44px] px-5 py-2 text-[15px] font-semibold" />
+        <p className="mt-8 flex flex-wrap gap-x-6 text-[15px]">
+          <Link to="/mapa" className="e-link inline-flex min-h-[44px] items-center">Abrir o mapa</Link>
+          <Link to="/comparar" className="e-link inline-flex min-h-[44px] items-center">Comparar bairros</Link>
+          <Link to="/ferramentas#operar" className="e-link inline-flex min-h-[44px] items-center">Comparar meu studio com o bairro</Link>
+        </p>
       </Secao>
 
       <Secao id="case" rotulo="Case real" titulo="Um studio reformado pela Bewild, com os números publicados no depoimento">
@@ -362,23 +378,18 @@ export default function ProjecaoStudio() {
         </Secao>
       )}
 
-      <Secao id="bewild-vs-diy" rotulo="Comparativo" titulo="O mesmo studio feito sozinho ou com a Bewild" lead="Hipótese comparativa com multiplicadores fixos, não desempenho observado.">
-        <BwildVsDiySection controle={{ bairro: bairro.name, area: p.area, valorImovel: p.imovel.valorImovel }} />
-        <p className="mt-8 flex flex-wrap gap-x-6 text-[15px]">
-          <Link to="/mapa" className="e-link inline-flex min-h-[44px] items-center">Abrir o mapa</Link>
-          <Link to="/comparar" className="e-link inline-flex min-h-[44px] items-center">Comparar bairros</Link>
-          <Link to="/ferramentas#operar" className="e-link inline-flex min-h-[44px] items-center">Comparar meu studio com o bairro</Link>
-        </p>
-      </Secao>
-
-      {/* Celular: barra fixa com o resultado e o orçamento */}
-      <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-t border-foreground bg-background px-4 pb-[calc(10px+env(safe-area-inset-bottom))] pt-2.5 lg:hidden">
-        <div className="min-w-0">
-          <div className="e-rotulo">Resultado líquido</div>
-          <div className={cn("truncate text-lg font-semibold tabular-nums", liquido < 0 && "e-negativo")}>{formatBRL(liquido)}/mês</div>
+      {/* Celular: barra fixa com o resultado e o atalho para a conta; some quando o resultado está na tela. O orçamento vem só depois, no "Próximo passo". */}
+      {!resultadoVisivel && (
+        <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-t border-foreground bg-background px-4 pb-[calc(10px+env(safe-area-inset-bottom))] pt-2.5 lg:hidden">
+          <div className="min-w-0">
+            <div className="e-rotulo">Resultado líquido</div>
+            <div className={cn("truncate text-lg font-semibold tabular-nums", liquido < 0 && "e-negativo")}>{formatBRL(liquido)}/mês</div>
+          </div>
+          <a href="#resultado" onClick={() => trackGlobal("cta_clicked", { cta_id: "ver_a_conta", section: "barra-celular" })} className="e-link inline-flex min-h-[44px] items-center px-2 text-[15px] font-semibold">
+            Ver a conta
+          </a>
         </div>
-        <OrcamentoButton local="projecao" rotulo="Orçar reforma" icone={false} contexto={{ bairro: bairro.name, area: p.area }} className="min-h-[44px] px-4 text-[15px] font-semibold" />
-      </div>
+      )}
     </main>
   );
 }

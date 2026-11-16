@@ -34,7 +34,7 @@ export default function FinalCTASection() {
           A Bewild atua com arquitetura e construção e orça a reforma completa do seu studio, do projeto à entrega.
         </p>
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-          <OrcamentoButton local="final" rotulo="Solicitar orçamento de reforma" icone={false} contexto={{ bairro: bairroAtual?.nome }} className="min-h-[48px] px-[22px] text-[15px] font-semibold" />
+          <OrcamentoButton local="final" icone={false} contexto={{ bairro: bairroAtual?.nome }} className="min-h-[48px] px-[22px] text-[15px] font-semibold" />
           <Button asChild variant="outline" className="min-h-[48px] whitespace-normal px-5 text-[15px] font-semibold">
             <Link to="/projecao" onClick={() => trackGlobal("cta_clicked", { cta_id: "simular_primeiro", section: "cta_final" })}>Simular meu imóvel primeiro</Link>
           </Button>
