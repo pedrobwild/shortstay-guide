@@ -72,6 +72,23 @@ describe("/mercado e /bairro no Estudo aberto (base de reserva)", () => {
     expect(el.querySelector('a[href="/comparar?b=pinheiros"]')).not.toBeNull();
   });
 
+  it("/bairro/pinheiros: a conta vem antes da posição e o checklist depois das duas; quem já tem imóvel não vê o checklist", async () => {
+    const el = await montar(<IntelligenceBairroDetail />, "/bairro/pinheiros", "/bairro/:bairro");
+    const ordem = ["indicadores", "conta", "posicao", "checklist-compra"].map((id) => el.querySelector(`#${id}`));
+    for (const s of ordem) expect(s).not.toBeNull();
+    for (let i = 1; i < ordem.length; i++) expect(ordem[i - 1]!.compareDocumentPosition(ordem[i]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    act(() => root?.unmount());
+    container?.remove();
+    localStorage.setItem("radar_momento", JSON.stringify({ momento: "reformar", quando: Date.now() }));
+    try {
+      const el2 = await montar(<IntelligenceBairroDetail />, "/bairro/pinheiros", "/bairro/:bairro");
+      expect(el2.querySelector("#checklist-compra")).toBeNull();
+      expect(el2.querySelector("#conta")).not.toBeNull();
+    } finally {
+      localStorage.removeItem("radar_momento");
+    }
+  });
+
   it("/bairro/brooklin: aproximação identificada e referência extra fora das contas", async () => {
     const el = await montar(<IntelligenceBairroDetail />, "/bairro/brooklin", "/bairro/:bairro");
     expect(el.querySelector(".e-tag-aproximacao")?.textContent).toBe("Aproximação");

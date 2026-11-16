@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import OrcamentoButton from "@/components/OrcamentoButton";
+import PedidoMaterial from "@/components/captacao/PedidoMaterial";
+import { Button } from "@/components/ui/button";
 import ProjectAnalytics from "@/components/ota/ProjectAnalytics";
 import AvisoBase from "@/components/radar/AvisoBase";
 import SimuladorReceitaLiquida from "@/components/guide/SimuladorReceitaLiquida";
@@ -17,13 +19,14 @@ import CampoNumero from "@/components/ferramentas/CampoNumero";
 import AcoesSimulacao from "@/components/projecao/AcoesSimulacao";
 import { useBairroData } from "@/hooks/useBairroData";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useMomento } from "@/lib/momento";
 import { useDeslocamentoChat } from "@/hooks/useDeslocamentoChat";
 import { useSimuladorReceita } from "@/hooks/useSimuladorReceita";
 import { trackGlobal } from "@/hooks/useGuideAnalytics";
 import { trackSimulationUsed } from "@/lib/marketingConsent";
 import { COLETA_GUESTFAVORITES } from "@/data/fontesGuia";
 import { TEXTO_DRE_PERCENTUAIS, TEXTO_INVESTIMENTO_TOTAL } from "@/data/dreGuia";
-import { ROTULO_ESTUDO_REFORMA } from "@/data/provasBewild";
+import { FIPEZAP_DATA, ROTULO_ESTUDO_REFORMA, STUDIO_EXEMPLO_IMOVEL, STUDIO_EXEMPLO_M2 } from "@/data/provasBewild";
 import { ACQUISITION_COSTS } from "@/lib/financiamento";
 import { DEFAULT_SP_SEASONALITY } from "@/lib/projectAnalytics";
 import { indicadores, LIMITES, LIMITES_MERCADO, mesAMes, SHORT_STAY_PADRAO, type MesSimulado } from "@/lib/simuladorReceita";
@@ -71,6 +74,11 @@ export default function ProjecaoStudio() {
   const desktop = useMediaQuery("(min-width: 1024px)");
   const [detalheAberto, setDetalheAberto] = useState(false);
   const [comItbi, setComItbi] = useState(false);
+  // Origem do valor do imóvel (digitado ou exemplo): só nesta tela, fora de PremissasSimulador, para não mudar o que é guardado no Painel.
+  const [valorDeExemplo, setValorDeExemplo] = useState(false);
+  // Celular: condomínio, IPTU, contas, reforma e ITBI ficam recolhidos, para o resultado vir logo depois do essencial.
+  const [custosAbertos, setCustosAbertos] = useState(false);
+  const momento = useMomento();
   // A barra fixa do celular só aparece enquanto o resultado está fora da tela (lido depois da montagem).
   const refResultado = useRef<HTMLDivElement>(null);
   const [resultadoVisivel, setResultadoVisivel] = useState(false);
@@ -110,12 +118,20 @@ export default function ProjecaoStudio() {
     ...(barra.liquido ? [{ chave: "liquido", rotulo: "Resultado líquido", valor: barra.liquido.valor, tom: barra.liquido.tom, destaque: true }] : []),
   ];
 
+  const linksProximoPasso = (
+    <p className="mt-8 flex flex-wrap gap-x-6 text-[15px]">
+      <Link to="/mapa" className="e-link inline-flex min-h-[44px] items-center">Abrir o mapa</Link>
+      <Link to="/comparar" className="e-link inline-flex min-h-[44px] items-center">Comparar bairros</Link>
+      {momento !== "tenho" && <Link to="/operar" className="e-link inline-flex min-h-[44px] items-center">Comparar meu studio com o bairro</Link>}
+    </p>
+  );
+
   return (
     <main id="conteudo" tabIndex={-1} className="pb-32 outline-none lg:pb-8">
       <CabecalhoTela
         rotulo="Simular · resultado líquido do short stay"
         titulo={<>Simule quanto sobra por mês de um studio {emBairro(bairro.name)}</>}
-        lead={<>Parta da diária e da ocupação médias do bairro e ajuste para o seu imóvel. Os custos são hipóteses editáveis: {TEXTO_DRE_PERCENTUAIS}, mais os fixos em reais.</>}
+        lead="Partimos da média do bairro. Ajuste para o seu imóvel: os custos são hipóteses editáveis."
       >
         <p className="flex flex-wrap items-center gap-2">
           <TagBairro b={bairro} />
@@ -147,6 +163,31 @@ export default function ProjecaoStudio() {
                 <div className="sm:col-span-2 lg:col-span-1">
                   <SeletorBairro rotulo="Bairro" bairros={bairros} valor={bairro.name} onChange={simPagina.escolherBairro} />
                 </div>
+                <div className="min-w-0 sm:col-span-2 lg:col-span-1">
+                  <CampoNumero
+                    rotulo="Valor do imóvel (R$)"
+                    prefixo="R$"
+                    valor={p.imovel.valorImovel || null}
+                    onChange={(v) => {
+                      setValorDeExemplo(false);
+                      if (v == null) atualizar({ imovel: { ...p.imovel, valorImovel: 0 } });
+                      else if (dentro(v, LIMITES.valorImovel)) atualizar({ imovel: { ...p.imovel, valorImovel: v } });
+                    }}
+                    tag={<Tag tipo="hipotese">{valorDeExemplo ? "Hipótese · exemplo" : undefined}</Tag>}
+                    ajuda={valorDeExemplo
+                      ? `Exemplo: studio de ${STUDIO_EXEMPLO_M2} m² ao preço médio FipeZap (${FIPEZAP_DATA}). Troque pelo valor do seu imóvel.`
+                      : "Com ele, calculamos a rentabilidade anual e o prazo de retorno."}
+                  />
+                  {!(p.imovel.valorImovel > 0) && (
+                    <button
+                      type="button"
+                      onClick={() => { setValorDeExemplo(true); atualizar({ imovel: { ...p.imovel, valorImovel: STUDIO_EXEMPLO_IMOVEL } }); trackGlobal("cta_clicked", { cta_id: "simulador_valor_exemplo", section: "premissas" }); }}
+                      className="e-link inline-flex min-h-[44px] items-center text-[15px]"
+                    >
+                      Usar um exemplo
+                    </button>
+                  )}
+                </div>
                 <CampoNumero
                   rotulo="Diária média (R$)"
                   prefixo="R$"
@@ -169,30 +210,44 @@ export default function ProjecaoStudio() {
                     Voltar aos valores do bairro
                   </button>
                 )}
-                <CampoNumero rotulo="Condomínio (R$/mês)" prefixo="R$" valor={p.imovel.condominio} onChange={(v) => { if (dentro(v, LIMITES.condominio)) atualizar({ imovel: { ...p.imovel, condominio: v! } }); }} tag={<Tag tipo="hipotese" />} ajuda="Exemplo de partida; informe o do seu prédio." />
-                <CampoNumero rotulo="IPTU (R$/mês)" prefixo="R$" valor={p.imovel.iptu} onChange={(v) => { if (dentro(v, LIMITES.iptu)) atualizar({ imovel: { ...p.imovel, iptu: v! } }); }} tag={<Tag tipo="hipotese" />} ajuda="Carnê anual ÷ 12." />
-                <CampoNumero rotulo="Contas (R$/mês)" prefixo="R$" valor={p.shortStay.contas} onChange={(v) => { if (dentro(v, LIMITES.contas)) atualizar({ shortStay: { ...p.shortStay, contas: v! } }); }} tag={<Tag tipo="hipotese" />} ajuda="Luz, água, gás e internet." />
-                <CampoNumero rotulo="Valor do imóvel (R$)" prefixo="R$" valor={p.imovel.valorImovel || null} placeholder="opcional" onChange={(v) => { if (v == null) atualizar({ imovel: { ...p.imovel, valorImovel: 0 } }); else if (dentro(v, LIMITES.valorImovel)) atualizar({ imovel: { ...p.imovel, valorImovel: v } }); }} tag={<Tag tipo="hipotese" />} ajuda="Libera a rentabilidade e o prazo de retorno." />
-                <div className="min-w-0">
-                  <CampoNumero
-                    rotulo="Reforma (R$)"
-                    prefixo="R$"
-                    valor={reforma}
-                    onChange={(v) => { if (v == null) atualizar({ reforma: null }); else if (dentro(v, LIMITES_MERCADO.reforma)) atualizar({ reforma: v }); }}
-                    tag={<Tag tipo="hipotese" />}
-                    ajuda={sugestaoReforma && !reformaAjustada ? `Sugestão: ${sugestaoReforma.areaM2} m² × ${formatBRL(sugestaoReforma.custoM2)}/m², a partir do ${ROTULO_ESTUDO_REFORMA} da Bewild; sobe com a diária.` : "Valor informado por você."}
-                  />
-                  {reformaAjustada && sugestaoReforma && (
-                    <button type="button" onClick={() => atualizar({ reforma: null })} className="e-link inline-flex min-h-[44px] items-center text-[15px]">Voltar à sugestão ({formatBRL(sugestaoReforma.valor)})</button>
-                  )}
-                </div>
-                <label className="flex min-h-[44px] cursor-pointer items-start gap-3 sm:col-span-2 lg:col-span-1">
-                  <input type="checkbox" checked={comItbi} onChange={(e) => setComItbi(e.target.checked)} className="mt-1 h-5 w-5 shrink-0 accent-[hsl(var(--ciano-700))]" />
-                  <span className="text-[15px] leading-[22px]">
-                    Somar o ITBI ({formatDecimal(ACQUISITION_COSTS.itbiRate * 100, 0)}% do valor do imóvel) ao investimento
-                    <span className="e-legenda block">Hipótese, como no estudo; a alíquota varia por município.</span>
-                  </span>
-                </label>
+                <details
+                  open={desktop || custosAbertos}
+                  onToggle={(e) => { if (!desktop) setCustosAbertos(e.currentTarget.open); }}
+                  className="group min-w-0 sm:col-span-2 lg:col-span-1"
+                >
+                  <summary className="e-fina flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-3 border-y py-3 lg:hidden [&::-webkit-details-marker]:hidden">
+                    <span className="min-w-0">
+                      <span className="block text-[15px] font-semibold">Ajustar custos</span>
+                      <span className="e-legenda block">Custos fixos: {formatBRL(p.imovel.condominio + p.imovel.iptu + p.shortStay.contas)} por mês · Reforma: {formatBRL(reforma)}{reformaAjustada ? "" : " (sugestão)"}</span>
+                    </span>
+                    <span aria-hidden="true" className="text-tinta-70 transition-transform group-open:rotate-45 motion-reduce:transition-none">+</span>
+                  </summary>
+                  <div className="grid gap-5 pt-5 sm:grid-cols-2 lg:grid-cols-1 lg:pt-0">
+                    <CampoNumero rotulo="Condomínio (R$/mês)" prefixo="R$" valor={p.imovel.condominio} onChange={(v) => { if (dentro(v, LIMITES.condominio)) atualizar({ imovel: { ...p.imovel, condominio: v! } }); }} tag={<Tag tipo="hipotese" />} ajuda="Exemplo de partida; informe o do seu prédio." />
+                    <CampoNumero rotulo="IPTU (R$/mês)" prefixo="R$" valor={p.imovel.iptu} onChange={(v) => { if (dentro(v, LIMITES.iptu)) atualizar({ imovel: { ...p.imovel, iptu: v! } }); }} tag={<Tag tipo="hipotese" />} ajuda="Carnê anual ÷ 12." />
+                    <CampoNumero rotulo="Contas (R$/mês)" prefixo="R$" valor={p.shortStay.contas} onChange={(v) => { if (dentro(v, LIMITES.contas)) atualizar({ shortStay: { ...p.shortStay, contas: v! } }); }} tag={<Tag tipo="hipotese" />} ajuda="Luz, água, gás e internet." />
+                    <div className="min-w-0">
+                      <CampoNumero
+                        rotulo="Reforma (R$)"
+                        prefixo="R$"
+                        valor={reforma}
+                        onChange={(v) => { if (v == null) atualizar({ reforma: null }); else if (dentro(v, LIMITES_MERCADO.reforma)) atualizar({ reforma: v }); }}
+                        tag={<Tag tipo="hipotese" />}
+                        ajuda={sugestaoReforma && !reformaAjustada ? `Sugestão: ${sugestaoReforma.areaM2} m² × ${formatBRL(sugestaoReforma.custoM2)}/m², a partir do ${ROTULO_ESTUDO_REFORMA} da Bewild; sobe com a diária.` : "Valor informado por você."}
+                      />
+                      {reformaAjustada && sugestaoReforma && (
+                        <button type="button" onClick={() => atualizar({ reforma: null })} className="e-link inline-flex min-h-[44px] items-center text-[15px]">Voltar à sugestão ({formatBRL(sugestaoReforma.valor)})</button>
+                      )}
+                    </div>
+                    <label className="flex min-h-[44px] cursor-pointer items-start gap-3 sm:col-span-2 lg:col-span-1">
+                      <input type="checkbox" checked={comItbi} onChange={(e) => setComItbi(e.target.checked)} className="mt-1 h-5 w-5 shrink-0 accent-[hsl(var(--ciano-700))]" />
+                      <span className="text-[15px] leading-[22px]">
+                        Somar o ITBI ({formatDecimal(ACQUISITION_COSTS.itbiRate * 100, 0)}% do valor do imóvel) ao investimento
+                        <span className="e-legenda block">Hipótese, como no estudo; a alíquota varia por município.</span>
+                      </span>
+                    </label>
+                  </div>
+                </details>
               </div>
               <p className="e-legenda mt-5">
                 {shortStayAlterado ? "Percentuais ajustados por você em “Todas as premissas”." : <>Percentuais do DRE do guia: {TEXTO_DRE_PERCENTUAIS}. Ajuste em “Todas as premissas”, abaixo.</>}
@@ -278,10 +333,10 @@ export default function ProjecaoStudio() {
                   pequeno
                   rotulo="Investimento total (R$)"
                   valor={ind ? formatBRL(ind.investimento) : "—"}
-                  nota={ind ? <>imóvel {formatBRL(p.imovel.valorImovel)} + reforma {formatBRL(reforma)}{reformaAjustada ? "" : " (sugerida)"}{itbi > 0 ? <> + ITBI {formatBRL(itbi)}</> : ""}</> : "informe o valor do imóvel"}
+                  nota={ind ? <>imóvel {formatBRL(p.imovel.valorImovel)} + reforma {formatBRL(reforma)}{reformaAjustada ? "" : " (sugerida)"}{itbi > 0 ? <> + ITBI {formatBRL(itbi)}</> : ""}</> : "Informe o valor do imóvel para ver o investimento."}
                 />
-                <Indicador pequeno rotulo="Rentabilidade anual (% ao ano)" valor={ind ? <span className={cn(ind.rentabilidadeAA < 0 && "e-negativo")}>{formatDecimal(ind.rentabilidadeAA, 1)}%</span> : "—"} nota="resultado líquido anual ÷ investimento total" />
-                <Indicador pequeno rotulo="Prazo estimado de retorno (anos)" valor={ind?.paybackAnos != null ? formatDecimal(ind.paybackAnos, 1) : "—"} nota={ind && ind.paybackAnos == null ? "sem resultado líquido positivo" : "investimento total ÷ resultado líquido anual"} />
+                <Indicador pequeno rotulo="Rentabilidade anual (% ao ano)" valor={ind ? <span className={cn(ind.rentabilidadeAA < 0 && "e-negativo")}>{formatDecimal(ind.rentabilidadeAA, 1)}%</span> : "—"} nota={ind ? "resultado líquido anual ÷ investimento total" : "Informe o valor do imóvel para ver a rentabilidade."} />
+                <Indicador pequeno rotulo="Prazo estimado de retorno (anos)" valor={ind?.paybackAnos != null ? formatDecimal(ind.paybackAnos, 1) : "—"} nota={!ind ? "Informe o valor do imóvel para ver o prazo." : ind.paybackAnos == null ? "sem resultado líquido positivo" : "investimento total ÷ resultado líquido anual"} />
               </GradeIndicadores>
               <p className="e-legenda mt-4 max-w-[720px]">
                 Investimento total = {TEXTO_INVESTIMENTO_TOTAL}. Na explicação técnica, a rentabilidade anual é o <i>yield</i> líquido e o prazo estimado de retorno, o <i>payback</i> simples, sem juros nem valorização. Não considera financiamento.
@@ -335,14 +390,29 @@ export default function ProjecaoStudio() {
         </details>
       </Secao>
 
-      <Secao id="proximo-passo" rotulo="Próximo passo" titulo="Já tem o imóvel e quer planejar a reforma?" lead="Envie as informações do studio para a Bewild avaliar o escopo e preparar o orçamento.">
-        <OrcamentoButton local="projecao" contexto={{ bairro: bairro.name, area: p.area }} className="h-auto min-h-[44px] px-5 py-2 text-[15px] font-semibold" />
-        <p className="mt-8 flex flex-wrap gap-x-6 text-[15px]">
-          <Link to="/mapa" className="e-link inline-flex min-h-[44px] items-center">Abrir o mapa</Link>
-          <Link to="/comparar" className="e-link inline-flex min-h-[44px] items-center">Comparar bairros</Link>
-          <Link to="/ferramentas#operar" className="e-link inline-flex min-h-[44px] items-center">Comparar meu studio com o bairro</Link>
-        </p>
-      </Secao>
+      {/* Próximo passo conforme a etapa (momento.ts, lido depois da montagem); sem etapa, vale "Vou comprar". */}
+      {momento === "reformar" ? (
+        <Secao id="proximo-passo" rotulo="Próximo passo" titulo="Quer este studio pronto para alugar?" lead="A Bewild avalia o escopo e prepara o orçamento da reforma completa: projeto, obra, marcenaria sob medida, mobiliário, eletrodomésticos e enxoval.">
+          <OrcamentoButton local="projecao" contexto={{ bairro: bairro.name, area: p.area }} className="h-auto min-h-[44px] px-5 py-2 text-[15px] font-semibold" />
+          {linksProximoPasso}
+        </Secao>
+      ) : momento === "tenho" ? (
+        <Secao id="proximo-passo" rotulo="Próximo passo" titulo="Veja onde o seu studio está em relação ao bairro" lead={<>Compare a sua diária e a sua ocupação com a média {aprox ? "do Itaim Bibi (aproximação)" : `de ${bairro.name}`}.</>}>
+          <Button asChild className="min-h-[44px] px-5 text-[15px] font-semibold">
+            <Link to="/operar" onClick={() => trackGlobal("cta_clicked", { cta_id: "proximo_passo_operar", section: "projecao", bairro: bairro.name })}>Comparar meu studio</Link>
+          </Button>
+          {linksProximoPasso}
+        </Secao>
+      ) : (
+        <Secao id="proximo-passo" rotulo="Próximo passo">
+          <PedidoMaterial material="checklist_compra" origem="projecao" bairro={bairro.name} />
+          <p className="mt-8 flex flex-wrap items-center gap-x-3 text-[15px]">
+            <span className="text-tinta-78">Já tem o imóvel e quer planejar a reforma?</span>
+            <OrcamentoButton local="projecao" variant="link" contexto={{ bairro: bairro.name, area: p.area }} className="min-h-[44px] px-0 text-[15px]" />
+          </p>
+          {linksProximoPasso}
+        </Secao>
+      )}
 
       <Secao id="case" rotulo="Case real" titulo="Um studio reformado pela Bewild, com os números publicados no depoimento">
         <CaseStudySection />

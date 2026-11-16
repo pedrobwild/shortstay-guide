@@ -41,7 +41,7 @@ describe("pedido de material", () => {
 
   it("monta o pedido normalizado, com a versão do consentimento e sem campos extras", () => {
     const r = montarPedido({ email: " Pedro@X.com ", nome: "  ", material: "checklist_compra", etapa: "procurando", bairro: "Mooca", boletim: false, contatoComercial: true, origem: "guia" }, "s1");
-    expect(r).toEqual({ email: "Pedro@X.com", nome: null, material: "checklist_compra", etapa: "procurando", bairro: "Mooca", boletim: false, contato_comercial: true, consentimento_versao: "2026-11-03", origem: "guia", sessao: "s1" });
+    expect(r).toEqual({ email: "Pedro@X.com", nome: null, material: "checklist_compra", etapa: "procurando", bairro: "Mooca", boletim: false, contato_comercial: true, consentimento_versao: "2026-11-15", origem: "guia", sessao: "s1" });
     expect(Object.keys(r).sort()).toEqual(["bairro", "boletim", "consentimento_versao", "contato_comercial", "email", "etapa", "material", "nome", "origem", "sessao"]);
     expect(Object.keys(r)).toHaveLength(10);
   });
@@ -97,6 +97,6 @@ describe("pedido de material", () => {
     expect(TEXTO_CONSENTIMENTO_MATERIAL).toContain("falar com você sobre a reforma");
     expect(TEXTO_CONSENTIMENTO_MATERIAL).toContain("só se você marcar");
     expect(TEXTO_CONSENTIMENTO_MATERIAL).not.toContain("só para enviar");
-    expect(CONSENTIMENTO_MATERIAL_VERSAO).toBe("2026-11-03");
+    expect(CONSENTIMENTO_MATERIAL_VERSAO).toBe("2026-11-15");
   });
 });
