@@ -129,7 +129,10 @@ export async function listarEventosPublicos(): Promise<EventoRadar[]> {
   return (data ?? []) as EventoRadar[];
 }
 
-/** Efeitos publicáveis dos eventos dados, no recorte de até 1 quarto. Ids em lotes; páginas de 1.000. */
+/**
+ * Efeitos publicáveis dos eventos dados, no recorte de até 1 quarto. Ids em lotes; páginas de 1.000.
+ * O filtro `publicavel` é explícito para o admin (que lê todas as linhas pela policy) ver a mesma tela do público.
+ */
 export async function listarEfeitos(eventoIds: string[]): Promise<EfeitoEvento[]> {
   const saida: EfeitoEvento[] = [];
   for (let i = 0; i < eventoIds.length; i += 50) {
@@ -137,7 +140,7 @@ export async function listarEfeitos(eventoIds: string[]): Promise<EfeitoEvento[]
     for (let de = 0; ; de += 1000) {
       const { data, error } = await supabase.from("radar_evento_efeitos")
         .select("id,evento_id,bairro,efeito_diaria_pct,p_placebo,noites")
-        .in("evento_id", lote).eq("recorte", RECORTE_EVENTOS)
+        .in("evento_id", lote).eq("recorte", RECORTE_EVENTOS).eq("publicavel", true)
         .order("evento_id").order("id").range(de, de + 999);
       if (error) throw error;
       for (const l of data ?? []) saida.push({ evento_id: l.evento_id, bairro: l.bairro, efeito_diaria_pct: Number(l.efeito_diaria_pct), p_placebo: l.p_placebo == null ? null : Number(l.p_placebo), noites: l.noites });

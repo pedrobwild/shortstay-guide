@@ -108,7 +108,7 @@ export default function Eventos() {
             <p className="e-legenda">A diária das noites do evento foi comparada com a do mesmo dia da semana nas quatro semanas anteriores e nas quatro seguintes. Entram como “efeito medido” só os bairros em que a variação superou 99% das semanas comuns.</p>
             <p className="e-legenda">Limites: cada evento tem uma edição medida; o número fala da diária, não da ocupação; a base são anúncios de até 1 quarto de todos os padrões, não um studio específico.</p>
             <AvisoReceita />
-            <p className="e-legenda">Fonte do efeito: <FonteLink fonte={FONTES_GUIA.airdna} />. A diária em reais de cada bairro vem da base do Radar; veja a <Link to="/metodologia" className="e-link">metodologia</Link>.</p>
+            <p className="e-legenda">Fonte do efeito: <FonteLink fonte={FONTES_GUIA.airdna} />. A diária em reais de cada bairro vem da base do Radar; veja a <Link to="/metodologia" className="e-link inline-flex min-h-11 items-center">metodologia</Link>.</p>
           </section>
         )}
       </Container>
@@ -251,7 +251,7 @@ function ContaDasNoites({ chave, noites, medidos, bairroDoFiltro, base, baseCarr
       ) : !linha ? (
         <p role="status" className="e-legenda">Não há diária de {efeito.bairro} na base do Radar para fazer a conta.</p>
       ) : conta ? (
-        <>
+        <div className="space-y-4" aria-live="polite">
           <dl className="grid grid-cols-2 gap-4">
             <div>
               <dt className="e-legenda">Sem o evento</dt>
@@ -270,7 +270,7 @@ function ContaDasNoites({ chave, noites, medidos, bairroDoFiltro, base, baseCarr
           <p className="e-legenda">Diária média de {efeito.bairro}: {linha.period ? `${linha.fonteNome}, ${linha.period}` : linha.fonteNome}.</p>
           {alertasFonteRadar(linha).amostraPequena && <p className="e-amostra text-[13px] leading-5">Amostra pequena neste bairro: leia com cautela.</p>}
           <Link to={linkSimuladorBairro(slugifyBairro(efeito.bairro))} className="e-link inline-flex min-h-11 items-center text-sm">Simular o mês inteiro em {efeito.bairro}</Link>
-        </>
+        </div>
       ) : null}
     </section>
   );
