@@ -6,6 +6,7 @@ import PedidoMaterial from "@/components/captacao/PedidoMaterial";
 import NovaAba from "@/components/NovaAba";
 import { VariacaoColetaBairro, useVariacoesVisiveis } from "@/components/guide/VariacaoColeta";
 import { CabecalhoTela, Container, PaginaEstudo, Secao } from "@/components/estudo/Estrutura";
+import VisoesBairros from "@/components/estudo/VisoesBairros";
 import { Figura, TabelaNumerada, TD, TD_NUM, TH } from "@/components/estudo/Figura";
 import { NotaAmostra, TagBairro, TEXTO_APROXIMACAO } from "@/components/estudo/Natureza";
 import { AvisoReceita, FormulaReceita } from "@/components/estudo/Numeros";
@@ -161,6 +162,7 @@ function Comparar() {
         titulo={titulo}
         lead="Diária, quartis, ocupação e amostra lado a lado, com a fonte de cada bairro. Em cada linha, o maior valor está em negrito e os demais mostram a diferença até ele."
       >
+        <VisoesBairros />
         <div className="grid gap-4 sm:grid-cols-3 sm:gap-6">
           {Array.from({ length: MAX_COMPARAR }, (_, i) => {
             const b = selecionados[i] ?? null;
