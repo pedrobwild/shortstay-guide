@@ -121,7 +121,7 @@ function IndexInner() {
         */}
         <section aria-labelledby="hero-titulo">
           <Container className="pb-8 pt-8 lg:pb-8 lg:pt-14">
-            <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,480px)] lg:grid-rows-[auto_1fr] lg:gap-x-16 lg:gap-y-12">
+            <div className="grid gap-8 sm:gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,480px)] lg:grid-rows-[auto_1fr] lg:gap-x-16 lg:gap-y-12">
               <div className="min-w-0">
                 <p className="e-rotulo mb-3">Para quem investe em studio para Airbnb em São Paulo</p>
                 <h1 id="hero-titulo" className="e-h1-home text-balance">Studios para short stay em São Paulo, bairro a bairro</h1>
@@ -129,25 +129,13 @@ function IndexInner() {
                   Escolha o bairro, faça a conta e planeje a reforma. Diária, ocupação e receita de referência de {bairros.length} bairros, com fonte e data.
                 </p>
               </div>
-              <div className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
-                <PainelBairro
-                  bairro={bairro}
-                  bairros={bairros}
-                  cidade={cidade}
-                  receitaSP={receitaSP}
-                  carregando={isLoading && !bairros.length}
-                  offline={offline}
-                  etapa={ativo}
-                  onSelecionar={(nome) => { selecionar(nome); trackGlobal("cta_clicked", { cta_id: "home_bairro", section: "hero", bairro: nome }); }}
-                />
-              </div>
               {/*
                 2 · O estudo em 3 passos, no lugar das três portas (16/11/2026): bairro → conta → reforma.
                 A etapa da pessoa só marca por onde começar; a âncora #perfis continua valendo.
               */}
               <div id="perfis" role="region" aria-labelledby="perfis-titulo" className="min-w-0 scroll-mt-20 lg:col-start-1 lg:row-start-2">
                 <h2 id="perfis-titulo" className="e-h2">O estudo em 3 passos</h2>
-                <ol className="m-0 mt-4 grid list-none gap-3 p-0 sm:grid-cols-3">
+                <ol className="m-0 mt-4 grid list-none gap-2 p-0 sm:grid-cols-3 sm:gap-3">
                   {PASSOS_ESTUDO.map((p) => (
                     <li key={p.numero} className="min-w-0">
                       <PassoHome passo={p} inicio={p.numero === PASSO_INICIAL[ativo]} slugBairro={bairro ? slugifyBairro(bairro.name) : null} />
@@ -180,6 +168,19 @@ function IndexInner() {
                     </p>
                   )}
                 </div>
+              </div>
+              {/* O painel do bairro vem depois dos passos no HTML: no celular a primeira tela mostra o começo, meio e fim (16/11/2026); no desktop a grade o mantém à direita. */}
+              <div className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+                <PainelBairro
+                  bairro={bairro}
+                  bairros={bairros}
+                  cidade={cidade}
+                  receitaSP={receitaSP}
+                  carregando={isLoading && !bairros.length}
+                  offline={offline}
+                  etapa={ativo}
+                  onSelecionar={(nome) => { selecionar(nome); trackGlobal("cta_clicked", { cta_id: "home_bairro", section: "hero", bairro: nome }); }}
+                />
               </div>
             </div>
           </Container>
@@ -489,7 +490,7 @@ function PassoHome({ passo, inicio, slugBairro }: { passo: PassoEstudo; inicio: 
         to={destinoDoPasso(passo, slugBairro)}
         onClick={() => trackGlobal("cta_clicked", { cta_id: `home_passo_${passo.numero}`, section: "perfis" })}
         className={cn(
-          "group flex h-full min-h-[44px] flex-col gap-2 rounded-[10px] border bg-card p-4 transition-colors hover:border-primary",
+          "group flex h-full min-h-[44px] flex-row flex-wrap items-center justify-between gap-2 rounded-[10px] border bg-card px-4 py-3 transition-colors hover:border-primary sm:flex-col sm:items-stretch sm:justify-start sm:p-4",
           inicio ? "border-ciano" : "border-border",
         )}
       >
@@ -497,8 +498,8 @@ function PassoHome({ passo, inicio, slugBairro }: { passo: PassoEstudo; inicio: 
           <span aria-hidden="true" className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold tabular-nums text-primary-foreground">{passo.numero}</span>
           <span id={idTitulo} className="text-[15px] font-semibold group-hover:underline"><span className="sr-only">Passo {passo.numero}: </span>{passo.rotulo}</span>
         </span>
-        <span className="e-legenda">{passo.resumo}</span>
-        {inicio && <span className="e-rotulo mt-auto text-primary">Comece aqui</span>}
+        <span className="e-legenda hidden sm:block">{passo.resumo}</span>
+        {inicio && <span className="e-rotulo text-primary sm:mt-auto">Comece aqui</span>}
       </Link>
     </article>
   );

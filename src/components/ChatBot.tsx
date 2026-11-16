@@ -211,10 +211,10 @@ export default function ChatBot() {
               <Button
                 aria-label="Abrir assistente"
                 onClick={() => { setOpen(true); trackGlobal("chatbot_opened", {}); }}
-                className="relative h-14 w-14 rounded-full shadow-[0_8px_30px_-4px_hsl(var(--primary)/0.4)] bg-primary hover:bg-primary/90 transition-all duration-300 hover:shadow-[0_12px_40px_-4px_hsl(var(--primary)/0.5)] hover:scale-105"
+                className="relative h-12 w-12 rounded-full lg:h-14 lg:w-14 shadow-[0_8px_30px_-4px_hsl(var(--primary)/0.4)] bg-primary hover:bg-primary/90 transition-all duration-300 hover:shadow-[0_12px_40px_-4px_hsl(var(--primary)/0.5)] hover:scale-105"
                 size="icon"
               >
-                <MessageCircle className="h-6 w-6" />
+                <MessageCircle className="h-5 w-5 lg:h-6 lg:w-6" />
               </Button>
             </div>
           </motion.div>

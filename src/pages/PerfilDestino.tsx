@@ -29,9 +29,9 @@ export function ConteudoPerfil({ etapa, bairros, aviso }: { etapa: Etapa; bairro
           : "Compare seus resultados com os dados do bairro e avalie o que sobra depois dos custos, sem tratar receita de referência como garantia."}
       >
         <nav aria-label="Etapas do investidor" className="flex flex-wrap gap-3 border-t border-foreground pt-4">
-          <Button asChild variant="outline"><Link to="/ferramentas">Vou comprar</Link></Button>
-          <Button asChild variant={reforma ? "default" : "outline"}><Link to="/reformar" aria-current={reforma ? "page" : undefined}>Vou reformar</Link></Button>
-          <Button asChild variant={!reforma ? "default" : "outline"}><Link to="/operar" aria-current={!reforma ? "page" : undefined}>Já opero</Link></Button>
+          <Button asChild variant="outline" className="min-h-[44px]"><Link to="/ferramentas">Vou comprar</Link></Button>
+          <Button asChild variant={reforma ? "default" : "outline"} className="min-h-[44px]"><Link to="/reformar" aria-current={reforma ? "page" : undefined}>Vou reformar</Link></Button>
+          <Button asChild variant={!reforma ? "default" : "outline"} className="min-h-[44px]"><Link to="/operar" aria-current={!reforma ? "page" : undefined}>Já opero</Link></Button>
         </nav>
       </CabecalhoTela>
       {aviso && <Container>{aviso}</Container>}

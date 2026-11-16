@@ -7,6 +7,7 @@ import { Figura, TabelaNumerada, TD, TD_NUM, TH } from "@/components/estudo/Figu
 import Metadados, { type ItemMetadado } from "@/components/estudo/Metadados";
 import { NotaAmostra, Tag, TagBairro, TEXTO_APROXIMACAO } from "@/components/estudo/Natureza";
 import { AvisoReceita, Diferenca, FormulaReceita, GradeIndicadores, Indicador } from "@/components/estudo/Numeros";
+import NestaPagina from "@/components/estudo/NestaPagina";
 import SeletorBairro from "@/components/estudo/SeletorBairro";
 import FaixaPosicao from "@/components/estudo/graficos/FaixaPosicao";
 import { LegendaPontos } from "@/components/estudo/graficos/LegendaPontos";
@@ -234,6 +235,7 @@ function PaginaBairro() {
           <p className="e-legenda mt-4 max-w-[720px]">Referência extra, fora das contas: {rotuloReferenciaBewild(b.referenciaBewild)}.</p>
         )}
       </CabecalhoTela>
+      <NestaPagina />
 
       {offline && (
         <Container className="mb-6">

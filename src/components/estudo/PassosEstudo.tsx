@@ -20,10 +20,11 @@ export default function PassosEstudo() {
 
   return (
     <div className="border-b border-border bg-secondary/60">
-      <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-6 lg:px-[72px]">
+      <div className="mx-auto flex w-full max-w-[1280px] flex-wrap items-center justify-between gap-x-3 gap-y-0 px-4 py-1 sm:gap-6 sm:px-6 sm:py-3 lg:px-[72px]">
         <nav aria-label="Passos do estudo" className="min-w-0">
-          <p className="e-rotulo">Passo {passo.numero} de {PASSOS_ESTUDO.length} · {passo.rotulo}</p>
-          <ol className="m-0 mt-1 flex list-none flex-wrap items-center gap-x-0 gap-y-1 p-0 sm:gap-2">
+          {/* No celular a faixa cabe em uma linha: o rótulo fica só para leitor de tela e os outros passos mostram só o número. */}
+          <p className="e-rotulo sr-only sm:not-sr-only">Passo {passo.numero} de {PASSOS_ESTUDO.length} · {passo.rotulo}</p>
+          <ol className="m-0 flex list-none items-center gap-x-0 p-0 sm:mt-1 sm:gap-2">
             {PASSOS_ESTUDO.map((p) => {
               const emCurso = p.numero === passo.numero;
               return (
@@ -34,7 +35,7 @@ export default function PassosEstudo() {
                     aria-current={emCurso ? "step" : undefined}
                     onClick={() => trackGlobal("cta_clicked", { cta_id: `passo_${p.numero}`, section: "passos_estudo" })}
                     className={cn(
-                      "inline-flex min-h-[44px] items-center gap-1.5 rounded-[7px] px-1.5 text-sm font-medium transition-colors sm:gap-2 sm:px-3",
+                      "inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-[7px] px-1.5 text-sm font-medium transition-colors sm:gap-2 sm:px-3",
                       emCurso ? "bg-card text-foreground shadow-segmented" : "text-muted-foreground hover:text-foreground",
                     )}
                   >
@@ -47,7 +48,7 @@ export default function PassosEstudo() {
                     >
                       {p.numero}
                     </span>
-                    <span><span className="sr-only">Passo {p.numero}: </span>{p.curto}</span>
+                    <span className={cn(!emCurso && "sr-only sm:not-sr-only")}><span className="sr-only">Passo {p.numero}: </span>{p.curto}</span>
                   </Link>
                 </li>
               );
@@ -60,7 +61,8 @@ export default function PassosEstudo() {
             onClick={() => trackGlobal("cta_clicked", { cta_id: `passo_seguinte_${seguinte.numero}`, section: "passos_estudo" })}
             className="e-link inline-flex min-h-[44px] shrink-0 items-center gap-2 text-sm font-medium"
           >
-            Próximo passo: {seguinte.rotulo.charAt(0).toLowerCase() + seguinte.rotulo.slice(1)}
+            <span className="sm:hidden">Próximo: {seguinte.curto.toLowerCase()}</span>
+            <span className="hidden sm:inline">Próximo passo: {seguinte.rotulo.charAt(0).toLowerCase() + seguinte.rotulo.slice(1)}</span>
             <ArrowRight aria-hidden="true" className="h-4 w-4" />
           </Link>
         ) : (
@@ -69,7 +71,8 @@ export default function PassosEstudo() {
             onClick={() => trackGlobal("cta_clicked", { cta_id: "resumo_estudo", section: "passos_estudo" })}
             className="e-link inline-flex min-h-[44px] shrink-0 items-center gap-2 text-sm font-medium"
           >
-            Ver o resumo do estudo
+            <span className="sm:hidden">Ver o resumo</span>
+            <span className="hidden sm:inline">Ver o resumo do estudo</span>
             <ArrowRight aria-hidden="true" className="h-4 w-4" />
           </Link>
         )}

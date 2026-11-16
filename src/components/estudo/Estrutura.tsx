@@ -49,8 +49,8 @@ export function CabecalhoTela({
   acao?: ReactNode;
 }) {
   return (
-    <Container className="pb-10 pt-10 lg:pb-14 lg:pt-16">
-      <p className="e-rotulo mb-4">{rotulo}</p>
+    <Container className="pb-8 pt-6 sm:pb-10 sm:pt-10 lg:pb-14 lg:pt-16">
+      <p className="e-rotulo mb-3 sm:mb-4">{rotulo}</p>
       <div className={cn("flex flex-col gap-6", acao && "lg:flex-row lg:items-end lg:justify-between")}>
         <div className="min-w-0 max-w-[880px]">
           <h1 className={cn(home ? "e-h1-home" : "e-h1", "text-balance")}>{titulo}</h1>
@@ -84,7 +84,7 @@ export function Secao({
 }) {
   const idTitulo = id ? `${id}-titulo` : undefined;
   return (
-    <section id={id} aria-labelledby={titulo ? idTitulo : undefined} className={cn("scroll-mt-20 py-10 lg:py-12", className)}>
+    <section id={id} data-indice={id && typeof rotulo === "string" ? rotulo : undefined} aria-labelledby={titulo ? idTitulo : undefined} className={cn("scroll-mt-20 py-10 lg:py-12", className)}>
       <Container className="grid gap-4 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-12">
         <div className="min-w-0">
           <p className="e-rotulo lg:pt-2">{rotulo}</p>

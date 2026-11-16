@@ -11,6 +11,7 @@ import CaseStudySection from "@/components/guide/CaseStudySection";
 import { CabecalhoTela, Container, Secao } from "@/components/estudo/Estrutura";
 import { Figura, TabelaNumerada, TD, TD_NUM, TH } from "@/components/estudo/Figura";
 import ComparacaoDecoracao from "@/components/estudo/ComparacaoDecoracao";
+import NestaPagina from "@/components/estudo/NestaPagina";
 import { DECORATION_LEVELS } from "@/data/guide-data";
 import { NotaAmostra, Tag, TagBairro, TEXTO_APROXIMACAO } from "@/components/estudo/Natureza";
 import { AvisoReceita, FormulaReceita, GradeIndicadores, Indicador } from "@/components/estudo/Numeros";
@@ -141,6 +142,7 @@ export default function ProjecaoStudio() {
           {aprox && <span className="e-legenda">{TEXTO_APROXIMACAO}</span>}
         </p>
       </CabecalhoTela>
+      <NestaPagina />
 
       {offline && (
         <Container className="mb-6">
