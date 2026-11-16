@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Seo } from "@/components/RouteSeo";
 import NovaAba from "@/components/NovaAba";
@@ -131,7 +131,7 @@ function PaginaBairro() {
   // A lista da estimativa de mercado carregou e não tem este bairro: página só com a base do Radar.
   const semEstimativa = Boolean(estimativas.data && !estimativas.data.some((x) => slugifyBairro(x.bairro) === slug));
   const criterios = (
-    <Secao id="criterios-internos" rotulo="Critérios internos" titulo="Scores da Bewild, à parte da base" lead={`Combinam a diária e a ocupação com preço do m², liquidez e crescimento da ${ROTULO_ESTIMATIVA_MERCADO.toLowerCase()}. São critérios internos, não estatística de mercado.`}>
+    <Secao recolhida resumo="Scores da Bewild, à parte da base" id="criterios-internos" rotulo="Critérios internos" titulo="Scores da Bewild, à parte da base" lead={`Combinam a diária e a ocupação com preço do m², liquidez e crescimento da ${ROTULO_ESTIMATIVA_MERCADO.toLowerCase()}. São critérios internos, não estatística de mercado.`}>
       {estimativa.data ? (
         <details className="group e-fina border-y">
           <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-4 py-3 text-[17px] font-semibold [&::-webkit-details-marker]:hidden">
@@ -151,7 +151,7 @@ function PaginaBairro() {
       )}
     </Secao>
   );
-  const precoImovel = <Secao id="preco-imovel" rotulo="Compra" titulo={`Preço médio por m² em ${nome}`}><PrecoImovelBairro bairro={nome} /></Secao>;
+  const precoImovel = <Secao recolhida resumo="Preço médio por m² no bairro" id="preco-imovel" rotulo="Compra" titulo={`Preço médio por m² em ${nome}`}><PrecoImovelBairro bairro={nome} /></Secao>;
 
   // Bairro sem dado na base do Radar (ex.: só na lista de SEO): não publicamos números sem fonte.
   if (!b) {
@@ -301,20 +301,7 @@ function PaginaBairro() {
                 <td className={cn(TD_NUM, "whitespace-nowrap font-semibold")}>{formatBRL(receita)}</td>
                 <td className={cn(TD, "hidden md:table-cell")}><TagBairro b={b} /></td>
               </tr>
-              {dre.linhas.map((l) => (
-                <tr key={l.chave}>
-                  <th scope="row" className={cn(TD, "font-normal")}>
-                    {l.rotulo}
-                    <span className="e-legenda block">{l.nota}<span className="sm:hidden"> · {l.base.tipo === "pct" ? `${formatDecimal(l.base.pct, 0)}% da receita` : "valor em R$"}</span></span>
-                    <span className="mt-1 block md:hidden"><Tag tipo="hipotese" /></span>
-                  </th>
-                  <td className={cn(TD, "hidden whitespace-nowrap tabular-nums text-tinta-78 sm:table-cell")}>
-                    {l.base.tipo === "pct" ? `${formatDecimal(l.base.pct, 0)}% da receita` : "valor em R$"}
-                  </td>
-                  <td className={cn(TD_NUM, "whitespace-nowrap")}>{formatBRL(-l.valor)}</td>
-                  <td className={cn(TD, "hidden md:table-cell")}><Tag tipo="hipotese" /></td>
-                </tr>
-              ))}
+              <LinhasCusto linhas={dre.linhas} total={receita - dre.liquido} />
               <tr>
                 <th scope="row" className="border-t border-foreground py-3 pr-2 text-left font-semibold">Resultado líquido de referência</th>
                 <td className="hidden border-t border-foreground sm:table-cell" />
@@ -336,6 +323,8 @@ function PaginaBairro() {
       </Secao>
 
       <Secao
+        recolhida
+        resumo="Receita, diária e ocupação contra os outros bairros"
         id="posicao"
         rotulo={`Posição entre os ${total}`}
         titulo={tituloPosicao}
@@ -401,7 +390,7 @@ function PaginaBairro() {
       <HistoricoBairro
         bairro={b.name}
         moldura={(historico) => (
-          <Secao id="historico" rotulo="Histórico" titulo="Cada coleta fica registrada, com data, período e fonte" lead="Bairros com ajuste manual não mostram histórico, para o bairro ter um número só.">
+          <Secao recolhida resumo="Cada coleta, com data, período e fonte" id="historico" rotulo="Histórico" titulo="Cada coleta fica registrada, com data, período e fonte" lead="Bairros com ajuste manual não mostram histórico, para o bairro ter um número só.">
             <SemCaixa>
               <VariacaoColetaBairro bairro={b.name} className="mb-8 border-0 bg-transparent p-0" />
             </SemCaixa>
@@ -429,6 +418,46 @@ function PaginaBairro() {
   );
 }
 
+/**
+ * Linhas de custo da Tab. 1. No celular ficam numa linha só ("Custos", com o total) que
+ * abre com um toque (páginas curtas, 16/11/2026); a partir de sm aparecem todas, como sempre.
+ */
+function LinhasCusto({ linhas, total }: { linhas: ReturnType<typeof linhasDre>["linhas"]; total: number }) {
+  const [abertas, setAbertas] = useState(false);
+  return (
+    <>
+      <tr className="sm:hidden">
+        <th scope="row" className={cn(TD, "font-normal")}>
+          <button
+            type="button"
+            aria-expanded={abertas}
+            onClick={() => { if (!abertas) trackGlobal("cta_clicked", { cta_id: "abrir_custos_bairro", section: "recolhivel" }); setAbertas(!abertas); }}
+            className="e-recolhe-botao flex min-h-[44px] w-full flex-col items-start justify-center text-left"
+          >
+            <span className="e-link font-semibold">{abertas ? "Fechar os custos" : `Custos: ver as ${linhas.length} linhas`}</span>
+            <span className="mt-1 block"><Tag tipo="hipotese" /></span>
+          </button>
+        </th>
+        <td className={cn(TD_NUM, "whitespace-nowrap")}>{formatBRL(-total)}</td>
+      </tr>
+      {linhas.map((l) => (
+        <tr key={l.chave} className={cn("e-recolhe-linha", !abertas && "hidden sm:table-row")}>
+          <th scope="row" className={cn(TD, "font-normal")}>
+            {l.rotulo}
+            <span className="e-legenda block">{l.nota}<span className="sm:hidden"> · {l.base.tipo === "pct" ? `${formatDecimal(l.base.pct, 0)}% da receita` : "valor em R$"}</span></span>
+            <span className="mt-1 hidden sm:block md:hidden"><Tag tipo="hipotese" /></span>
+          </th>
+          <td className={cn(TD, "hidden whitespace-nowrap tabular-nums text-tinta-78 sm:table-cell")}>
+            {l.base.tipo === "pct" ? `${formatDecimal(l.base.pct, 0)}% da receita` : "valor em R$"}
+          </td>
+          <td className={cn(TD_NUM, "whitespace-nowrap")}>{formatBRL(-l.valor)}</td>
+          <td className={cn(TD, "hidden md:table-cell")}><Tag tipo="hipotese" /></td>
+        </tr>
+      ))}
+    </>
+  );
+}
+
 /** Contêiner neutro para componentes compartilhados que ainda trazem moldura própria. */
 function SemCaixa({ children }: { children: ReactNode }) {
   return <div className="[&_section]:rounded-none [&_section]:border-0 [&_section]:bg-transparent [&_section]:p-0">{children}</div>;
@@ -444,7 +473,7 @@ function ChecklistCompra({ bairro }: { bairro: string }) {
   const momento = useMomento();
   if (momento && momento !== "procurando") return null;
   return (
-    <Secao id="checklist-compra" rotulo="Antes de comprar">
+    <Secao recolhida resumo="Checklist de compra, por e-mail" id="checklist-compra" rotulo="Antes de comprar">
       <PedidoMaterial material="checklist_compra" origem="bairro" bairro={bairro} />
     </Secao>
   );
