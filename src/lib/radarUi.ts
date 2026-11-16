@@ -212,7 +212,8 @@ export function textosFontes(bairros: BairroBase[]): { observado: string; aproxi
   for (const b of gf) if (b.period && b.period !== periodo) outros.set(b.period, [...(outros.get(b.period) ?? []), b.name]);
   // Datas de coleta em ordem cronológica ("Coleta de 13/10/2026" ou "Coletas de 13/10/2026 e 18/10/2026").
   const coletas = [...new Set(gf.map((b) => b.coletadoEm ?? "").filter(Boolean))].sort().map(dataBR);
-  let observado = "Diária, ocupação, quartis e amostra de anúncios da GuestFavorites.";
+  // "Observado" = publicado pela fonte para o próprio bairro; não é transação verificada pelo Radar (auditoria de 16/11/2026, C2).
+  let observado = "Diária, ocupação, quartis e amostra de anúncios publicados pela GuestFavorites para o próprio bairro. São números da fonte, não transações verificadas pelo Radar.";
   const detalhes = [
     coletas.length ? `${coletas.length === 1 ? "Coleta" : "Coletas"} de ${juntarNomes(coletas)}` : "",
     periodo ? `período ${periodo}${outros.size ? ` (${[...outros].map(([p, nomes]) => `${juntarNomes(nomes)}: ${p}`).join("; ")})` : ""}` : "",

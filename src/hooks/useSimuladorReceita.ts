@@ -32,6 +32,12 @@ export interface SimuladorReceita {
   reformaAjustada: boolean;
   aluguel: number;
   resultadoShortStay: Resultado | null;
+  /**
+   * Mesmo cálculo com a diária média do bairro, sem o multiplicador de decoração. Só existe
+   * quando a diária em uso vem do nível de decoração (acima do básico e sem ajuste da pessoa):
+   * mostra quanto do resultado depende dessa hipótese (auditoria de 16/11/2026, R1).
+   */
+  resultadoMediaBairro: Resultado | null;
   resultadoTradicional: Resultado;
   /** Resultado do modo ativo. */
   resultado: Resultado | null;
@@ -116,6 +122,11 @@ export function useSimuladorReceita(): SimuladorReceita {
   const aluguel = p.aluguel ?? aluguelReferencia(p.imovel.valorImovel);
 
   const rSS = useMemo(() => (bairro ? resultadoShortStay({ diaria, ocupacaoPct: ocupacao }, p.imovel, p.shortStay) : null), [bairro, diaria, ocupacao, p.imovel, p.shortStay]);
+  const diariaVemDaDecoracao = bairro != null && p.decoracao !== "basico" && p.diaria == null && diariaBase !== bairro.dailyAvg;
+  const rMedia = useMemo(
+    () => (bairro && diariaVemDaDecoracao ? resultadoShortStay({ diaria: bairro.dailyAvg, ocupacaoPct: ocupacao }, p.imovel, p.shortStay) : null),
+    [bairro, diariaVemDaDecoracao, ocupacao, p.imovel, p.shortStay],
+  );
   const rTrad = useMemo(() => resultadoTradicional(p.imovel, { ...p.tradicional, aluguel }), [p.imovel, p.tradicional, aluguel]);
   const resultado = p.modo === "short_stay" ? rSS : rTrad;
   // Reforma: sugestão (área × custo/m², cresce com a diária) até a pessoa informar um valor. Na locação tradicional a sugestão fica no nível básico.
@@ -129,7 +140,7 @@ export function useSimuladorReceita(): SimuladorReceita {
     diariaAjustada: p.diaria != null && p.diaria !== diariaBase,
     ocupacaoAjustada: p.ocupacao != null && bairro != null && p.ocupacao !== bairro.avgOccupancy,
     reforma, sugestaoReforma, reformaAjustada: p.reforma != null,
-    aluguel, resultadoShortStay: rSS, resultadoTradicional: rTrad, resultado, indicadores: ind, recebidaPorLink, reaberta, query,
+    aluguel, resultadoShortStay: rSS, resultadoMediaBairro: rMedia, resultadoTradicional: rTrad, resultado, indicadores: ind, recebidaPorLink, reaberta, query,
     slugBairro: bairro ? slugifyBairro(bairro.name) : null,
   };
 }

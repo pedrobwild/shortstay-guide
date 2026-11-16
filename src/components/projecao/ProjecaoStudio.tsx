@@ -10,6 +10,8 @@ import SimuladorReceitaLiquida from "@/components/guide/SimuladorReceitaLiquida"
 import CaseStudySection from "@/components/guide/CaseStudySection";
 import { CabecalhoTela, Container, Secao } from "@/components/estudo/Estrutura";
 import { Figura, TabelaNumerada, TD, TD_NUM, TH } from "@/components/estudo/Figura";
+import ComparacaoDecoracao from "@/components/estudo/ComparacaoDecoracao";
+import { DECORATION_LEVELS } from "@/data/guide-data";
 import { NotaAmostra, Tag, TagBairro, TEXTO_APROXIMACAO } from "@/components/estudo/Natureza";
 import { AvisoReceita, FormulaReceita, GradeIndicadores, Indicador } from "@/components/estudo/Numeros";
 import SeletorBairro from "@/components/estudo/SeletorBairro";
@@ -193,7 +195,7 @@ export default function ProjecaoStudio() {
                   prefixo="R$"
                   valor={diaria}
                   onChange={(v) => { if (dentro(v, LIMITES_MERCADO.diaria)) atualizar({ diaria: v }); }}
-                  tag={diariaAjustada ? <Tag tipo="hipotese">Sua hipótese</Tag> : <TagBairro b={bairro} />}
+                  tag={diariaAjustada ? <Tag tipo="hipotese">Sua hipótese</Tag> : sim.resultadoMediaBairro ? <Tag tipo="hipotese" titulo="Média do bairro × nível de decoração: hipótese do simulador" /> : <TagBairro b={bairro} />}
                   ajuda={diariaAjustada ? `${refMedia}: ${formatBRL(diariaBase)}.` : p.decoracao !== "basico" ? `${refMedia} × nível de decoração (hipótese).` : `${refMedia}.`}
                 />
                 <CampoNumero
@@ -267,6 +269,17 @@ export default function ProjecaoStudio() {
                 {formatBRL(r.liquidoAnual)} por ano · {r.receitaBruta > 0 ? `${formatPercent(r.margem * 100, 0)} da receita bruta de ${formatBRL(r.receitaBruta)}` : "sem receita"}.
                 {liquido < 0 && <span className="e-negativo"> Os custos passam da receita: o studio fica no negativo com essas premissas.</span>}
               </p>
+              {sim.resultadoMediaBairro && (
+                <ComparacaoDecoracao
+                  className="mt-5"
+                  nivel={(DECORATION_LEVELS.find((d) => d.value === sim.p.decoracao)?.label ?? "").toLowerCase()}
+                  bairro={bairro.name}
+                  diariaNivel={sim.diaria}
+                  diariaBairro={bairro.dailyAvg}
+                  liquidoNivel={r.liquido}
+                  liquidoBairro={sim.resultadoMediaBairro.liquido}
+                />
+              )}
             </div>
 
             <Figura

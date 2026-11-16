@@ -6,10 +6,12 @@ import { cn } from "@/lib/utils";
 
 /**
  * Natureza do dado, sempre identificada (princípio 4): tag "Observado" (ciano),
- * "Aproximação" (neutra, tracejada), "Ajuste manual" e "Hipótese" (pontilhada).
+ * "Aproximação" (neutra, tracejada), "Ajuste manual", "Hipótese" (pontilhada) e
+ * "Calculado" (conta do Radar sobre dado de fonte, como o efeito de evento).
+ * "Observado" quer dizer publicado pela fonte para o próprio bairro, não transação verificada.
  * O significado não depende só da cor: a borda muda junto e o texto diz.
  */
-export type TipoTag = "observado" | "aproximacao" | "ajuste" | "estimativa" | "hipotese";
+export type TipoTag = "observado" | "aproximacao" | "ajuste" | "estimativa" | "hipotese" | "calculado";
 
 const TEXTO: Record<TipoTag, string> = {
   observado: "Observado",
@@ -17,6 +19,7 @@ const TEXTO: Record<TipoTag, string> = {
   ajuste: "Ajuste manual",
   estimativa: "Estimativa Bewild",
   hipotese: "Hipótese",
+  calculado: "Calculado",
 };
 
 const CLASSE: Record<TipoTag, string> = {
@@ -25,6 +28,8 @@ const CLASSE: Record<TipoTag, string> = {
   ajuste: "e-tag-ajuste",
   estimativa: "e-tag-aproximacao",
   hipotese: "e-tag-hipotese",
+  // Conta do Radar sobre dado de fonte: mesma borda cheia e neutra do ajuste, sem o ciano do dado da fonte.
+  calculado: "e-tag-ajuste",
 };
 
 export function Tag({ tipo, children, className, titulo }: { tipo: TipoTag; children?: string; className?: string; titulo?: string }) {
@@ -39,11 +44,12 @@ export function tipoTagBairro(b: BairroBase): TipoTag {
 }
 
 const TITULO: Record<TipoTag, string> = {
-  observado: "Dado observado no próprio bairro (GuestFavorites)",
+  observado: "Publicado pela fonte para o próprio bairro (GuestFavorites); não é transação verificada",
   aproximacao: "Aproximação pelo Itaim Bibi: distrito que inclui a Vila Olímpia e parte do Brooklin, sem dado público por bairro",
   ajuste: "Ajuste manual da Bewild sobre a base",
   estimativa: "Estimativa Bewild, sem fonte pública",
   hipotese: "Hipótese editável, não é dado de mercado",
+  calculado: "Calculado pelo Radar sobre dado de fonte",
 };
 
 export function TagBairro({ b, className }: { b: BairroBase; className?: string }) {

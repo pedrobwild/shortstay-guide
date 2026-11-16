@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-  edicaoDeReferencia, eventosComReferencia, eventosDoBairro, eventosFuturos, lerAcrescimo, noitesDoEvento, periodoDoEvento, receitaDasNoites, separarEfeitos,
+  BAIRRO_CIDADE, edicaoDeReferencia, eventosComReferencia, eventosDoBairro, eventosFuturos, lerAcrescimo, noitesDoEvento, periodoDoEvento, receitaDasNoites, separarEfeitos,
   type EfeitoEvento, type EventoRadar,
 } from "@/lib/eventosRadar";
 
@@ -69,6 +69,24 @@ describe("eventos do Radar", () => {
     ]);
     expect(eventosDoBairro(lista, "Moema").map((l) => [l.evento.id, l.medido])).toEqual([["b", false], ["e", false]]);
     expect(eventosDoBairro(lista, "Pinheiros")).toEqual([]);
+  });
+
+  it("lê a mediana da cidade como contexto e nunca como bairro", () => {
+    const efeitos: EfeitoEvento[] = [
+      { evento_id: "a", bairro: "Campo Belo", efeito_diaria_pct: 11, p_placebo: 0.004, noites: 3 },
+      { evento_id: "a", bairro: BAIRRO_CIDADE, efeito_diaria_pct: 6, p_placebo: null, noites: 3 },
+      // Mesmo com p preenchido por engano, a linha da cidade não vira bairro.
+      { evento_id: "c", bairro: BAIRRO_CIDADE, efeito_diaria_pct: 30.2, p_placebo: 0.001, noites: 4 },
+    ];
+    const lista = eventosComReferencia(todos, efeitos, "2026-11-16");
+    const lolla = lista.find((c) => c.evento.id === "b")!;
+    expect(lolla.cidade).toBe(6);
+    expect(lolla.medidos.map((m) => m.bairro)).toEqual(["Campo Belo"]);
+    const u2 = lista.find((c) => c.evento.id === "d")!;
+    expect(u2.cidade).toBe(30.2);
+    expect([...u2.medidos, ...u2.fracos]).toEqual([]);
+    expect(eventosDoBairro(lista, BAIRRO_CIDADE)).toEqual([]);
+    expect(eventosDoBairro(lista, "Campo Belo").map((l) => [l.evento.id, l.cidade])).toEqual([["b", 6], ["e", 6]]);
   });
 
   it("calcula a receita das noites com e sem o acréscimo", () => {
