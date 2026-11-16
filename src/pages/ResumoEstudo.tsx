@@ -43,7 +43,7 @@ function Resumo() {
       <CabecalhoTela
         rotulo="Resumo do estudo"
         titulo="O seu estudo em uma página"
-        lead="O bairro, a conta e a reforma dos três passos. Fica só neste navegador: nada é enviado."
+        lead="O bairro, a conta e a reforma dos três passos. O estudo fica só neste navegador; o pedido de orçamento leva apenas o bairro e a faixa de área."
       />
 
       {!pronto ? (
