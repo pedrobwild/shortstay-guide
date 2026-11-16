@@ -36,7 +36,7 @@ export default function Segmentado<T extends string>({
           value={o.valor}
           className={cn(
             // 38px visíveis + 3px acima e abaixo de área de toque (dentro do trilho) = 44px.
-            "relative inline-flex min-h-[38px] flex-1 items-center justify-center whitespace-nowrap rounded-[7px] px-3.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground after:absolute after:inset-x-0 after:-inset-y-[3px] after:content-['']",
+            "relative inline-flex min-h-[44px] lg:min-h-[38px] flex-1 items-center justify-center whitespace-nowrap rounded-[7px] px-3.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground after:absolute after:inset-x-0 after:-inset-y-[3px] after:content-['']",
             "data-[state=on]:bg-card data-[state=on]:text-foreground data-[state=on]:shadow-segmented",
             itemClassName,
           )}

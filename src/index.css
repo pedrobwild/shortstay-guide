@@ -445,13 +445,20 @@
     color: hsl(var(--tinta-78));
   }
   /* Rótulo: Fig., Tab., dt e coluna lateral — 12/16, caixa-alta, 0,06em, tinta a 70% */
+  /* 13px no celular e 12px a partir de 1024px (auditoria de UX de 16/11/2026: 12px em caixa alta cansava no celular). */
   .e-rotulo {
-    font-size: 0.75rem;
-    line-height: 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.125rem;
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: hsl(var(--tinta-70));
+  }
+  @media (min-width: 1024px) {
+    .e-rotulo, .e-tag {
+      font-size: 0.75rem;
+      line-height: 1rem;
+    }
   }
   /* 14px no celular (avisos e fontes precisam ser lidos); 13px a partir de 1024px. */
   .e-legenda {
@@ -513,8 +520,8 @@
     border: 1px solid;
     border-radius: 2px;
     padding: 1px 6px;
-    font-size: 0.75rem;
-    line-height: 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.125rem;
     font-weight: 600;
     letter-spacing: 0.02em;
   }

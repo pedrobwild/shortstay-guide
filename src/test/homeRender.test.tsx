@@ -62,7 +62,13 @@ describe("home reestruturada (26/10/2026, base de reserva)", () => {
     expect(hero.textContent).toContain("R$ 5.651");
     expect(hero.textContent).toContain("+R$ 881");
     expect(hero.textContent).toContain("Observado");
-    expect(hero.querySelector('a[href="/projecao?bairro=pinheiros"]')?.textContent).toBe("Simular este bairro");
+    // Dois links levam à conta: o passo 2 e o botão do painel. No HTML os passos vêm antes do painel,
+    // para a primeira tela do celular mostrar o começo, meio e fim (16/11/2026).
+    const paraConta = [...hero.querySelectorAll('a[href="/projecao?bairro=pinheiros"]')];
+    expect(paraConta.map((a) => a.textContent).at(-1)).toBe("Simular este bairro");
+    const passos = hero.querySelector("#perfis")!;
+    const seletor = hero.querySelector("select, [role='combobox']")!;
+    expect(passos.compareDocumentPosition(seletor) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("a etapa marca por onde começar: comprar no passo 1, reformar no passo 3, quem opera no passo 2", async () => {
