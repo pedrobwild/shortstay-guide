@@ -248,7 +248,7 @@ function PaginaBairro() {
         rotulo="Indicadores"
         titulo={<>{formatBRL(b.dailyAvg)} de diária e {pct(b.avgOccupancy)} de ocupação rendem {formatBRL(receita)} por mês de referência</>}
       >
-        <GradeIndicadores className="max-[399px]:grid-cols-1">
+        <GradeIndicadores className="max-[359px]:grid-cols-1">
           <Indicador rotulo="Diária média (R$)" valor={formatBRL(b.dailyAvg)} nota={<><Diferenca valor={b.dailyAvg - cidade.dailyAvg} /> contra São Paulo ({formatBRL(cidade.dailyAvg)})</>} />
           <Indicador rotulo="Ocupação média (%)" valor={pct(b.avgOccupancy)} nota={<><Diferenca valor={b.avgOccupancy - cidade.avgOccupancy} formato="pp" /> contra São Paulo ({pct(cidade.avgOccupancy)})</>} />
           <Indicador rotulo="Receita de referência (R$/mês)" valor={formatBRL(receita)} nota={<><Diferenca valor={dif} formato="pct" /> contra São Paulo ({formatBRL(receitaSP)})</>} />
@@ -264,9 +264,7 @@ function PaginaBairro() {
             }
           />
         </GradeIndicadores>
-        <div className="mt-10">
-          <FaixaQuartisBairro bairro={b.name} />
-        </div>
+        <FaixaQuartisBairro bairro={b.name} className="mt-10" />
       </Secao>
 
       <Secao
