@@ -753,6 +753,129 @@ export type Database = {
           },
         ]
       }
+      radar_evento_efeitos: {
+        Row: {
+          bairro: string
+          calculado_em: string
+          created_at: string
+          efeito_diaria_pct: number
+          evento_id: string
+          fonte_id: string
+          id: string
+          janelas_placebo: number | null
+          lido_em: string
+          metodo: string
+          noites: number
+          p_placebo: number | null
+          publicavel: boolean
+          recorte: string
+        }
+        Insert: {
+          bairro: string
+          calculado_em: string
+          created_at?: string
+          efeito_diaria_pct: number
+          evento_id: string
+          fonte_id: string
+          id?: string
+          janelas_placebo?: number | null
+          lido_em: string
+          metodo: string
+          noites: number
+          p_placebo?: number | null
+          publicavel?: boolean
+          recorte?: string
+        }
+        Update: {
+          bairro?: string
+          calculado_em?: string
+          created_at?: string
+          efeito_diaria_pct?: number
+          evento_id?: string
+          fonte_id?: string
+          id?: string
+          janelas_placebo?: number | null
+          lido_em?: string
+          metodo?: string
+          noites?: number
+          p_placebo?: number | null
+          publicavel?: boolean
+          recorte?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "radar_evento_efeitos_evento_id_fkey"
+            columns: ["evento_id"]
+            isOneToOne: false
+            referencedRelation: "radar_eventos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "radar_evento_efeitos_fonte_id_fkey"
+            columns: ["fonte_id"]
+            isOneToOne: false
+            referencedRelation: "radar_fontes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      radar_eventos: {
+        Row: {
+          atualizado_em: string
+          categoria: string
+          cidade: string
+          criado_em: string
+          data_confirmada: boolean
+          fim: string
+          fonte_consultada_em: string | null
+          fonte_titulo: string | null
+          fonte_url: string | null
+          id: string
+          inicio: string
+          lat: number | null
+          lng: number | null
+          local: string | null
+          nome: string
+          status: string
+        }
+        Insert: {
+          atualizado_em?: string
+          categoria: string
+          cidade?: string
+          criado_em?: string
+          data_confirmada?: boolean
+          fim: string
+          fonte_consultada_em?: string | null
+          fonte_titulo?: string | null
+          fonte_url?: string | null
+          id?: string
+          inicio: string
+          lat?: number | null
+          lng?: number | null
+          local?: string | null
+          nome: string
+          status?: string
+        }
+        Update: {
+          atualizado_em?: string
+          categoria?: string
+          cidade?: string
+          criado_em?: string
+          data_confirmada?: boolean
+          fim?: string
+          fonte_consultada_em?: string | null
+          fonte_titulo?: string | null
+          fonte_url?: string | null
+          id?: string
+          inicio?: string
+          lat?: number | null
+          lng?: number | null
+          local?: string | null
+          nome?: string
+          status?: string
+        }
+        Relationships: []
+      }
       radar_fontes: {
         Row: {
           id: string
@@ -1103,6 +1226,68 @@ export type Database = {
           url_origem?: string
         }
         Relationships: []
+      }
+      radar_series_diarias: {
+        Row: {
+          bairro: string
+          cidade: string
+          created_at: string
+          data: string
+          diaria_disponivel: number | null
+          diaria_media: number | null
+          disponiveis: number | null
+          fonte_id: string
+          id: string
+          lido_em: string
+          moeda: string
+          recorte: string
+          reservados: number | null
+          submercado_ref: string | null
+          tipo_serie: string
+        }
+        Insert: {
+          bairro: string
+          cidade?: string
+          created_at?: string
+          data: string
+          diaria_disponivel?: number | null
+          diaria_media?: number | null
+          disponiveis?: number | null
+          fonte_id: string
+          id?: string
+          lido_em: string
+          moeda?: string
+          recorte?: string
+          reservados?: number | null
+          submercado_ref?: string | null
+          tipo_serie: string
+        }
+        Update: {
+          bairro?: string
+          cidade?: string
+          created_at?: string
+          data?: string
+          diaria_disponivel?: number | null
+          diaria_media?: number | null
+          disponiveis?: number | null
+          fonte_id?: string
+          id?: string
+          lido_em?: string
+          moeda?: string
+          recorte?: string
+          reservados?: number | null
+          submercado_ref?: string | null
+          tipo_serie?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "radar_series_diarias_fonte_id_fkey"
+            columns: ["fonte_id"]
+            isOneToOne: false
+            referencedRelation: "radar_fontes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       raw_listings: {
         Row: {

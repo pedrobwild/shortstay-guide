@@ -113,6 +113,13 @@
       "when": 1793383157751,
       "tag": "0015_radar_imoveis_trigger_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1794801306016,
+      "tag": "0016_radar_series_diarias_e_eventos",
+      "breakpoints": true
     }
   ]
 }
