@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import AppNavbar from "@/components/AppNavbar";
+import PassosEstudo from "@/components/estudo/PassosEstudo";
 import RodapeRadar from "@/components/RodapeRadar";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,7 @@ export function PaginaEstudo({ children, className }: { children: ReactNode; cla
   return (
     <div className="min-h-screen bg-background font-body text-foreground">
       <AppNavbar fixo={false} />
+      <PassosEstudo />
       <main id="conteudo" tabIndex={-1} className={cn("pb-8 outline-none", className)}>
         {children}
       </main>

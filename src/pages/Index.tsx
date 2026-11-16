@@ -24,6 +24,7 @@ import { useBairroSelecionado } from "@/hooks/useBairroSelecionado";
 import { PERFIS_RADAR, type PerfilRadar } from "@/data/perfisRadar";
 import { TEMAS_GUIA, caminhoTema, type SlugTemaGuia } from "@/data/temasGuia";
 import { linkSimuladorBairro } from "@/data/navegacao";
+import { ATALHOS_CONSULTA, destinoDoPasso, PASSOS_ESTUDO } from "@/data/passosEstudo";
 import { COLETA_GUESTFAVORITES } from "@/data/fontesGuia";
 import {
   AREA_MEDIANA_M2, CUSTO_M2_P25, CUSTO_M2_P75, ESTUDO_REFORMA_URL,
@@ -122,10 +123,10 @@ function IndexInner() {
           <Container className="pb-8 pt-8 lg:pb-8 lg:pt-14">
             <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,480px)] lg:grid-rows-[auto_1fr] lg:gap-x-16 lg:gap-y-12">
               <div className="min-w-0">
-                <p className="e-rotulo mb-3">Radar Bewild · estudo aberto</p>
+                <p className="e-rotulo mb-3">Para quem investe em studio para Airbnb em São Paulo</p>
                 <h1 id="hero-titulo" className="e-h1-home text-balance">Studios para short stay em São Paulo, bairro a bairro</h1>
                 <p className="e-lead mt-4 max-w-[620px] text-pretty lg:mt-5">
-                  Diária, ocupação e receita de referência de {bairros.length} bairros, com fonte e data.
+                  Escolha o bairro, faça a conta e planeje a reforma. Diária, ocupação e receita de referência de {bairros.length} bairros, com fonte e data.
                 </p>
               </div>
               <div className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
@@ -149,6 +150,51 @@ function IndexInner() {
                   ))}
                 </div>
               </div>
+            </div>
+          </Container>
+        </section>
+
+        {/* O estudo em 3 passos (começo, meio e fim) e, ao lado, a consulta direta para quem volta atrás de um dado. */}
+        <section id="estudo" aria-labelledby="estudo-titulo" className="scroll-mt-20 border-y border-border bg-secondary/60 py-8 lg:py-10">
+          <Container>
+            <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)] lg:gap-16">
+              <div className="min-w-0">
+                <h2 id="estudo-titulo" className="e-h2 text-balance">O estudo em 3 passos</h2>
+                <ol className="m-0 mt-5 grid list-none gap-3 p-0 sm:grid-cols-3">
+                  {PASSOS_ESTUDO.map((p) => (
+                    <li key={p.numero} className="min-w-0">
+                      <Link
+                        to={destinoDoPasso(p, bairro ? slugifyBairro(bairro.name) : null)}
+                        onClick={() => trackGlobal("cta_clicked", { cta_id: `home_passo_${p.numero}`, section: "estudo" })}
+                        className="group flex h-full min-h-[44px] flex-col gap-2 rounded-[10px] border border-border bg-card p-4 transition-colors hover:border-primary"
+                      >
+                        <span className="flex items-center gap-2">
+                          <span aria-hidden="true" className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold tabular-nums text-primary-foreground">{p.numero}</span>
+                          <span className="text-[15px] font-semibold group-hover:underline"><span className="sr-only">Passo {p.numero}: </span>{p.rotulo}</span>
+                        </span>
+                        <span className="e-legenda">{p.resumo}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+              <nav aria-labelledby="consulta-titulo" className="min-w-0">
+                <h2 id="consulta-titulo" className="e-h3">Ou consulte direto</h2>
+                <ul className="e-fina m-0 mt-3 list-none border-t p-0">
+                  {ATALHOS_CONSULTA.map((a) => (
+                    <li key={a.id} className="e-fina border-b">
+                      <Link
+                        to={a.to}
+                        onClick={() => trackGlobal("cta_clicked", { cta_id: a.id, section: "consulta" })}
+                        className="flex min-h-[44px] flex-wrap items-baseline justify-between gap-x-4 gap-y-0 py-2 text-[15px] hover:underline"
+                      >
+                        <span className="font-semibold">{a.rotulo}</span>
+                        <span className="e-legenda">{a.resumo}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
             </div>
           </Container>
         </section>
