@@ -73,14 +73,14 @@ export function TrechoRecolhido({ id, rotulo, resumo, className, children }: { i
 }
 
 /** Linha de toque do bloco no celular (some a partir de 1024px). */
-export function BotaoRecolhivel({ id, rotulo, resumo, aberto, alternar }: { id: string; rotulo: string; resumo?: string; aberto: boolean; alternar: () => void }) {
+export function BotaoRecolhivel({ id, rotulo, resumo, aberto, alternar, noDesktop = false }: { id: string; rotulo: string; resumo?: string; aberto: boolean; alternar: () => void; /** Mantém o botão a partir de 1024px (cartão que abre no lugar). */ noDesktop?: boolean }) {
   return (
     <button
       type="button"
       aria-expanded={aberto}
       aria-controls={`${id}-conteudo`}
       onClick={alternar}
-      className="e-recolhe-botao flex min-h-[56px] w-full items-center justify-between gap-4 py-3 text-left lg:hidden"
+      className={cn("e-recolhe-botao flex min-h-[56px] w-full items-center justify-between gap-4 py-3 text-left", !noDesktop && "lg:hidden")}
     >
       <span className="min-w-0">
         <span className="block text-[16px] font-semibold leading-snug">{rotulo}</span>

@@ -60,3 +60,43 @@ describe("Secao recolhida", () => {
     expect(html).toContain("<noscript><style>.e-recolhe{display:block!important}.e-recolhe-botao{display:none!important}tr.e-recolhe-linha{display:table-row!important}</style></noscript>");
   });
 });
+
+/**
+ * Desktop (decisão do Pedro, 17/11/2026): seções recolhidas dentro de GrupoCartoes viram
+ * cartões que abrem no lugar; ColunasComPainel põe o painel à direita só a partir de 1024px.
+ */
+describe("GrupoCartoes e ColunasComPainel", () => {
+  it("dentro do grupo, o botão continua no desktop e o conteúdo abre no lugar", async () => {
+    const { GrupoCartoes } = await import("@/components/estudo/Estrutura");
+    render(
+      <GrupoCartoes rotulo="Para aprofundar">
+        <Secao recolhida id="cartao-a" rotulo="Cartão A" resumo="Resumo A" titulo="Título A"><p>Conteúdo A</p></Secao>
+        <Secao recolhida id="cartao-b" rotulo="Cartão B" titulo="Título B"><p>Conteúdo B</p></Secao>
+      </GrupoCartoes>,
+    );
+    const botao = screen.getByRole("button", { name: /Cartão A/ });
+    expect(botao.className).not.toContain("lg:hidden");
+    const conteudo = document.getElementById("cartao-a-conteudo")!;
+    expect(conteudo.className).toContain("hidden");
+    expect(conteudo.className).not.toContain("lg:block");
+    expect(conteudo.textContent).toContain("Conteúdo A");
+    expect(document.getElementById("cartao-a")!.className).toContain("lg:flex-1");
+    fireEvent.click(botao);
+    expect(conteudo.className.split(" ")).not.toContain("hidden");
+    expect(document.getElementById("cartao-a")!.className).toContain("lg:basis-full");
+    expect(document.getElementById("cartao-a")!.dataset.indice).toBe("Cartão A");
+  });
+
+  it("o painel lateral só aparece a partir de 1024px e tem nome acessível", async () => {
+    const { ColunasComPainel } = await import("@/components/estudo/Estrutura");
+    render(
+      <ColunasComPainel rotuloPainel="Pinheiros em resumo" painel={<p>Painel</p>}>
+        <Secao id="conta-teste" rotulo="Conta" titulo="Na coluna"><p>x</p></Secao>
+      </ColunasComPainel>,
+    );
+    const painel = screen.getByRole("complementary", { name: "Pinheiros em resumo" });
+    expect(painel.className).toContain("hidden");
+    expect(painel.className).toContain("lg:block");
+    expect(painel.className).toContain("lg:sticky");
+  });
+});

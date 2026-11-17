@@ -34,6 +34,7 @@ export default function BarraEmpilhada({
   alturaBarra = 40,
   marcaReferencia,
   className,
+  legendaEstreita = false,
   legenda = true,
 }: {
   segmentos: SegmentoBarra[];
@@ -46,6 +47,8 @@ export default function BarraEmpilhada({
   /** Linha vertical de referência (ex.: fim da receita bruta quando há déficit); o trecho além dela ganha contorno magenta. */
   marcaReferencia?: { valor: number; rotulo: string };
   className?: string;
+  /** Legenda em uma coluna só no desktop (quando a figura ocupa meia largura). */
+  legendaEstreita?: boolean;
   legenda?: boolean;
 }) {
   const soma = segmentos.reduce((s, x) => s + Math.max(0, x.valor), 0);
@@ -109,7 +112,7 @@ export default function BarraEmpilhada({
         })}
       </svg>
       {legenda && (
-        <ul className="mt-4 grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className={cn("mt-4 grid gap-x-8 gap-y-3 sm:grid-cols-2", legendaEstreita ? "lg:grid-cols-1" : "lg:grid-cols-3")}>
           {segmentos.map((s) => (
             <li key={s.chave} className="grid min-w-0 grid-cols-[14px_minmax(0,1fr)] gap-x-2.5">
               <span

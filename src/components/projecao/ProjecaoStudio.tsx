@@ -8,7 +8,7 @@ import ProjectAnalytics from "@/components/ota/ProjectAnalytics";
 import AvisoBase from "@/components/radar/AvisoBase";
 import SimuladorReceitaLiquida from "@/components/guide/SimuladorReceitaLiquida";
 import CaseStudySection from "@/components/guide/CaseStudySection";
-import { CabecalhoTela, Container, Secao } from "@/components/estudo/Estrutura";
+import { CabecalhoTela, Container, GrupoCartoes, Secao } from "@/components/estudo/Estrutura";
 import { Figura, TabelaNumerada, TD, TD_NUM, TH } from "@/components/estudo/Figura";
 import ComparacaoDecoracao from "@/components/estudo/ComparacaoDecoracao";
 import NestaPagina from "@/components/estudo/NestaPagina";
@@ -285,66 +285,7 @@ export default function ProjecaoStudio() {
               )}
             </div>
 
-            <Figura
-              numero={1}
-              className="mt-10"
-              titulo={liquido >= 0 ? <>De cada {formatBRL(r.receitaBruta)} de receita, sobram {formatBRL(liquido)}</> : <>Os custos ({formatBRL(r.totalDeducoes)}) passam da receita ({formatBRL(r.receitaBruta)})</>}
-              unidade="Receita bruta do mês repartida entre custos e resultado líquido (R$/mês). Percentuais sobre a receita bruta."
-              legenda={liquido < 0 ? <span className="e-negativo">O trecho com contorno magenta, depois da linha tracejada, são custos acima da receita.</span> : undefined}
-            >
-              <BarraEmpilhada
-                segmentos={segmentosFig}
-                total={r.receitaBruta}
-                formatar={formatBRL}
-                rotuloPct="da receita"
-                rotuloAcessivel={`Receita bruta de ${formatBRL(r.receitaBruta)} por mês: ${segmentosFig.map((s) => `${s.rotulo} ${formatBRL(s.valor)}`).join("; ")}.`}
-                marcaReferencia={liquido < 0 ? { valor: r.receitaBruta, rotulo: "receita bruta" } : undefined}
-              />
-            </Figura>
-
-            {/* No celular a tabela repete a lista de custos da figura acima: fica recolhida. */}
-            <TrechoRecolhido id="linha-a-linha" rotulo="A conta linha a linha" resumo="Como cada valor foi obtido" className="mt-10 lg:mt-12">
-            <TabelaNumerada
-              numero={1}
-              rolavel
-              titulo="Da receita bruta ao resultado líquido"
-              unidade="R$ por mês. Cada linha mostra como o valor foi obtido."
-            >
-              <thead>
-                <tr>
-                  <th scope="col" className={TH}>Linha</th>
-                  <th scope="col" className={cn(TH, "hidden sm:table-cell")}>Base</th>
-                  <th scope="col" className={cn(TH, "text-right")}>R$/mês</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th scope="row" className={cn(TD, "font-semibold")}>Receita bruta<span className="e-legenda block font-normal sm:hidden">{formatBRL(diaria)} × 30 × {formatDecimal(ocupacao, 0)}%</span></th>
-                  <td className={cn(TD, "hidden text-tinta-78 sm:table-cell")}>{formatBRL(diaria)} × 30 × {formatDecimal(ocupacao, 0)}%</td>
-                  <td className={cn(TD_NUM, "font-semibold")}>{formatBRL(r.receitaBruta)}</td>
-                </tr>
-                {r.deducoes.map((d) => (
-                  <tr key={d.chave}>
-                    <th scope="row" className={cn(TD, "font-normal")}>{d.rotulo}<span className="e-legenda block sm:hidden">{d.base}</span></th>
-                    <td className={cn(TD, "hidden text-tinta-78 sm:table-cell")}>{d.base}</td>
-                    <td className={TD_NUM}>−{formatBRL(d.valor)}</td>
-                  </tr>
-                ))}
-                <tr>
-                  <th scope="row" className={cn(TD, "font-normal text-tinta-78")}>Total de custos</th>
-                  <td className={cn(TD, "hidden text-tinta-78 sm:table-cell")}>{r.receitaBruta > 0 ? `${formatPercent((r.totalDeducoes / r.receitaBruta) * 100, 0)} da receita bruta` : "—"}</td>
-                  <td className={cn(TD_NUM, "text-tinta-78")}>−{formatBRL(r.totalDeducoes)}</td>
-                </tr>
-                <tr>
-                  <th scope="row" className="border-t border-foreground py-3 pr-2 text-left font-semibold">Resultado líquido</th>
-                  <td className="hidden border-t border-foreground px-2 py-3 text-tinta-78 sm:table-cell">receita bruta − custos</td>
-                  <td className={cn("border-t border-foreground py-3 pl-2 text-right font-semibold tabular-nums", liquido < 0 && "e-negativo")}>{formatBRL(liquido)}</td>
-                </tr>
-              </tbody>
-            </TabelaNumerada>
-            </TrechoRecolhido>
-
-            <div className="mt-12 border-t border-foreground pt-4">
+            <div className="mt-10 border-t border-foreground pt-4">
               <h2 className="e-rotulo mb-4">Sobre o investimento</h2>
               {/* Celular, sem valor do imóvel: uma frase no lugar dos três indicadores vazios (páginas curtas, 16/11/2026). */}
               {!ind && <p className="e-apoio lg:hidden">Informe o valor do imóvel, no início da página, para ver o investimento total, a rentabilidade anual e o prazo estimado de retorno.</p>}
@@ -363,6 +304,68 @@ export default function ProjecaoStudio() {
               </p>
             </div>
 
+            {/* Desktop: a barra de custos e a conta linha a linha ficam lado a lado. */}
+            <div className="mt-10 lg:grid lg:grid-cols-2 lg:items-start lg:gap-10">
+            <Figura
+              numero={1}
+              titulo={liquido >= 0 ? <>De cada {formatBRL(r.receitaBruta)} de receita, sobram {formatBRL(liquido)}</> : <>Os custos ({formatBRL(r.totalDeducoes)}) passam da receita ({formatBRL(r.receitaBruta)})</>}
+              unidade="Receita bruta do mês repartida entre custos e resultado líquido (R$/mês). Percentuais sobre a receita bruta."
+              legenda={liquido < 0 ? <span className="e-negativo">O trecho com contorno magenta, depois da linha tracejada, são custos acima da receita.</span> : undefined}
+            >
+              <BarraEmpilhada
+                legendaEstreita
+                segmentos={segmentosFig}
+                total={r.receitaBruta}
+                formatar={formatBRL}
+                rotuloPct="da receita"
+                rotuloAcessivel={`Receita bruta de ${formatBRL(r.receitaBruta)} por mês: ${segmentosFig.map((s) => `${s.rotulo} ${formatBRL(s.valor)}`).join("; ")}.`}
+                marcaReferencia={liquido < 0 ? { valor: r.receitaBruta, rotulo: "receita bruta" } : undefined}
+              />
+            </Figura>
+
+            {/* No celular a tabela repete a lista de custos da figura acima: fica recolhida. */}
+            <TrechoRecolhido id="linha-a-linha" rotulo="A conta linha a linha" resumo="Como cada valor foi obtido" className="mt-10 lg:mt-0">
+            <TabelaNumerada
+              numero={1}
+              rolavel
+              titulo="Da receita bruta ao resultado líquido"
+              unidade="R$ por mês. Cada linha mostra como o valor foi obtido."
+            >
+              <thead>
+                <tr>
+                  <th scope="col" className={TH}>Linha</th>
+                  <th scope="col" className={cn(TH, "hidden sm:max-lg:table-cell")}>Base</th>
+                  <th scope="col" className={cn(TH, "text-right")}>R$/mês</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row" className={cn(TD, "font-semibold")}>Receita bruta<span className="e-legenda block font-normal sm:max-lg:hidden">{formatBRL(diaria)} × 30 × {formatDecimal(ocupacao, 0)}%</span></th>
+                  <td className={cn(TD, "hidden text-tinta-78 sm:max-lg:table-cell")}>{formatBRL(diaria)} × 30 × {formatDecimal(ocupacao, 0)}%</td>
+                  <td className={cn(TD_NUM, "font-semibold")}>{formatBRL(r.receitaBruta)}</td>
+                </tr>
+                {r.deducoes.map((d) => (
+                  <tr key={d.chave}>
+                    <th scope="row" className={cn(TD, "font-normal")}>{d.rotulo}<span className="e-legenda block sm:max-lg:hidden">{d.base}</span></th>
+                    <td className={cn(TD, "hidden text-tinta-78 sm:max-lg:table-cell")}>{d.base}</td>
+                    <td className={TD_NUM}>−{formatBRL(d.valor)}</td>
+                  </tr>
+                ))}
+                <tr>
+                  <th scope="row" className={cn(TD, "font-normal text-tinta-78")}>Total de custos</th>
+                  <td className={cn(TD, "hidden text-tinta-78 sm:max-lg:table-cell")}>{r.receitaBruta > 0 ? `${formatPercent((r.totalDeducoes / r.receitaBruta) * 100, 0)} da receita bruta` : "—"}</td>
+                  <td className={cn(TD_NUM, "text-tinta-78")}>−{formatBRL(r.totalDeducoes)}</td>
+                </tr>
+                <tr>
+                  <th scope="row" className="border-t border-foreground py-3 pr-2 text-left font-semibold">Resultado líquido</th>
+                  <td className="hidden border-t border-foreground px-2 py-3 text-tinta-78 sm:max-lg:table-cell">receita bruta − custos</td>
+                  <td className={cn("border-t border-foreground py-3 pl-2 text-right font-semibold tabular-nums", liquido < 0 && "e-negativo")}>{formatBRL(liquido)}</td>
+                </tr>
+              </tbody>
+            </TabelaNumerada>
+            </TrechoRecolhido>
+            </div>
+
             <div className="mt-10 max-w-[720px] space-y-3">
               <div className="overflow-x-auto"><FormulaReceita diaria={diaria} ocupacaoPct={ocupacao} receita={r.receitaBruta} /></div>
               <AvisoReceita />
@@ -371,48 +374,6 @@ export default function ProjecaoStudio() {
           </div>
         </div>
       </Container>
-
-      {meses && (
-        <Secao
-          recolhida
-          resumo="A receita anual distribuída pela sazonalidade (modelo ilustrativo)"
-          id="mes-a-mes"
-          rotulo="Mês a mês"
-          titulo="A mesma receita anual, distribuída pela sazonalidade de São Paulo"
-          lead={<>{capitalizar(mesAno(meses[0]))} a {mesAno(meses[meses.length - 1])}. A curva mensal é um modelo ilustrativo, não dado observado: custos fixos iguais todo mês, percentuais acompanhando a receita.</>}
-        >
-          <Figura numero={2} titulo="Receita bruta por mês, separada em custos e resultado líquido" unidade="R$ por mês (mil). Hipótese de sazonalidade.">
-            <ColunasMensais meses={meses} />
-            <p className="e-legenda mt-2 flex flex-wrap gap-x-5 gap-y-1">
-              <span className="inline-flex items-center gap-1.5"><span aria-hidden="true" className="inline-block h-3 w-3 bg-ciano" />resultado líquido</span>
-              <span className="inline-flex items-center gap-1.5"><span aria-hidden="true" className="inline-block h-3 w-3 bg-neutro-300 outline outline-1 outline-foreground/55" />custos</span>
-            </p>
-          </Figura>
-        </Secao>
-      )}
-
-      <Secao recolhida resumo="Guardar no Painel, copiar o link ou o resumo" id="compartilhar" rotulo="Guardar e compartilhar" titulo="Leve esta conta adiante">
-        <AcoesSimulacao sim={simPagina} resultado={r} indicadores={ind} />
-      </Secao>
-
-      <Secao
-        recolhida
-        resumo="Decoração, faixa de área, percentuais de custo e locação tradicional"
-        id="premissas-completas"
-        rotulo="Todas as premissas"
-        titulo="Ajuste a decoração, a faixa de área, os percentuais de custo ou compare com a locação tradicional"
-        lead="O mesmo simulador, com todas as hipóteses editáveis. O que mudar aqui atualiza a conta de cima (que mostra sempre o short stay)."
-      >
-        <details data-abre-junto className="group e-fina border-y">
-          <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-4 py-3 text-[17px] font-semibold [&::-webkit-details-marker]:hidden">
-            Abrir todas as premissas
-            <span aria-hidden="true" className="text-tinta-70 transition-transform group-open:rotate-45 motion-reduce:transition-none">+</span>
-          </summary>
-          <div className="pb-8 pt-2">
-            <SimuladorReceitaLiquida sim={simPagina} variante="secao" />
-          </div>
-        </details>
-      </Secao>
 
       {/* Próximo passo conforme a etapa (momento.ts, lido depois da montagem); sem etapa, vale "Vou comprar". */}
       {momento === "reformar" ? (
@@ -438,39 +399,84 @@ export default function ProjecaoStudio() {
         </Secao>
       )}
 
+      {meses && (
+        <Secao
+          recolhida
+          resumo="A receita anual distribuída pela sazonalidade (modelo ilustrativo)"
+          id="mes-a-mes"
+          rotulo="Mês a mês"
+          titulo="A mesma receita anual, distribuída pela sazonalidade de São Paulo"
+          lead={<>{capitalizar(mesAno(meses[0]))} a {mesAno(meses[meses.length - 1])}. A curva mensal é um modelo ilustrativo, não dado observado: custos fixos iguais todo mês, percentuais acompanhando a receita.</>}
+        >
+          <Figura numero={2} titulo="Receita bruta por mês, separada em custos e resultado líquido" unidade="R$ por mês (mil). Hipótese de sazonalidade.">
+            <ColunasMensais meses={meses} />
+            <p className="e-legenda mt-2 flex flex-wrap gap-x-5 gap-y-1">
+              <span className="inline-flex items-center gap-1.5"><span aria-hidden="true" className="inline-block h-3 w-3 bg-ciano" />resultado líquido</span>
+              <span className="inline-flex items-center gap-1.5"><span aria-hidden="true" className="inline-block h-3 w-3 bg-neutro-300 outline outline-1 outline-foreground/55" />custos</span>
+            </p>
+          </Figura>
+        </Secao>
+      )}
+
+      <Secao recolhida resumo="Guardar no Painel, copiar o link ou o resumo" id="compartilhar" rotulo="Guardar e compartilhar" titulo="Leve esta conta adiante">
+        <AcoesSimulacao sim={simPagina} resultado={r} indicadores={ind} />
+      </Secao>
+
+
       <Secao recolhida resumo="Um studio reformado pela Bewild, com os números do depoimento" id="case" rotulo="Case real" titulo="Um studio reformado pela Bewild, com os números publicados no depoimento">
         <CaseStudySection />
       </Secao>
 
-      {p.modo === "short_stay" && (
-        <Secao recolhida resumo="Calendário simulado de 12 meses, com as mesmas premissas" aoAbrir={() => setDetalheAberto(true)} id="analise-detalhada" rotulo="Análise detalhada" titulo="Um calendário simulado de 12 meses com as mesmas premissas" lead="Outro modelo: 365 dias, estadias de 3 noites e sazonalidade. Os totais ficam perto dos de cima, não iguais.">
-          <Collapsible open={detalheAberto} onOpenChange={setDetalheAberto} className="e-fina border-y">
-            <CollapsibleTrigger className="flex min-h-[44px] w-full items-center justify-between gap-3 py-3 text-left text-[17px] font-semibold">
-              {detalheAberto ? "Fechar a análise detalhada" : "Abrir a análise detalhada"}
-              <span aria-hidden="true" className={cn("text-tinta-70 transition-transform motion-reduce:transition-none", detalheAberto && "rotate-45")}>+</span>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pb-8 pt-4">
-              <ProjectAnalytics
-                mode="projection"
-                controle={{
-                  // Os percentuais sobre a receita (Airbnb, gestão, manutenção) entram como custo variável único; os fixos somam no condomínio.
-                  costs: {
-                    adr: diaria,
-                    cleaningPerStay: 0,
-                    managementPct: p.shortStay.gestaoPct + p.shortStay.airbnbPct + p.shortStay.manutencaoPct,
-                    taxesPct: p.shortStay.impostosPct,
-                    condoMonthly: p.imovel.condominio + p.imovel.iptu + p.shortStay.contas,
-                    propertyValue: p.imovel.valorImovel,
-                  },
-                  occupancyPct: ocupacao,
-                  avgStayNights: 3,
-                  rotulos: { gestao: "Gestão, Airbnb e manutenção", condominio: "Condomínio, IPTU e contas" },
-                }}
-              />
-            </CollapsibleContent>
-          </Collapsible>
+      {/* Desktop: cartões lado a lado, que abrem no lugar; no celular, linhas de toque. */}
+      <GrupoCartoes rotulo="Para aprofundar">
+        <Secao
+          recolhida
+          resumo="Decoração, faixa de área, percentuais de custo e locação tradicional"
+          id="premissas-completas"
+          rotulo="Todas as premissas"
+          titulo="Ajuste a decoração, a faixa de área, os percentuais de custo ou compare com a locação tradicional"
+          lead="O mesmo simulador, com todas as hipóteses editáveis. O que mudar aqui atualiza a conta de cima (que mostra sempre o short stay)."
+        >
+          <details data-abre-junto className="group e-fina border-y">
+            <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-4 py-3 text-[17px] font-semibold [&::-webkit-details-marker]:hidden">
+              Abrir todas as premissas
+              <span aria-hidden="true" className="text-tinta-70 transition-transform group-open:rotate-45 motion-reduce:transition-none">+</span>
+            </summary>
+            <div className="pb-8 pt-2">
+              <SimuladorReceitaLiquida sim={simPagina} variante="secao" />
+            </div>
+          </details>
         </Secao>
-      )}
+        {p.modo === "short_stay" && (
+          <Secao recolhida resumo="Calendário simulado de 12 meses, com as mesmas premissas" aoAbrir={() => setDetalheAberto(true)} id="analise-detalhada" rotulo="Análise detalhada" titulo="Um calendário simulado de 12 meses com as mesmas premissas" lead="Outro modelo: 365 dias, estadias de 3 noites e sazonalidade. Os totais ficam perto dos de cima, não iguais.">
+            <Collapsible open={detalheAberto} onOpenChange={setDetalheAberto} className="e-fina border-y">
+              <CollapsibleTrigger className="flex min-h-[44px] w-full items-center justify-between gap-3 py-3 text-left text-[17px] font-semibold">
+                {detalheAberto ? "Fechar a análise detalhada" : "Abrir a análise detalhada"}
+                <span aria-hidden="true" className={cn("text-tinta-70 transition-transform motion-reduce:transition-none", detalheAberto && "rotate-45")}>+</span>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pb-8 pt-4">
+                <ProjectAnalytics
+                  mode="projection"
+                  controle={{
+                    // Os percentuais sobre a receita (Airbnb, gestão, manutenção) entram como custo variável único; os fixos somam no condomínio.
+                    costs: {
+                      adr: diaria,
+                      cleaningPerStay: 0,
+                      managementPct: p.shortStay.gestaoPct + p.shortStay.airbnbPct + p.shortStay.manutencaoPct,
+                      taxesPct: p.shortStay.impostosPct,
+                      condoMonthly: p.imovel.condominio + p.imovel.iptu + p.shortStay.contas,
+                      propertyValue: p.imovel.valorImovel,
+                    },
+                    occupancyPct: ocupacao,
+                    avgStayNights: 3,
+                    rotulos: { gestao: "Gestão, Airbnb e manutenção", condominio: "Condomínio, IPTU e contas" },
+                  }}
+                />
+              </CollapsibleContent>
+            </Collapsible>
+          </Secao>
+        )}
+      </GrupoCartoes>
 
       {/* Celular: barra fixa com o resultado e o atalho para a conta; some quando o resultado está na tela. O orçamento vem só depois, no "Próximo passo". */}
       {!resultadoVisivel && (

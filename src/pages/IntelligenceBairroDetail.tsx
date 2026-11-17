@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Seo } from "@/components/RouteSeo";
 import NovaAba from "@/components/NovaAba";
-import { CabecalhoTela, Container, PaginaEstudo, Secao } from "@/components/estudo/Estrutura";
+import { CabecalhoTela, ColunasComPainel, Container, GrupoCartoes, PaginaEstudo, Secao } from "@/components/estudo/Estrutura";
 import { Figura, TabelaNumerada, TD, TD_NUM, TH } from "@/components/estudo/Figura";
 import Metadados, { type ItemMetadado } from "@/components/estudo/Metadados";
 import { NotaAmostra, Tag, TagBairro, TEXTO_APROXIMACAO } from "@/components/estudo/Natureza";
@@ -230,6 +230,25 @@ function PaginaBairro() {
           {aproximacao && <span className="e-legenda">{TEXTO_APROXIMACAO}</span>}
           {ajuste && <span className="e-legenda">Diária e ocupação com ajuste manual da Bewild sobre a base; sem quartis nem período publicados.</span>}
         </p>
+        {/* Indicadores no cabeçalho (17/11/2026): a primeira tela já mostra diária, ocupação, receita e anúncios. A natureza do dado e o aviso de amostra vêm antes dos números. */}
+        <div id="indicadores" className="mb-6 scroll-mt-20 border-t border-foreground pt-5">
+          <GradeIndicadores className="max-[359px]:grid-cols-1">
+            <Indicador rotulo="Diária média (R$)" valor={formatBRL(b.dailyAvg)} nota={<><Diferenca valor={b.dailyAvg - cidade.dailyAvg} /> contra São Paulo ({formatBRL(cidade.dailyAvg)})</>} />
+            <Indicador rotulo="Ocupação média (%)" valor={pct(b.avgOccupancy)} nota={<><Diferenca valor={b.avgOccupancy - cidade.avgOccupancy} formato="pp" /> contra São Paulo ({pct(cidade.avgOccupancy)})</>} />
+            <Indicador rotulo="Receita de referência (R$/mês)" valor={formatBRL(receita)} nota={<><Diferenca valor={dif} formato="pct" /> contra São Paulo ({formatBRL(receitaSP)})</>} />
+            <Indicador
+              rotulo="Anúncios (n)"
+              valor={b.activeListings != null ? formatDecimal(b.activeListings, 0) : "—"}
+              nota={
+                b.activeListings != null
+                  ? temAmostraPequena(b) ? <span className="e-amostra">Amostra pequena: leia com cautela</span> : "Anúncios ativos na amostra"
+                  : aproximacao && itaim?.activeListings != null
+                    ? <>Sem contagem por bairro; o distrito Itaim Bibi tem {formatDecimal(itaim.activeListings, 0)}</>
+                    : "Sem contagem publicada"
+              }
+            />
+          </GradeIndicadores>
+        </div>
         <Metadados itens={metadados} compacto />
         {aproximacao && b.referenciaBewild && (
           <p className="e-legenda mt-4 max-w-[720px]">Referência extra, fora das contas: {rotuloReferenciaBewild(b.referenciaBewild)}.</p>
@@ -243,45 +262,53 @@ function PaginaBairro() {
         </Container>
       )}
 
-      <Secao
-        id="indicadores"
-        rotulo="Indicadores"
-        titulo={<>{formatBRL(b.dailyAvg)} de diária e {pct(b.avgOccupancy)} de ocupação rendem {formatBRL(receita)} por mês de referência</>}
+      <ColunasComPainel
+        rotuloPainel={`${b.name} em resumo`}
+        painel={
+          <div className="rounded-b-lg border border-t-[3px] border-border border-t-primary bg-card p-5">
+            <p className="e-rotulo">{b.name} em resumo</p>
+            <dl className="mt-4 space-y-4">
+              <div>
+                <dt className="e-legenda">Receita de referência (R$/mês)</dt>
+                <dd className="m-0"><span className="e-numero-sm block">{formatBRL(receita)}</span><TagBairro b={b} /></dd>
+              </div>
+              <div className="border-t border-border pt-4">
+                <dt className="e-legenda">Resultado líquido de referência (R$/mês)</dt>
+                <dd className="m-0"><span className={cn("e-numero-sm block", dre.liquido < 0 && "e-negativo")}>{formatBRL(dre.liquido)}</span><Tag tipo="hipotese">Simulação · hipótese</Tag></dd>
+              </div>
+            </dl>
+            <div className="mt-5 flex flex-col gap-3">
+              <Button asChild className="min-h-[44px] px-5 text-[15px] font-semibold">
+                <Link to={linkSimular} onClick={() => trackGlobal("cta_clicked", { cta_id: "simular_bairro", section: "bairro_painel", bairro: b.name })}>Simular este bairro</Link>
+              </Button>
+              <Button asChild variant="outline" className="min-h-[44px] px-5 text-[15px] font-semibold">
+                <Link to={linkComparar} onClick={() => trackGlobal("cta_clicked", { cta_id: "comparar_bairro", section: "bairro_painel", bairro: b.name })}>Comparar com outros bairros</Link>
+              </Button>
+            </div>
+            <p className="mt-5 border-t border-border pt-4 text-[15px]">
+              <span className="e-legenda block">Já tem o imóvel e quer planejar a reforma?</span>
+              <OrcamentoButton local="bairro" variant="link" contexto={{ bairro: b.name }} className="min-h-[44px] px-0 text-[15px]" />
+            </p>
+            <AvisoReceita className="mt-2" />
+          </div>
+        }
       >
-        <GradeIndicadores className="max-[359px]:grid-cols-1">
-          <Indicador rotulo="Diária média (R$)" valor={formatBRL(b.dailyAvg)} nota={<><Diferenca valor={b.dailyAvg - cidade.dailyAvg} /> contra São Paulo ({formatBRL(cidade.dailyAvg)})</>} />
-          <Indicador rotulo="Ocupação média (%)" valor={pct(b.avgOccupancy)} nota={<><Diferenca valor={b.avgOccupancy - cidade.avgOccupancy} formato="pp" /> contra São Paulo ({pct(cidade.avgOccupancy)})</>} />
-          <Indicador rotulo="Receita de referência (R$/mês)" valor={formatBRL(receita)} nota={<><Diferenca valor={dif} formato="pct" /> contra São Paulo ({formatBRL(receitaSP)})</>} />
-          <Indicador
-            rotulo="Anúncios (n)"
-            valor={b.activeListings != null ? formatDecimal(b.activeListings, 0) : "—"}
-            nota={
-              b.activeListings != null
-                ? temAmostraPequena(b) ? <span className="e-amostra">Amostra pequena: leia com cautela</span> : "Anúncios ativos na amostra"
-                : aproximacao && itaim?.activeListings != null
-                  ? <>Sem contagem por bairro; o distrito Itaim Bibi tem {formatDecimal(itaim.activeListings, 0)}</>
-                  : "Sem contagem publicada"
-            }
-          />
-        </GradeIndicadores>
-        <FaixaQuartisBairro bairro={b.name} className="mt-10" />
-      </Secao>
-
       <Secao
         id="conta"
         rotulo="Conta"
         titulo={<>Da receita de referência ao resultado líquido: {formatBRL(dre.liquido)} por mês com as hipóteses do guia</>}
         lead="A receita sai da base; os custos são hipóteses editáveis do guia, não estatística de mercado. Ajuste cada uma no simulador."
       >
-        <div className="max-w-[820px]">
+        <div>
           <div className="overflow-x-auto">
             <FormulaReceita diaria={b.dailyAvg} ocupacaoPct={b.avgOccupancy} receita={receita} />
           </div>
+          {/* Desktop: a tabela fica ao lado dos quartis da diária. */}
+          <div className="mt-8 lg:grid lg:grid-cols-[minmax(0,1fr)_250px] lg:items-start lg:gap-10">
           <TabelaNumerada
             numero={1}
-            className="mt-8"
             titulo={<>Resultado líquido de referência {deNome}</>}
-            unidade="R$ por mês. Percentuais sobre a receita bruta; condomínio + IPTU e contas em reais."
+            unidade={<>R$ por mês. Percentuais sobre a receita bruta; condomínio + IPTU e contas em reais.<span className="hidden lg:inline"> Todas as linhas de custo: <Tag tipo="hipotese" /></span></>}
             nota={<p>Valores em reais do exemplo do guia. Rentabilidade e prazo de retorno dependem do preço do imóvel e da reforma: calcule no simulador.</p>}
           >
             <thead>
@@ -289,7 +316,7 @@ function PaginaBairro() {
                 <th scope="col" className={TH}>Linha</th>
                 <th scope="col" className={cn(TH, "hidden sm:table-cell")}>Base</th>
                 <th scope="col" className={cn(TH, "text-right")}>R$/mês</th>
-                <th scope="col" className={cn(TH, "hidden md:table-cell")}>Natureza</th>
+                <th scope="col" className={cn(TH, "hidden md:max-lg:table-cell")}>Natureza</th>
               </tr>
             </thead>
             <tbody>
@@ -297,19 +324,21 @@ function PaginaBairro() {
                 <th scope="row" className={cn(TD, "font-semibold")}>Receita de referência<span className="e-legenda block font-normal"><var className="e-var">R</var> = <var className="e-var">d</var> × 30 × <var className="e-var">o</var></span></th>
                 <td className={cn(TD, "hidden sm:table-cell text-tinta-78")}>Base do Radar</td>
                 <td className={cn(TD_NUM, "whitespace-nowrap font-semibold")}>{formatBRL(receita)}</td>
-                <td className={cn(TD, "hidden md:table-cell")}><TagBairro b={b} /></td>
+                <td className={cn(TD, "hidden md:max-lg:table-cell")}><TagBairro b={b} /></td>
               </tr>
               <LinhasCusto linhas={dre.linhas} total={receita - dre.liquido} />
               <tr>
                 <th scope="row" className="border-t border-foreground py-3 pr-2 text-left font-semibold">Resultado líquido de referência</th>
                 <td className="hidden border-t border-foreground sm:table-cell" />
                 <td className={cn("whitespace-nowrap border-t border-foreground py-3 text-right font-semibold tabular-nums", dre.liquido < 0 && "e-negativo")}>{formatBRL(dre.liquido)}</td>
-                <td className="hidden border-t border-foreground md:table-cell" />
+                <td className="hidden border-t border-foreground md:max-lg:table-cell" />
               </tr>
             </tbody>
           </TabelaNumerada>
+          <FaixaQuartisBairro bairro={b.name} className="mt-8 lg:mt-0" />
+          </div>
           <AvisoReceita className="mt-6" />
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row lg:hidden">
             <Button asChild className="min-h-[44px] px-5 text-[15px] font-semibold">
               <Link to={linkSimular} onClick={() => trackGlobal("cta_clicked", { cta_id: "simular_bairro", section: "bairro_conta", bairro: b.name })}>Simular este bairro</Link>
             </Button>
@@ -347,7 +376,7 @@ function PaginaBairro() {
           }
           fonte={<>GuestFavorites, {b.period ?? cidade.period}. Cálculo do Radar Bewild.</>}
         >
-          <div className="space-y-10">
+          <div className="grid gap-10 lg:grid-cols-2 lg:gap-8">
             <FaixaPosicao
               titulo="Diária média"
               unidade="R$ por noite"
@@ -383,21 +412,6 @@ function PaginaBairro() {
 
       <EventosDoBairro bairro={b.name} />
 
-      <ChecklistCompra bairro={b.name} />
-
-      <HistoricoBairro
-        bairro={b.name}
-        moldura={(historico) => (
-          <Secao recolhida resumo="Cada coleta, com data, período e fonte" id="historico" rotulo="Histórico" titulo="Cada coleta fica registrada, com data, período e fonte" lead="Bairros com ajuste manual não mostram histórico, para o bairro ter um número só.">
-            <SemCaixa>
-              <VariacaoColetaBairro bairro={b.name} className="mb-8 border-0 bg-transparent p-0" />
-            </SemCaixa>
-            {historico}
-            <Link to="/metodologia" className="e-link mt-2 inline-flex min-h-[44px] items-center text-[15px]">Registro de atualizações na metodologia</Link>
-          </Secao>
-        )}
-      />
-
       <Secao id="proximo-passo" rotulo="Próximo passo">
         <div className="space-y-10">
           <ProximoPassoBairro bairro={b.name} />
@@ -406,12 +420,31 @@ function PaginaBairro() {
         </div>
       </Secao>
 
-      {criterios}
-      {precoImovel}
+      {/* Desktop: três cartões lado a lado, que abrem no lugar; no celular, três linhas de toque. */}
+      <GrupoCartoes rotulo="Compra e histórico">
+        {precoImovel}
+        <HistoricoBairro
+          bairro={b.name}
+          moldura={(historico) => (
+            <Secao recolhida resumo="Cada coleta, com data, período e fonte" id="historico" rotulo="Histórico" titulo="Cada coleta fica registrada, com data, período e fonte" lead="Bairros com ajuste manual não mostram histórico, para o bairro ter um número só.">
+              <SemCaixa>
+                <VariacaoColetaBairro bairro={b.name} className="mb-8 border-0 bg-transparent p-0" />
+              </SemCaixa>
+              {historico}
+              <Link to="/metodologia" className="e-link mt-2 inline-flex min-h-[44px] items-center text-[15px]">Registro de atualizações na metodologia</Link>
+            </Secao>
+          )}
+        />
+        {criterios}
+      </GrupoCartoes>
 
-      <Container className="pb-4">
+      {/* O formulário do checklist fica no fim: no meio da página ele interrompia a leitura. */}
+      <ChecklistCompra bairro={b.name} />
+
+      <div className="px-4 pb-4 sm:px-6 lg:px-0">
         <AvisoReceita />
-      </Container>
+      </div>
+      </ColunasComPainel>
     </>
   );
 }
@@ -449,7 +482,7 @@ function LinhasCusto({ linhas, total }: { linhas: ReturnType<typeof linhasDre>["
             {l.base.tipo === "pct" ? `${formatDecimal(l.base.pct, 0)}% da receita` : "valor em R$"}
           </td>
           <td className={cn(TD_NUM, "whitespace-nowrap")}>{formatBRL(-l.valor)}</td>
-          <td className={cn(TD, "hidden md:table-cell")}><Tag tipo="hipotese" /></td>
+          <td className={cn(TD, "hidden md:max-lg:table-cell")}><Tag tipo="hipotese" /></td>
         </tr>
       ))}
     </>
