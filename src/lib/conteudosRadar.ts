@@ -86,6 +86,8 @@ export interface ConteudoRadar {
   id: string;
   /** De onde veio o texto: arquivo em src/content/conteudos (publicado por PR) ou banco (admin). Ausente = banco. */
   origem?: "repositorio" | "banco";
+  /** Palavra-chave de foco (só nos textos do repositório; ver conteudosEscrita.ts). */
+  palavra_chave?: string | null;
   tipo: TipoConteudo;
   titulo: string;
   slug: string;
