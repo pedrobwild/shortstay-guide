@@ -942,36 +942,66 @@ export type Database = {
       radar_noticias: {
         Row: {
           atualizado_em: string
+          autor_nome: string | null
+          canonical_externo: string | null
+          capa_alt: string | null
+          capa_url: string | null
           categoria_id: string | null
+          corpo: string | null
           criado_em: string
           destino: string
           id: string
+          publicado_em: string | null
           resumo: string
+          seo_descricao: string | null
+          seo_titulo: string | null
+          slug: string | null
           status: string
+          tipo: string
           titulo: string
-          url: string
+          url: string | null
         }
         Insert: {
           atualizado_em?: string
+          autor_nome?: string | null
+          canonical_externo?: string | null
+          capa_alt?: string | null
+          capa_url?: string | null
           categoria_id?: string | null
+          corpo?: string | null
           criado_em?: string
           destino?: string
           id?: string
+          publicado_em?: string | null
           resumo?: string
+          seo_descricao?: string | null
+          seo_titulo?: string | null
+          slug?: string | null
           status?: string
+          tipo?: string
           titulo: string
-          url: string
+          url?: string | null
         }
         Update: {
           atualizado_em?: string
+          autor_nome?: string | null
+          canonical_externo?: string | null
+          capa_alt?: string | null
+          capa_url?: string | null
           categoria_id?: string | null
+          corpo?: string | null
           criado_em?: string
           destino?: string
           id?: string
+          publicado_em?: string | null
           resumo?: string
+          seo_descricao?: string | null
+          seo_titulo?: string | null
+          slug?: string | null
           status?: string
+          tipo?: string
           titulo?: string
-          url?: string
+          url?: string | null
         }
         Relationships: [
           {
