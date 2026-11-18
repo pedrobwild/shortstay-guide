@@ -86,7 +86,9 @@ describe("/projecao: um resultado só e orçamento depois do valor (auditoria de
 });
 
 describe("/projecao: valor do imóvel no essencial e custos recolhidos (auditoria de UX, 15/11/2026)", () => {
-  const rotulos = (el: HTMLElement) => [...el.querySelectorAll("#premissas-titulo ~ div label")].map((l) => l.textContent ?? "");
+  // Rótulos do bloco Premissas, na ordem da tela. Sem o combinador "~ div label": o nwsapi 2.2.23
+  // (jsdom) não resolve irmão + descendente e devolvia lista vazia, embora a tela estivesse certa.
+  const rotulos = (el: HTMLElement) => [...el.querySelectorAll('section[aria-labelledby="premissas-titulo"] label')].map((l) => l.textContent ?? "");
 
   it("o valor do imóvel vem antes da diária e dos custos fixos", async () => {
     const el = await montar("/projecao?bairro=pinheiros");
