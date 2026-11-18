@@ -32,7 +32,7 @@ describe("navegação pública", () => {
 
   it("toda tela pública que estava na barra antiga continua alcançável pelo menu", () => {
     const destinos = new Set([...LINKS_PUBLICOS, ...GRUPOS_MENU.flatMap((g) => g.links)].map((l) => l.to.split("#")[0]));
-    for (const rota of ["/mercado", "/mapa", "/ranking", "/comparar", "/projecao", "/ferramentas", "/empreendimentos", "/posts"]) {
+    for (const rota of ["/mercado", "/mapa", "/ranking", "/comparar", "/projecao", "/ferramentas", "/empreendimentos", "/conteudos"]) {
       expect(destinos.has(rota), rota).toBe(true);
     }
   });

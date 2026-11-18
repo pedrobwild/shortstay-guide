@@ -1,4 +1,5 @@
 import { SEO_ROUTES, SITE_NAME, SITE_URL, bairroPath, urlCanonica } from "@/lib/seo";
+import { TIPOS_CONTEUDO, caminhoConteudo, type TipoConteudo } from "@/lib/conteudosRadar";
 import { CAMINHO_CSV, CAMINHO_JSON, LICENCA_DADOS_NOME, linhasDadosAbertos, type LinhaDadosAbertos } from "@/lib/dadosAbertos";
 import { FONTE_BAIRROS_CURADOS, SAO_PAULO_REFERENCIA } from "@/data/bairrosCurados";
 import { GARANTIA_ANOS, PRAZO_DIAS_UTEIS_MAX, PRAZO_DIAS_UTEIS_MIN, REFORMAS_ENTREGUES, BAIRROS_ATENDIDOS } from "@/data/provasBewild";
@@ -39,8 +40,12 @@ function linhaBairro(l: LinhaDadosAbertos): string {
   return `- [${l.bairro}](${urlCanonica(bairroPath(l.bairro))}): ${partes.join("; ")}.`;
 }
 
-export function gerarLlmsTxt(linhas: LinhaDadosAbertos[] = linhasDadosAbertos(), geradoEm = new Date().toISOString().slice(0, 10)): string {
-  const paginas = SEO_ROUTES.map((r) => `- [${r.h1}](${urlCanonica(r.path)}): ${r.description}`);
+/** Texto publicado no Radar, como entra no llms.txt (só os indexáveis; ver ehIndexavel). */
+export type ConteudoLlms = { titulo: string; slug: string; resumo: string; tipo: TipoConteudo };
+
+export function gerarLlmsTxt(linhas: LinhaDadosAbertos[] = linhasDadosAbertos(), geradoEm = new Date().toISOString().slice(0, 10), conteudos: ConteudoLlms[] = []): string {
+  // Índice por tipo só entra quando há texto daquele tipo (a página não é gerada vazia).
+  const paginas = SEO_ROUTES.filter((r) => !("tipoConteudo" in r) || conteudos.some((c) => c.tipo === r.tipoConteudo)).map((r) => `- [${r.h1}](${urlCanonica(r.path)}): ${r.description}`);
   const [a, m, d] = geradoEm.split("-");
   return [
     `# ${SITE_NAME}`,
@@ -61,6 +66,9 @@ export function gerarLlmsTxt(linhas: LinhaDadosAbertos[] = linhasDadosAbertos(),
     ...linhas.map(linhaBairro),
     "<!-- bairros:end -->",
     "",
+    ...(conteudos.length
+      ? ["## Conteúdos", "", ...conteudos.map((c) => `- [${c.titulo}](${urlCanonica(caminhoConteudo(c.slug))}) (${TIPOS_CONTEUDO[c.tipo].rotulo.toLowerCase()}): ${c.resumo.replace(/\s+/g, " ").trim()}`), ""]
+      : []),
     "## Dados abertos",
     "",
     `- [CSV](${SITE_URL}${CAMINHO_CSV}) e [JSON](${SITE_URL}${CAMINHO_JSON}) com a base completa; licença ${LICENCA_DADOS_NOME}.`,

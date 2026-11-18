@@ -1,6 +1,7 @@
 import { OG_IMAGEM, SITE_NAME, SITE_URL, bairroPath, tituloComMarca, urlCanonica } from "@/lib/seo";
 import { TEMAS_GUIA } from "@/data/temasGuia";
 import orgBewild from "@/data/orgBewild.json";
+import { TIPOS_CONTEUDO, TIPOS_CONTEUDO_LISTA, caminhoConteudo, caminhoTipo, type ConteudoRadar } from "@/lib/conteudosRadar";
 
 /**
  * Dados estruturados (JSON-LD) das páginas pré-renderizadas, no mesmo padrão do
@@ -57,9 +58,12 @@ const NOMES_TRILHA = {
   mercado: "Mercado",
   ranking: "Ranking de bairros",
   guia: "Guia do investidor",
+  conteudos: "Conteúdos",
 } as const;
 
 const PAGINAS_DE_DADOS = new Set(["/mercado", "/ranking", "/mapa", "/anuncios", "/comparar"]);
+/** Índices por tipo de conteúdo (/conteudos/artigos, /releases, /estudos). */
+const INDICES_CONTEUDO = new Set(TIPOS_CONTEUDO_LISTA.map((t) => caminhoTipo(t)));
 
 /** Trilha da página: Início → nível intermediário (quando houver) → página. */
 export function trilhaDaPagina(p: PaginaSeo): Trilha {
@@ -68,6 +72,7 @@ export function trilhaDaPagina(p: PaginaSeo): Trilha {
   if (p.path === "/") return [inicio];
   if (p.path.startsWith("/bairro/")) return [inicio, { name: NOMES_TRILHA.ranking, path: "/ranking" }, atual];
   if (p.path.startsWith("/guia/")) return [inicio, { name: NOMES_TRILHA.guia, path: "/" }, atual];
+  if (p.path.startsWith("/conteudos/")) return [inicio, { name: NOMES_TRILHA.conteudos, path: "/conteudos" }, atual];
   if (PAGINAS_DE_DADOS.has(p.path) && p.path !== "/mercado") return [inicio, { name: NOMES_TRILHA.mercado, path: "/mercado" }, atual];
   return [inicio, atual];
 }
@@ -86,6 +91,7 @@ export function breadcrumbJsonLd(trilha: Trilha) {
 
 /** Tipo do nó de página: CollectionPage nas páginas que listam bairros, WebPage nas demais. */
 export function tipoDaPagina(p: PaginaSeo): "WebPage" | "CollectionPage" {
+  if (p.path === "/conteudos" || INDICES_CONTEUDO.has(p.path)) return "CollectionPage";
   return PAGINAS_DE_DADOS.has(p.path) ? "CollectionPage" : "WebPage";
 }
 
@@ -147,6 +153,46 @@ export function itemListBairrosJsonLd(nomes: string[], path: string) {
     name: "Bairros de São Paulo na base do Radar Bewild",
     numberOfItems: nomes.length,
     itemListElement: nomes.map((nome, i) => ({ "@type": "ListItem", position: i + 1, name: nome, url: urlCanonica(bairroPath(nome)) })),
+  };
+}
+
+/**
+ * Nó do texto publicado em /conteudos/<slug>: NewsArticle no release, Article no artigo e no
+ * estudo. Autor é a Bewild (nó #org) quando o texto não tem nome de pessoa; nunca se inventa
+ * autor. A imagem é a capa do texto ou, sem capa, a imagem padrão do Radar.
+ */
+export function conteudoJsonLd(c: Pick<ConteudoRadar, "slug" | "tipo" | "titulo" | "resumo" | "seo_descricao" | "capa_url" | "autor_nome" | "publicado_em" | "atualizado_em" | "corpo">) {
+  const url = urlCanonica(caminhoConteudo(c.slug));
+  return {
+    "@context": CONTEXT,
+    "@type": c.tipo === "release" ? "NewsArticle" : "Article",
+    "@id": `${url}#article`,
+    headline: c.titulo.slice(0, 110),
+    description: c.seo_descricao || c.resumo,
+    image: [c.capa_url || OG_IMAGEM],
+    author: c.autor_nome ? { "@type": "Person", name: c.autor_nome } : { "@id": ORG_ID },
+    publisher: { "@id": ORG_ID },
+    mainEntityOfPage: { "@id": `${url}#webpage` },
+    isPartOf: { "@id": WEBSITE_ID },
+    url,
+    inLanguage: "pt-BR",
+    articleSection: TIPOS_CONTEUDO[c.tipo].plural,
+    wordCount: c.corpo.split(/\s+/).filter(Boolean).length,
+    isAccessibleForFree: true,
+    ...(c.publicado_em ? { datePublished: isoSaoPaulo(c.publicado_em) } : {}),
+    dateModified: isoSaoPaulo(c.atualizado_em),
+  };
+}
+
+/** ItemList dos textos de um índice de conteúdos, na ordem exibida. */
+export function itemListConteudosJsonLd(lista: Pick<ConteudoRadar, "slug" | "titulo">[], path: string) {
+  return {
+    "@context": CONTEXT,
+    "@type": "ItemList",
+    "@id": `${urlCanonica(path)}#lista-conteudos`,
+    name: "Conteúdos do Radar Bewild",
+    numberOfItems: lista.length,
+    itemListElement: lista.map((c, i) => ({ "@type": "ListItem", position: i + 1, name: c.titulo, url: urlCanonica(caminhoConteudo(c.slug)) })),
   };
 }
 

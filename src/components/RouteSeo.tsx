@@ -13,6 +13,13 @@ export type SeoProps = {
   /** og:type da página: "article" nos temas do guia, "website" no resto. */
   ogType?: "website" | "article";
   keywords?: string;
+  /** Imagem de compartilhamento da página (capa do texto); sem ela vale a imagem padrão do Radar. */
+  imagem?: string | null;
+  imagemAlt?: string | null;
+  /** Canonical em outro endereço (texto cuja versão original está no bewild.com.br). */
+  canonical?: string | null;
+  /** Datas ISO do texto (og:type article). */
+  artigo?: { publicado?: string | null; modificado?: string | null };
 };
 
 /**
@@ -21,8 +28,10 @@ export type SeoProps = {
  * páginas indexáveis, Open Graph e Twitter. A pré-renderização grava as mesmas tags com
  * data-rh para o Helmet assumir ao hidratar.
  */
-export function Seo({ title, description, path, noindex, ogType = "website", keywords }: SeoProps) {
+export function Seo({ title, description, path, noindex, ogType = "website", keywords, imagem, imagemAlt, canonical, artigo }: SeoProps) {
   const url = urlCanonica(path);
+  const og = imagem || OG_IMAGEM;
+  const ogAlt = imagem ? imagemAlt || title : OG_IMAGEM_ALT;
   const titulo = tituloComMarca(title);
   return (
     <Helmet>
@@ -30,18 +39,20 @@ export function Seo({ title, description, path, noindex, ogType = "website", key
       <meta name="description" content={description} />
       {keywords && <meta name="keywords" content={keywords} />}
       <meta name="robots" content={noindex ? ROBOTS_NOINDEX : ROBOTS_INDEXAVEL} />
-      {!noindex && <link rel="canonical" href={url} />}
-      {!noindex && <link rel="alternate" hrefLang="pt-BR" href={url} />}
-      {!noindex && <link rel="alternate" hrefLang="x-default" href={url} />}
+      {!noindex && <link rel="canonical" href={canonical || url} />}
+      {!noindex && !canonical && <link rel="alternate" hrefLang="pt-BR" href={url} />}
+      {!noindex && !canonical && <link rel="alternate" hrefLang="x-default" href={url} />}
       <meta property="og:type" content={ogType} />
       <meta property="og:title" content={titulo} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
       <meta property="og:site_name" content={SITE_NAME} />
-      {!noindex && <meta property="og:image" content={OG_IMAGEM} />}
-      {!noindex && <meta property="og:image:alt" content={OG_IMAGEM_ALT} />}
-      {!noindex && <meta name="twitter:image" content={OG_IMAGEM} />}
-      {!noindex && <meta name="twitter:image:alt" content={OG_IMAGEM_ALT} />}
+      {!noindex && <meta property="og:image" content={og} />}
+      {!noindex && <meta property="og:image:alt" content={ogAlt} />}
+      {!noindex && <meta name="twitter:image" content={og} />}
+      {!noindex && <meta name="twitter:image:alt" content={ogAlt} />}
+      {artigo?.publicado && <meta property="article:published_time" content={artigo.publicado} />}
+      {artigo?.modificado && <meta property="article:modified_time" content={artigo.modificado} />}
       <meta name="twitter:title" content={titulo} />
       <meta name="twitter:description" content={description} />
     </Helmet>
@@ -52,6 +63,8 @@ export function Seo({ title, description, path, noindex, ogType = "website", key
 export default function RouteSeo() {
   const { pathname } = useLocation();
   // Bairro define o próprio head; rotas antigas apenas redirecionam.
+  // Página de texto (/conteudos/<slug>) e índices por tipo definem o próprio head.
+  if (pathname.startsWith("/conteudos/")) return null;
   if (pathname.startsWith("/bairro/") || pathname.startsWith("/empreendimentos/") || pathname.startsWith("/intelligence") || pathname === "/mapa-bairros") return null;
   if (isPrivatePath(pathname)) {
     return <Seo title="Área do cliente" description="Área restrita do Radar Bewild." path={pathname} noindex />;

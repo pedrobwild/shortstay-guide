@@ -11,7 +11,8 @@ describe("llms.txt do Radar", () => {
 
   it("começa com o nome do site e lista todas as páginas públicas e todos os bairros da base", () => {
     expect(texto.startsWith("# Radar Bewild\n")).toBe(true);
-    for (const r of SEO_ROUTES) expect(texto).toContain(`](https://radarbewild.com.br${r.path === "/" ? "/" : r.path})`);
+    // Índice por tipo de conteúdo só entra quando há texto daquele tipo (conteudosRadar.test.ts).
+    for (const r of SEO_ROUTES.filter((x) => !("tipoConteudo" in x))) expect(texto).toContain(`](https://radarbewild.com.br${r.path === "/" ? "/" : r.path})`);
     for (const b of BAIRROS_CURADOS) expect(texto, b.name).toContain(`- [${b.name}](`);
     expect(texto).toContain("Gerado em 18/10/2026.");
   });

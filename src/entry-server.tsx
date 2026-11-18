@@ -22,12 +22,16 @@ import { bairroNaBase, COLUNAS_PUBLICAS, paginaSeoEmpreendimento, type Empreendi
 import type { BairroBase } from "./lib/radarUi";
 import ReformaNoSite from "./components/ReformaNoSite";
 import { linksDeRetornoAusentes } from "./lib/linksRetorno";
+import { ConteudoEstatico, IndiceConteudosEstatico } from "./components/conteudos/ConteudosEstatico";
+import { COLUNAS_CONTEUDO, caminhoTipo, ehIndexavel, ehPublicavel, ordenarConteudos, paginaSeoConteudo, type ConteudoRadar, type TipoConteudo } from "./lib/conteudosRadar";
+import { rssConteudos } from "./lib/conteudosFeed";
+import { conteudoJsonLd, itemListConteudosJsonLd } from "./lib/seoJsonLd";
 
 // Tudo que scripts/prerender.mjs usa do código do app (regras de SEO ficam em TS, testadas).
 export {
   FAQ_ITEMS, csvDadosAbertos, datasetJsonLd, jsonDadosAbertos, linhasDadosAbertos, bairrosReserva,
   bairroDescription, bairroH1, bairroTitle, tituloComMarca, OG_IMAGEM, OG_IMAGEM_ALT, ROBOTS_INDEXAVEL, ROBOTS_NOINDEX, caminhoCanonico,
-  isoSaoPaulo, itemListBairrosJsonLd, jsonLdDaPagina, gerarLlmsTxt, LLMS_TXT_CAMINHOS, linksDeRetornoAusentes,
+  isoSaoPaulo, itemListBairrosJsonLd, jsonLdDaPagina, gerarLlmsTxt, LLMS_TXT_CAMINHOS, linksDeRetornoAusentes, rssConteudos, ehIndexavel,
 };
 
 /** Bloco de retorno para o bewild.com.br (índice de custo + reforma por bairro) das páginas cujo HTML estático não tem o rodapé. */
@@ -53,6 +57,47 @@ export function renderEmpreendimentoEstatico(e: Empreendimento): string {
 
 export function renderCatalogoEmpreendimentosEstatico(p: { h1: string; description: string }, lista: Empreendimento[]): string {
   return renderToStaticMarkup(<CatalogoEmpreendimentosEstatico h1={p.h1} descricao={p.description} lista={lista} />);
+}
+
+// ---------- Conteúdos (artigos, releases e estudos do banco, lidos no build pela chave pública) ----------
+export const COLUNAS_CONTEUDOS_BUILD = COLUNAS_CONTEUDO;
+
+/** Só o que pode virar página: publicado, de tipo conhecido e com endereço seguro (vira caminho de arquivo). */
+export const conteudosDoBuild = (lista: ConteudoRadar[]): ConteudoRadar[] => ordenarConteudos(lista.filter(ehPublicavel));
+
+/**
+ * Páginas /conteudos/<slug>. Texto com versão original no site Bewild (`canonical_externo`)
+ * ganha a página, mas com o canonical apontando para lá e fora do sitemap.
+ */
+export function paginasConteudos(lista: ConteudoRadar[]) {
+  return conteudosDoBuild(lista).map((c) => ({
+    ...paginaSeoConteudo(c),
+    priority: "0.6",
+    conteudo: c,
+    atualizadoEm: c.atualizado_em,
+    publicadoEm: c.publicado_em,
+    ogImagem: c.capa_url,
+    ogImagemAlt: c.capa_alt,
+    canonical: c.canonical_externo,
+    foraDoSitemap: !ehIndexavel(c),
+    jsonLd: [conteudoJsonLd(c)],
+  }));
+}
+
+/** Textos de um índice: todos em /conteudos, só os do tipo em /conteudos/<tipo>. */
+export const conteudosDoIndice = (lista: ConteudoRadar[], tipo?: TipoConteudo): ConteudoRadar[] =>
+  conteudosDoBuild(lista).filter((c) => !tipo || c.tipo === tipo);
+
+export const jsonLdIndiceConteudos = (lista: ConteudoRadar[], path: string) => itemListConteudosJsonLd(lista.filter(ehIndexavel), path);
+export const caminhoIndiceTipo = (tipo: TipoConteudo) => caminhoTipo(tipo);
+
+export function renderConteudoEstatico(c: ConteudoRadar, todos: ConteudoRadar[]): string {
+  const relacionados = conteudosDoBuild(todos).filter((o) => o.tipo === c.tipo && o.slug !== c.slug).slice(0, 3);
+  return renderToStaticMarkup(<ConteudoEstatico c={c} relacionados={relacionados} />);
+}
+
+export function renderIndiceConteudosEstatico(p: { h1: string; description: string }, lista: ConteudoRadar[]): string {
+  return renderToStaticMarkup(<IndiceConteudosEstatico h1={p.h1} descricao={p.description} lista={lista} />);
 }
 
 /** HTML estático das páginas de dados (/ranking, /mercado, /bairro/*); o app o substitui ao abrir. */

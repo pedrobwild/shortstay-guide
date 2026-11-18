@@ -90,7 +90,7 @@ describe("rodapé das telas públicas", () => {
 
   it("todas as telas públicas montam o rodapé", () => {
     const TELAS = [
-      "Index", "IntelligenceDashboard", "Posts", "Empreendimentos", "EmpreendimentoDetalhe", "Imoveis", "IntelligenceRanking",
+      "Index", "IntelligenceDashboard", "Conteudos", "ConteudoDetalhe", "Empreendimentos", "EmpreendimentoDetalhe", "Imoveis", "IntelligenceRanking",
       "IntelligenceBairroDetail", "IntelligenceListings", "MapaBairros", "CompararBairros", "GuiaTema", "Metodologia", "Ferramentas",
       "PerfilDestino", "StudioProjection", "NotFound",
     ];

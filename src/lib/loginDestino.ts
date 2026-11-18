@@ -12,7 +12,9 @@ const AREA_EXCLUSIVA = [CAMINHO_AREA_EXCLUSIVA, ...ARTIGOS_EXCLUSIVOS.map((a) =>
  */
 export function destinoAposLogin(isAdmin: boolean, destino?: string): string {
   const caminho = destino?.split(/[?#]/)[0];
-  if (caminho === "/posts") return destino ?? "/posts";
+  if (caminho === "/conteudos") return destino ?? "/conteudos";
+  // Endereço antigo da lista de textos: segue para o novo, mantendo query e hash.
+  if (caminho === "/posts") return `/conteudos${destino?.slice("/posts".length) ?? ""}`;
   const admin = ["/admin", "/admin/coletas", "/admin/fontes", "/admin/seo", "/admin/google", "/admin/analytics", "/admin/noticias", "/admin/imoveis", "/admin/usuarios", "/admin/categorias", "/admin/compartilhamento", "/admin/mercado", "/admin/bairros", "/admin/leads", "/admin/simulacoes"];
   if (isAdmin && caminho && admin.includes(caminho)) return destino ?? "/admin";
   if (caminho && AREA_EXCLUSIVA.includes(caminho)) return destino ?? CAMINHO_AREA_EXCLUSIVA;

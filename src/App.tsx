@@ -46,7 +46,8 @@ const AdminSeo = lazy(() => import("./pages/AdminSeo"));
 const AdminGoogle = lazy(() => import("./pages/AdminGoogle"));
 const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
 const AdminNoticias = lazy(() => import("./pages/AdminNoticias"));
-const Posts = lazy(() => import("./pages/Posts"));
+const Conteudos = lazy(() => import("./pages/Conteudos"));
+const ConteudoDetalhe = lazy(() => import("./pages/ConteudoDetalhe"));
 const Eventos = lazy(() => import("./pages/Eventos"));
 const ResumoEstudo = lazy(() => import("./pages/ResumoEstudo"));
 const Empreendimentos = lazy(() => import("./pages/Empreendimentos"));
@@ -188,7 +189,13 @@ export function AppRoutes() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/mercado" element={<IntelligenceDashboard />} />
-          <Route path="/posts" element={<Posts />} />
+          <Route path="/conteudos" element={<Conteudos />} />
+          <Route path="/conteudos/artigos" element={<Conteudos tipo="artigo" />} />
+          <Route path="/conteudos/releases" element={<Conteudos tipo="release" />} />
+          <Route path="/conteudos/estudos" element={<Conteudos tipo="estudo" />} />
+          <Route path="/conteudos/:slug" element={<ConteudoDetalhe />} />
+          {/* Endereço antigo da lista de textos */}
+          <Route path="/posts" element={<LegacyRedirect to="/conteudos" />} />
           <Route path="/eventos" element={<Eventos />} />
           <Route path="/empreendimentos" element={<Empreendimentos />} />
           <Route path="/empreendimentos/:slug" element={<EmpreendimentoDetalhe />} />
