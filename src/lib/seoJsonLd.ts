@@ -1,7 +1,7 @@
 import { OG_IMAGEM, SITE_NAME, SITE_URL, bairroPath, tituloComMarca, urlCanonica } from "@/lib/seo";
 import { TEMAS_GUIA } from "@/data/temasGuia";
 import orgBewild from "@/data/orgBewild.json";
-import { TIPOS_CONTEUDO, TIPOS_CONTEUDO_LISTA, caminhoConteudo, caminhoTipo, type ConteudoRadar } from "@/lib/conteudosRadar";
+import { TIPOS_CONTEUDO, TIPOS_CONTEUDO_LISTA, caminhoConteudo, caminhoTipo, urlAbsolutaCapa, type ConteudoRadar } from "@/lib/conteudosRadar";
 
 /**
  * Dados estruturados (JSON-LD) das páginas pré-renderizadas, no mesmo padrão do
@@ -169,7 +169,7 @@ export function conteudoJsonLd(c: Pick<ConteudoRadar, "slug" | "tipo" | "titulo"
     "@id": `${url}#article`,
     headline: c.titulo.slice(0, 110),
     description: c.seo_descricao || c.resumo,
-    image: [c.capa_url || OG_IMAGEM],
+    image: [c.capa_url ? urlAbsolutaCapa(c.capa_url) : OG_IMAGEM],
     author: c.autor_nome ? { "@type": "Person", name: c.autor_nome } : { "@id": ORG_ID },
     publisher: { "@id": ORG_ID },
     mainEntityOfPage: { "@id": `${url}#webpage` },

@@ -23,7 +23,7 @@ import type { BairroBase } from "./lib/radarUi";
 import ReformaNoSite from "./components/ReformaNoSite";
 import { linksDeRetornoAusentes } from "./lib/linksRetorno";
 import { ConteudoEstatico, IndiceConteudosEstatico } from "./components/conteudos/ConteudosEstatico";
-import { COLUNAS_CONTEUDO, caminhoTipo, ehIndexavel, ehPublicavel, ordenarConteudos, paginaSeoConteudo, type ConteudoRadar, type TipoConteudo } from "./lib/conteudosRadar";
+import { COLUNAS_CONTEUDO, urlAbsolutaCapa, caminhoTipo, ehIndexavel, ehPublicavel, ordenarConteudos, paginaSeoConteudo, type ConteudoRadar, type TipoConteudo } from "./lib/conteudosRadar";
 import { rssConteudos } from "./lib/conteudosFeed";
 import { conteudosDoRepositorio } from "./lib/conteudosRepositorio";
 import { conteudoJsonLd, itemListConteudosJsonLd } from "./lib/seoJsonLd";
@@ -83,7 +83,7 @@ export function paginasConteudos(lista: ConteudoRadar[]) {
     conteudo: c,
     atualizadoEm: c.atualizado_em,
     publicadoEm: c.publicado_em,
-    ogImagem: c.capa_url,
+    ogImagem: c.capa_url ? urlAbsolutaCapa(c.capa_url) : null,
     ogImagemAlt: c.capa_alt,
     canonical: c.canonical_externo,
     foraDoSitemap: !ehIndexavel(c),

@@ -10,7 +10,7 @@ import { TEXTO_NOVA_ABA } from "@/components/NovaAba";
  * Componente puro: o mesmo HTML sai no app e na pré-renderização do build.
  * Markdown do GitHub (remark-gfm, decisão do Pedro de 18/11/2026): tabelas, notas de rodapé
  * (para fontes), riscado e links soltos. Tabela leva título: o parágrafo "Tabela: …" logo
- * antes dela vira a <caption> (legendaDeTabela). Regras de tabela em conteudosEscrita.ts.
+ * antes dela vira o título ligado à tabela (legendaDeTabela). Regras de tabela em conteudosEscrita.ts.
  */
 const ehExterno = (href: string) => /^https?:\/\//i.test(href) && !/^https?:\/\/(www\.)?radarbewild\.com\.br(\/|$)/i.test(href);
 
@@ -41,7 +41,9 @@ const COMPONENTES: Components = {
     : <h2 className="e-h2 mt-12 max-w-[720px] scroll-mt-20 text-balance lg:mt-14">{children}</h2>,
   h3: ({ children }) => <h3 className="e-h3 mt-8 max-w-[720px] text-balance">{children}</h3>,
   h4: ({ children }) => <h4 className="e-corpo mt-6 max-w-[720px] font-semibold">{children}</h4>,
-  p: ({ children }) => <p className="e-corpo mt-4 max-w-[720px] text-pretty">{children}</p>,
+  p: ({ children, id, ...resto }) => "data-titulo-tabela" in resto
+    ? <p id={id} className="e-legenda mt-8 max-w-[720px] font-semibold text-foreground">{children}</p>
+    : <p className="e-corpo mt-4 max-w-[720px] text-pretty">{children}</p>,
   ul: ({ children }) => <ul className="e-corpo mt-4 max-w-[720px] list-disc space-y-2 pl-5">{children}</ul>,
   ol: ({ children }) => <ol className="e-corpo mt-4 max-w-[720px] list-decimal space-y-2 pl-5">{children}</ol>,
   blockquote: ({ children }) => <blockquote className="my-8 max-w-[720px] border-l-[3px] border-border pl-4 text-tinta-78">{children}</blockquote>,
@@ -51,9 +53,11 @@ const COMPONENTES: Components = {
   // Imagem dentro do texto: sempre com descrição; sem ela, não entra.
   img: ({ src, alt }) => (src && alt ? <img src={src} alt={alt} loading="lazy" decoding="async" className="my-6 h-auto w-full max-w-[880px] rounded-sm" /> : null),
   hr: () => <hr className="my-10 max-w-[720px] border-border" />,
-  table: ({ children }) => (
-    <div role="region" aria-label="Tabela (role para o lado no celular)" tabIndex={0} className="my-6 max-w-[880px] overflow-x-auto rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
-      <table className="e-apoio w-full border-collapse text-left tabular-nums">{children}</table>
+  table: ({ children, ...resto }) => (
+    <div role="region" aria-labelledby={resto["aria-labelledby"] as string | undefined} aria-label={resto["aria-labelledby"] ? undefined : "Tabela"} tabIndex={0} className="mb-6 mt-2 max-w-[880px] overflow-x-auto rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+      <table aria-labelledby={resto["aria-labelledby"] as string | undefined} className="e-apoio w-full border-collapse text-left tabular-nums">{children}</table>
+      {/* Aviso visível só no celular, onde a tabela costuma passar da largura da tela. */}
+      <p aria-hidden="true" className="e-legenda sticky left-0 mt-2 sm:hidden">Deslize a tabela para o lado para ver todas as colunas.</p>
     </div>
   ),
   caption: ({ children }) => <caption className="e-legenda mb-2 text-left font-semibold text-foreground">{children}</caption>,
@@ -70,11 +74,13 @@ const textoDe = (n: NoHast): string => n.type === "text" ? n.value ?? "" : (n.ch
 
 /**
  * Plugin do rehype: o parágrafo "Tabela: título" (ou "Tabela 1. título") logo antes de uma
- * tabela vira a <caption> dela, sem o prefixo. Assim a tabela tem título no HTML, para quem
- * lê com leitor de tela e para buscadores e assistentes de IA.
+ * tabela vira o título dela, sem o prefixo, ligado à tabela por aria-labelledby. O título fica
+ * fora do bloco que rola no celular (uma <caption> rolaria junto e seria cortada), e a tabela
+ * continua com nome acessível para leitor de tela, buscadores e assistentes de IA.
  */
 export function legendaDeTabela() {
   return (arvore: NoHast) => {
+    let n = 0;
     const visitar = (pai: NoHast) => {
       const filhos = pai.children ?? [];
       for (let i = 0; i < filhos.length; i++) {
@@ -87,8 +93,10 @@ export function legendaDeTabela() {
         const conteudo = [...(no.children ?? [])];
         const primeiro = conteudo[0];
         if (primeiro?.type === "text") conteudo[0] = { ...primeiro, value: (primeiro.value ?? "").replace(PREFIXO_TABELA, "") };
-        tabela.children = [{ type: "element", tagName: "caption", properties: {}, children: conteudo }, ...(tabela.children ?? [])];
-        filhos.splice(i, j - i);
+        const id = `tabela-${++n}-titulo`;
+        no.children = conteudo;
+        no.properties = { ...(no.properties ?? {}), id, dataTituloTabela: "" };
+        tabela.properties = { ...(tabela.properties ?? {}), ariaLabelledBy: id };
       }
       filhos.forEach((f) => f.children && visitar(f));
     };

@@ -5,9 +5,12 @@ import { AVISO_UNIVERSO } from "@/lib/estudo";
 import { linhasDadosAbertos } from "@/lib/dadosAbertos";
 import { SEO_ROUTES } from "@/lib/seo";
 import { BAIRROS_CURADOS } from "@/data/bairrosCurados";
+import { conteudosDoRepositorio } from "@/lib/conteudosRepositorio";
+import { ehIndexavel } from "@/lib/conteudosRadar";
 
 describe("llms.txt do Radar", () => {
-  const texto = gerarLlmsTxt(linhasDadosAbertos(), "2026-10-18");
+  // Os textos publicados por PR entram no llms.txt versionado (o build também lê os do banco).
+  const texto = gerarLlmsTxt(linhasDadosAbertos(), "2026-10-18", conteudosDoRepositorio().filter(ehIndexavel));
 
   it("começa com o nome do site e lista todas as páginas públicas e todos os bairros da base", () => {
     expect(texto.startsWith("# Radar Bewild\n")).toBe(true);

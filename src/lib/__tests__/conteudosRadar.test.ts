@@ -203,11 +203,12 @@ describe("corpo do texto", () => {
     expect(saida).toMatch(/<a href="\/ranking" class="e-link">dentro<\/a>/);
     expect(saida).toMatch(/<a href="https:\/\/radarbewild\.com\.br\/mapa" class="e-link">radar<\/a>/);
   });
-  it("tabela vira HTML com título (caption), cabeçalho de coluna e rolagem no próprio bloco", () => {
+  it("tabela vira HTML com título ligado (fora do bloco que rola), cabeçalho de coluna e rolagem no próprio bloco", () => {
     const saida = html("Tabela 1: Diária média por bairro\n\n| Bairro | Diária |\n|---|--:|\n| Pinheiros | R$ 299 |");
-    expect(saida).toMatch(/<div role="region" aria-label="[^"]+" tabindex="0" class="[^"]*overflow-x-auto[^"]*"><table[^>]*><caption[^>]*>Diária média por bairro<\/caption><thead>/);
+    expect(saida).toMatch(/<p id="tabela-1-titulo" class="[^"]*">Diária média por bairro<\/p>/);
+    expect(saida).toMatch(/<div role="region" aria-labelledby="tabela-1-titulo" tabindex="0" class="[^"]*overflow-x-auto[^"]*"><table aria-labelledby="tabela-1-titulo"[^>]*><thead>/);
     expect(saida).toContain('<th scope="col"');
-    expect(saida).not.toMatch(/<p[^>]*>Tabela 1/);
+    expect(saida).not.toMatch(/Tabela 1:/);
   });
   it("parágrafo que só começa com “Tabela” e não vem antes de tabela fica como parágrafo", () => {
     expect(html("Tabela: sem tabela depois.\n\nOutro parágrafo.")).toMatch(/<p[^>]*>Tabela: sem tabela depois\.<\/p>/);

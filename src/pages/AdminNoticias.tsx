@@ -13,7 +13,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { toast } from "@/hooks/use-toast";
 import { listarCategorias } from "@/lib/categoriasRadar";
 import FormConteudo, { CONTEUDO_VAZIO } from "@/components/admin/FormConteudo";
-import { DESTINOS_NOTICIAS, STATUS_NOTICIA, salvarNoticia, noticiaSchema, type NoticiaEntrada } from "@/lib/noticiasRadar";
+import { DESTINOS_ADMIN, DESTINOS_NOTICIAS, STATUS_NOTICIA, salvarNoticia, noticiaSchema, type NoticiaEntrada } from "@/lib/noticiasRadar";
 import { TIPOS_CONTEUDO, caminhoConteudo, listarConteudosAdmin, type ConteudoEntrada } from "@/lib/conteudosRadar";
 import { arquivosDoRepositorio, avisosDoConteudo } from "@/lib/conteudosRepositorio";
 
@@ -97,7 +97,7 @@ export default function AdminNoticias() {
             <div className="space-y-2"><Label htmlFor="titulo-noticia">Título</Label><Input id="titulo-noticia" required maxLength={180} value={form.titulo} onChange={(e) => setForm({ ...form, titulo: e.target.value })} className="min-h-[44px] text-base" /></div>
             <div className="space-y-2"><Label htmlFor="url-noticia">Link do artigo no Bewild</Label><Input id="url-noticia" type="url" required value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="https://bewild.com.br/conteudos/…" className="min-h-[44px] text-base" /></div>
             <div className="space-y-2"><Label htmlFor="resumo-noticia">Resumo (opcional)</Label><Textarea id="resumo-noticia" maxLength={600} value={form.resumo} onChange={(e) => setForm({ ...form, resumo: e.target.value })} className="text-base" /></div>
-            <div className="space-y-2"><Label htmlFor="destino-noticia">Página do Radar</Label><Select value={form.destino} onValueChange={(v) => setForm({ ...form, destino: v })}><SelectTrigger id="destino-noticia" className="min-h-[44px]"><SelectValue /></SelectTrigger><SelectContent>{DESTINOS_NOTICIAS.map((d) => <SelectItem key={d.caminho} value={d.caminho}>{d.nome}</SelectItem>)}</SelectContent></Select></div>
+            <div className="space-y-2"><Label htmlFor="destino-noticia">Página do Radar</Label><Select value={form.destino} onValueChange={(v) => setForm({ ...form, destino: v })}><SelectTrigger id="destino-noticia" className="min-h-[44px]"><SelectValue /></SelectTrigger><SelectContent>{DESTINOS_ADMIN.map((d) => <SelectItem key={d.caminho} value={d.caminho}>{d.nome}</SelectItem>)}</SelectContent></Select></div>
             <div className="space-y-2"><Label htmlFor="categoria-noticia">Categoria</Label><Select value={form.categoria_id ?? "nenhuma"} onValueChange={(v) => setForm({ ...form, categoria_id: v === "nenhuma" ? null : v })}><SelectTrigger id="categoria-noticia" className="min-h-[44px]"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="nenhuma">Sem categoria</SelectItem>{(categorias.data ?? []).filter((c) => c.tipo === "post").map((c) => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}</SelectContent></Select></div>
             <div className="space-y-2"><Label htmlFor="status-noticia">Publicação</Label><Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v as NoticiaEntrada["status"] })}><SelectTrigger id="status-noticia" className="min-h-[44px]"><SelectValue /></SelectTrigger><SelectContent>{Object.entries(STATUS_NOTICIA).map(([k,v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent></Select></div>
             {erro && <p role="alert" className="text-sm text-destructive">{erro}</p>}

@@ -5,17 +5,26 @@ import { BAIRROS_CURADOS } from "@/data/bairrosCurados";
 import { TEMAS_GUIA } from "@/data/temasGuia";
 import { slugifyBairro } from "@/lib/seo";
 
-export const DESTINOS_NOTICIAS = [
+type Destino = { caminho: string; nome: string; soRepositorio?: boolean };
+/**
+ * Páginas do Radar a que um link ou texto pode se ligar. `soRepositorio`: aceita só em texto
+ * publicado por PR (src/content/conteudos), porque a regra do banco (radar_noticias_destino)
+ * ainda não aceita essa página; o admin não a oferece.
+ */
+export const DESTINOS_NOTICIAS: Destino[] = [
   { caminho: "/mercado", nome: "Mercado" },
   { caminho: "/ranking", nome: "Ranking de bairros" },
   ...BAIRROS_CURADOS.map((b) => ({ caminho: `/bairro/${slugifyBairro(b.name)}`, nome: `Bairro · ${b.name}` })),
   ...TEMAS_GUIA.map((t) => ({ caminho: `/guia/${t.slug}`, nome: `Guia · ${t.titulo}` })),
+  { caminho: "/eventos", nome: "Eventos e diária por bairro", soRepositorio: true },
 ];
+/** Páginas que o admin pode escolher (gravadas no banco). */
+export const DESTINOS_ADMIN = DESTINOS_NOTICIAS.filter((d) => !d.soRepositorio);
 export const noticiaSchema = z.object({
   titulo: z.string().trim().min(3, "Informe um título com pelo menos 3 caracteres.").max(180),
   resumo: z.string().trim().max(600, "O resumo pode ter até 600 caracteres."),
   url: z.string().trim().regex(/^https:\/\/(www\.)?bewild\.com\.br\/conteudos\/[a-z0-9][a-z0-9/-]*$/, "Use o endereço https://bewild.com.br/conteudos/ do artigo, sem parâmetros."),
-  destino: z.string().refine((v) => DESTINOS_NOTICIAS.some((d) => d.caminho === v), "Escolha uma página do Radar."),
+  destino: z.string().refine((v) => DESTINOS_ADMIN.some((d) => d.caminho === v), "Escolha uma página do Radar."),
   status: z.enum(["rascunho", "publicado", "arquivado"]),
   categoria_id: z.string().uuid().nullable().optional(),
 });

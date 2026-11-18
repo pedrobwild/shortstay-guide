@@ -202,7 +202,9 @@ function conferirRetorno(p, html) {
 const jsonLdScript = (no) => `<script type="application/ld+json">${JSON.stringify(no).replace(/</g, "\\u003c")}</script>`;
 
 /** Remove do modelo as tags que cada página redefine (as globais — og:locale, dimensões da imagem, ícones — ficam). */
-function limparHead(html) {
+function limparHead(html, { semDadosDaImagem = false } = {}) {
+  // Página com imagem própria (capa do texto): tira tipo e dimensões da imagem padrão, que não valem para ela.
+  if (semDadosDaImagem) html = html.replace(/\s*<meta property="og:image:(type|width|height)"[^>]*>/g, "");
   return html
     .replace(/<title>[\s\S]*?<\/title>\s*/, "")
     .replace(/\s*<meta (name="(description|keywords|robots)"|property="og:(type|title|description|url|site_name|image|image:alt)"|name="twitter:(title|description|image|image:alt)")[^>]*>/g, "")
@@ -262,7 +264,7 @@ function render(p, ssrHtml, estatico) {
     p.bairro ? `<p><a href="/ranking">Ver ranking de bairros</a></p>` : ""
   }${navHtml}</main>`;
 
-  const html = limparHead(template)
+  const html = limparHead(template, { semDadosDaImagem: Boolean(p.ogImagem) })
     .replace("</head>", `    ${head}\n  </head>`)
     .replace('<div id="root"></div>', ssrHtml ? `<div id="root" data-ssr-path="${p.path}">${ssrHtml}</div>` : `<div id="root">${comRetorno(estatico ? estatico.replace(/<\/main>$/, `${navHtml}</main>`) : body)}</div>`);
   conferirRetorno(p, html);
