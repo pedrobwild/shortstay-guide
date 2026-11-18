@@ -21,3 +21,18 @@ describe("score de investimento em três grupos", () => {
     expect(gruposDoScore([{ bairro: "A", score: 5 }]).get("A")).toBe("frente");
   });
 });
+
+describe("pilares em faixas", () => {
+  it("usa a mesma divisão em três grupos e rótulos de faixa", async () => {
+    const { faixasDoPilar, ROTULO_FAIXA_PILAR } = await import("@/lib/investmentScore");
+    const faixas = faixasDoPilar(Array.from({ length: 6 }, (_, i) => ({ bairro: `B${i}`, valor: 90 - i * 10 })));
+    expect([0, 1, 2, 3, 4, 5].map((i) => ROTULO_FAIXA_PILAR[faixas.get(`B${i}`)!])).toEqual(["Alta", "Alta", "Média", "Média", "Baixa", "Baixa"]);
+  });
+
+  it("a legenda da estimativa concorda com \"confiança\"", async () => {
+    const { rotuloEstimativa } = await import("@/hooks/useIntelligenceData");
+    const base = { periodo_inicio: null, periodo_fim: null } as never;
+    expect(rotuloEstimativa({ ...(base as object), nivel_confianca_dados: "medio" } as never)).toMatch(/confiança média$/);
+    expect(rotuloEstimativa({ ...(base as object), nivel_confianca_dados: "alto" } as never)).toMatch(/confiança alta$/);
+  });
+});

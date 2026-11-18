@@ -6,7 +6,7 @@ import {
   buildShortVsLongNarrative, buildInvestorProfile, SECTION_MICROCOPY,
 } from "@/lib/intelligenceInsights";
 import { buildBairroStoryBlocks } from "@/lib/storytelling";
-import { calculateInvestmentScore, calculateTrueYield, gruposDoScore, PILLARS, ROTULO_GRUPO_SCORE } from "@/lib/investmentScore";
+import { calculateInvestmentScore, calculateTrueYield, faixasDoPilar, gruposDoScore, PILLARS, ROTULO_FAIXA_PILAR, ROTULO_GRUPO_SCORE } from "@/lib/investmentScore";
 import { FOOTER_DISCLAIMER, SCORES_DISCLAIMER } from "@/lib/uiHelpers";
 import { formatBRL, formatDecimal } from "@/lib/numberFormat";
 import { cn } from "@/lib/utils";
@@ -53,9 +53,11 @@ function TabelaMetricas({ numero, titulo, linhas }: { numero: number; titulo: st
  */
 export default function EstimativaBairro({ b, todos, numeroInicial = 2 }: { b: BairroAirbnb; todos: BairroAirbnb[]; numeroInicial?: number }) {
   const perfil = getBairroProfile(b, todos);
-  const score = calculateInvestmentScore(b, todos);
+  const scores = todos.map((x) => ({ bairro: x.bairro, resultado: calculateInvestmentScore(x, todos) }));
+  // Pilares em faixas (alta, média, baixa), sem nota: decisão do Pedro, 18/11/2026.
+  const faixaDoPilar = (i: number) => ROTULO_FAIXA_PILAR[faixasDoPilar(scores.map((s) => ({ bairro: s.bairro, valor: s.resultado.pillars[i].normalized }))).get(b.bairro) ?? "fim"];
   // Grupo (frente, meio ou fim) em vez de nota e conceito: auditoria de 16/11/2026, decisão do Pedro.
-  const grupo = gruposDoScore(todos.map((x) => ({ bairro: x.bairro, score: calculateInvestmentScore(x, todos).score }))).get(b.bairro) ?? "fim";
+  const grupo = gruposDoScore(scores.map((s) => ({ bairro: s.bairro, score: s.resultado.score }))).get(b.bairro) ?? "fim";
   const trueYield = calculateTrueYield(b);
   const historias = buildBairroStoryBlocks(b, todos);
   const precoEstudio = Number(b.preco_m2_residencial_medio) * Number(b.area_media_estudio);
@@ -87,12 +89,12 @@ export default function EstimativaBairro({ b, todos, numeroInicial = 2 }: { b: B
         </dl>
       </div>
 
-      <TabelaNumerada numero={n++} titulo="Pilares do score" unidade="Nota de 0 a 100 relativa aos bairros da estimativa; peso de cada pilar no score. Critério interno, não estatística de mercado.">
+      <TabelaNumerada numero={n++} titulo="Pilares do score" unidade={`Faixa de cada pilar (alta, média ou baixa) em relação aos ${todos.length} bairros da estimativa; peso de cada pilar no score. Critério interno, não estatística de mercado.`}>
         <thead>
           <tr>
             <th scope="col" className={TH}>Pilar</th>
             <th scope="col" className={cn(TH, "text-right")}>Peso (%)</th>
-            <th scope="col" className={cn(TH, "text-right")}>Nota</th>
+            <th scope="col" className={TH}>Faixa</th>
           </tr>
         </thead>
         <tbody>
@@ -100,7 +102,7 @@ export default function EstimativaBairro({ b, todos, numeroInicial = 2 }: { b: B
             <tr key={p.key}>
               <td className={TD}>{p.label}<span className="e-legenda block">{p.friendlyName}</span></td>
               <td className={TD_NUM}>{formatDecimal(p.weight * 100, 0)}</td>
-              <td className={cn(TD_NUM, "font-semibold")}>{formatDecimal(score.pillars[i].normalized, 0)}</td>
+              <td className={cn(TD, "font-semibold")}>{faixaDoPilar(i)}</td>
             </tr>
           ))}
         </tbody>

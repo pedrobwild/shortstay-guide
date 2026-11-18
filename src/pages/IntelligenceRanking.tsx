@@ -15,7 +15,7 @@ import { BairroProvider } from "@/hooks/useBairroData";
 import { useBaseEstudo } from "@/hooks/useBaseEstudo";
 import { useBairroSelecionado } from "@/hooks/useBairroSelecionado";
 import { useBairrosData, rotuloEstimativa } from "@/hooks/useIntelligenceData";
-import { calculateInvestmentScore, gruposDoScore, ORDEM_GRUPO_SCORE, ROTULO_GRUPO_SCORE } from "@/lib/investmentScore";
+import { calculateInvestmentScore, faixasDoPilar, gruposDoScore, ORDEM_GRUPO_SCORE, ROTULO_FAIXA_PILAR, ROTULO_GRUPO_SCORE } from "@/lib/investmentScore";
 import { definirBairroAtual } from "@/lib/bairroAtual";
 import { contagemContra, nomeComNatureza, receitaDe } from "@/lib/estudo";
 import { formatBRL, formatDecimal } from "@/lib/numberFormat";
@@ -218,6 +218,13 @@ function CriteriosInternos() {
   // O score aparece em três grupos, sem posição nem nota: a ordem dentro do grupo é alfabética,
   // porque a nota é relativa aos bairros da tabela e muda com pequenas mudanças de peso.
   const grupos = useMemo(() => gruposDoScore(todos.map((b) => ({ bairro: b.bairro, score: calculateInvestmentScore(b, todos).score }))), [todos]);
+  // Os pilares também aparecem em faixas (alta, média, baixa), sem nota.
+  const faixas = useMemo(() => ({
+    rentabilidade: faixasDoPilar(todos.map((b) => ({ bairro: b.bairro, valor: Number(b.score_rentabilidade) }))),
+    liquidez: faixasDoPilar(todos.map((b) => ({ bairro: b.bairro, valor: Number(b.score_liquidez) }))),
+    crescimento: faixasDoPilar(todos.map((b) => ({ bairro: b.bairro, valor: Number(b.score_crescimento_potencial) }))),
+  }), [todos]);
+  const faixa = (pilar: keyof typeof faixas, bairro: string) => ROTULO_FAIXA_PILAR[faixas[pilar].get(bairro) ?? "fim"];
   const ordenados = [...todos].sort((a, b) =>
     ORDEM_GRUPO_SCORE.indexOf(grupos.get(a.bairro) ?? "fim") - ORDEM_GRUPO_SCORE.indexOf(grupos.get(b.bairro) ?? "fim")
     || a.bairro.localeCompare(b.bairro, "pt-BR"));
@@ -235,15 +242,15 @@ function CriteriosInternos() {
           <TabelaNumerada
             numero={2}
             titulo="Score de investimento em três grupos e seus pilares"
-            unidade={`Critério interno. ${rotuloEstimativa(ordenados[0])}. O grupo é relativo aos ${ordenados.length} bairros desta tabela; dentro do grupo, ordem alfabética. Não há posição nem nota porque a ordem muda com pequenas mudanças nos pesos.`}
+            unidade={`Critério interno. ${rotuloEstimativa(ordenados[0])}. O grupo é relativo aos ${ordenados.length} bairros desta tabela; dentro do grupo, ordem alfabética. Cada pilar aparece como alta, média ou baixa em relação aos mesmos bairros. Não há posição nem nota porque a ordem muda com pequenas mudanças nos pesos.`}
           >
             <thead>
               <tr>
                 <th scope="col" className={TH}>Bairro</th>
                 <th scope="col" className={TH}>Score</th>
-                <th scope="col" className={cn(TH, "text-right")}>Rentab.</th>
-                <th scope="col" className={cn(TH, "text-right")}>Liquidez</th>
-                <th scope="col" className={cn(TH, "text-right")}>Cresc.</th>
+                <th scope="col" className={TH}>Rentab.</th>
+                <th scope="col" className={TH}>Liquidez</th>
+                <th scope="col" className={TH}>Cresc.</th>
                 <th scope="col" className={TH}>Confiança</th>
               </tr>
             </thead>
@@ -252,9 +259,9 @@ function CriteriosInternos() {
                 <tr key={b.bairro}>
                   <td className={TD}><Link to={bairroPath(b.bairro)} className="e-link">{b.bairro}</Link></td>
                   <td className={cn(TD, "font-semibold")}>{ROTULO_GRUPO_SCORE[grupos.get(b.bairro) ?? "fim"]}</td>
-                  <td className={TD_NUM}>{formatDecimal(b.score_rentabilidade, 1)}</td>
-                  <td className={TD_NUM}>{formatDecimal(b.score_liquidez, 1)}</td>
-                  <td className={TD_NUM}>{formatDecimal(b.score_crescimento_potencial, 1)}</td>
+                  <td className={TD}>{faixa("rentabilidade", b.bairro)}</td>
+                  <td className={TD}>{faixa("liquidez", b.bairro)}</td>
+                  <td className={TD}>{faixa("crescimento", b.bairro)}</td>
                   <td className={TD}>{b.nivel_confianca_dados === "alto" ? "Alta" : b.nivel_confianca_dados === "medio" ? "Média" : "Baixa"}</td>
                 </tr>
               ))}

@@ -100,7 +100,9 @@ const fmtData = (iso: string) => {
 export function rotuloEstimativa(b: Pick<BairroAirbnb, "periodo_inicio" | "periodo_fim" | "nivel_confianca_dados">): string {
   const partes = [`${ROTULO_ESTIMATIVA_MERCADO}`];
   if (b.periodo_inicio && b.periodo_fim) partes.push(`${fmtData(b.periodo_inicio)} a ${fmtData(b.periodo_fim)}`);
-  if (b.nivel_confianca_dados) partes.push(`confiança ${b.nivel_confianca_dados}`);
+  // O banco guarda alto/medio/baixo; na frase, concorda com "confiança".
+  const confianca = { alto: "alta", medio: "média", baixo: "baixa" }[String(b.nivel_confianca_dados)];
+  if (confianca) partes.push(`confiança ${confianca}`);
   return partes.join(" · ");
 }
 
