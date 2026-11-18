@@ -26,7 +26,7 @@ export class ErroConteudo extends Error {}
 
 /** Separa cabeçalho e corpo. Cabeçalho: uma linha "campo: valor" por campo; aspas em volta são opcionais. */
 export function lerArquivo(texto: string): { campos: Partial<Record<Campo, string>>; corpo: string } {
-  const normal = texto.replace(/^﻿/, "").replace(/\r\n/g, "\n");
+  const normal = texto.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
   const m = normal.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
   if (!m) throw new ErroConteudo("O arquivo precisa começar com o cabeçalho entre duas linhas ---.");
   const campos: Partial<Record<Campo, string>> = {};
