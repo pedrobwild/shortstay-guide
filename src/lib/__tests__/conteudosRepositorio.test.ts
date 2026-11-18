@@ -8,11 +8,19 @@ import { juntarItens, itemDeConteudo, listarConteudosPublicos, conteudoDoReposit
 import { capaLocal, SLUGS_RESERVADOS, type ItemLista } from "@/lib/conteudosRadar";
 import { juntarConteudosDoBuild } from "@/entry-server";
 
-const CORPO = "Corpo de exemplo com tamanho suficiente para passar da validação mínima do cadastro do Radar. ".repeat(4);
+// Corpo que segue a estrutura da skill ux-writing-blog (abertura, ## pergunta, resposta direta, link para o Radar).
+const CORPO = [
+  "Corpo de exemplo: quem escolhe bairro para studio olha primeiro a diária e esquece a amostra. Comece pelo bairro com dado observado.",
+  "## Como escolher bairro para studio de short stay?",
+  "Comece pelos bairros com dado observado e amostra grande. Depois compare a diária do bairro com a do studio que você pretende montar.",
+  "## O que conferir no ranking antes de decidir",
+  "Abra o [ranking de bairros](/ranking) e filtre só os dados observados. Texto de apoio com tamanho suficiente para o exemplo.",
+].join("\n\n");
 const arquivo = (cabecalho: string, corpo = CORPO) => `---\n${cabecalho}\n---\n\n${corpo}\n`;
 const BASE = [
   "tipo: release",
-  'titulo: "Radar Bewild: \\"dados\\" abertos"',
+  'titulo: "Bairro para studio: \\"como\\" escolher"',
+  "palavra_chave: bairro para studio",
   "resumo: Resumo de exemplo com mais de quarenta caracteres para a busca.",
   "publicado_em: 2026-11-18",
   "destino: /ranking",
@@ -21,10 +29,11 @@ const BASE = [
 describe("arquivo de texto do repositório", () => {
   it("lê cabeçalho e corpo; aspas em volta são opcionais", () => {
     const c = conteudoDoArquivo("radar-dados-abertos", arquivo(BASE));
-    expect(c).toMatchObject({ id: "repo:radar-dados-abertos", origem: "repositorio", tipo: "release", titulo: 'Radar Bewild: "dados" abertos', status: "publicado", destino: "/ranking", categoria_id: null });
+    expect(c).toMatchObject({ id: "repo:radar-dados-abertos", origem: "repositorio", tipo: "release", titulo: 'Bairro para studio: "como" escolher', palavra_chave: "bairro para studio", status: "publicado", destino: "/ranking", categoria_id: null });
     expect(c.publicado_em).toBe("2026-11-18T12:00:00-03:00");
     expect(c.atualizado_em).toBe(c.publicado_em);
     expect(c.corpo.startsWith("Corpo de exemplo")).toBe(true);
+    expect(avisosDoConteudo(c)).toEqual([]);
   });
   it("aceita data de atualização, autor, capa local e campos de busca", () => {
     const c = conteudoDoArquivo("x-y", arquivo(`${BASE}\natualizado_em: 2026-11-20\nautor: Pedro Alves\ncapa: /conteudos/imagens/x-y.webp\ncapa_alt: Sala de um studio\nseo_titulo: Título curto`));

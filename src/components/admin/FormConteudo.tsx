@@ -11,11 +11,12 @@ import { toast } from "@/hooks/use-toast";
 import { listarCategorias } from "@/lib/categoriasRadar";
 import { DESTINOS_NOTICIAS, STATUS_NOTICIA } from "@/lib/noticiasRadar";
 import {
-  DESCRICAO_SEO_MAX, TIPOS_CONTEUDO, TIPOS_CONTEUDO_LISTA, avisosEditoriais, caminhoConteudo, conteudoSchema, encurtar, enviarCapa,
+  DESCRICAO_SEO_MAX, TIPOS_CONTEUDO, TIPOS_CONTEUDO_LISTA, caminhoConteudo, conteudoSchema, encurtar, enviarCapa,
   salvarConteudo, slugificar, type ConteudoEntrada,
 } from "@/lib/conteudosRadar";
 import { SITE_URL, TITULO_VISIVEL_MAX, tituloComMarca } from "@/lib/seo";
 import { slugsDoRepositorio } from "@/lib/conteudosRepositorio";
+import { avisosDoTexto } from "@/lib/conteudosEscrita";
 
 export const CONTEUDO_VAZIO: ConteudoEntrada = {
   tipo: "artigo", titulo: "", slug: "", resumo: "", corpo: "", capa_url: null, capa_alt: null, autor_nome: null,
@@ -42,7 +43,8 @@ export default function FormConteudo({ id, inicial, jaPublicado, aoSalvar }: { i
   const [previa, setPrevia] = useState(false);
   const arquivo = useRef<HTMLInputElement>(null);
   const categorias = useQuery({ queryKey: ["radar_categorias"], queryFn: listarCategorias });
-  const avisos = useMemo(() => avisosEditoriais([form.titulo, form.resumo, form.corpo].join("\n\n")), [form.titulo, form.resumo, form.corpo]);
+  // Regras do Radar + estrutura da skill ux-writing-blog (conteudosEscrita.ts). Sem campo de palavra-chave no banco.
+  const avisos = useMemo(() => avisosDoTexto({ tipo: form.tipo, titulo: form.titulo, resumo: form.resumo, corpo: form.corpo, seo_titulo: form.seo_titulo ?? null }), [form.tipo, form.titulo, form.resumo, form.corpo, form.seo_titulo]);
   const noAr = useQuery({ queryKey: ["conteudo_no_sitemap", form.slug], queryFn: () => estaNoSitemap(form.slug), enabled: jaPublicado && Boolean(form.slug), staleTime: 60_000, retry: false });
 
   const mudar = (parte: Partial<ConteudoEntrada>) => setForm((f) => ({ ...f, ...parte }));
@@ -118,6 +120,7 @@ export default function FormConteudo({ id, inicial, jaPublicado, aoSalvar }: { i
           <div role="status" className="space-y-2 rounded-sm border border-destructive/40 p-3">
             <p className="text-sm font-semibold">Antes de publicar, confira:</p>
             <ul className="list-disc space-y-1 pl-5 text-sm">{avisos.map((a) => <li key={a.codigo}>{a.mensagem}</li>)}</ul>
+            <p className="text-sm text-muted-foreground">Estrutura pedida: um ou dois parágrafos com a resposta, depois um ## com a pergunta da busca e a resposta direta em duas ou três frases.</p>
           </div>
         )}
         <div className="space-y-2">

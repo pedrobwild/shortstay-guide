@@ -6,14 +6,16 @@
  *
  * O teste conteudosRepositorio.test.ts lê todos os arquivos e barra cabeçalho incompleto,
  * endereço repetido ou diferente do nome do arquivo, capa sem arquivo ou sem descrição e
- * qualquer aviso editorial em texto publicado. Passo a passo em docs/conteudos-por-pr.md.
+ * qualquer aviso editorial ou de estrutura (skill ux-writing-blog) em texto publicado.
+ * Passo a passo em docs/conteudos-por-pr.md.
  */
 import { z } from "zod";
-import { avisosEditoriais, conteudoSchema, ehPublicavel, ordenarConteudos, type ConteudoRadar } from "@/lib/conteudosRadar";
+import { conteudoSchema, ehPublicavel, ordenarConteudos, type ConteudoRadar } from "@/lib/conteudosRadar";
+import { avisosDoTexto } from "@/lib/conteudosEscrita";
 
 /** Campos aceitos no cabeçalho; qualquer outro é erro (evita campo digitado errado passar em branco). */
 export const CAMPOS_CABECALHO = [
-  "tipo", "titulo", "resumo", "publicado_em", "atualizado_em", "status", "destino",
+  "tipo", "titulo", "resumo", "palavra_chave", "publicado_em", "atualizado_em", "status", "destino",
   "autor", "capa", "capa_alt", "seo_titulo", "seo_descricao", "canonical_externo",
 ] as const;
 type Campo = (typeof CAMPOS_CABECALHO)[number];
@@ -71,13 +73,19 @@ export function conteudoDoArquivo(slug: string, texto: string): ConteudoRadar {
     capa_url: d.capa_url, capa_alt: d.capa_url ? d.capa_alt : null, autor_nome: d.autor_nome,
     seo_titulo: d.seo_titulo, seo_descricao: d.seo_descricao, canonical_externo: d.canonical_externo,
     destino: d.destino, status: d.status, categoria_id: null,
+    palavra_chave: campos.palavra_chave?.trim() || null,
     publicado_em: publicado,
     atualizado_em: datas.data.atualizado_em ? dataDoCabecalho(datas.data.atualizado_em) : publicado,
   };
 }
 
-/** Avisos que impedem publicar um texto (os mesmos do formulário do admin). */
-export const avisosDoConteudo = (c: Pick<ConteudoRadar, "titulo" | "resumo" | "corpo">) => avisosEditoriais([c.titulo, c.resumo, c.corpo].join("\n\n"));
+/**
+ * Avisos que impedem publicar um texto do repositório: os mesmos do formulário do admin e,
+ * além deles, a palavra-chave de foco (obrigatória no arquivo) no título de busca, no H1,
+ * na abertura e no primeiro subtítulo. Regras em src/lib/conteudosEscrita.ts.
+ */
+export const avisosDoConteudo = (c: Pick<ConteudoRadar, "tipo" | "titulo" | "resumo" | "corpo" | "seo_titulo" | "palavra_chave">) =>
+  avisosDoTexto({ ...c, palavra_chave: c.palavra_chave ?? null });
 
 /** Nome do arquivo → endereço do texto: "src/content/conteudos/meu-texto.md" → "meu-texto". */
 export const slugDoCaminho = (caminho: string) => caminho.split("/").pop()!.replace(/\.md$/, "");
