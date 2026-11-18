@@ -25,13 +25,14 @@ import { linksDeRetornoAusentes } from "./lib/linksRetorno";
 import { ConteudoEstatico, IndiceConteudosEstatico } from "./components/conteudos/ConteudosEstatico";
 import { COLUNAS_CONTEUDO, caminhoTipo, ehIndexavel, ehPublicavel, ordenarConteudos, paginaSeoConteudo, type ConteudoRadar, type TipoConteudo } from "./lib/conteudosRadar";
 import { rssConteudos } from "./lib/conteudosFeed";
+import { conteudosDoRepositorio } from "./lib/conteudosRepositorio";
 import { conteudoJsonLd, itemListConteudosJsonLd } from "./lib/seoJsonLd";
 
 // Tudo que scripts/prerender.mjs usa do código do app (regras de SEO ficam em TS, testadas).
 export {
   FAQ_ITEMS, csvDadosAbertos, datasetJsonLd, jsonDadosAbertos, linhasDadosAbertos, bairrosReserva,
   bairroDescription, bairroH1, bairroTitle, tituloComMarca, OG_IMAGEM, OG_IMAGEM_ALT, ROBOTS_INDEXAVEL, ROBOTS_NOINDEX, caminhoCanonico,
-  isoSaoPaulo, itemListBairrosJsonLd, jsonLdDaPagina, gerarLlmsTxt, LLMS_TXT_CAMINHOS, linksDeRetornoAusentes, rssConteudos, ehIndexavel,
+  isoSaoPaulo, itemListBairrosJsonLd, jsonLdDaPagina, gerarLlmsTxt, LLMS_TXT_CAMINHOS, linksDeRetornoAusentes, rssConteudos, ehIndexavel, conteudosDoRepositorio,
 };
 
 /** Bloco de retorno para o bewild.com.br (índice de custo + reforma por bairro) das páginas cujo HTML estático não tem o rodapé. */
@@ -64,6 +65,12 @@ export const COLUNAS_CONTEUDOS_BUILD = COLUNAS_CONTEUDO;
 
 /** Só o que pode virar página: publicado, de tipo conhecido e com endereço seguro (vira caminho de arquivo). */
 export const conteudosDoBuild = (lista: ConteudoRadar[]): ConteudoRadar[] => ordenarConteudos(lista.filter(ehPublicavel));
+
+/** Textos do repositório + do banco, sem repetir endereço (o arquivo do repositório prevalece). */
+export function juntarConteudosDoBuild(doBanco: ConteudoRadar[], doRepositorio: ConteudoRadar[] = conteudosDoRepositorio()): ConteudoRadar[] {
+  const slugs = new Set(doRepositorio.map((c) => c.slug));
+  return conteudosDoBuild([...doRepositorio, ...doBanco.filter((c) => !slugs.has(c.slug))]);
+}
 
 /**
  * Páginas /conteudos/<slug>. Texto com versão original no site Bewild (`canonical_externo`)

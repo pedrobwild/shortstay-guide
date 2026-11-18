@@ -1,13 +1,23 @@
 import { Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight } from "lucide-react";
-import { DESTINOS_NOTICIAS, noticiasPublicadas } from "@/lib/noticiasRadar";
+import { DESTINOS_NOTICIAS, noticiasPublicadas, type NoticiaPublicada } from "@/lib/noticiasRadar";
+import { doRepositorioParaDestino } from "@/lib/conteudosPublicos";
 
 /** Complemento editorial; as citações estáticas e o HTML inicial permanecem intactos. */
 export default function NoticiasRelacionadas() {
   const { pathname } = useLocation();
   const permitido = DESTINOS_NOTICIAS.some((d) => d.caminho === pathname);
-  const { data } = useQuery({ queryKey: ["noticias_publicadas", pathname], queryFn: () => noticiasPublicadas(pathname), enabled: permitido, refetchInterval: 60000 });
+  const { data } = useQuery({
+    queryKey: ["noticias_publicadas", pathname],
+    // Textos publicados por PR (repositório) entram junto, sem repetir endereço.
+    queryFn: async (): Promise<NoticiaPublicada[]> => {
+      const repo = doRepositorioParaDestino(pathname).map((i) => ({ id: i.id, titulo: i.titulo, resumo: i.resumo, url: null, slug: i.slug, tipo: i.tipo, destino: i.destino, atualizado_em: i.atualizado_em }));
+      const slugs = new Set(repo.map((i) => i.slug));
+      return [...repo, ...(await noticiasPublicadas(pathname)).filter((n) => !n.slug || !slugs.has(n.slug))];
+    },
+    enabled: permitido, refetchInterval: 60000,
+  });
   if (!permitido || !data?.length) return null;
   return <section aria-label="Leituras relacionadas" className="mx-auto w-full max-w-[1280px] px-5 py-8 lg:px-10">
     <h2 className="font-display text-xl text-foreground">Leituras relacionadas</h2>

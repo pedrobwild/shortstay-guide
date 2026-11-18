@@ -27,7 +27,9 @@ export const POR_PAGINA = 12;
 export const BUCKET_CONTEUDOS = "conteudos";
 
 /** Segmentos que já são endereço dentro de /conteudos e não podem virar slug de texto. */
-export const SLUGS_RESERVADOS = [...TIPOS_CONTEUDO_LISTA.map((t) => TIPOS_CONTEUDO[t].caminho), "rss", "rss.xml", "pagina"];
+/** Pasta das capas dos textos do repositório (public/conteudos/imagens). */
+export const PASTA_IMAGENS = "imagens";
+export const SLUGS_RESERVADOS = [...TIPOS_CONTEUDO_LISTA.map((t) => TIPOS_CONTEUDO[t].caminho), "rss", "rss.xml", "pagina", PASTA_IMAGENS];
 export const SLUG_CONTEUDO = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 export const SLUG_MAX = 90;
 export const DESCRICAO_SEO_MAX = 160;
@@ -50,6 +52,8 @@ export const tipoPeloCaminho = (segmento: string | undefined): TipoConteudo | nu
 
 /** Capa: só imagem enviada ao bucket do Radar (nada de hotlink de terceiros). */
 export const capaDoBucket = (url: string) => new RegExp(`^https://\\S+/storage/v1/object/public/${BUCKET_CONTEUDOS}/\\S+$`).test(url);
+/** Capa de texto do repositório: arquivo em public/conteudos/imagens, servido pelo próprio site. */
+export const capaLocal = (url: string) => /^\/conteudos\/imagens\/[a-z0-9][a-z0-9-]*\.(jpg|jpeg|png|webp)$/.test(url);
 const CANONICAL_BEWILD = /^https:\/\/(www\.)?bewild\.com\.br\/[a-z0-9][a-z0-9/-]*$/;
 
 const opcional = (max: number, mensagem: string) => z.string().trim().max(max, mensagem).nullable().optional().transform((v) => v || null);
@@ -63,7 +67,7 @@ export const conteudoSchema = z.object({
   resumo: z.string().trim().min(40, "Escreva um resumo de pelo menos 40 caracteres: ele vira a descrição na busca.").max(600, "O resumo pode ter até 600 caracteres."),
   corpo: z.string().trim().min(200, "O texto precisa de pelo menos 200 caracteres.").max(60_000, "O texto pode ter até 60.000 caracteres."),
   capa_url: z.string().trim().nullable().optional().transform((v) => v || null)
-    .refine((v) => v === null || capaDoBucket(v), "Envie a capa pelo formulário (a imagem fica guardada no Radar)."),
+    .refine((v) => v === null || capaDoBucket(v) || capaLocal(v), "Envie a capa pelo formulário (a imagem fica guardada no Radar)."),
   capa_alt: opcional(200, "A descrição da imagem pode ter até 200 caracteres."),
   autor_nome: opcional(80, "O nome do autor pode ter até 80 caracteres."),
   seo_titulo: opcional(TITULO_VISIVEL_MAX, `O título de busca pode ter até ${TITULO_VISIVEL_MAX} caracteres.`),
@@ -80,6 +84,8 @@ export type ConteudoEntrada = z.input<typeof conteudoSchema>;
 
 export interface ConteudoRadar {
   id: string;
+  /** De onde veio o texto: arquivo em src/content/conteudos (publicado por PR) ou banco (admin). Ausente = banco. */
+  origem?: "repositorio" | "banco";
   tipo: TipoConteudo;
   titulo: string;
   slug: string;
@@ -192,27 +198,35 @@ const tabela = () => (supabase as unknown as SupabaseClient).from("radar_noticia
 /** Coluna que ainda não existe no banco (código publicado antes de a migration 20261118090000 rodar). */
 export const colunaAusente = (erro: unknown) => (erro as { code?: string } | null)?.code === "42703";
 
-/** Lista pública paginada de textos próprios e links do site Bewild; só publicados. */
-export async function listarConteudosPublicos(pagina: number, tipo?: TipoConteudo, categoria?: string) {
-  const de = pagina * POR_PAGINA;
-  let consulta = tabela()
-    .select("id,tipo,titulo,slug,resumo,url,destino,status,categoria_id,capa_url,capa_alt,publicado_em,atualizado_em", { count: "exact" })
-    .eq("status", "publicado")
-    .order("publicado_em", { ascending: false, nullsFirst: false }).order("atualizado_em", { ascending: false }).order("id");
-  if (tipo) consulta = consulta.eq("tipo", tipo);
-  if (categoria) consulta = consulta.eq("categoria_id", categoria);
-  const { data, count, error } = await consulta.range(de, de + POR_PAGINA - 1);
-  if (error && colunaAusente(error)) {
-    // Antes da migration só existem links: a lista geral segue funcionando; os índices por tipo ficam vazios.
-    if (tipo) return { itens: [] as ItemLista[], total: 0 };
-    let antiga = tabela().select("id,titulo,resumo,url,destino,status,categoria_id,atualizado_em", { count: "exact" }).eq("status", "publicado").order("atualizado_em", { ascending: false }).order("id");
-    if (categoria) antiga = antiga.eq("categoria_id", categoria);
-    const r = await antiga.range(de, de + POR_PAGINA - 1);
-    if (r.error) throw r.error;
-    return { itens: (r.data ?? []).map((l) => ({ ...l, tipo: "link", slug: null, capa_url: null, capa_alt: null, publicado_em: null })) as unknown as ItemLista[], total: r.count ?? 0 };
+const COLUNAS_LISTA = "id,tipo,titulo,slug,resumo,url,destino,status,categoria_id,capa_url,capa_alt,publicado_em,atualizado_em";
+
+/**
+ * Todos os itens publicados do banco (textos do admin e links do site Bewild), em páginas de
+ * 1.000 com ordem estável. A lista pública junta estes com os textos do repositório
+ * (src/lib/conteudosPublicos.ts) e pagina no navegador.
+ */
+export async function publicadosDoBanco(tipo?: TipoConteudo, categoria?: string): Promise<ItemLista[]> {
+  const todos: ItemLista[] = [];
+  for (let de = 0; ; de += 1000) {
+    let consulta = tabela().select(COLUNAS_LISTA).eq("status", "publicado")
+      .order("publicado_em", { ascending: false, nullsFirst: false }).order("atualizado_em", { ascending: false }).order("id");
+    if (tipo) consulta = consulta.eq("tipo", tipo);
+    if (categoria) consulta = consulta.eq("categoria_id", categoria);
+    const { data, error } = await consulta.range(de, de + 999);
+    if (error && colunaAusente(error)) {
+      // Antes da migration só existem links: a lista geral segue funcionando; os índices por tipo ficam vazios.
+      if (tipo) return [];
+      let antiga = tabela().select("id,titulo,resumo,url,destino,status,categoria_id,atualizado_em").eq("status", "publicado").order("atualizado_em", { ascending: false }).order("id");
+      if (categoria) antiga = antiga.eq("categoria_id", categoria);
+      const r = await antiga.range(0, 999);
+      if (r.error) throw r.error;
+      return (r.data ?? []).map((l) => ({ ...l, tipo: "link", slug: null, capa_url: null, capa_alt: null, publicado_em: null })) as unknown as ItemLista[];
+    }
+    if (error) throw error;
+    const pagina = (data ?? []) as unknown as ItemLista[];
+    todos.push(...pagina);
+    if (pagina.length < 1000) return todos;
   }
-  if (error) throw error;
-  return { itens: (data ?? []) as unknown as ItemLista[], total: count ?? 0 };
 }
 export type ItemLista = Pick<ConteudoRadar, "id" | "titulo" | "resumo" | "destino" | "categoria_id" | "capa_url" | "capa_alt" | "publicado_em" | "atualizado_em"> & {
   tipo: TipoConteudo | "link";
@@ -220,8 +234,8 @@ export type ItemLista = Pick<ConteudoRadar, "id" | "titulo" | "resumo" | "destin
   url: string | null;
 };
 
-/** Texto publicado pelo endereço; rascunho, arquivado ou inexistente devolvem null (a página responde 404). */
-export async function buscarConteudo(slug: string): Promise<ConteudoRadar | null> {
+/** Texto publicado no banco pelo endereço; rascunho, arquivado ou inexistente devolvem null. */
+export async function buscarConteudoNoBanco(slug: string): Promise<ConteudoRadar | null> {
   if (!SLUG_CONTEUDO.test(slug)) return null;
   const { data, error } = await tabela().select(COLUNAS_CONTEUDO).eq("slug", slug).eq("status", "publicado").neq("tipo", "link").limit(1).maybeSingle();
   if (error && colunaAusente(error)) return null;
@@ -229,12 +243,13 @@ export async function buscarConteudo(slug: string): Promise<ConteudoRadar | null
   return (data as unknown as ConteudoRadar | null) ?? null;
 }
 
-/** Até três textos do mesmo tipo, mais recentes, fora o atual. */
-export async function conteudosRelacionados(atual: Pick<ConteudoRadar, "id" | "tipo">): Promise<ItemLista[]> {
+/** Até quatro textos do mesmo tipo no banco, mais recentes, fora o atual (a junção com o repositório escolhe três). */
+export async function relacionadosNoBanco(atual: Pick<ConteudoRadar, "id" | "tipo">): Promise<ItemLista[]> {
   const { data, error } = await tabela()
-    .select("id,tipo,titulo,slug,resumo,url,destino,status,categoria_id,capa_url,capa_alt,publicado_em,atualizado_em")
+    .select(COLUNAS_LISTA)
     .eq("status", "publicado").eq("tipo", atual.tipo).neq("id", atual.id)
-    .order("publicado_em", { ascending: false, nullsFirst: false }).order("id").limit(3);
+    .order("publicado_em", { ascending: false, nullsFirst: false }).order("id").limit(4);
+  if (error && colunaAusente(error)) return [];
   if (error) throw error;
   return (data ?? []) as unknown as ItemLista[];
 }

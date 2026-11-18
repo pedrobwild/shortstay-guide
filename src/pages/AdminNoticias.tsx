@@ -15,6 +15,25 @@ import { listarCategorias } from "@/lib/categoriasRadar";
 import FormConteudo, { CONTEUDO_VAZIO } from "@/components/admin/FormConteudo";
 import { DESTINOS_NOTICIAS, STATUS_NOTICIA, salvarNoticia, noticiaSchema, type NoticiaEntrada } from "@/lib/noticiasRadar";
 import { TIPOS_CONTEUDO, caminhoConteudo, listarConteudosAdmin, type ConteudoEntrada } from "@/lib/conteudosRadar";
+import { arquivosDoRepositorio, avisosDoConteudo } from "@/lib/conteudosRepositorio";
+
+/** Textos publicados por PR: só leitura aqui (edita-se o arquivo em src/content/conteudos). */
+function TextosDoRepositorio() {
+  const lista = arquivosDoRepositorio();
+  return <section aria-label="Textos publicados por PR" className="min-w-0 space-y-3 rounded-sm border border-border p-4">
+    <h2 className="font-display text-lg font-semibold">Publicados por PR (repositório)</h2>
+    <p className="text-sm text-muted-foreground">Estes textos vivem em src/content/conteudos e mudam só por PR. Aqui eles aparecem só para consulta.</p>
+    {!lista.length ? <p className="text-sm text-muted-foreground">Nenhum texto no repositório ainda.</p> : <ul className="divide-y divide-border">{lista.map((c) => {
+      const bloqueado = c.status === "publicado" && avisosDoConteudo(c).length > 0;
+      return <li key={c.slug} className="flex flex-wrap items-center gap-2 py-3">
+        <Badge variant="outline">{bloqueado ? "Com aviso (fora do ar)" : STATUS_NOTICIA[c.status]}</Badge>
+        <Badge variant="secondary">{TIPOS_CONTEUDO[c.tipo].rotulo}</Badge>
+        <span className="min-w-0 break-words font-medium">{c.titulo}</span>
+        {c.status === "publicado" && !bloqueado && <Button asChild variant="ghost" className="min-h-[44px]"><Link to={caminhoConteudo(c.slug)}>Abrir o texto</Link></Button>}
+      </li>;
+    })}</ul>}
+  </section>;
+}
 
 type Linha = Awaited<ReturnType<typeof listarConteudosAdmin>>["itens"][number];
 /** O que está aberto no formulário: um link para o site Bewild ou um texto próprio (artigo, release, estudo). */
@@ -55,6 +74,7 @@ export default function AdminNoticias() {
         <div><h1 className="font-display text-3xl font-bold">Conteúdos</h1><p className="mt-2 text-sm text-muted-foreground">Artigos, releases e estudos publicados no Radar · links para análises do site Bewild</p></div>
         <div className="flex flex-wrap gap-2"><Button disabled={salvar.isPending} onClick={novoTexto} className="min-h-[44px]"><Plus className="mr-2 h-4 w-4" />Novo texto</Button><Button variant="outline" disabled={salvar.isPending} onClick={novoLink} className="min-h-[44px]"><Plus className="mr-2 h-4 w-4" />Novo link</Button></div>
       </header>
+      <TextosDoRepositorio />
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <section className="min-w-0 space-y-4" aria-label="Conteúdos cadastrados">
           <Label htmlFor="filtro-noticias">Status</Label>
