@@ -155,7 +155,8 @@ pages.push(...ssr.paginasEmpreendimentos(empreendimentos));
 const conteudosLidos = process.env.CONTEUDOS_BUILD_ARQUIVO
   ? JSON.parse(readFileSync(resolve(process.env.CONTEUDOS_BUILD_ARQUIVO), "utf8"))
   : await publicadosDoBanco("radar_noticias", ssr.COLUNAS_CONTEUDOS_BUILD, "publicado_em.desc.nullslast,id.asc", "páginas de conteúdo", "&tipo=neq.link");
-const conteudos = ssr.conteudosDoBuild(conteudosLidos);
+// Textos publicados por PR (src/content/conteudos) entram junto, e prevalecem no mesmo endereço.
+const conteudos = ssr.juntarConteudosDoBuild(conteudosLidos);
 // Índice por tipo só existe (HTML, sitemap, llms.txt) quando há texto daquele tipo.
 for (let i = pages.length - 1; i >= 0; i--) {
   const tipo = pages[i].tipoConteudo;
@@ -336,6 +337,6 @@ for (const base of [DIST, PUBLIC]) {
     writeFileSync(alvo, llms);
   }
 }
-console.log(`prerender: ${pages.length} páginas (${empreendimentos.length} de prédio, ${conteudos.length} de conteúdo) + 404.html + sitemap.xml + llms.txt${gitOk ? "" : " (sem git: lastmod do sitemap anterior)"}`);
+console.log(`prerender: ${pages.length} páginas (${empreendimentos.length} de prédio, ${conteudos.length} de conteúdo, ${conteudos.filter((c) => c.origem === "repositorio").length} do repositório) + 404.html + sitemap.xml + llms.txt${gitOk ? "" : " (sem git: lastmod do sitemap anterior)"}`);
 
 if (existsSync(resolve("dist-ssr"))) rmSync(resolve("dist-ssr"), { recursive: true, force: true });

@@ -15,6 +15,7 @@ import {
   salvarConteudo, slugificar, type ConteudoEntrada,
 } from "@/lib/conteudosRadar";
 import { SITE_URL, TITULO_VISIVEL_MAX, tituloComMarca } from "@/lib/seo";
+import { slugsDoRepositorio } from "@/lib/conteudosRepositorio";
 
 export const CONTEUDO_VAZIO: ConteudoEntrada = {
   tipo: "artigo", titulo: "", slug: "", resumo: "", corpo: "", capa_url: null, capa_alt: null, autor_nome: null,
@@ -67,6 +68,7 @@ export default function FormConteudo({ id, inicial, jaPublicado, aoSalvar }: { i
     e.preventDefault();
     const resultado = conteudoSchema.safeParse(form);
     if (!resultado.success) { setErro(resultado.error.issues[0]?.message ?? "Confira os campos."); return; }
+    if (slugsDoRepositorio().has(form.slug)) { setErro("Este endereço já é de um texto publicado por PR (no repositório). Escolha outro."); return; }
     if (form.status === "publicado" && avisos.length) { setErro("Resolva os avisos do texto antes de publicar, ou salve como rascunho."); return; }
     salvar.mutate();
   }

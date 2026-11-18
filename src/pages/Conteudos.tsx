@@ -14,8 +14,9 @@ import { listarCategorias } from "@/lib/categoriasRadar";
 import { DESTINOS_NOTICIAS } from "@/lib/noticiasRadar";
 import {
   CAMINHO_CONTEUDOS, CAMINHO_FEED, POR_PAGINA, TIPOS_CONTEUDO, TIPOS_CONTEUDO_LISTA, caminhoConteudo, caminhoTipo, dataExtenso,
-  listarConteudosPublicos, type TipoConteudo,
+  type TipoConteudo,
 } from "@/lib/conteudosRadar";
+import { listarConteudosPublicos } from "@/lib/conteudosPublicos";
 import { SEO_ROUTES } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 

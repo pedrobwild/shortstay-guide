@@ -6,7 +6,8 @@ import { Seo } from "@/components/RouteSeo";
 import { Button } from "@/components/ui/button";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import ConteudoArtigo from "@/components/conteudos/ConteudoArtigo";
-import { CAMINHO_CONTEUDOS, buscarConteudo, caminhoConteudo, conteudosRelacionados, paginaSeoConteudo } from "@/lib/conteudosRadar";
+import { CAMINHO_CONTEUDOS, caminhoConteudo, paginaSeoConteudo } from "@/lib/conteudosRadar";
+import { buscarConteudo, conteudoDoRepositorio, conteudosRelacionados } from "@/lib/conteudosPublicos";
 import { conteudoJsonLd, isoSaoPaulo } from "@/lib/seoJsonLd";
 
 /**
@@ -16,7 +17,8 @@ import { conteudoJsonLd, isoSaoPaulo } from "@/lib/seoJsonLd";
  */
 export default function ConteudoDetalhe() {
   const { slug = "" } = useParams<{ slug: string }>();
-  const consulta = useQuery({ queryKey: ["conteudo", slug], queryFn: () => buscarConteudo(slug), staleTime: 60_000 });
+  // Texto do repositório já vem no pacote do app: abre sem esperar a rede.
+  const consulta = useQuery({ queryKey: ["conteudo", slug], queryFn: () => buscarConteudo(slug), staleTime: 60_000, initialData: conteudoDoRepositorio(slug) ?? undefined });
   const c = consulta.data ?? null;
   const relacionados = useQuery({ queryKey: ["conteudo_relacionados", c?.id], queryFn: () => conteudosRelacionados(c!), enabled: Boolean(c), staleTime: 60_000 });
 
