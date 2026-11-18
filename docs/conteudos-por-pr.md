@@ -77,6 +77,26 @@ uma tela do Radar ([simule o seu bairro](/projecao)).
 | `status` | não | `publicado` (padrão) ou `rascunho` (fica fora de tudo) |
 | `autor`, `capa`, `capa_alt`, `seo_titulo`, `seo_descricao`, `canonical_externo` | não | mesmas regras do formulário do admin |
 
+## Tabelas e notas
+
+O corpo aceita o Markdown do GitHub: tabelas, notas de rodapé (`[^1]`), riscado e links soltos.
+
+- **Tabela:** título num parágrafo próprio que começa com `Tabela:` (ou `Tabela 1:`), uma linha
+  em branco e a tabela. O título vira a legenda da tabela no HTML. Até cinco colunas, uma medida
+  por tabela, cabeçalho preenchido. A fonte vai no título ou numa linha `Fonte: [...](...)` logo
+  depois. Depois da tabela, um parágrafo que interpreta a diferença que importa, sem recontar as
+  células. No celular, a tabela rola dentro do próprio bloco.
+- **Nota de rodapé:** `[^1]` no texto e `[^1]: [Fonte](https://…), período.` no fim. Nota com
+  link conta como fonte do número; as notas aparecem no fim como "Notas e fontes".
+
+```markdown
+Tabela: Diária média por bairro, jan–set/2026 ([GuestFavorites](https://www.guestfavorites.com/...))
+
+| Bairro | Diária média |
+|---|--:|
+| Pinheiros | R$ 299 |
+```
+
 Valores ocupam uma linha. Aspas em volta são opcionais; use-as quando o valor tiver `:` ou `#`.
 
 ## Regras que valem
@@ -101,6 +121,8 @@ não tem esse campo).
 - Nenhum `##` genérico ("Conclusão", "Introdução", "Por onde começar"…).
 - O corpo leva a pelo menos uma tela do Radar (bairro, ranking, simulador, comparador…).
 - Sem jargão interno ("leads") e sem três parágrafos seguidos abertos por rótulo em negrito.
+- Tabela com título `Tabela: …`, até cinco colunas, cabeçalho preenchido e fonte no título ou
+  logo depois.
 - Palavra-chave de foco no título de busca, no H1, no primeiro parágrafo e no primeiro `##`.
 - E as regras do Radar: marca "Bewild", sem expressões de venda, sem promessa de resultado,
   número de mercado com link de fonte no mesmo parágrafo.

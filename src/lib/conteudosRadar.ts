@@ -186,7 +186,14 @@ export function avisosEditoriais(texto: string): AvisoEditorial[] {
   const termo = TERMOS_BARRADOS.find((t) => minusculo.includes(t));
   if (termo) avisos.push({ codigo: "termo", mensagem: `A expressão “${termo}” não é usada no Radar.` });
   if (PROMESSAS.some((p) => p.test(texto))) avisos.push({ codigo: "promessa", mensagem: "O texto promete resultado. Descreva o dado e o objetivo, sem garantir retorno, renda ou ocupação." });
-  const semFonte = texto.split(/\n\s*\n/).filter((p) => NUMERO_DE_MERCADO.test(p) && !TEM_LINK.test(p));
+  const blocos = texto.split(/\n\s*\n/);
+  // Nota de rodapé com link conta como fonte: "[^1]" no parágrafo e "[^1]: [Fonte](https://…)" no fim.
+  const notasComFonte = new Set(blocos.flatMap((b) => [...b.matchAll(/^\[\^([^\]]+)\]:(.*)$/gm)].filter((m) => TEM_LINK.test(m[2])).map((m) => m[1])));
+  const temFonte = (b: string) => TEM_LINK.test(b) || [...b.matchAll(/\[\^([^\]]+)\](?!:)/g)].some((m) => notasComFonte.has(m[1]));
+  // Tabela: a fonte pode estar no título ("Tabela: …") logo antes ou na linha "Fonte: …" logo depois.
+  const ehTabela = (b: string) => /^\s*\|/.test(b);
+  const semFonte = blocos.filter((b, i) => NUMERO_DE_MERCADO.test(b) && !/^\[\^[^\]]+\]:/.test(b.trim()) && !temFonte(b)
+    && !(ehTabela(b) && [blocos[i - 1], blocos[i + 1]].some((v) => v !== undefined && temFonte(v))));
   if (semFonte.length) {
     avisos.push({ codigo: "numero_sem_fonte", mensagem: `${semFonte.length === 1 ? "Há 1 parágrafo" : `Há ${semFonte.length} parágrafos`} com número e sem link de fonte. Começa em: “${encurtar(semFonte[0], 70)}”` });
   }

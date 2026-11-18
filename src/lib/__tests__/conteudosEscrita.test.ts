@@ -58,6 +58,29 @@ describe("estrutura pedida pela skill ux-writing-blog", () => {
   });
 });
 
+describe("tabelas (skill: título, até cinco colunas, cabeçalho preenchido)", () => {
+  const TABELA = "Tabela: Diária média por bairro ([GuestFavorites](https://www.guestfavorites.com/x), jan–set/2026)\n\n| Bairro | Diária média |\n|---|--:|\n| Pinheiros | R$ 299 |";
+  it("tabela com título e fonte passa", () => {
+    expect(avisosDoTexto({ ...ok, corpo: `${CORPO_OK}\n\n${TABELA}` })).toEqual([]);
+  });
+  it("sem título, com mais de cinco colunas, com cabeçalho vazio ou colada no parágrafo", () => {
+    expect(codigos({ corpo: `${CORPO_OK}\n\n${TABELA.split("\n\n")[1]}` })).toContain("tabela_sem_titulo");
+    expect(codigos({ corpo: `${CORPO_OK}\n\nTabela: Seis\n\n| a | b | c | d | e | f |\n|---|---|---|---|---|---|\n| 1 | 2 | 3 | 4 | 5 | 6 |` })).toContain("tabela_colunas");
+    expect(codigos({ corpo: `${CORPO_OK}\n\nTabela: Vazio\n\n| Bairro |  |\n|---|---|\n| a | b |` })).toContain("tabela_cabecalho_vazio");
+    expect(codigos({ corpo: `${CORPO_OK}\n\nTabela: Colada\n| a | b |\n|---|---|\n| 1 | 2 |` })).toContain("tabela_colada");
+  });
+  it("tabela com número precisa de fonte no título ou na linha logo depois", () => {
+    const semFonte = `${CORPO_OK}\n\nTabela: Diária média por bairro\n\n| Bairro | Diária média |\n|---|--:|\n| Pinheiros | R$ 299 |`;
+    expect(avisosDoTexto({ ...ok, corpo: semFonte }).map((a) => a.codigo)).toContain("numero_sem_fonte");
+    expect(avisosDoTexto({ ...ok, corpo: `${semFonte}\n\nFonte: [GuestFavorites](https://www.guestfavorites.com/x).` }).map((a) => a.codigo)).not.toContain("numero_sem_fonte");
+  });
+  it("nota de rodapé com link conta como fonte; sem link, não", () => {
+    const comNota = `${CORPO_OK}\n\nA diária média de Pinheiros é R$ 299[^1].\n\n[^1]: [GuestFavorites](https://www.guestfavorites.com/x), jan–set/2026.`;
+    expect(avisosDoTexto({ ...ok, corpo: comNota }).map((a) => a.codigo)).not.toContain("numero_sem_fonte");
+    expect(avisosDoTexto({ ...ok, corpo: comNota.replace("[GuestFavorites](https://www.guestfavorites.com/x)", "GuestFavorites") }).map((a) => a.codigo)).toContain("numero_sem_fonte");
+  });
+});
+
 describe("leitura do texto", () => {
   it("separa frases sem quebrar valores e datas", () => {
     expect(frases("A diária é R$ 1.234,56 em jan–set/2026. Isso vale para studio. Fim!")).toHaveLength(3);
