@@ -9,7 +9,7 @@ const ABAS = [
   { to: "/admin/seo", label: "SEO" },
   { to: "/admin/google", label: "Google" },
   { to: "/admin/analytics", label: "Analytics" },
-  { to: "/admin/noticias", label: "Notícias" },
+  { to: "/admin/noticias", label: "Conteúdos" },
   { to: "/admin/empreendimentos", label: "Empreendimentos" },
   { to: "/admin/imoveis", label: "Imóveis" },
   { to: "/admin/categorias", label: "Categorias" },

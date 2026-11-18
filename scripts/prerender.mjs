@@ -72,7 +72,7 @@ function arquivosDaPagina(p) {
     case "/operar": return ["src/pages/PerfilDestino.tsx", "src/components/ferramentas/FerramentaOperar.tsx", ...BASE_DADOS];
     case "/projecao": return ["src/pages/StudioProjection.tsx", "src/components/projecao", "src/lib/simuladorReceita.ts", ...BASE_DADOS];
     case "/metodologia": return ["src/pages/Metodologia.tsx", "src/lib/dadosAbertos.ts", "src/lib/historicoRadar.ts", ...BASE_DADOS];
-    case "/posts": return ["src/pages/Posts.tsx", "src/lib/noticiasRadar.ts", "src/data/seoRoutes.json"];
+    case "/conteudos": return ["src/pages/Conteudos.tsx", "src/lib/conteudosRadar.ts", "src/data/seoRoutes.json"];
     case "/eventos": return ["src/pages/Eventos.tsx", "src/lib/eventosRadar.ts", "src/data/seoRoutes.json"];
     case "/empreendimentos": return ["src/pages/Empreendimentos.tsx", "src/components/empreendimentos", "src/lib/empreendimentos.ts", "src/data/seoRoutes.json"];
     case "/imoveis": return ["src/pages/Imoveis.tsx", "src/lib/imoveisRadar.ts", "src/data/seoRoutes.json"];
@@ -80,6 +80,11 @@ function arquivosDaPagina(p) {
   }
 }
 function datasDaPagina(p) {
+  // Texto do banco: as datas são as do próprio texto (edição real e primeira publicação), não as do código.
+  if (p.conteudo) {
+    const dateModified = ssr.isoSaoPaulo(p.conteudo.atualizado_em);
+    return { dateModified, datePublished: p.conteudo.publicado_em ? ssr.isoSaoPaulo(p.conteudo.publicado_em) : dateModified };
+  }
   const doCodigo = gitUltimoCommit(arquivosDaPagina(p));
   const daColeta = p.coletadoEm ? `${p.coletadoEm}T12:00:00-03:00` : p.atualizadoEm ?? null;
   const anterior = sitemapAnterior.get(`${seo.siteUrl}${p.path}`) ?? null;
@@ -92,7 +97,7 @@ function datasDaPagina(p) {
 }
 
 // ---------- Páginas ----------
-const changefreq = (p) => (p.path === "/" || ["/mercado", "/ranking", "/mapa"].includes(p.path) ? "weekly" : "monthly");
+const changefreq = (p) => (p.path === "/" || ["/mercado", "/ranking", "/mapa", "/conteudos"].includes(p.path) ? "weekly" : "monthly");
 const reserva = new Map(ssr.bairrosReserva().map((b) => [slugify(b.name), b]));
 
 const pages = [
@@ -118,14 +123,15 @@ function variavel(nome) {
     return linha ? linha.slice(nome.length + 1).trim().replace(/^["']|["']$/g, "") : null;
   } catch { return null; }
 }
-async function empreendimentosPublicados() {
+/** Leitura pública paginada (1.000 por vez, ordem estável) de uma tabela, só linhas publicadas. */
+async function publicadosDoBanco(tabela, colunas, ordem, rotulo, filtro = "") {
   const url = variavel("VITE_SUPABASE_URL");
   const chave = variavel("VITE_SUPABASE_PUBLISHABLE_KEY");
-  if (!url || !chave) { console.warn("prerender: sem VITE_SUPABASE_URL/PUBLISHABLE_KEY, páginas de prédio fora do build"); return []; }
+  if (!url || !chave) { console.warn(`prerender: sem VITE_SUPABASE_URL/PUBLISHABLE_KEY, ${rotulo} fora do build`); return []; }
   const todos = [];
   try {
     for (let de = 0; ; de += 1000) {
-      const consulta = `${url}/rest/v1/empreendimentos?select=${ssr.COLUNAS_EMPREENDIMENTOS_BUILD}&status=eq.publicado&order=nome.asc,id.asc&offset=${de}&limit=1000`;
+      const consulta = `${url}/rest/v1/${tabela}?select=${colunas}&status=eq.publicado${filtro}&order=${ordem}&offset=${de}&limit=1000`;
       const r = await fetch(consulta, { headers: { apikey: chave, Authorization: `Bearer ${chave}` }, signal: AbortSignal.timeout(10_000) });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const pagina = await r.json();
@@ -134,20 +140,45 @@ async function empreendimentosPublicados() {
       if (pagina.length < 1000) break;
     }
   } catch (erro) {
-    console.warn(`prerender: páginas de prédio fora do build (${erro?.message ?? erro})`);
+    console.warn(`prerender: ${rotulo} fora do build (${erro?.message ?? erro})`);
     return [];
   }
   return todos;
 }
+const empreendimentosPublicados = () => publicadosDoBanco("empreendimentos", ssr.COLUNAS_EMPREENDIMENTOS_BUILD, "nome.asc,id.asc", "páginas de prédio");
 const empreendimentos = await empreendimentosPublicados();
 pages.push(...ssr.paginasEmpreendimentos(empreendimentos));
+
+// Conteúdos publicados (artigos, releases e estudos): mesma leitura pública do site. Sem rede
+// ou antes da migration, o build segue sem as páginas de texto e o app as abre normalmente.
+// CONTEUDOS_BUILD_ARQUIVO (JSON com as linhas) substitui a leitura do banco em teste local.
+const conteudosLidos = process.env.CONTEUDOS_BUILD_ARQUIVO
+  ? JSON.parse(readFileSync(resolve(process.env.CONTEUDOS_BUILD_ARQUIVO), "utf8"))
+  : await publicadosDoBanco("radar_noticias", ssr.COLUNAS_CONTEUDOS_BUILD, "publicado_em.desc.nullslast,id.asc", "páginas de conteúdo", "&tipo=neq.link");
+const conteudos = ssr.conteudosDoBuild(conteudosLidos);
+// Índice por tipo só existe (HTML, sitemap, llms.txt) quando há texto daquele tipo.
+for (let i = pages.length - 1; i >= 0; i--) {
+  const tipo = pages[i].tipoConteudo;
+  if (tipo && !conteudos.some((c) => c.tipo === tipo && ssr.ehIndexavel(c))) pages.splice(i, 1);
+}
+for (const p of pages) {
+  if (p.path === "/conteudos" || p.tipoConteudo) {
+    const lista = ssr.conteudosDoIndice(conteudos, p.tipoConteudo);
+    p.conteudosIndice = lista;
+    if (lista.length) {
+      p.jsonLd = [...(p.jsonLd ?? []), ssr.jsonLdIndiceConteudos(lista, p.path)];
+      p.atualizadoEm = lista.map((c) => c.atualizado_em).sort().at(-1);
+    }
+  }
+}
+pages.push(...ssr.paginasConteudos(conteudos));
 
 // Links internos do HTML estático: todas as páginas públicas, para robôs e leitores sem JavaScript.
 const nav = [
   ["/", "Guia"], ["/mercado", "Mercado"], ["/ranking", "Ranking de bairros"], ["/mapa", "Mapa"], ["/comparar", "Comparar bairros"],
   ["/anuncios", "Anúncios"], ["/projecao", "Simulador"], ["/ferramentas", "Comprar imóvel"],
   ["/empreendimentos", "Empreendimentos"],
-  ["/posts", "Posts"],
+  ["/conteudos", "Conteúdos"],
   ["/eventos", "Eventos e diária por bairro"],
   ["/imoveis", "Imóveis"],
   ["/reformar", "Vou reformar"], ["/operar", "Já opero"],
@@ -180,24 +211,32 @@ function limparHead(html) {
 function headDaPagina(p, { noindex = false, extras = [], jsonLd = [] } = {}) {
   const url = `${seo.siteUrl}${ssr.caminhoCanonico(p.path)}`;
   const titulo = ssr.tituloComMarca(p.title);
-  const ogType = p.path.startsWith("/guia/") ? "article" : "website";
+  const ogType = p.path.startsWith("/guia/") || p.conteudo ? "article" : "website";
+  // Texto com capa usa a capa no compartilhamento; texto com versão original no site Bewild
+  // aponta o canonical para lá (e não declara hreflang deste domínio).
+  const ogImagem = p.ogImagem || ssr.OG_IMAGEM;
+  const ogImagemAlt = p.ogImagem ? p.ogImagemAlt || p.h1 : ssr.OG_IMAGEM_ALT;
+  const canonical = p.canonical || url;
   const linhas = [
     `<title>${esc(titulo)}</title>`,
     `<meta name="description" content="${esc(p.description)}" data-rh="true" />`,
     p.keywords ? `<meta name="keywords" content="${esc(p.keywords)}" data-rh="true" />` : null,
     `<meta name="robots" content="${noindex ? ssr.ROBOTS_NOINDEX : ssr.ROBOTS_INDEXAVEL}" data-rh="true" />`,
-    noindex ? null : `<link rel="canonical" href="${url}" data-rh="true" />`,
-    noindex ? null : `<link rel="alternate" hreflang="pt-BR" href="${url}" data-rh="true" />`,
-    noindex ? null : `<link rel="alternate" hreflang="x-default" href="${url}" data-rh="true" />`,
+    noindex ? null : `<link rel="canonical" href="${esc(canonical)}" data-rh="true" />`,
+    noindex || p.canonical ? null : `<link rel="alternate" hreflang="pt-BR" href="${url}" data-rh="true" />`,
+    noindex || p.canonical ? null : `<link rel="alternate" hreflang="x-default" href="${url}" data-rh="true" />`,
     `<meta property="og:type" content="${ogType}" data-rh="true" />`,
     `<meta property="og:title" content="${esc(titulo)}" data-rh="true" />`,
     `<meta property="og:description" content="${esc(p.description)}" data-rh="true" />`,
     `<meta property="og:url" content="${url}" data-rh="true" />`,
     `<meta property="og:site_name" content="${esc(seo.siteName)}" data-rh="true" />`,
-    noindex ? null : `<meta property="og:image" content="${ssr.OG_IMAGEM}" data-rh="true" />`,
-    noindex ? null : `<meta property="og:image:alt" content="${esc(ssr.OG_IMAGEM_ALT)}" data-rh="true" />`,
-    noindex ? null : `<meta name="twitter:image" content="${ssr.OG_IMAGEM}" data-rh="true" />`,
-    noindex ? null : `<meta name="twitter:image:alt" content="${esc(ssr.OG_IMAGEM_ALT)}" data-rh="true" />`,
+    noindex ? null : `<meta property="og:image" content="${esc(ogImagem)}" data-rh="true" />`,
+    noindex ? null : `<meta property="og:image:alt" content="${esc(ogImagemAlt)}" data-rh="true" />`,
+    noindex ? null : `<meta name="twitter:image" content="${esc(ogImagem)}" data-rh="true" />`,
+    noindex ? null : `<meta name="twitter:image:alt" content="${esc(ogImagemAlt)}" data-rh="true" />`,
+    p.conteudo?.publicado_em ? `<meta property="article:published_time" content="${ssr.isoSaoPaulo(p.conteudo.publicado_em)}" data-rh="true" />` : null,
+    p.conteudo ? `<meta property="article:modified_time" content="${ssr.isoSaoPaulo(p.conteudo.atualizado_em)}" data-rh="true" />` : null,
+    p.path.startsWith("/conteudos") ? `<link rel="alternate" type="application/rss+xml" title="Radar Bewild — Conteúdos" href="${seo.siteUrl}/conteudos/rss.xml" />` : null,
     `<meta name="twitter:title" content="${esc(titulo)}" data-rh="true" />`,
     `<meta name="twitter:description" content="${esc(p.description)}" data-rh="true" />`,
     ...extras,
@@ -245,6 +284,8 @@ const { html: homeHtml } = await ssr.render("/");
 
 function estaticoDaPagina(p) {
   if (p.empreendimento) return ssr.renderEmpreendimentoEstatico(p.empreendimento);
+  if (p.conteudo) return ssr.renderConteudoEstatico(p.conteudo, conteudos);
+  if (p.conteudosIndice?.length) return ssr.renderIndiceConteudosEstatico(p, p.conteudosIndice);
   if (p.path === "/empreendimentos" && empreendimentos.length) return ssr.renderCatalogoEmpreendimentosEstatico(p, empreendimentos);
   return ssr.renderEstatico(p);
 }
@@ -278,11 +319,15 @@ writeFileSync(resolve(DIST, "dados/bairros.json"), ssr.jsonDadosAbertos());
 const sitemap = [
   `<?xml version="1.0" encoding="UTF-8"?>`,
   `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
-  ...pages.map((p) => `  <url>\n    <loc>${seo.siteUrl}${p.path}</loc>\n    <lastmod>${p.lastmod}</lastmod>\n    <changefreq>${changefreq(p)}</changefreq>\n    <priority>${p.priority}</priority>\n  </url>`),
+  ...pages.filter((p) => !p.foraDoSitemap).map((p) => `  <url>\n    <loc>${seo.siteUrl}${p.path}</loc>\n    <lastmod>${p.lastmod}</lastmod>\n    <changefreq>${changefreq(p)}</changefreq>\n    <priority>${p.priority}</priority>\n  </url>`),
   `</urlset>`,
   ``,
 ].join("\n");
-const llms = ssr.gerarLlmsTxt();
+const conteudosIndexaveis = conteudos.filter(ssr.ehIndexavel);
+const llms = ssr.gerarLlmsTxt(undefined, undefined, conteudosIndexaveis);
+// Feed RSS dos conteúdos: mesmos textos do sitemap.
+mkdirSync(resolve(DIST, "conteudos"), { recursive: true });
+writeFileSync(resolve(DIST, "conteudos/rss.xml"), ssr.rssConteudos(conteudos));
 for (const base of [DIST, PUBLIC]) {
   writeFileSync(resolve(base, "sitemap.xml"), sitemap);
   for (const caminho of ssr.LLMS_TXT_CAMINHOS) {
@@ -291,6 +336,6 @@ for (const base of [DIST, PUBLIC]) {
     writeFileSync(alvo, llms);
   }
 }
-console.log(`prerender: ${pages.length} páginas (${empreendimentos.length} de prédio) + 404.html + sitemap.xml + llms.txt${gitOk ? "" : " (sem git: lastmod do sitemap anterior)"}`);
+console.log(`prerender: ${pages.length} páginas (${empreendimentos.length} de prédio, ${conteudos.length} de conteúdo) + 404.html + sitemap.xml + llms.txt${gitOk ? "" : " (sem git: lastmod do sitemap anterior)"}`);
 
 if (existsSync(resolve("dist-ssr"))) rmSync(resolve("dist-ssr"), { recursive: true, force: true });

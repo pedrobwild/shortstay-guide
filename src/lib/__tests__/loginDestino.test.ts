@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { destinoAposLogin } from "@/lib/loginDestino";
 describe("destino após login", () => {
-  it("retoma a página pública de posts após login sem conceder escrita", () => {
-    expect(destinoAposLogin(true, "/posts#enviar")).toBe("/posts#enviar");
-    expect(destinoAposLogin(false, "/posts")).toBe("/posts");
+  it("retoma a página pública de conteúdos após login sem conceder escrita; o endereço antigo segue para o novo", () => {
+    expect(destinoAposLogin(true, "/conteudos#enviar")).toBe("/conteudos#enviar");
+    expect(destinoAposLogin(false, "/conteudos")).toBe("/conteudos");
+    expect(destinoAposLogin(true, "/posts#enviar")).toBe("/conteudos#enviar");
+    expect(destinoAposLogin(false, "/posts")).toBe("/conteudos");
   });
   it("retoma analytics com parâmetros somente para administrador", () => {
     expect(destinoAposLogin(true, "/admin/analytics?dias=7#eventos")).toBe("/admin/analytics?dias=7#eventos");

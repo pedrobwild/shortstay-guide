@@ -23,7 +23,7 @@ export const LINKS_PUBLICOS: LinkNavegacao[] = [
   { to: "/ranking", label: "Bairros", id: "bairros", ativoEm: ["/ranking", "/mapa", "/comparar", "/mercado", "/bairro"] },
   { to: "/projecao", label: "Simular", id: "simular", ativoEm: ["/projecao", "/ferramentas"] },
   { to: "/reformar", label: "Reforma", id: "reforma", ativoEm: ["/reformar", "/empreendimentos"] },
-  { to: "/#guia", label: "Guia", id: "guia_temas", ativoEm: ["/guia", "/posts", "/metodologia"] },
+  { to: "/#guia", label: "Guia", id: "guia_temas", ativoEm: ["/guia", "/conteudos", "/metodologia"] },
 ];
 
 /** As visões da área Bairros: a mesma base em lista, no mapa e lado a lado. */
@@ -75,7 +75,7 @@ export const GRUPOS_MENU: GrupoMenu[] = [
     titulo: "Guia",
     links: [
       { to: "/#guia", label: "Guia por tema", id: "guia_temas" },
-      { to: "/posts", label: "Posts", id: "posts" },
+      { to: "/conteudos", label: "Conteúdos", id: "conteudos" },
       { to: "/metodologia", label: "Metodologia e dados abertos", id: "metodologia" },
     ],
   },

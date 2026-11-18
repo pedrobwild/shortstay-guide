@@ -3,12 +3,39 @@
   "siteName": "Radar Bewild",
   "routes": [
     {
-      "path": "/posts",
-      "title": "Posts e análises do Bewild",
-      "description": "Artigos do Bewild sobre studios e short stay em São Paulo, reunidos no Radar com links para análises e dados de mercado por bairro.",
-      "h1": "Posts",
-      "keywords": "artigos bewild, análises short stay, studios são paulo",
-      "priority": "0.5"
+      "path": "/conteudos",
+      "title": "Conteúdos: artigos, releases e estudos",
+      "description": "Artigos, releases de imprensa e estudos do Radar Bewild sobre studios e short stay em São Paulo, com a fonte e o período de cada número.",
+      "h1": "Conteúdos",
+      "keywords": "artigos short stay são paulo, estudos airbnb são paulo, releases radar bewild, studios para airbnb",
+      "priority": "0.6"
+    },
+    {
+      "path": "/conteudos/artigos",
+      "title": "Artigos sobre studios e short stay",
+      "description": "Leituras de mercado e análises do Radar Bewild sobre studios e short stay em São Paulo, com a fonte e o período de cada número.",
+      "h1": "Artigos",
+      "keywords": "artigos short stay são paulo, análise airbnb são paulo, studio para airbnb",
+      "priority": "0.5",
+      "tipoConteudo": "artigo"
+    },
+    {
+      "path": "/conteudos/releases",
+      "title": "Releases e material de imprensa",
+      "description": "Comunicados e material de imprensa do Radar Bewild sobre studios e short stay em São Paulo, com os dados e as fontes de cada número.",
+      "h1": "Releases",
+      "keywords": "release radar bewild, imprensa bewild, dados short stay são paulo",
+      "priority": "0.5",
+      "tipoConteudo": "release"
+    },
+    {
+      "path": "/conteudos/estudos",
+      "title": "Estudos sobre short stay em São Paulo",
+      "description": "Estudos do Radar Bewild sobre studios e short stay em São Paulo, com recorte, período, método e limites declarados em cada um.",
+      "h1": "Estudos",
+      "keywords": "estudo short stay são paulo, estudo airbnb são paulo, dados de diária e ocupação",
+      "priority": "0.5",
+      "tipoConteudo": "estudo"
     },
     {
       "path": "/eventos",

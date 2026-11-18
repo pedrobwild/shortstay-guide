@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { BAIRROS_CURADOS } from "@/data/bairrosCurados";
 import { TEMAS_GUIA } from "@/data/temasGuia";
@@ -20,6 +21,8 @@ export const noticiaSchema = z.object({
 });
 export type NoticiaEntrada = z.infer<typeof noticiaSchema>;
 export type NoticiaRadar = NoticiaEntrada & { id: string; atualizado_em: string };
+/** Item publicado ligado a uma página do Radar: link do site Bewild (url) ou texto próprio (slug em /conteudos). */
+export type NoticiaPublicada = { id: string; titulo: string; resumo: string; url: string | null; slug: string | null; tipo: string; destino: string; atualizado_em: string };
 export const STATUS_NOTICIA = { rascunho: "Rascunho", publicado: "Publicado", arquivado: "Arquivado" };
 export async function listarNoticias(pagina: number, status: string) {
   let consulta = supabase.from("radar_noticias").select("*", { count: "exact" }).order("atualizado_em", { ascending: false }).order("id");
@@ -30,6 +33,7 @@ export async function listarNoticias(pagina: number, status: string) {
 }
 export async function salvarNoticia(entrada: NoticiaEntrada, id?: string) {
   const dados = noticiaSchema.parse(entrada);
+  // Link do site Bewild: tipo "link" (padrão da coluna). Texto próprio é salvo por salvarConteudo (conteudosRadar.ts).
   const linha = { titulo: dados.titulo ?? "", url: dados.url ?? "", resumo: dados.resumo ?? "", destino: dados.destino ?? "/mercado", status: dados.status ?? "rascunho", categoria_id: dados.categoria_id ?? null };
   const consulta = id ? supabase.from("radar_noticias").update(linha).eq("id", id) : supabase.from("radar_noticias").insert(linha);
   const { data, error } = await consulta.select("id").single();
@@ -37,16 +41,14 @@ export async function salvarNoticia(entrada: NoticiaEntrada, id?: string) {
   return data.id;
 }
 export async function noticiasPublicadas(destino: string) {
-  const { data, error } = await supabase.from("radar_noticias").select("id,titulo,resumo,url,destino,status,atualizado_em").eq("status", "publicado").eq("destino", destino).order("atualizado_em", { ascending: false }).order("id").limit(100);
+  // slug e tipo vêm da migration 20261118090000 e ainda não estão no types.ts gerado.
+  const { data, error } = await (supabase as unknown as SupabaseClient).from("radar_noticias").select("id,titulo,resumo,url,slug,tipo,destino,atualizado_em").eq("status", "publicado").eq("destino", destino).order("atualizado_em", { ascending: false }).order("id").limit(100);
+  if (error && (error as { code?: string }).code === "42703") {
+    // Código publicado antes de a migration rodar: só existem links.
+    const antiga = await supabase.from("radar_noticias").select("id,titulo,resumo,url,destino,atualizado_em").eq("status", "publicado").eq("destino", destino).order("atualizado_em", { ascending: false }).order("id").limit(100);
+    if (antiga.error) throw antiga.error;
+    return (antiga.data ?? []).map((n) => ({ ...n, slug: null, tipo: "link" })) as NoticiaPublicada[];
+  }
   if (error) throw error;
-  return (data ?? []) as NoticiaRadar[];
-}
-
-/** Lista pública paginada; rascunhos e dados privados nunca entram na consulta. */
-export async function listarPostsPublicos(pagina: number, categoria?: string) {
-  let consulta = supabase.from("radar_noticias").select("id,titulo,resumo,url,destino,status,categoria_id,atualizado_em", { count: "exact" }).eq("status", "publicado").order("atualizado_em", { ascending: false }).order("id");
-  if (categoria) consulta = consulta.eq("categoria_id", categoria);
-  const { data, count, error } = await consulta.range(pagina * 12, pagina * 12 + 11);
-  if (error) throw error;
-  return { posts: (data ?? []) as NoticiaRadar[], total: count ?? 0 };
+  return (data ?? []) as unknown as NoticiaPublicada[];
 }

@@ -24,7 +24,7 @@ describe("estudo em 3 passos", () => {
     expect(passoDaRota("/bairro/pinheiros")?.numero).toBe(1);
     expect(passoDaRota("/projecao")?.numero).toBe(2);
     expect(passoDaRota("/reformar")?.numero).toBe(3);
-    for (const fora of ["/", "/eventos", "/metodologia", "/posts", "/guia/reforma", "/ferramentas", "/empreendimentos", "/rankings"]) {
+    for (const fora of ["/", "/eventos", "/metodologia", "/conteudos", "/conteudos/artigos", "/guia/reforma", "/ferramentas", "/empreendimentos", "/rankings"]) {
       expect(passoDaRota(fora), fora).toBeNull();
     }
   });
