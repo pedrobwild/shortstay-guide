@@ -11,7 +11,7 @@ import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { DESTINOS_NOTICIAS } from "@/lib/noticiasRadar";
-import { TITULO_VISIVEL_MAX } from "@/lib/seo";
+import { SITE_URL, TITULO_VISIVEL_MAX } from "@/lib/seo";
 
 export const TIPOS_CONTEUDO = {
   artigo: { rotulo: "Artigo", plural: "Artigos", caminho: "artigos", descricao: "Leituras de mercado e análises do Radar Bewild sobre studios e short stay em São Paulo." },
@@ -52,6 +52,8 @@ export const tipoPeloCaminho = (segmento: string | undefined): TipoConteudo | nu
 
 /** Capa: só imagem enviada ao bucket do Radar (nada de hotlink de terceiros). */
 export const capaDoBucket = (url: string) => new RegExp(`^https://\\S+/storage/v1/object/public/${BUCKET_CONTEUDOS}/\\S+$`).test(url);
+/** Endereço absoluto da capa (Open Graph e dado estruturado exigem URL completa; a capa do repositório é um caminho do site). */
+export const urlAbsolutaCapa = (url: string) => (url.startsWith("/") ? `${SITE_URL}${url}` : url);
 /** Capa de texto do repositório: arquivo em public/conteudos/imagens, servido pelo próprio site. */
 export const capaLocal = (url: string) => /^\/conteudos\/imagens\/[a-z0-9][a-z0-9-]*\.(jpg|jpeg|png|webp)$/.test(url);
 const CANONICAL_BEWILD = /^https:\/\/(www\.)?bewild\.com\.br\/[a-z0-9][a-z0-9/-]*$/;

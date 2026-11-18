@@ -9,7 +9,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import CorpoConteudo from "@/components/conteudos/CorpoConteudo";
 import { toast } from "@/hooks/use-toast";
 import { listarCategorias } from "@/lib/categoriasRadar";
-import { DESTINOS_NOTICIAS, STATUS_NOTICIA } from "@/lib/noticiasRadar";
+import { DESTINOS_ADMIN, STATUS_NOTICIA } from "@/lib/noticiasRadar";
 import {
   DESCRICAO_SEO_MAX, TIPOS_CONTEUDO, TIPOS_CONTEUDO_LISTA, caminhoConteudo, conteudoSchema, encurtar, enviarCapa,
   salvarConteudo, slugificar, type ConteudoEntrada,
@@ -149,7 +149,7 @@ export default function FormConteudo({ id, inicial, jaPublicado, aoSalvar }: { i
           <Label htmlFor="destino-conteudo">Página de dados relacionada</Label>
           <Select value={form.destino} onValueChange={(v) => mudar({ destino: v })}>
             <SelectTrigger id="destino-conteudo" className="min-h-[44px]"><SelectValue /></SelectTrigger>
-            <SelectContent>{DESTINOS_NOTICIAS.map((d) => <SelectItem key={d.caminho} value={d.caminho}>{d.nome}</SelectItem>)}</SelectContent>
+            <SelectContent>{DESTINOS_ADMIN.map((d) => <SelectItem key={d.caminho} value={d.caminho}>{d.nome}</SelectItem>)}</SelectContent>
           </Select>
         </div>
         <div className="space-y-2">

@@ -5,7 +5,8 @@ import {
   ErroConteudo, arquivosDoRepositorio, avisosDoConteudo, conteudoDoArquivo, conteudosDoRepositorio, lerArquivo, slugDoCaminho, slugsDoRepositorio,
 } from "@/lib/conteudosRepositorio";
 import { juntarItens, itemDeConteudo, listarConteudosPublicos, conteudoDoRepositorio } from "@/lib/conteudosPublicos";
-import { capaLocal, SLUGS_RESERVADOS, type ItemLista } from "@/lib/conteudosRadar";
+import { capaLocal, SLUGS_RESERVADOS, urlAbsolutaCapa, type ItemLista } from "@/lib/conteudosRadar";
+import { conteudoJsonLd } from "@/lib/seoJsonLd";
 import { juntarConteudosDoBuild } from "@/entry-server";
 
 // Corpo que segue a estrutura da skill ux-writing-blog (abertura, ## pergunta, resposta direta, link para o Radar).
@@ -112,6 +113,11 @@ describe("junção com o banco", () => {
     expect((await listarConteudosPublicos(1, undefined, undefined, [repo], banco)).itens).toHaveLength(2);
     expect((await listarConteudosPublicos(0, "artigo", undefined, [repo], async () => [])).total).toBe(0);
     expect((await listarConteudosPublicos(0, undefined, "cat", [repo], async () => [])).total).toBe(0);
+  });
+  it("capa local vira endereço absoluto no compartilhamento e no dado estruturado", () => {
+    expect(urlAbsolutaCapa("/conteudos/imagens/a.webp")).toBe("https://radarbewild.com.br/conteudos/imagens/a.webp");
+    expect(urlAbsolutaCapa("https://x.supabase.co/storage/v1/object/public/conteudos/a.webp")).toBe("https://x.supabase.co/storage/v1/object/public/conteudos/a.webp");
+    expect(conteudoJsonLd({ ...repo, capa_url: "/conteudos/imagens/a.webp" }).image).toEqual(["https://radarbewild.com.br/conteudos/imagens/a.webp"]);
   });
   it("capa local só na pasta de imagens dos conteúdos", () => {
     expect(capaLocal("/conteudos/imagens/a-b.webp")).toBe(true);

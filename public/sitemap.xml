@@ -311,4 +311,16 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://radarbewild.com.br/conteudos/estudos</loc>
+    <lastmod>2026-11-18T12:00:00-03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://radarbewild.com.br/conteudos/eventos-que-mais-sobem-diaria-airbnb-sao-paulo</loc>
+    <lastmod>2026-11-18T12:00:00-03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
 </urlset>

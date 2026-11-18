@@ -6,7 +6,7 @@ import { Seo } from "@/components/RouteSeo";
 import { Button } from "@/components/ui/button";
 import OrcamentoButton from "@/components/OrcamentoButton";
 import ConteudoArtigo from "@/components/conteudos/ConteudoArtigo";
-import { CAMINHO_CONTEUDOS, caminhoConteudo, paginaSeoConteudo } from "@/lib/conteudosRadar";
+import { CAMINHO_CONTEUDOS, caminhoConteudo, paginaSeoConteudo, urlAbsolutaCapa } from "@/lib/conteudosRadar";
 import { buscarConteudo, conteudoDoRepositorio, conteudosRelacionados } from "@/lib/conteudosPublicos";
 import { conteudoJsonLd, isoSaoPaulo } from "@/lib/seoJsonLd";
 
@@ -56,7 +56,7 @@ export default function ConteudoDetalhe() {
         description={seo.description}
         path={seo.path}
         ogType="article"
-        imagem={c.capa_url}
+        imagem={c.capa_url ? urlAbsolutaCapa(c.capa_url) : null}
         imagemAlt={c.capa_alt}
         canonical={c.canonical_externo}
         artigo={{ publicado: c.publicado_em ? isoSaoPaulo(c.publicado_em) : null, modificado: isoSaoPaulo(c.atualizado_em) }}
