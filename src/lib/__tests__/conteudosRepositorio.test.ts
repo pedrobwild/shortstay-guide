@@ -5,6 +5,7 @@ import {
   ARQUIVOS_CONTEUDO, ErroConteudo, arquivosDoRepositorio, avisosDoConteudo, conteudoDoArquivo, conteudosDoRepositorio, lerArquivo, slugDoCaminho, slugsDoRepositorio,
 } from "@/lib/conteudosRepositorio";
 import { juntarItens, itemDeConteudo, listarConteudosPublicos, conteudoDoRepositorio } from "@/lib/conteudosPublicos";
+import { dimensoesDaImagem } from "@/components/conteudos/CorpoConteudo";
 import { capaLocal, SLUGS_RESERVADOS, urlAbsolutaCapa, type ItemLista } from "@/lib/conteudosRadar";
 import { conteudoJsonLd } from "@/lib/seoJsonLd";
 import { juntarConteudosDoBuild } from "@/entry-server";
@@ -144,5 +145,12 @@ describe("arquivos de verdade em src/content/conteudos", () => {
     const c = conteudoDoArquivo(slug, readFileSync(join(pasta, nome), "utf8"));
     if (c.status === "publicado") expect(avisosDoConteudo(c), nome).toEqual([]);
     if (c.capa_url) expect(existsSync(join("public", c.capa_url)), `${c.capa_url} não está em public/`).toBe(true);
+    // Imagens do corpo servidas pelo próprio site: o arquivo (e a versão de celular, quando declarada) existe.
+    for (const [, src, titulo] of c.corpo.matchAll(/!\[[^\]]*\]\((\/[^)\s]+)(?:\s+"([^"]*)")?\)/g)) {
+      expect(existsSync(join("public", src)), `${src} não está em public/`).toBe(true);
+      const d = dimensoesDaImagem(src, titulo);
+      expect(d, `${src}: declare as dimensões no título da imagem ("1920x1180" ou "1920x1180 780x1400")`).not.toBeNull();
+      if (d?.celular) expect(existsSync(join("public", d.celular.src)), `${d.celular.src} não está em public/`).toBe(true);
+    }
   });
 });

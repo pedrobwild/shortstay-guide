@@ -149,7 +149,9 @@ export function ordenarConteudos<T extends Pick<ConteudoRadar, "publicado_em" | 
 
 /** Leitura a ~200 palavras por minuto, mínimo de 1. */
 export function tempoLeituraMin(corpo: string): number {
-  const palavras = corpo.replace(/[#*_>`[\]()!-]/g, " ").split(/\s+/).filter(Boolean).length;
+  // Endereço de link e imagem (com a descrição, que quem enxerga não lê) não contam como leitura.
+  const legivel = corpo.replace(/!\[[^\]]*\]\([^)]*\)/g, " ").replace(/\]\([^)]*\)/g, "] ");
+  const palavras = legivel.replace(/[#*_>`[\]()!|-]/g, " ").split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.round(palavras / 200));
 }
 
