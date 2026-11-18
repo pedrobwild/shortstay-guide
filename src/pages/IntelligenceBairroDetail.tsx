@@ -414,7 +414,7 @@ function PaginaBairro() {
 
       <Secao id="proximo-passo" rotulo="Próximo passo">
         <div className="space-y-10">
-          <ProximoPassoBairro bairro={b.name} />
+          <ProximoPassoBairro bairro={b.name} comPainel />
           <BlocoReformaBairro bairro={b.name} />
           <LinkArtigoBewild artigo={ARTIGOS_BEWILD.melhoresBairros} prefixo="Quer a análise bairro a bairro? Leia" className="e-apoio" />
         </div>
@@ -475,7 +475,8 @@ function LinhasCusto({ linhas, total }: { linhas: ReturnType<typeof linhasDre>["
         <tr key={l.chave} className={cn("e-recolhe-linha", !abertas && "hidden sm:table-row")}>
           <th scope="row" className={cn(TD, "font-normal")}>
             {l.rotulo}
-            <span className="e-legenda block">{l.nota}<span className="sm:hidden"> · {l.base.tipo === "pct" ? `${formatDecimal(l.base.pct, 0)}% da receita` : "valor em R$"}</span></span>
+            {/* Desktop: uma linha por custo; a explicação de cada um fica entre 640 e 1023px e no simulador. */}
+            <span className="e-legenda block"><span className="lg:hidden">{l.nota}</span><span className="sm:hidden"> · {l.base.tipo === "pct" ? `${formatDecimal(l.base.pct, 0)}% da receita` : "valor em R$"}</span></span>
             <span className="mt-1 hidden sm:block md:hidden"><Tag tipo="hipotese" /></span>
           </th>
           <td className={cn(TD, "hidden whitespace-nowrap tabular-nums text-tinta-78 sm:table-cell")}>
