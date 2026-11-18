@@ -9,7 +9,7 @@ import { camposDiferentes, extrairOrganization, impressaoDigital } from "../../.
  * Mudou a Organization (perfil novo no sameAs, nome, CNPJ…)? Atualize o arquivo
  * orgBewild.json e este valor NOS DOIS repositórios, na mesma leva.
  */
-const IMPRESSAO_OFICIAL = "cf1213cd207f7449c9a06797a23c4f0a525d296aa4837e9b8609e45d233c1568";
+const IMPRESSAO_OFICIAL = "d15814e7c691230f790a888490738a0244ac0146d040fc1dfbba0118f411fa33";
 
 describe("Organization do Radar idêntica à do bewild.com.br", () => {
   it("o nó publicado em toda página é o orgBewild.json, campo a campo", () => {
