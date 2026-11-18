@@ -27,7 +27,8 @@ const LINK_RADAR = /\]\((https:\/\/radarbewild\.com\.br)?\/(ranking|mapa|compara
 export type CodigoEstrutura =
   | "h1_longo" | "titulo_busca_longo" | "resumo_pergunta" | "abertura_vazia" | "sem_abertura"
   | "primeiro_h2_nao_pergunta" | "resposta_direta" | "h2_generico" | "sem_link_radar" | "jargao_interno"
-  | "rotulos_em_sequencia" | "palavra_chave_ausente" | "palavra_chave_com_marca";
+  | "rotulos_em_sequencia" | "palavra_chave_ausente" | "palavra_chave_com_marca"
+  | "tabela_sem_titulo" | "tabela_colunas" | "tabela_cabecalho_vazio" | "tabela_colada";
 export interface AvisoEstrutura { codigo: CodigoEstrutura; mensagem: string }
 
 const PALAVRAS_VAZIAS = new Set(["a", "o", "as", "os", "de", "do", "da", "dos", "das", "em", "no", "na", "nos", "nas", "para", "por", "com", "e", "um", "uma", "ao", "aos", "que"]);
@@ -44,12 +45,18 @@ export function contemTermo(trecho: string, termo: string): boolean {
 /** Frases de um parágrafo (ponto, interrogação ou exclamação seguidos de espaço ou fim). */
 export const frases = (t: string) => t.trim().split(/(?<=[.!?])\s+(?=[A-ZÀ-Ý0-9"“(])/).filter((f) => f.trim().length > 0);
 
-interface Bloco { tipo: "h2" | "h3" | "p"; texto: string }
+interface Bloco { tipo: "h2" | "h3" | "p" | "tabela"; texto: string }
+/** Até cinco colunas por tabela (skill ux-writing-blog): acima disso, dividir. */
+export const TABELA_COLUNAS_MAX = 5;
+const LINHA_SEPARADORA = /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/;
+const celulas = (linha: string) => linha.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
 /** Divide o Markdown em títulos e parágrafos (listas, citações e tabelas contam como parágrafo). */
 export function blocosDoCorpo(corpo: string): Bloco[] {
   return corpo.replace(/\r\n/g, "\n").split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean).map((b) => {
     const h = b.match(/^(#{1,6})\s+(.+)$/);
     if (h && !b.includes("\n")) return { tipo: h[1].length <= 2 ? "h2" : "h3", texto: h[2].trim() } as Bloco;
+    const linhas = b.split("\n");
+    if (/^\s*\|/.test(linhas[0]) && linhas[1] !== undefined && LINHA_SEPARADORA.test(linhas[1])) return { tipo: "tabela", texto: b } as Bloco;
     return { tipo: "p", texto: b } as Bloco;
   });
 }
@@ -94,6 +101,20 @@ export function avisosDeEstrutura(c: Texto): AvisoEstrutura[] {
     seguidos = b.tipo === "p" && /^\*\*[^*]+\*\*/.test(b.texto) ? seguidos + 1 : 0;
     if (seguidos >= 3) { avisos.push({ codigo: "rotulos_em_sequencia", mensagem: "Três ou mais parágrafos seguidos começam com rótulo em negrito. Transforme em lista ou em prosa." }); break; }
   }
+  // Tabelas: título no parágrafo "Tabela: …" logo antes, até cinco colunas, cabeçalho preenchido.
+  blocos.forEach((b, i) => {
+    if (b.tipo === "p" && b.texto.split("\n").some((l, k) => k > 0 && LINHA_SEPARADORA.test(l))) {
+      avisos.push({ codigo: "tabela_colada", mensagem: "Há uma tabela colada no parágrafo de cima. Deixe uma linha em branco entre o título e a tabela." });
+    }
+    if (b.tipo !== "tabela") return;
+    const cabecalho = celulas(b.texto.split("\n")[0]);
+    const anterior = blocos[i - 1];
+    if (anterior?.tipo !== "p" || !/^Tabela(\s+\d+)?\s*[:.–-]/.test(anterior.texto)) {
+      avisos.push({ codigo: "tabela_sem_titulo", mensagem: "Toda tabela leva título: um parágrafo “Tabela: …” logo antes dela." });
+    }
+    if (cabecalho.length > TABELA_COLUNAS_MAX) avisos.push({ codigo: "tabela_colunas", mensagem: `Uma tabela tem ${cabecalho.length} colunas. Use até ${TABELA_COLUNAS_MAX}, com uma medida por tabela.` });
+    if (cabecalho.some((t) => !t)) avisos.push({ codigo: "tabela_cabecalho_vazio", mensagem: "Uma tabela tem coluna sem título no cabeçalho." });
+  });
   if (c.palavra_chave !== undefined) {
     const termo = (c.palavra_chave ?? "").trim();
     const onde: [string, string | undefined][] = [["título de busca", tituloBusca], ["título (H1)", c.titulo], ["primeiro parágrafo", abertura[0]?.texto], ["primeiro subtítulo", primeiroH2?.texto]];

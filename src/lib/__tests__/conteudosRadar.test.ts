@@ -203,6 +203,27 @@ describe("corpo do texto", () => {
     expect(saida).toMatch(/<a href="\/ranking" class="e-link">dentro<\/a>/);
     expect(saida).toMatch(/<a href="https:\/\/radarbewild\.com\.br\/mapa" class="e-link">radar<\/a>/);
   });
+  it("tabela vira HTML com título (caption), cabeçalho de coluna e rolagem no próprio bloco", () => {
+    const saida = html("Tabela 1: Diária média por bairro\n\n| Bairro | Diária |\n|---|--:|\n| Pinheiros | R$ 299 |");
+    expect(saida).toMatch(/<div role="region" aria-label="[^"]+" tabindex="0" class="[^"]*overflow-x-auto[^"]*"><table[^>]*><caption[^>]*>Diária média por bairro<\/caption><thead>/);
+    expect(saida).toContain('<th scope="col"');
+    expect(saida).not.toMatch(/<p[^>]*>Tabela 1/);
+  });
+  it("parágrafo que só começa com “Tabela” e não vem antes de tabela fica como parágrafo", () => {
+    expect(html("Tabela: sem tabela depois.\n\nOutro parágrafo.")).toMatch(/<p[^>]*>Tabela: sem tabela depois\.<\/p>/);
+  });
+  it("notas de rodapé em português, com ida e volta", () => {
+    const saida = html("Diária com fonte[^1].\n\n[^1]: [GuestFavorites](https://www.guestfavorites.com/x).");
+    expect(saida).toContain(">Notas e fontes</h2>");
+    expect(saida).not.toMatch(/Footnotes|Back to reference/);
+    expect(saida).toMatch(/<a href="#user-content-fn-1" class="e-link" id="user-content-fnref-1" aria-describedby="footnote-label">1<\/a>/);
+    expect(saida).toMatch(/<a href="#user-content-fnref-1" class="e-link" aria-label="Voltar à referência 1">/);
+  });
+  it("riscado e link solto", () => {
+    const saida = html("~~antes~~ https://example.com/x");
+    expect(saida).toContain("<del>antes</del>");
+    expect(saida).toMatch(/<a href="https:\/\/example\.com\/x" target="_blank"/);
+  });
   it("imagem sem descrição não entra", () => {
     expect(html("![](https://example.com/a.png)")).not.toContain("<img");
     expect(html("![Planta do studio](https://example.com/a.png)")).toContain('alt="Planta do studio"');
