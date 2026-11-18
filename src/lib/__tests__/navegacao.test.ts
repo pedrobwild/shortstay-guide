@@ -13,8 +13,17 @@ describe("navegação pública", () => {
     }
   });
 
-  it("a barra tem quatro itens, um por tarefa (auditoria de UX, 15/11/2026)", () => {
-    expect(LINKS_PUBLICOS.map((l) => l.label)).toEqual(["Bairros", "Simular", "Reforma", "Guia"]);
+  it("a barra tem as quatro tarefas (auditoria de UX, 15/11/2026) e Conteúdos (18/11/2026)", () => {
+    expect(LINKS_PUBLICOS.map((l) => l.label)).toEqual(["Bairros", "Simular", "Reforma", "Guia", "Conteúdos"]);
+  });
+
+  it("em /conteudos só o item Conteúdos fica ativo, inclusive nas listas e nos artigos", () => {
+    for (const rota of ["/conteudos", "/conteudos/artigos", "/conteudos/algum-artigo"]) {
+      expect(LINKS_PUBLICOS.filter((l) => linkAtivo(l, rota)).map((l) => l.label), rota).toEqual(["Conteúdos"]);
+    }
+    const guia = LINKS_PUBLICOS.find((l) => l.id === "guia_temas")!;
+    expect(linkAtivo(guia, "/guia/reforma")).toBe(true);
+    expect(linkAtivo(guia, "/metodologia")).toBe(true);
   });
 
   it("todo link do menu lateral e das visões de bairro aponta para uma rota existente", () => {

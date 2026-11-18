@@ -15,7 +15,7 @@ export interface LinkNavegacao {
 
 /**
  * Barra principal: quatro itens, um por tarefa (auditoria de UX de 15/11/2026, aprovada pelo
- * Pedro). Antes eram dez links no mesmo nível, por tipo de ferramenta, e a barra não cabia em
+ * Pedro), mais "Conteúdos" (artigos, releases e estudos), pedido do Pedro em 18/11/2026. Antes eram dez links no mesmo nível, por tipo de ferramenta, e a barra não cabia em
  * 1280 px. Nenhuma rota saiu: as demais telas ficam em GRUPOS_MENU (menu lateral) e nos
  * atalhos de cada área (VisoesBairros em /ranking, /mapa e /comparar).
  */
@@ -23,7 +23,8 @@ export const LINKS_PUBLICOS: LinkNavegacao[] = [
   { to: "/ranking", label: "Bairros", id: "bairros", ativoEm: ["/ranking", "/mapa", "/comparar", "/mercado", "/bairro"] },
   { to: "/projecao", label: "Simular", id: "simular", ativoEm: ["/projecao", "/ferramentas"] },
   { to: "/reformar", label: "Reforma", id: "reforma", ativoEm: ["/reformar", "/empreendimentos"] },
-  { to: "/#guia", label: "Guia", id: "guia_temas", ativoEm: ["/guia", "/conteudos", "/metodologia"] },
+  { to: "/#guia", label: "Guia", id: "guia_temas", ativoEm: ["/guia", "/metodologia"] },
+  { to: "/conteudos", label: "Conteúdos", id: "conteudos", ativoEm: ["/conteudos"] },
 ];
 
 /** As visões da área Bairros: a mesma base em lista, no mapa e lado a lado. */

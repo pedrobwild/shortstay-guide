@@ -22,7 +22,7 @@ const ATALHOS = ATALHOS_CELULAR.map((id) => LINKS_PUBLICOS.find((l) => l.id === 
 
 /**
  * Navbar global do Radar: logo + "Radar", quatro itens por tarefa (Bairros, Simular,
- * Reforma, Guia) com o ativo sublinhado em ciano, a conta num menu só (ou "Login") e
+ * Reforma, Guia) e Conteúdos, com o ativo sublinhado em ciano, a conta num menu só (ou "Login") e
  * "Peça seu orçamento". "Admin" só aparece para quem tem o papel de admin.
  * No celular (56px): atalhos Bairros / Simular / Reforma e o menu lateral com todas as
  * telas agrupadas pela tarefa (GRUPOS_MENU), o orçamento no topo e a conta no fim, num
