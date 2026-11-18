@@ -1,3 +1,4 @@
+import { TrechoRecolhido } from "@/components/estudo/Recolhivel";
 import { useEffect, useId, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -94,14 +95,19 @@ export default function Eventos() {
         )}
 
         {!carregando && !consulta.isError && cartoes.length > 0 && (
-          <section aria-labelledby="eventos-metodo" className="max-w-3xl space-y-2 border-t border-border pt-6">
+          <>
+          <TrechoRecolhido id="metodo" rotulo="Como o efeito foi medido" resumo="A comparação, os limites e a fonte">
+          <section aria-labelledby="eventos-metodo" className="max-w-3xl space-y-2 lg:border-t lg:border-border lg:pt-6">
             <h2 id="eventos-metodo" className="e-h3">Como o efeito foi medido</h2>
             <p className="e-legenda">A diária das noites do evento foi comparada com a do mesmo dia da semana nas quatro semanas anteriores e nas quatro seguintes. Entram na lista e na conta só os bairros em que a variação superou 99% das semanas comuns. “Sinal mais fraco” é a variação que superou 95% e continua de pé depois da correção para o número de comparações feitas.</p>
             <p className="e-legenda">A mediana da cidade mostra quanto a diária subiu no conjunto dos bairros lidos. Em eventos grandes a cidade inteira sobe; a diferença entre o bairro e a mediana é o que distingue a região.</p>
             <p className="e-legenda">Limites: o efeito é uma conta do Radar sobre a diária estimada pela AirDNA, não uma transação verificada; cada evento tem uma edição medida; o número fala da diária, não da ocupação; a base são anúncios de até 1 quarto de todos os padrões, não um studio específico.</p>
-            <AvisoReceita />
             <p className="e-legenda">Fonte do efeito: <FonteLink fonte={FONTES_GUIA.airdna} />. A diária em reais de cada bairro vem da base do Radar; veja a <Link to="/metodologia" className="e-link inline-flex min-h-11 items-center">metodologia</Link>.</p>
           </section>
+          </TrechoRecolhido>
+          {/* O aviso fica fora do bloco recolhido: toda tela com receita mostra o aviso. */}
+          <AvisoReceita />
+          </>
         )}
       </Container>
     </PaginaEstudo>
@@ -172,15 +178,18 @@ function CartaoEvento({ evento, referencia, medidos, fracos, cidade, bairroDoFil
         <p className="e-legenda">Sinal mais fraco, fora das contas: {fracos.map((f) => `${f.bairro} ${pct(f.efeito_diaria_pct)}`).join(", ")}.</p>
       )}
 
+      {/* Celular: a simulação das noites fica recolhida numa linha por evento (páginas curtas, 18/11/2026). */}
       {medidos.length > 0 && (
-        <ContaDasNoites
-          chave={evento.id}
-          noites={noites}
-          medidos={medidos}
-          bairroDoFiltro={bairroDoFiltro}
-          base={base}
-          baseCarregando={baseCarregando}
-        />
+        <TrechoRecolhido id={`noites-${evento.id}`} rotulo="Simular as noites do evento" resumo={`${noites} ${noites === 1 ? "noite" : "noites"}, com a diária do bairro que você escolher`}>
+          <ContaDasNoites
+            chave={evento.id}
+            noites={noites}
+            medidos={medidos}
+            bairroDoFiltro={bairroDoFiltro}
+            base={base}
+            baseCarregando={baseCarregando}
+          />
+        </TrechoRecolhido>
       )}
 
       {evento.fonte_url && evento.fonte_titulo && (
