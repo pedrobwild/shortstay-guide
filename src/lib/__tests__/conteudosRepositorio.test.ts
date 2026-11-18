@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
-  ErroConteudo, arquivosDoRepositorio, avisosDoConteudo, conteudoDoArquivo, conteudosDoRepositorio, lerArquivo, slugDoCaminho, slugsDoRepositorio,
+  ARQUIVOS_CONTEUDO, ErroConteudo, arquivosDoRepositorio, avisosDoConteudo, conteudoDoArquivo, conteudosDoRepositorio, lerArquivo, slugDoCaminho, slugsDoRepositorio,
 } from "@/lib/conteudosRepositorio";
 import { juntarItens, itemDeConteudo, listarConteudosPublicos, conteudoDoRepositorio } from "@/lib/conteudosPublicos";
 import { capaLocal, SLUGS_RESERVADOS, urlAbsolutaCapa, type ItemLista } from "@/lib/conteudosRadar";
@@ -129,6 +129,12 @@ describe("junção com o banco", () => {
 describe("arquivos de verdade em src/content/conteudos", () => {
   const pasta = "src/content/conteudos";
   const arquivos = readdirSync(pasta).filter((f) => f.endsWith(".md"));
+  it("importa cada Markdown como texto puro, sem interpretar o cabeçalho como JavaScript", () => {
+    expect(Object.keys(ARQUIVOS_CONTEUDO).sort()).toEqual(arquivos.map((nome) => `/src/content/conteudos/${nome}`).sort());
+    for (const nome of arquivos) {
+      expect(ARQUIVOS_CONTEUDO[`/src/content/conteudos/${nome}`]).toBe(readFileSync(join(pasta, nome), "utf8"));
+    }
+  });
   it("a pasta só tem textos .md (e o .gitkeep)", () => {
     expect(readdirSync(pasta).filter((f) => !f.endsWith(".md") && f !== ".gitkeep")).toEqual([]);
   });

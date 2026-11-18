@@ -91,7 +91,7 @@ export const avisosDoConteudo = (c: Pick<ConteudoRadar, "tipo" | "titulo" | "res
 export const slugDoCaminho = (caminho: string) => caminho.split("/").pop()!.replace(/\.md$/, "");
 
 // Os arquivos entram no pacote do app e no build pelo Vite (texto puro).
-const ARQUIVOS = import.meta.glob("/src/content/conteudos/*.md", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+const ARQUIVOS = import.meta.glob("/src/content/conteudos/*.md", { as: "raw", import: "default", eager: true }) as Record<string, string>;
 
 /** Todos os arquivos lidos (inclusive rascunhos). Arquivo inválido fica de fora; o teste o aponta. */
 export function arquivosDoRepositorio(arquivos: Record<string, string> = ARQUIVOS): ConteudoRadar[] {
