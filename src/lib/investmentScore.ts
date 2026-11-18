@@ -299,6 +299,17 @@ export function gruposDoScore(notas: { bairro: string; score: number }[]): Map<s
   return saida;
 }
 
+/**
+ * Pilares em faixas (decisão do Pedro, 18/11/2026): a nota de cada pilar também é relativa
+ * aos bairros da estimativa, então aparece como alta, média ou baixa, pela mesma divisão em
+ * três grupos do score. Em todos os pilares, nota maior é melhor.
+ */
+export const ROTULO_FAIXA_PILAR: Record<GrupoScore, string> = { frente: "Alta", meio: "Média", fim: "Baixa" };
+
+export function faixasDoPilar(valores: { bairro: string; valor: number }[]): Map<string, GrupoScore> {
+  return gruposDoScore(valores.map((v) => ({ bairro: v.bairro, score: Number(v.valor) || 0 })));
+}
+
 // ── Batch calculation for rankings ───────────────────────────────
 
 export interface BairroWithScore {
