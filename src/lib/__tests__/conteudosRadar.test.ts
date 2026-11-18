@@ -10,7 +10,7 @@ import { rssConteudos } from "@/lib/conteudosFeed";
 import { conteudoJsonLd, itemListConteudosJsonLd, tipoDaPagina, trilhaDaPagina, ORG_ID } from "@/lib/seoJsonLd";
 import { gerarLlmsTxt } from "@/lib/llmsTxt";
 import { SEO_ROUTES, TITULO_VISIVEL_MAX } from "@/lib/seo";
-import CorpoConteudo, { urlSegura } from "@/components/conteudos/CorpoConteudo";
+import CorpoConteudo, { dimensoesDaImagem, urlSegura } from "@/components/conteudos/CorpoConteudo";
 import ConteudoArtigo from "@/components/conteudos/ConteudoArtigo";
 import { GRUPOS_MENU } from "@/data/navegacao";
 
@@ -120,6 +120,8 @@ describe("regras de publicação", () => {
     expect(foiAtualizado(conteudo({ atualizado_em: "2026-11-10T20:00:00+00:00" }))).toBe(false);
     expect(tempoLeituraMin("poucas palavras")).toBe(1);
     expect(tempoLeituraMin("palavra ".repeat(1000))).toBe(5);
+    // Endereços de links e imagens com descrição longa não somam minutos.
+    expect(tempoLeituraMin(`${"palavra ".repeat(200)}[fonte](https://example.com/a/b/c/d) ![${"descrição ".repeat(400)}](/conteudos/imagens/x.webp "1920x1080")`)).toBe(1);
   });
 });
 
@@ -228,6 +230,22 @@ describe("corpo do texto", () => {
   it("imagem sem descrição não entra", () => {
     expect(html("![](https://example.com/a.png)")).not.toContain("<img");
     expect(html("![Planta do studio](https://example.com/a.png)")).toContain('alt="Planta do studio"');
+  });
+  it("imagem sozinha vira figura com legenda, dimensões e versão de celular", () => {
+    const saida = html('![Gráfico da diária](/conteudos/imagens/x/02-grafico.webp "1920x1180 780x1400")\n\nFigura 2: Alta da diária por bairro.\n\nDepois.');
+    expect(saida).toMatch(/^<figure class="[^"]*"><picture><source media="\(max-width: 639px\)" srcSet="\/conteudos\/imagens\/x\/02-grafico-m\.webp" width="780" height="1400"\/><img src="\/conteudos\/imagens\/x\/02-grafico\.webp" alt="Gráfico da diária" width="1920" height="1180"[^>]*\/><\/picture><figcaption class="[^"]*">Alta da diária por bairro\.<\/figcaption><\/figure>/);
+    expect(saida).not.toContain("Figura 2:");
+    expect(saida).not.toMatch(/<p[^>]*><figure/);
+    expect(saida).toContain(">Depois.</p>");
+  });
+  it("dimensões da imagem só valem no formato LxA", () => {
+    expect(dimensoesDaImagem("/a.webp", "1200x600")).toEqual({ largura: 1200, altura: 600, celular: null });
+    expect(dimensoesDaImagem("/a.webp", "Gráfico")).toBeNull();
+    expect(dimensoesDaImagem("/a.webp", "1200x600 grande")).toBeNull();
+    expect(dimensoesDaImagem("/a.webp", undefined)).toBeNull();
+    const semTitulo = html("![Foto](/a.webp)");
+    expect(semTitulo).not.toContain("<picture");
+    expect(semTitulo).not.toContain("width=");
   });
   it("a página do texto tem um só h1, a trilha, as datas e a ponte para os dados", () => {
     const saida = renderToStaticMarkup(createElement(ConteudoArtigo, { c: conteudo({ corpo: "# Seção\n\nTexto." }), relacionados: [{ id: "2", slug: "outro", titulo: "Outro texto", resumo: "" }] }));

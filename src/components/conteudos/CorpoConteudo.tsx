@@ -11,6 +11,7 @@ import { TEXTO_NOVA_ABA } from "@/components/NovaAba";
  * Markdown do GitHub (remark-gfm, decisão do Pedro de 18/11/2026): tabelas, notas de rodapé
  * (para fontes), riscado e links soltos. Tabela leva título: o parágrafo "Tabela: …" logo
  * antes dela vira o título ligado à tabela (legendaDeTabela). Regras de tabela em conteudosEscrita.ts.
+ * Imagem sozinha no parágrafo vira figura, com a legenda "Figura: …" logo depois (figuraDeImagem).
  */
 const ehExterno = (href: string) => /^https?:\/\//i.test(href) && !/^https?:\/\/(www\.)?radarbewild\.com\.br(\/|$)/i.test(href);
 
@@ -50,8 +51,19 @@ const COMPONENTES: Components = {
   a: ({ href, children, id, ...resto }) => (
     <Link href={href} nota={{ id, "aria-label": resto["aria-label"] as string | undefined, "aria-describedby": resto["aria-describedby"] as string | undefined }}>{children}</Link>
   ),
-  // Imagem dentro do texto: sempre com descrição; sem ela, não entra.
-  img: ({ src, alt }) => (src && alt ? <img src={src} alt={alt} loading="lazy" decoding="async" className="my-6 h-auto w-full max-w-[880px] rounded-sm" /> : null),
+  // Imagem dentro do texto: sempre com descrição; sem ela, não entra. O título da imagem
+  // pode trazer as dimensões ("1920x1180") e as da versão de celular ("1920x1180 780x1400");
+  // com a segunda, o arquivo "-m" ao lado vale abaixo de 640px (dimensoesDaImagem).
+  img: ({ src, alt, title }) => {
+    if (!src || !alt) return null;
+    const d = dimensoesDaImagem(src, title);
+    const img = <img src={src} alt={alt} width={d?.largura} height={d?.altura} loading="lazy" decoding="async" className="h-auto w-full rounded-sm" />;
+    return d?.celular
+      ? <picture><source media="(max-width: 639px)" srcSet={d.celular.src} width={d.celular.largura} height={d.celular.altura} />{img}</picture>
+      : img;
+  },
+  figure: ({ children }) => <figure className="my-8 max-w-[880px]">{children}</figure>,
+  figcaption: ({ children }) => <figcaption className="e-legenda mt-2 max-w-[720px]">{children}</figcaption>,
   hr: () => <hr className="my-10 max-w-[720px] border-border" />,
   table: ({ children, ...resto }) => (
     <div role="region" aria-labelledby={resto["aria-labelledby"] as string | undefined} aria-label={resto["aria-labelledby"] ? undefined : "Tabela"} tabIndex={0} className="mb-6 mt-2 max-w-[880px] overflow-x-auto rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
@@ -104,13 +116,65 @@ export function legendaDeTabela() {
   };
 }
 
+// ---------- Figura ----------
+const DIMENSAO = /^(\d{2,5})x(\d{2,5})$/;
+
+/**
+ * Dimensões declaradas no título da imagem: "LxA" da versão larga e, opcional, "LxA" da
+ * versão de celular, que é o mesmo caminho com "-m" antes da extensão. Sem título válido,
+ * a imagem entra sem dimensões (e sem versão de celular).
+ */
+export function dimensoesDaImagem(src: string, titulo?: string | null) {
+  const partes = (titulo ?? "").trim().split(/\s+/).map((p) => p.match(DIMENSAO));
+  const [larga, celular] = partes;
+  if (!larga || partes.length > 2 || (partes.length === 2 && !celular)) return null;
+  const m = celular ? src.match(/^(.+)(\.[a-z0-9]+)$/i) : null;
+  return {
+    largura: Number(larga[1]), altura: Number(larga[2]),
+    celular: celular && m ? { src: `${m[1]}-m${m[2]}`, largura: Number(celular[1]), altura: Number(celular[2]) } : null,
+  };
+}
+
+const PREFIXO_FIGURA = /^Figura(\s+\d+)?\s*[:.–-]\s*/;
+const soImagem = (p: NoHast) => {
+  const filhos = (p.children ?? []).filter((f) => !(f.type === "text" && !(f.value ?? "").trim()));
+  return filhos.length === 1 && filhos[0].type === "element" && filhos[0].tagName === "img";
+};
+
+/**
+ * Plugin do rehype: parágrafo só com uma imagem vira <figure>, e o parágrafo "Figura: …" logo
+ * depois vira a legenda dela (<figcaption>), sem o prefixo. Evita <figure> dentro de <p>.
+ */
+export function figuraDeImagem() {
+  return (arvore: NoHast) => {
+    const visitar = (pai: NoHast) => {
+      const filhos = pai.children ?? [];
+      for (let i = 0; i < filhos.length; i++) {
+        const no = filhos[i];
+        if (no.type !== "element" || no.tagName !== "p" || !soImagem(no)) continue;
+        no.tagName = "figure";
+        let j = i + 1;
+        while (j < filhos.length && filhos[j].type === "text" && !(filhos[j].value ?? "").trim()) j++;
+        const legenda = filhos[j];
+        if (legenda?.type !== "element" || legenda.tagName !== "p" || !PREFIXO_FIGURA.test(textoDe(legenda))) continue;
+        const conteudo = [...(legenda.children ?? [])];
+        if (conteudo[0]?.type === "text") conteudo[0] = { ...conteudo[0], value: (conteudo[0].value ?? "").replace(PREFIXO_FIGURA, "") };
+        no.children = [...(no.children ?? []), { type: "element", tagName: "figcaption", properties: {}, children: conteudo }];
+        filhos.splice(i + 1, j - i);
+      }
+      filhos.forEach((f) => f.children && visitar(f));
+    };
+    visitar(arvore);
+  };
+}
+
 /** Rótulos das notas de rodapé em português (o padrão do remark é em inglês). */
 const OPCOES_NOTAS = { footnoteLabel: "Notas e fontes", footnoteBackLabel: (n: number) => `Voltar à referência ${n + 1}`, footnoteLabelTagName: "h2" };
 
 export default function CorpoConteudo({ corpo }: { corpo: string }) {
   return (
     <ReactMarkdown components={COMPONENTES} urlTransform={urlSegura} skipHtml
-      remarkPlugins={[remarkGfm]} rehypePlugins={[legendaDeTabela]} remarkRehypeOptions={OPCOES_NOTAS}>
+      remarkPlugins={[remarkGfm]} rehypePlugins={[legendaDeTabela, figuraDeImagem]} remarkRehypeOptions={OPCOES_NOTAS}>
       {corpo}
     </ReactMarkdown>
   );
